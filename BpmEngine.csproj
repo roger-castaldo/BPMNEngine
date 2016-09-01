@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{63DAB4C5-004F-4687-8E84-A0D3427CEE76}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
+    <AssemblyName>BpmEngine</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Magick.NET-Q8-x64, Version=7.0.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\libraries\Magick.NET-Q8-x64.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Delegates.cs" />
+    <Compile Include="Elements\Processes\Events\IntermediateCatchEvent.cs" />
+    <Compile Include="Elements\Processes\Gateways\EventBasedGateway.cs" />
+    <Compile Include="Elements\Processes\Gateways\ComplexGateway.cs" />
+    <Compile Include="Elements\Processes\Gateways\InclusiveGateway.cs" />
+    <Compile Include="Elements\Processes\Tasks\BusinessRuleTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\ScriptTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\ServiceTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\ManualTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\UserTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\ReceiveTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\SendTask.cs" />
+    <Compile Include="Enums.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Elements\Diagrams\ADiagramElement.cs" />
+    <Compile Include="Elements\AElement.cs" />
+    <Compile Include="Elements\AParentElement.cs" />
+    <Compile Include="Attributes\XMLTag.cs" />
+    <Compile Include="BusinessProcess.cs" />
+    <Compile Include="Elements\Collaboration.cs" />
+    <Compile Include="Elements\Collaborations\MessageFlow.cs" />
+    <Compile Include="Elements\Collaborations\Participant.cs" />
+    <Compile Include="Elements\Collaborations\TextAnnotation.cs" />
+    <Compile Include="Elements\Definition.cs" />
+    <Compile Include="Elements\Diagram.cs" />
+    <Compile Include="Elements\Diagrams\Bounds.cs" />
+    <Compile Include="Elements\Diagrams\Edge.cs" />
+    <Compile Include="Elements\Diagrams\Enums.cs" />
+    <Compile Include="Elements\Diagrams\Label.cs" />
+    <Compile Include="Elements\Diagrams\Plane.cs" />
+    <Compile Include="Elements\Diagrams\Shape.cs" />
+    <Compile Include="Elements\Diagrams\Waypoint.cs" />
+    <Compile Include="Elements\Process.cs" />
+    <Compile Include="Elements\Processes\AFlowNode.cs" />
+    <Compile Include="Elements\Processes\Association.cs" />
+    <Compile Include="Elements\Processes\Events\AEvent.cs" />
+    <Compile Include="Elements\Processes\Events\Enums.cs" />
+    <Compile Include="Elements\Processes\Events\StartEvent.cs" />
+    <Compile Include="Elements\Processes\Events\EndEvent.cs" />
+    <Compile Include="Elements\Processes\Events\IntermediateThrowEvent.cs" />
+    <Compile Include="Elements\Processes\Gateways\AGateway.cs" />
+    <Compile Include="Elements\Processes\Gateways\ExclusiveGateway.cs" />
+    <Compile Include="Elements\Processes\Gateways\ParallelGateway.cs" />
+    <Compile Include="Elements\Processes\Lane.cs" />
+    <Compile Include="Elements\Processes\LaneSet.cs" />
+    <Compile Include="Elements\Processes\SequenceFlow.cs" />
+    <Compile Include="Elements\Processes\Tasks\ATask.cs" />
+    <Compile Include="Elements\Processes\Tasks\Task.cs" />
+    <Compile Include="Interfaces\IElement.cs" />
+    <Compile Include="Interfaces\IParentElement.cs" />
+    <Compile Include="ProcessPath.cs" />
+    <Compile Include="ProcessState.cs" />
+    <Compile Include="ProcessVariablesContainer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structures.cs" />
+    <Compile Include="Utility.cs" />
+    <Compile Include="Wrappers\WrappedXMLWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="symbols.Blue.png" />
+    <EmbeddedResource Include="symbols.Green.png" />
+    <EmbeddedResource Include="symbols.Red.png" />
+    <EmbeddedResource Include="symbols.Black.png" />
+    <Content Include="Magick.NET-Q8-x64.Native.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
