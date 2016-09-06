@@ -46,11 +46,16 @@ namespace Org.Reddragonit.BpmEngine
             {
                 if (t.GetCustomAttributes(typeof(XMLTag), false).Length > 0)
                 {
-                    if (((XMLTag)t.GetCustomAttributes(typeof(XMLTag), false)[0]).ToString() == tagName)
+                    foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
                     {
-                        ret = t;
-                        break;
+                        if (xt.ToString()==tagName)
+                        {
+                            ret = t;
+                            break;
+                        }
                     }
+                    if (ret != null)
+                        break;
                 }
             }
             return ret;

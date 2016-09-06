@@ -11,6 +11,7 @@
     <AssemblyName>BpmEngine</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Delegates.cs" />
     <Compile Include="Elements\Processes\Events\IntermediateCatchEvent.cs" />
+    <Compile Include="Elements\Processes\ExtensionElements.cs" />
     <Compile Include="Elements\Processes\Gateways\EventBasedGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\ComplexGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\InclusiveGateway.cs" />
@@ -107,7 +109,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

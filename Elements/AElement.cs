@@ -1,4 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements.Processes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,9 +38,33 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
+        private IElement _extensionElement;
+        public IElement ExtensionElement { get { return _extensionElement; } }
+
         public AElement(XmlElement elem)
         {
             _element = elem;
+            _extensionElement = null;
+            if (SubNodes != null)
+            {
+                Type t = typeof(ExtensionElements);
+                foreach (XmlNode n in SubNodes)
+                {
+                    if (n.NodeType == XmlNodeType.Element)
+                    {
+                        foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
+                        {
+                            if (xt.ToString() == n.Name)
+                            {
+                                _extensionElement = (IElement)t.GetConstructor(new Type[] { typeof(XmlElement) }).Invoke(new object[] { (XmlElement)n });
+                                break;
+                            }
+                        }
+                        if (_extensionElement != null)
+                            break;
+                    }
+                }
+            }
         }
 
         protected string _GetAttributeValue(string name)

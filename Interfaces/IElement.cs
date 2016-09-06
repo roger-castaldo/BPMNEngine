@@ -10,5 +10,6 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         string id { get; }
         XmlNode[] SubNodes { get; }
         XmlAttribute[] Attributes { get; }
+        IElement ExtensionElement { get; }
     }
 }
