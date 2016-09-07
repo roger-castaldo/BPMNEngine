@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,5 +16,24 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 
         public SequenceFlow(XmlElement elem)
             : base(elem) { }
+
+        public bool IsFlowValid(IsFlowValid isFlowValid,ProcessVariablesContainer variables)
+        {
+            if (ExtensionElement != null)
+            {
+                if (((ExtensionElements)ExtensionElement).IsInternalExtension)
+                {
+                    ExtensionElements ee = (ExtensionElements)ExtensionElement;
+                    if (ee.Children != null)
+                    {
+                        if (ee.Children[0] is ConditionSet)
+                        {
+                            return ((ConditionSet)ee.Children[0]).Evaluate(variables);
+                        }
+                    }
+                }
+            }
+            return isFlowValid(this, variables);
+        }
     }
 }

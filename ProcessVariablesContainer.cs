@@ -20,7 +20,7 @@ namespace Org.Reddragonit.BpmEngine
             _stepIndex = state.Path.CurrentStepIndex(elementID);
             _variables = new List<sVariableEntry>();
             foreach (string str in state[elementID])
-                _variables.Add(new sVariableEntry(str, _stepIndex, state[elementID]));
+                _variables.Add(new sVariableEntry(str, _stepIndex, state[elementID,str]));
         }
 
         public object this[string name]

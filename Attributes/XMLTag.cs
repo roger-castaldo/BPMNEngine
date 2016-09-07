@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class,Inherited=false,AllowMultiple=false)]
     internal class XMLTag : Attribute
     {
         private string _name;

@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
             foreach (string str in Outgoing)
             {
                 SequenceFlow sf = (SequenceFlow)definition.LocateElement(str);
-                if (isFlowValid(sf, variables))
+                if (sf.IsFlowValid(isFlowValid,variables))
                     ret.Add(sf.id);
             }
             if (ret.Count == 0)

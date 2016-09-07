@@ -17,11 +17,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
             string ret = null;
             foreach (string str in Outgoing)
             {
-                SequenceFlow sf = (SequenceFlow)definition.LocateElement(str);
-                if (isFlowValid(sf,variables))
+                if ((Default==null ? "" : Default)!=str)
                 {
-                    ret = sf.id;
-                    break;
+                    SequenceFlow sf = (SequenceFlow)definition.LocateElement(str);
+                    if (sf.IsFlowValid(isFlowValid, variables))
+                    {
+                        ret = sf.id;
+                        break;
+                    }
                 }
             }
             return (ret == null ? (this.Default == null ? null : new string[] { Default }) : new string[] { ret });
