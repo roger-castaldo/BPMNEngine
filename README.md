@@ -42,6 +42,15 @@ Example:
 	</isEqualCondition>
 </notCondition>
 
+## Null Check Component
+
+Used to check if variable is null
+Tag: isNull
+Attributes: variable
+
+Example:
+<isNull variable="username"/>
+
 ## Comparison Collectors
 
 Tags: andCondition, orCondition

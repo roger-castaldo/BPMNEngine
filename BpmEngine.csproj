@@ -46,6 +46,7 @@
     <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
     <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
     <Compile Include="Elements\Processes\Conditions\GreaterThanOrEqualCondition.cs" />
+    <Compile Include="Elements\Processes\Conditions\IsNull.cs" />
     <Compile Include="Elements\Processes\Conditions\LessThanOrEqualCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\LessThanCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\GreaterThanCondition.cs" />
