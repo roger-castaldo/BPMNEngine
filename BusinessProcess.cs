@@ -379,12 +379,13 @@ namespace Org.Reddragonit.BpmEngine
             {
                 if (elem is Process)
                 {
-                    if (_isProcessStartValid(elem, variables))
+                    if (((Process)elem).IsProcessStartvalid(variables, _isProcessStartValid))
                     {
                         Process p = (Process)elem;
                         foreach (StartEvent se in p.StartEvents)
                         {
-                            if (_isEventStartValid(se,variables)){
+                            if (se.IsEventStartValid(variables, _isEventStartValid))
+                            {
                                 if (_onEventStarted!=null)
                                     _onEventStarted(se);
                                 _state.Path.StartEvent(se, null);

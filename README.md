@@ -10,7 +10,7 @@ task objects.
 
 # Internal Conditions
 
-Using bpmn:extensionElements inside a bpmn:sequenceFlow you can specify conditions to be analyzed based on process variables and some basic comparisons by 
+Using bpmn:extensionElements inside a (bpmn:sequenceFlow,bpmn:process,bpmn:startEvent) you can specify conditions to be analyzed based on process variables and some basic comparisons by 
 using a conditionSet xml tag with the following components inside.
 
 ## Comparison Components
