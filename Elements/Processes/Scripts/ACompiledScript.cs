@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks.Scripts
+namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
     internal abstract class ACompiledScript : AScript
     {
@@ -18,6 +18,21 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks.Scripts
         protected string _ClassName { get { return _className; } }
         private string _functionName;
         protected string _FunctionName { get { return _functionName; } }
+
+        protected bool _IsCondition
+        {
+            get
+            {
+                XmlNode n = Element.ParentNode;
+                while (n != null)
+                {
+                    if (n.Name == "conditionSet")
+                        return true;
+                    n = n.ParentNode;
+                }
+                return false;
+            }
+        }
 
         private string _Code
         {
@@ -111,9 +126,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks.Scripts
             }
         }
 
-        protected abstract Assembly _compileAssembly(Dictionary<string, string> providerOptions, CompilerParameters compilerParams, string[] imports, string code);
+        protected abstract string _GenerateCode(string[] imports,string code);
+        protected abstract CodeDomProvider _CodeProvider { get; }
         
-        protected sealed override void _Invoke(ref ProcessVariablesContainer variables)
+        protected sealed override object _Invoke(ProcessVariablesContainer variables)
         {
             lock (this)
             {
@@ -126,20 +142,24 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks.Scripts
                             TreatWarningsAsErrors = false
                         };
                     compilerParams.ReferencedAssemblies.AddRange(_Dlls);
-                    _assembly = _compileAssembly(new Dictionary<string, string>(){
-                            {"CompilerVersion", (_GetAttributeValue("compilerVersion") == null ? "v2.0" : _GetAttributeValue("compilerVersion"))}
-                        },
-                        compilerParams,
-                        _Imports,
-                        _Code
-                    );
+                    CompilerResults results = _CodeProvider.CompileAssemblyFromSource(compilerParams, new string[]{_GenerateCode(_Imports,_Code)});
+                    if (results.Errors.Count > 0)
+                    {
+                        StringBuilder error = new StringBuilder();
+                        foreach (CompilerError ce in results.Errors)
+                            error.AppendLine(ce.ErrorText);
+                        throw new Exception(string.Format("Unable to compile script Code.  Errors:{0}", error.ToString()));
+                    }
+                    _assembly = results.CompiledAssembly;
                 }
             }
             object o = _assembly.CreateInstance(_className);
             MethodInfo mi = o.GetType().GetMethod(_functionName);
             object[] args = new object[] { variables };
-            mi.Invoke(o, args);
-            variables = (ProcessVariablesContainer)args[0];
+            object ret = mi.Invoke(o, args);
+            if (mi.ReturnType==typeof(void))
+                ret = args[0];
+            return ret;
         }
     }
 }

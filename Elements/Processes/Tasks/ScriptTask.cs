@@ -1,5 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks.Scripts;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,7 +26,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                         if (ee.Children[0] is AScript)
                         {
                             callDelegate = false;
-                            ((AScript)ee.Children[0]).Invoke(ref variables);
+                            variables = (ProcessVariablesContainer)((AScript)ee.Children[0]).Invoke(variables);
                         }
                     }
                 }

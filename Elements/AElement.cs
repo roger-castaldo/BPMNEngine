@@ -11,7 +11,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     internal abstract class AElement : IElement
     {
         private XmlElement _element;
-        protected XmlElement Element { get { return _element; } }
+        internal XmlElement Element { get { return _element; } }
 
         public string id
         {

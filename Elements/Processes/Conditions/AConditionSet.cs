@@ -1,4 +1,5 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +23,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 {
                     if (elem is ACondition)
                         ret.Add((ACondition)elem);
+                    else if (elem is AScript)
+                        ret.Add(new ScriptCondition((AScript)elem));
                 }
                 return ret.ToArray();
             }

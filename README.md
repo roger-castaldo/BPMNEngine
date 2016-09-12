@@ -69,6 +69,7 @@ Example:
 # Dynamic Internal Code
 
 Executing Script tasks internally with dynamically compiled C#/VB.Net code.  Simple place an bpmn:extensionElements inside a script task and supply the following elements inside.
+These script tags can also be used inside condition sets to return a boolean value for more complex condition checking.
 
 Tags: cSharpScript (for C# code), VBScript (for VB.Net code)
 SubElements: code, using, dll
