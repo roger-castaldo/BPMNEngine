@@ -61,6 +61,10 @@
     <Compile Include="Elements\Processes\Gateways\ComplexGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\InclusiveGateway.cs" />
     <Compile Include="Elements\Processes\Tasks\BusinessRuleTask.cs" />
+    <Compile Include="Elements\Processes\Tasks\Scripts\ACompiledScript.cs" />
+    <Compile Include="Elements\Processes\Tasks\Scripts\AScript.cs" />
+    <Compile Include="Elements\Processes\Tasks\Scripts\VBScript.cs" />
+    <Compile Include="Elements\Processes\Tasks\Scripts\CSharpScript.cs" />
     <Compile Include="Elements\Processes\Tasks\ScriptTask.cs" />
     <Compile Include="Elements\Processes\Tasks\ServiceTask.cs" />
     <Compile Include="Elements\Processes\Tasks\ManualTask.cs" />
@@ -111,7 +115,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Structures.cs" />
     <Compile Include="Utility.cs" />
-    <Compile Include="Wrappers\WrappedXMLWriter.cs" />
+    <Compile Include="XmlPrefixMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="symbols.Blue.png" />

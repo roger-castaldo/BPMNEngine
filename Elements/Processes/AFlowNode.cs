@@ -43,8 +43,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             }
         }
 
-        public AFlowNode(XmlElement elem)
-            : base(elem)
+        public AFlowNode(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map)
         {
         }
     }

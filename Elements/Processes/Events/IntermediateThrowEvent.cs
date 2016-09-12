@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
     [XMLTag("bpmn", "intermediateThrowEvent")]
     internal class IntermediateThrowEvent : AEvent
     {
-        public IntermediateThrowEvent(XmlElement elem)
-            : base(elem) { }
+        public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

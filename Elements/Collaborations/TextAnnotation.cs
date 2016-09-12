@@ -26,7 +26,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
             }
         }
 
-        public TextAnnotation(XmlElement elem)
-            : base(elem) { }
+        public TextAnnotation(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

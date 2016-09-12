@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     {
         public abstract bool Evaluate(ProcessVariablesContainer variables);
 
-        public ACondition(XmlElement elem)
-            : base(elem) { }
+        public ACondition(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

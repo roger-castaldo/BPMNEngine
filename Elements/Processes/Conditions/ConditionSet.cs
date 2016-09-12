@@ -10,8 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [XMLTag("conditionSet")]
     internal class ConditionSet : AndCondition
     {
-        public ConditionSet(XmlElement elem)
-            : base(elem) { }
+        public ConditionSet(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
     }
 }

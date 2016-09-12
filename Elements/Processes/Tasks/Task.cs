@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
     [XMLTag("bpmn","task")]
     internal class Task : ATask
     {
-        public Task(XmlElement elem)
-            : base(elem) { }
+        public Task(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

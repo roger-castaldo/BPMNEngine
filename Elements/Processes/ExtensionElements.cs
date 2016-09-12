@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     [XMLTag("bpmn", "extensionElements")]
     internal class ExtensionElements : AParentElement
     {
-        public ExtensionElements(XmlElement elem)
-            : base(elem) { }
+        public ExtensionElements(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public bool IsInternalExtension
         {

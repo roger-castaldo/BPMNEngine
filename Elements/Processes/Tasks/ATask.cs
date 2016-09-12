@@ -7,7 +7,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
 {
     internal abstract class ATask : AFlowNode
     {
-        public ATask(XmlElement elem)
-            : base(elem) { }
+        public ATask(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

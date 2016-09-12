@@ -7,8 +7,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
 {
     internal abstract class AGateway : AFlowNode
     {
-        public AGateway(XmlElement elem)
-            : base(elem) { }
+        public AGateway(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public abstract string[] EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid,ProcessVariablesContainer variables);
         public abstract bool IsIncomingFlowComplete(string incomingID, ProcessPath path);

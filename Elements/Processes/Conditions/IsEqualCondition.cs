@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [XMLTag("isEqualCondition")]
     internal class IsEqualCondition : ACompareCondition
     {
-        public IsEqualCondition(XmlElement elem)
-            : base(elem) { }
+        public IsEqualCondition(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public override bool Evaluate(ProcessVariablesContainer variables)
         {

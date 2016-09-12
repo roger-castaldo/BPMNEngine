@@ -27,5 +27,20 @@ namespace Org.Reddragonit.BpmEngine.Attributes
         {
             return (_prefix==null ? _name : string.Format("{0}:{1}",_prefix,_name));
         }
+
+        internal bool Matches(XmlPrefixMap map, string tagName)
+        {
+            if (tagName == ToString())
+                return true;
+            else if (_prefix!=null)
+            {
+                foreach (string str in map.Translate(_prefix))
+                {
+                    if (string.Format("{0}:{1}", str, _name) == tagName)
+                        return true;
+                }
+            }
+            return false;
+        }
     }
 }

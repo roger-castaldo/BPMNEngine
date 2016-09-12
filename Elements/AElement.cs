@@ -42,7 +42,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private IElement _extensionElement;
         public IElement ExtensionElement { get { return _extensionElement; } }
 
-        public AElement(XmlElement elem)
+        public AElement(XmlElement elem,XmlPrefixMap map)
         {
             _element = elem;
             _extensionElement = null;
@@ -55,9 +55,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     {
                         foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
                         {
-                            if (xt.ToString() == n.Name)
+                            if (xt.Matches(map, n.Name))
                             {
-                                _extensionElement = (IElement)t.GetConstructor(new Type[] { typeof(XmlElement) }).Invoke(new object[] { (XmlElement)n });
+                                _extensionElement = new ExtensionElements((XmlElement)n,map);
                                 break;
                             }
                         }

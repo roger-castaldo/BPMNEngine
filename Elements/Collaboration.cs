@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [XMLTag("bpmn","collaboration")]
     internal class Collaboration : AParentElement
     {
-        public Collaboration(XmlElement elem)
-            : base(elem) { }
+        public Collaboration(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

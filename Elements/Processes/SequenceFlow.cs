@@ -14,8 +14,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
         public string sourceRef { get { return _GetAttributeValue("sourceRef"); } }
         public string targetRef { get { return _GetAttributeValue("targetRef"); } }
 
-        public SequenceFlow(XmlElement elem)
-            : base(elem) { }
+        public SequenceFlow(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public bool IsFlowValid(IsFlowValid isFlowValid,ProcessVariablesContainer variables)
         {

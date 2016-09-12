@@ -6,7 +6,6 @@ task objects.
 # Future Features
 
 - Linking to JINT to allow for script/service tasks to process javascript code for changing variables and not call an external delegate
-- Using extendedElements to build .Net based code on the fly and have a callback made from the process
 
 # Internal Conditions
 
@@ -66,3 +65,30 @@ Example:
 		<right>loblaw</right>
 	</isEqualCondition>
 </andCondition>
+
+# Dynamic Internal Code
+
+Executing Script tasks internally with dynamically compiled C#/VB.Net code.  Simple place an bpmn:extensionElements inside a script task and supply the following elements inside.
+
+Tags: cSharpScript (for C# code), VBScript (for VB.Net code)
+SubElements: code, using, dll
+
+Within the script element tag, either place the code (assuming there is no references required) or place the sub elements including 1 code element.  To acess the variables 
+for the process at that point, the variable variables is passed into the code, which is an instance of ProcessVariablesContainer.  Any changes made to the variables object 
+will be passed back into the system and the process variables updated for that step.
+
+The using tag should contain a namespace reference as its value, the script tag will take care of the formatting in the code, for example: System.Data
+The dll tag should contain a dll reference in its value, for example: System.Data.dll
+
+Example:
+<bpmn:scriptTask id="Task_1kqkg76" name="Close Request">
+	<bpmn:extensionElements id="extTask_1kqkg76">
+		<VBScript>
+			variables("username") = "bob.loblaw"
+		</VBScript>
+	</bpmn:extensionElements>
+	<bpmn:incoming>SequenceFlow_0xp0bq2</bpmn:incoming>
+	<bpmn:outgoing>SequenceFlow_13xe9al</bpmn:outgoing>
+</bpmn:scriptTask>
+
+The example above will set the variable "username" to "bob.loblaw" when the script task is called.

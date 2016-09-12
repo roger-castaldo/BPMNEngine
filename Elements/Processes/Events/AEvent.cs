@@ -46,7 +46,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             }
         }
 
-        public AEvent(XmlElement elem)
-            : base(elem) { }
+        public AEvent(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

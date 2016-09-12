@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
     [XMLTag("bpmn","exclusiveGateway")]
     internal class ExclusiveGateway : AGateway
     {
-        public ExclusiveGateway(XmlElement elem)
-            : base(elem) { }
+        public ExclusiveGateway(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public override string[] EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, ProcessVariablesContainer variables)
         {

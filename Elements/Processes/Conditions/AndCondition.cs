@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [XMLTag("andCondition")]
     internal class AndCondition : AConditionSet
     {
-        public AndCondition(XmlElement elem) :
-            base(elem) { }
+        public AndCondition(XmlElement elem, XmlPrefixMap map)
+            : base(elem,map) { }
 
         public override bool Evaluate(ProcessVariablesContainer variables)
         {

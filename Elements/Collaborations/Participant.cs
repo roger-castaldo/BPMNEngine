@@ -12,8 +12,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
         public string Name { get { return _GetAttributeValue("name"); } }
         public string ProcessRef { get { return _GetAttributeValue("processRef"); } }
 
-        public Participant(XmlElement elem)
-            : base(elem)
+        public Participant(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map)
         {}
     }
 }

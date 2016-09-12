@@ -16,8 +16,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
     {
         public string bpmnElement { get { return _GetAttributeValue("bpmnElement"); } }
 
-        public Diagram(XmlElement elem)
-            : base(elem) { }
+        public Diagram(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public Size Size
         {

@@ -5,7 +5,6 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -195,13 +194,15 @@ namespace Org.Reddragonit.BpmEngine
             _doc = doc;
             _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete),new ProcessStepError(_ProcessStepError));
             _components = new List<object>();
+            XmlPrefixMap map = new XmlPrefixMap();
             foreach (XmlNode n in doc.ChildNodes)
             {
                 if (n.NodeType == XmlNodeType.Element)
                 {
-                    Type t = Utility.LocateElementType(n.Name);
-                    if (t != null)
-                        _components.Add(t.GetConstructor(new Type[] { typeof(XmlElement) }).Invoke(new object[] { (XmlElement)n }));
+                    map.Load((XmlElement)n);
+                    IElement elem = Utility.ConstructElementType((XmlElement)n, map);
+                    if (elem != null)
+                        _components.Add(elem);
                     else
                         _components.Add(n);
                 }
@@ -554,7 +555,7 @@ namespace Org.Reddragonit.BpmEngine
                             _MergeVariables(tsk, variables);
                             break;
                         case "ScriptTask":
-                            _processScriptTask(tsk, ref variables);
+                            ((ScriptTask)tsk).ProcessTask(ref variables, _processScriptTask);
                             _MergeVariables(tsk, variables);
                             break;
                         case "SendTask":

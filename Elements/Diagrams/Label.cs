@@ -11,6 +11,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     {
         public Bounds Bounds { get { return (Children.Length>0 ? (Bounds)Children[0] : null);} }
 
-        public Label(XmlElement elem) : base(elem) { }
+        public Label(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

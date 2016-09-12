@@ -22,8 +22,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
         }
 
-        public Bounds(XmlElement elem)
-            : base(elem) { }
+        public Bounds(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
     }
 }

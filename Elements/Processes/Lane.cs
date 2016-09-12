@@ -28,7 +28,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 
         public string name { get { return _GetAttributeValue("name"); } }
 
-        public Lane(XmlElement elem) :
-            base(elem) { }
+        public Lane(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

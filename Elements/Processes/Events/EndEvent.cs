@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
     [XMLTag("bpmn","endEvent")]
     internal class EndEvent : AEvent
     {
-        public EndEvent(XmlElement elem)
-            : base(elem) { }
+        public EndEvent(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

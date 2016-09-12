@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
     [XMLTag("bpmn","complexGateway")]
     internal class ComplexGateway : AGateway
     {
-        public ComplexGateway(XmlElement elem)
-            : base(elem) { }
+        public ComplexGateway(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public override string[] EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, ProcessVariablesContainer variables)
         {

@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     [XMLTag("bpmn","laneSet")]
     internal class LaneSet : AParentElement
     {
-        public LaneSet(XmlElement elem)
-            : base(elem){}
+        public LaneSet(XmlElement elem, XmlPrefixMap map)
+            : base(elem,map){}
     }
 }

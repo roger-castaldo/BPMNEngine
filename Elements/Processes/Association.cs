@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     [XMLTag("bpmn","association")]
     internal class Association : AElement
     {
-        public Association(XmlElement elem)
-            : base(elem) { }
+        public Association(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

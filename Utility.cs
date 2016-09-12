@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
@@ -39,7 +40,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        public static Type LocateElementType(string tagName)
+        public static Type LocateElementType(string tagName,XmlPrefixMap map)
         {
             Type ret = null;
             foreach (Type t in LocateTypeInstances(typeof(IElement)))
@@ -48,7 +49,7 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
                     {
-                        if (xt.ToString()==tagName)
+                        if (xt.Matches(map,tagName))
                         {
                             ret = t;
                             break;
@@ -88,6 +89,14 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             return ret;
+        }
+
+        internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map)
+        {
+            Type t = Utility.LocateElementType(element.Name, map);
+            if (t != null)
+                return (IElement)t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap) }).Invoke(new object[] { element, map });
+            return null;
         }
     }
 }

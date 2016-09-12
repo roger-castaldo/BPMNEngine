@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
     [XMLTag("bpmn","inclusiveGateway")]
     internal class InclusiveGateway : AGateway
     {
-        public InclusiveGateway(XmlElement elem)
-            : base(elem) { }
+        public InclusiveGateway(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public override string[] EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid,ProcessVariablesContainer variables)
         {

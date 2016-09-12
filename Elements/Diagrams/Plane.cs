@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [XMLTag("bpmndi","BPMNPlane")]
     internal class Plane : ADiagramElement
     {
-        public Plane(XmlElement elem)
-            : base(elem) { }
+        public Plane(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }

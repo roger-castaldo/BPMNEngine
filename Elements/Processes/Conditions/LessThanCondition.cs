@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [XMLTag("lessThanCondition")]
     internal class LessThanCondition : ACompareCondition
     {
-        public LessThanCondition(XmlElement elem)
-            : base(elem) { }
+        public LessThanCondition(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public override bool Evaluate(ProcessVariablesContainer variables)
         {

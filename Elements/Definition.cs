@@ -10,8 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [XMLTag("bpmn","definitions")]
     internal class Definition : AParentElement
     {
-        public Definition(XmlElement elem)
-            : base(elem) { }
+        public Definition(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         public Diagram[] Diagrams
         {

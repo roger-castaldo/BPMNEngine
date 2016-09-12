@@ -7,8 +7,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     internal abstract class ACompareCondition : ACondition
     {
-        public ACompareCondition(XmlElement elem)
-            : base(elem) { }
+        public ACompareCondition(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
 
         protected int _Compare(ProcessVariablesContainer variables)
         {

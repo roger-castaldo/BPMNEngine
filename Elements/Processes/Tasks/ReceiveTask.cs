@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
     [XMLTag("bpmn", "receiveTask")]
     internal class ReceiveTask : ATask
     {
-        public ReceiveTask(XmlElement elem)
-            : base(elem) { }
+        public ReceiveTask(XmlElement elem, XmlPrefixMap map)
+            : base(elem, map) { }
     }
 }
