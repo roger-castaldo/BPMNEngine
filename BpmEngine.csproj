@@ -61,6 +61,7 @@
     <Compile Include="Elements\Processes\Gateways\EventBasedGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\ComplexGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\InclusiveGateway.cs" />
+    <Compile Include="Elements\Processes\Scripts\Javascript.cs" />
     <Compile Include="Elements\Processes\Tasks\BusinessRuleTask.cs" />
     <Compile Include="Elements\Processes\Scripts\ACompiledScript.cs" />
     <Compile Include="Elements\Processes\Scripts\AScript.cs" />

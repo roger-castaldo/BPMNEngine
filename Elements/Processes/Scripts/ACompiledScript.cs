@@ -19,21 +19,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         private string _functionName;
         protected string _FunctionName { get { return _functionName; } }
 
-        protected bool _IsCondition
-        {
-            get
-            {
-                XmlNode n = Element.ParentNode;
-                while (n != null)
-                {
-                    if (n.Name == "conditionSet")
-                        return true;
-                    n = n.ParentNode;
-                }
-                return false;
-            }
-        }
-
         private string _Code
         {
             get

@@ -10,6 +10,23 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         public AScript(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
+        protected bool _IsCondition
+        {
+            get
+            {
+                XmlNode n = Element.ParentNode;
+                while (n != null)
+                {
+                    if (n.Name == "conditionSet")
+                        return true;
+                    n = n.ParentNode;
+                }
+                return false;
+            }
+        }
+
+        
+
         protected abstract object _Invoke(ProcessVariablesContainer variables);
 
         public object Invoke(ProcessVariablesContainer variables)

@@ -93,3 +93,17 @@ Example:
 </bpmn:scriptTask>
 
 The example above will set the variable "username" to "bob.loblaw" when the script task is called.
+
+# Javascript Code
+
+Executing Javascript code internally using the variables parameter.  This is done by dynamically loading JINT to process javasacript inside .Net.  These can be used for both script tasks 
+as well as condition checking.
+
+Tag: Javascript
+
+Within the script element tag, you must supply the javascript code to be run.
+
+Example:
+<Javascript>
+	variables["username"] = "bob.loblaw"
+</Javascript>
