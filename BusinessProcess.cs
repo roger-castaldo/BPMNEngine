@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
@@ -63,6 +64,8 @@ namespace Org.Reddragonit.BpmEngine
 
         private ProcessState _state;
         public ProcessState State { get { return _state; } }
+
+        private ManualResetEvent _processLock;
 
         #region delegates
         #region Ons
@@ -187,10 +190,13 @@ namespace Org.Reddragonit.BpmEngine
 
         #endregion
 
-        private BusinessProcess() { }
+        private BusinessProcess() {
+            _processLock = new ManualResetEvent(false);
+        }
 
         public BusinessProcess(XmlDocument doc)
         {
+            _processLock = new ManualResetEvent(false);
             _doc = doc;
             _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete),new ProcessStepError(_ProcessStepError));
             _components = new List<object>();
@@ -406,6 +412,35 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
+        #region ProcessLock
+
+        public bool WaitForCompletion()
+        {
+            return _processLock.WaitOne();
+        }
+
+        public bool WaitForCompletion(int millisecondsTimeout)
+        {
+            return _processLock.WaitOne(millisecondsTimeout);
+        }
+
+        public bool WaitForCompletion(TimeSpan timeout)
+        {
+            return _processLock.WaitOne(timeout);
+        }
+
+        public bool WaitForCompletion(int millisecondsTimeout,bool exitContext)
+        {
+            return _processLock.WaitOne(millisecondsTimeout,exitContext);
+        }
+
+        public bool WaitForCompletion(TimeSpan timeout,bool exitContext)
+        {
+            return _processLock.WaitOne(timeout,exitContext);
+        }
+
+        #endregion
+
         private void _ProcessStepComplete(string sourceID,string outgoingID) {
             if (outgoingID != null)
             {
@@ -527,6 +562,8 @@ namespace Org.Reddragonit.BpmEngine
                     lock (_state) { _state.Path.SucceedEvent(evnt); }
                     if (_onEventCompleted != null)
                         _onEventCompleted(evnt);
+                    if (evnt is EndEvent)
+                        _processLock.Set();
                 }
             }
             else if (elem is ATask)
