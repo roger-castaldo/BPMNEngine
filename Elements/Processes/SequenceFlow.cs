@@ -8,6 +8,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","sequenceFlow")]
+    [RequiredAttribute("id")]
     internal class SequenceFlow : AElement
     {
         public string name { get { return _GetAttributeValue("name"); } }

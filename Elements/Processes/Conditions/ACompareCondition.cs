@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
+    [RequiredAttribute("id")]
     internal abstract class ACompareCondition : ACondition
     {
         public ACompareCondition(XmlElement elem, XmlPrefixMap map)
@@ -112,6 +114,53 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     break;
             }
             return ret;
+        }
+
+        public override bool IsValid(out string err)
+        {
+            bool foundLeft = this._GetAttributeValue("leftVariable")!=null;
+            bool foundRight = this._GetAttributeValue("rightVariable")!=null;
+            foreach (XmlNode n in SubNodes)
+            {
+                if (n.NodeType == XmlNodeType.Element)
+                {
+                    switch (n.Name)
+                    {
+                        case "left":
+                            if (foundLeft)
+                            {
+                                err = "Left value specified more than once.";
+                                return false;
+                            }
+                            foundLeft = true;
+                            break;
+                        case "right":
+                            if (foundRight)
+                            {
+                                err = "Right value specified more than once.";
+                                return false;
+                            }
+                            foundRight = true;
+                            break;
+                    }
+                }
+            }
+            if (!foundRight && !foundLeft)
+            {
+                err = "Right and Left value missing.";
+                return false;
+            }
+            else if (!foundRight)
+            {
+                err = "Right value missing.";
+                return false;
+            }
+            else if (!foundLeft)
+            {
+                err = "Left value missing.";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }

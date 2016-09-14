@@ -7,6 +7,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","lane")]
+    [RequiredAttribute("id")]
     internal class Lane : AElement
     {
         public string[] Nodes

@@ -13,6 +13,7 @@ namespace Org.Reddragonit.BpmEngine
         private static readonly Regex _regDIRef = new Regex(".+www\\.omg\\.org/spec/DD/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
         private static readonly Regex _regDCRef = new Regex(".+www\\.omg\\.org/spec/DD/.+/DC", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
         private static readonly Regex _regXSIRef = new Regex(".+www\\.w3\\.org/.+/XMLSchema-instance", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
+        private static readonly Regex _regEXTSRef = new Regex(".+raw\\.githubusercontent\\.com/roger-castaldo/BPMEngine/.+/Extensions", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
 
         private Dictionary<string, List<string>> _prefixMaps;
 
@@ -38,6 +39,8 @@ namespace Org.Reddragonit.BpmEngine
                         prefix = "dc";
                     else if (_regXSIRef.IsMatch(att.Value))
                         prefix = "xsi";
+                    else if (_regEXTSRef.IsMatch(att.Value))
+                        prefix = "exts";
                     if (prefix != null)
                     {
                         if (!_prefixMaps.ContainsKey(prefix))

@@ -6,7 +6,8 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [XMLTag("isNull")]
+    [XMLTag("exts", "isNull")]
+    [RequiredAttribute("id")]
     internal class IsNull : ACondition
     {
         public IsNull(XmlElement elem, XmlPrefixMap map)

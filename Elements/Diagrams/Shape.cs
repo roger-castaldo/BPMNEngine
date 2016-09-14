@@ -12,6 +12,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNShape")]
+    [RequiredAttribute("id")]
     internal class Shape : ADiagramElement
     {
         public Rectangle Rectangle
@@ -88,6 +89,21 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                     ret = (BPMIcons)Enum.Parse(typeof(BPMIcons), elem.GetType().Name);
             }
             return ret;
+        }
+
+        public override bool IsValid(out string err)
+        {
+            bool found = false;
+            foreach (IElement elem in Children)
+            {
+                found = found | (elem is Bounds);
+            }
+            if (!found)
+            {
+                err = "No bounds specified.";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }

@@ -29,5 +29,15 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 return ret.ToArray();
             }
         }
+
+        public override bool IsValid(out string err)
+        {
+            if (Children.Length == 0)
+            {
+                err = "No child elements found.";
+                return false;
+            }
+            return base.IsValid(out err);
+        }
     }
 }

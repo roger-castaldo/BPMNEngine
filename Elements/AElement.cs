@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public string id
         {
-            get { return _GetAttributeValue("id"); }
+            get { return (_GetAttributeValue("id")==null ? Utility.FindXPath(_element) : _GetAttributeValue("id")); }
         }
 
         public XmlNode[] SubNodes
@@ -78,6 +78,12 @@ namespace Org.Reddragonit.BpmEngine.Elements
             if (this.GetType().Name == "TextAnnotation")
                 return (string)this.GetType().GetProperty("Content").GetValue(this, new object[] { });
             return _GetAttributeValue("name");
+        }
+
+        public virtual bool IsValid(out string err)
+        {
+            err = null;
+            return true;
         }
     }
 }

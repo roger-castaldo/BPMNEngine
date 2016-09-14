@@ -8,6 +8,10 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("di","waypoint")]
+    [RequiredAttribute("x")]
+    [AttributeRegex("x", "^-?\\d+(\\.\\d+)?$")]
+    [RequiredAttribute("y")]
+    [AttributeRegex("y", "^-?\\d+(\\.\\d+)?$")]
     internal class Waypoint : AElement
     {
         public Point Point

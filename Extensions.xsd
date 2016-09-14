@@ -1,0 +1,134 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="Extensions"
+    targetNamespace="http://tempuri.org/Extensions.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/Extensions.xsd"
+    xmlns:mstns="http://tempuri.org/Extensions.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  <xs:complexType name="idElement">
+    <xs:attribute name="id" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  <xs:simpleType name="usingType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-zA-Z]+(\.[a-zA-Z]+)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="compiledScript">
+    <xs:complexContent>
+      <xs:extension base="idElement">
+        <xs:sequence>
+          <xs:element name="code" minOccurs="1" maxOccurs="1" type="xs:string"/>
+          <xs:element name="using" minOccurs="0" maxOccurs="unbounded" type="usingType"/>
+          <xs:element name="dll" minOccurs="0" maxOccurs="unbounded" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="cSharpScript" type="compiledScript"/>
+  <xs:element name="VBScript" type="compiledScript"/>
+  <xs:element name="Javascript" type="xs:string"/>
+
+  <xs:complexType name="compareConditionBase">
+    <xs:complexContent>
+      <xs:extension base="idElement">
+        <xs:attribute name="leftVariable" type="xs:string" use="optional"/>
+        <xs:attribute name="rightVariable" type="xs:string" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="compareCondition">
+    <xs:complexContent mixed="true">
+      <xs:extension base="compareConditionBase">
+        <xs:sequence>
+          <xs:element name="left" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          <xs:element name="right" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="isEqualCondition" type="compareCondition"/>
+  <xs:element name="greaterThanCondition" type="compareCondition"/>
+  <xs:element name="greaterThanOrEqualCondition" type="compareCondition"/>
+  <xs:element name="lessThanCondition" type="compareCondition"/>
+  <xs:element name="lessThanOrEqualCondition" type="compareCondition"/>
+  <xs:element name="isNull">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="idElement">
+          <xs:attribute name="variable" use="required" type="xs:string"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="groupCondition">
+    <xs:complexContent>
+      <xs:extension base="idElement">
+        <xs:choice minOccurs="2" maxOccurs="unbounded">
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="isEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanOrEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanOrEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="isNull"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="andCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="orCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="notCondition"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="Javascript"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="VBScript"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="cSharpScript"/>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="andCondition" type="groupCondition"/>
+  <xs:element name="orCondition" type="groupCondition"/>
+
+  <xs:element name="notCondition">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="idElement">
+          <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element minOccurs="0" maxOccurs="1" ref="isEqualCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanOrEqualCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="lessThanCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="lessThanOrEqualCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="isNull"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="andCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="orCondition"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="Javascript"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="VBScript"/>
+            <xs:element minOccurs="0" maxOccurs="1" ref="cSharpScript"/>
+          </xs:choice>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="conditionSet">
+    <xs:complexType>
+      <xs:choice minOccurs="2" maxOccurs="unbounded">
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="isEqualCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanOrEqualCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanOrEqualCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="isNull"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="andCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="orCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="notCondition"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Javascript"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="VBScript"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="cSharpScript"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

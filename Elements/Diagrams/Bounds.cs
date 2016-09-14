@@ -8,6 +8,14 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("dc","Bounds")]
+    [RequiredAttribute("x")]
+    [AttributeRegex("x","^-?\\d+(\\.\\d+)?$")]
+    [RequiredAttribute("y")]
+    [AttributeRegex("y", "^-?\\d+(\\.\\d+)?$")]
+    [RequiredAttribute("width")]
+    [AttributeRegex("width", "^\\d+(\\.\\d+)?$")]
+    [RequiredAttribute("height")]
+    [AttributeRegex("height", "^\\d+(\\.\\d+)?$")]
     internal class Bounds : AElement
     {
         public Rectangle Rectangle

@@ -7,6 +7,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","association")]
+    [RequiredAttribute("id")]
     internal class Association : AElement
     {
         public Association(XmlElement elem, XmlPrefixMap map)

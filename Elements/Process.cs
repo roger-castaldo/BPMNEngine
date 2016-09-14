@@ -11,9 +11,10 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmn","process")]
+    [RequiredAttribute("id")]
     internal class Process : AParentElement
     {
-        public bool isExecutable { get { return (_GetAttributeValue("isExecutable") == "" ? false : bool.Parse(_GetAttributeValue("isExecutable"))); } }
+        public bool isExecutable { get { return (_GetAttributeValue("isExecutable") == null ? false : bool.Parse(_GetAttributeValue("isExecutable"))); } }
 
         public StartEvent[] StartEvents
         {
@@ -49,6 +50,16 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 }
             }
             return isProcessStartValid(this, variables);
+        }
+
+        public override bool IsValid(out string err)
+        {
+            if (Children.Length == 0)
+            {
+                err = "No child elements found.";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }

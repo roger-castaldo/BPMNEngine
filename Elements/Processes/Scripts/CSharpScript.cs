@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
-    [XMLTag("cSharpScript")]
+    [XMLTag("exts", "cSharpScript")]
     internal class CSharpScript : ACompiledScript
     {
         private const string _CODE_BASE_SCRIPT_TEMPLATE = @"{0}

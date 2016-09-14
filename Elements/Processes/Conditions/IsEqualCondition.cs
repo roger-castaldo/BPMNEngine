@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [XMLTag("isEqualCondition")]
+    [XMLTag("exts", "isEqualCondition")]
     internal class IsEqualCondition : ACompareCondition
     {
         public IsEqualCondition(XmlElement elem, XmlPrefixMap map)

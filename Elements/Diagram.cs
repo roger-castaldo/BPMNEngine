@@ -12,10 +12,9 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmndi","BPMNDiagram")]
+    [RequiredAttribute("id")]
     internal class Diagram : AParentElement
     {
-        public string bpmnElement { get { return _GetAttributeValue("bpmnElement"); } }
-
         public Diagram(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
@@ -358,6 +357,16 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     break;
             }
             return ret;
+        }
+
+        public override bool IsValid(out string err)
+        {
+            if (Children.Length == 0)
+            {
+                err = "No child elements found.";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }

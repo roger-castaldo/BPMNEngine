@@ -8,6 +8,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmn","definitions")]
+    [RequiredAttribute("id")]
     internal class Definition : AParentElement
     {
         public Definition(XmlElement elem, XmlPrefixMap map)
@@ -47,6 +48,16 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 }
             }
             return ret;
+        }
+
+        public override bool IsValid(out string err)
+        {
+            if (Children.Length == 0)
+            {
+                err = "No child elements found.";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }

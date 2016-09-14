@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\AttributeRegex.cs" />
+    <Compile Include="Attributes\RequiredAttribute.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="Elements\Processes\Conditions\ACompareCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="Elements\Processes\SequenceFlow.cs" />
     <Compile Include="Elements\Processes\Tasks\ATask.cs" />
     <Compile Include="Elements\Processes\Tasks\Task.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="Interfaces\IElement.cs" />
     <Compile Include="Interfaces\IParentElement.cs" />
     <Compile Include="ProcessPath.cs" />
@@ -127,6 +130,11 @@
     <Content Include="Magick.NET-Q8-x64.Native.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Extensions.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

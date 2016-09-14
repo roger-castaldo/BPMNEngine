@@ -11,6 +11,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNEdge")]
+    [RequiredAttribute("id")]
     internal class Edge : ADiagramElement
     {
         public Point[] Points
@@ -61,6 +62,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                     ret.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
             }
             return ret;
+        }
+
+        public override bool IsValid(out string err)
+        {
+            if (Points.Length<2)
+            {
+                err = "At least 2 points are required.";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
-    [XMLTag("Javascript")]
+    [XMLTag("exts", "Javascript")]
     internal class Javascript : AScript
     {
         private static Assembly _jintAssembly;

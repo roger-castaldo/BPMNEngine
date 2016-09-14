@@ -1,4 +1,5 @@
 ﻿using ImageMagick;
+using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
@@ -227,6 +228,30 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (!found)
                     throw new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located.");
+            }
+            foreach (IElement elem in _Elements)
+                _ValidateElement((AElement)elem);
+        }
+
+        private void _ValidateElement(AElement elem)
+        {
+            foreach (RequiredAttribute ra in elem.GetType().GetCustomAttributes(typeof(RequiredAttribute), true))
+            {
+                if (elem.Element.Attributes[ra.Name]==null)
+                    throw new MissingAttributeException(elem.Element,ra);
+            }
+            foreach (AttributeRegex ar in elem.GetType().GetCustomAttributes(typeof(AttributeRegex),true))
+            {
+                if (!ar.IsValid(elem))
+                    throw new InvalidAttributeValueException(elem.Element, ar);
+            }
+            string err;
+            if (!elem.IsValid(out err))
+                throw new InvalidElementException(elem.Element, err);
+            if (elem is AParentElement)
+            {
+                foreach (AElement e in ((AParentElement)elem).Children)
+                    _ValidateElement(e);
             }
         }
 

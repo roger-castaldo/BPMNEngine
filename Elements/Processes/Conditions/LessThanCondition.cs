@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [XMLTag("lessThanCondition")]
+    [XMLTag("exts", "lessThanCondition")]
     internal class LessThanCondition : ACompareCondition
     {
         public LessThanCondition(XmlElement elem, XmlPrefixMap map)

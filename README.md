@@ -3,9 +3,10 @@ A BPMN Engine written in .net.  The engine attempts to read in a bpmn notation x
 render the diagram in its current state or animated into a gif.  Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and 
 task objects.
 
-# Future Features
+# XSD
 
-- Linking to JINT to allow for script/service tasks to process javascript code for changing variables and not call an external delegate
+Adding xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" to the bpmn:definitions will make things easier for accessing the defined xsd file for the project.  
+This references all the extended elements defined below.
 
 # Internal Conditions
 

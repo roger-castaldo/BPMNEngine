@@ -7,6 +7,8 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
 {
     [XMLTag("bpmn", "participant")]
+    [RequiredAttribute("processRef")]
+    [RequiredAttribute("id")]
     internal class Participant : AElement
     {
         public string Name { get { return _GetAttributeValue("name"); } }

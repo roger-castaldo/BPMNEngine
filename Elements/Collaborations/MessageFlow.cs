@@ -7,6 +7,9 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
 {
     [XMLTag("bpmn","messageFlow")]
+    [RequiredAttribute("sourceRef")]
+    [RequiredAttribute("targetRef")]
+    [RequiredAttribute("id")]
     internal class MessageFlow : AElement
     {
         public string sourceRef { get { return _GetAttributeValue("sourceRef"); } }

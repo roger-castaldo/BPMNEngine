@@ -6,7 +6,8 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [XMLTag("notCondition")]
+    [XMLTag("exts", "notCondition")]
+    [RequiredAttribute("id")]
     internal class NotCondition : AConditionSet
     {
         public NotCondition(XmlElement elem, XmlPrefixMap map)

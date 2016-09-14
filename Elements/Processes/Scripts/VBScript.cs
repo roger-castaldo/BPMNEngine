@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
-    [XMLTag("VBScript")]
+    [XMLTag("exts", "VBScript")]
     internal class VBScript : ACompiledScript
     {
         private const string _CODE_BASE_SCRIPT_TEMPLATE = @"{0}

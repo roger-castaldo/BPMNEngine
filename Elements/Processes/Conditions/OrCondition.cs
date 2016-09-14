@@ -6,7 +6,8 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [XMLTag("orCondition")]
+    [XMLTag("exts", "orCondition")]
+    [RequiredAttribute("id")]
     internal class OrCondition : AConditionSet
     {
         public OrCondition(XmlElement elem, XmlPrefixMap map)
@@ -21,6 +22,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     ret = ret || cond.Evaluate(variables);
             }
             return ret;
+        }
+
+        public override bool IsValid(out string err)
+        {
+            if (Children.Length < 2)
+            {
+                err = "Not enough child elements found";
+                return false;
+            }
+            return base.IsValid(out err);
         }
     }
 }
