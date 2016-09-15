@@ -29,7 +29,7 @@
 
   <xs:element name="cSharpScript" type="compiledScript"/>
   <xs:element name="VBScript" type="compiledScript"/>
-  <xs:element name="Javascript" type="xs:string"/>
+  <xs:element name="Javascript" type="idElement"/>
 
   <xs:complexType name="compareConditionBase">
     <xs:complexContent>
@@ -114,7 +114,7 @@
 
   <xs:element name="conditionSet">
     <xs:complexType>
-      <xs:choice minOccurs="2" maxOccurs="unbounded">
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="isEqualCondition"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanCondition"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanOrEqualCondition"/>
