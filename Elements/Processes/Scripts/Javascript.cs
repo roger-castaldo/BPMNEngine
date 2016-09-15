@@ -46,7 +46,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
             object[] pars = new object[] { "variables", variables };
             _setValue.Invoke(engine, pars);
-            object ret = _toObject.Invoke(_getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { this.Element.InnerText }),new object[]{}),new object[]{});
+            object ret = _toObject.Invoke(_getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { _Code }),new object[]{}),new object[]{});
             if (_IsCondition)
                 return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
             return pars[1];

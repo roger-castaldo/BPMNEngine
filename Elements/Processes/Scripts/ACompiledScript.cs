@@ -19,31 +19,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         private string _functionName;
         protected string _FunctionName { get { return _functionName; } }
 
-        private string _Code
-        {
-            get
-            {
-                string code = "";
-                if (SubNodes.Length > 1)
-                {
-                    foreach (XmlNode n in SubNodes)
-                    {
-                        if (n.NodeType == XmlNodeType.Element)
-                        {
-                            if (n.Name == "code")
-                            {
-                                code = n.InnerText;
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                    code = this.Element.InnerText;
-                return code;
-            }
-        }
-
         private string[] _Imports
         {
             get

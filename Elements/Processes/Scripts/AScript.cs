@@ -17,6 +17,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 _map = map;
         }
 
+        protected string _Code
+        {
+            get
+            {
+                foreach (XmlNode n in SubNodes)
+                {
+                    if (n.NodeType == XmlNodeType.Text)
+                        return n.Value;
+                }
+                return "";
+            }
+        }
+
         protected bool _IsCondition
         {
             get
