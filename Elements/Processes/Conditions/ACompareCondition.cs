@@ -9,8 +9,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [RequiredAttribute("id")]
     internal abstract class ACompareCondition : ACondition
     {
+        private XmlPrefixMap _map;
+
         public ACompareCondition(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+            : base(elem, map) {
+                _map = map;
+        }
 
         protected int _Compare(ProcessVariablesContainer variables)
         {
@@ -26,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     {
                         if (n.NodeType == XmlNodeType.Element)
                         {
-                            if (n.Name == "left")
+                            if (_map.isMatch("exts","left",n.Name) || n.Name=="left")
                             {
                                 left = n.InnerText;
                                 break;
@@ -46,7 +50,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     {
                         if (n.NodeType == XmlNodeType.Element)
                         {
-                            if (n.Name == "right")
+                            if (_map.isMatch("exts", "right", n.Name) || n.Name == "right")
                             {
                                 right = n.InnerText;
                                 break;
@@ -124,24 +128,23 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             {
                 if (n.NodeType == XmlNodeType.Element)
                 {
-                    switch (n.Name)
+                    if (_map.isMatch("exts", "right", n.Name) || n.Name == "right")
                     {
-                        case "left":
-                            if (foundLeft)
-                            {
-                                err = "Left value specified more than once.";
-                                return false;
-                            }
-                            foundLeft = true;
-                            break;
-                        case "right":
-                            if (foundRight)
-                            {
-                                err = "Right value specified more than once.";
-                                return false;
-                            }
-                            foundRight = true;
-                            break;
+                        if (foundRight)
+                        {
+                            err = "Right value specified more than once.";
+                            return false;
+                        }
+                        foundRight = true;
+                    }
+                    else if (_map.isMatch("exts", "left", n.Name) || n.Name == "left")
+                    {
+                        if (foundLeft)
+                        {
+                            err = "Left value specified more than once.";
+                            return false;
+                        }
+                        foundLeft = true;
                     }
                 }
             }

@@ -1,0 +1,520 @@
+﻿{
+    "name": "EXTS",
+    "uri": "https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions",
+    "associations": [ ],
+	"prefix": "exts",
+    "types": [
+        {
+            "name": "cSharpScript",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String",
+                    "isBody": true,
+					"serialize":"String"
+                },
+                {
+                    "name": "using",
+                    "type": "String",
+                    "isMany": true
+                },
+                {
+                    "name": "dll",
+                    "type": "String",
+                    "isMany": true
+                }
+            ]
+        },
+        {
+            "name": "VBScript",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String",
+                    "isBody": true
+                },
+                {
+                    "name": "using",
+                    "type": "String",
+                    "isMany": true
+                },
+                {
+                    "name": "dll",
+                    "type": "String",
+                    "isMany": true
+                }
+            ]
+        },
+        {
+            "name": "Javascript",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String",
+                    "isBody": true
+                }
+            ]
+        },
+        {
+            "name": "greaterThanCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "leftVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "rightVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "left",
+                    "type": "String"
+                },
+                {
+                    "name": "right",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "greaterThanOrEqualCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "leftVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "rightVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "left",
+                    "type": "String"
+                },
+                {
+                    "name": "right",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "isEqualCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "leftVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "rightVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "left",
+                    "type": "String"
+                },
+                {
+                    "name": "right",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "lessThanCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "leftVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "rightVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "left",
+                    "type": "String"
+                },
+                {
+                    "name": "right",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "lessThanOrEqualCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "leftVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "rightVariable",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "left",
+                    "type": "String"
+                },
+                {
+                    "name": "right",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "isNull",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "variable",
+                    "isAttr": true,
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "name": "notCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "isEqualCondition",
+                    "type": "isEqualCondition"
+                },
+                {
+                    "name": "greaterThanCondition",
+                    "type": "greaterThanCondition"
+                },
+                {
+                    "name": "greaterThanOrEqualCondition",
+                    "type": "greaterThanOrEqualCondition"
+                },
+                {
+                    "name": "lessThanCondition",
+                    "type": "lessThanCondition"
+                },
+                {
+                    "name": "lestThanOrEqualCondition",
+                    "type": "lestThanOrEqualCondition"
+                },
+                {
+                    "name": "isNull",
+                    "type": "isNull"
+                },
+                {
+                    "name": "andCondition",
+                    "type": "andCondition"
+                },
+                {
+                    "name": "orCondition",
+                    "type": "orCondition"
+                },
+                {
+                    "name": "Javascript",
+                    "type": "Javascript"
+                },
+                {
+                    "name": "VBScript",
+                    "type": "VBScript"
+                },
+                {
+                    "name": "cSharpScript",
+                    "type": "cSharpScript"
+                }
+            ]
+        },
+        {
+            "name": "andCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "isEqualCondition",
+                    "type": "isEqualCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "greaterThanCondition",
+                    "type": "greaterThanCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "greaterThanOrEqualCondition",
+                    "type": "greaterThanOrEqualCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "lessThanCondition",
+                    "type": "lessThanCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "lestThanOrEqualCondition",
+                    "type": "lestThanOrEqualCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "isNull",
+                    "type": "isNull",
+                    "isMany": true
+                },
+                {
+                    "name": "andCondition",
+                    "type": "andCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "orCondition",
+                    "type": "orCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "notCondition",
+                    "type": "notCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "Javascript",
+                    "type": "Javascript",
+                    "isMany": true
+                },
+                {
+                    "name": "VBScript",
+                    "type": "VBScript",
+                    "isMany": true
+                },
+                {
+                    "name": "cSharpScript",
+                    "type": "cSharpScript",
+                    "isMany": true
+                }
+            ]
+        },
+        {
+            "name": "orCondition",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "isEqualCondition",
+                    "type": "isEqualCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "greaterThanCondition",
+                    "type": "greaterThanCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "greaterThanOrEqualCondition",
+                    "type": "greaterThanOrEqualCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "lessThanCondition",
+                    "type": "lessThanCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "lestThanOrEqualCondition",
+                    "type": "lestThanOrEqualCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "isNull",
+                    "type": "isNull",
+                    "isMany": true
+                },
+                {
+                    "name": "andCondition",
+                    "type": "andCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "orCondition",
+                    "type": "orCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "notCondition",
+                    "type": "notCondition",
+                    "isMany": true
+                },
+                {
+                    "name": "Javascript",
+                    "type": "Javascript",
+                    "isMany": true
+                },
+                {
+                    "name": "VBScript",
+                    "type": "VBScript",
+                    "isMany": true
+                },
+                {
+                    "name": "cSharpScript",
+                    "type": "cSharpScript",
+                    "isMany": true
+                }
+            ]
+        },
+        {
+            "name": "ConditionSet",
+            "superClass": [
+                "Element"
+            ],
+            "properties": [
+				{
+                    "name": "id",
+                    "isAttr": true,
+                    "type": "String"
+                },
+                {
+                    "name": "isEqualCondition",
+                    "type": "isEqualCondition"
+                },
+                {
+                    "name": "greaterThanCondition",
+                    "type": "greaterThanCondition"
+                },
+                {
+                    "name": "greaterThanOrEqualCondition",
+                    "type": "greaterThanOrEqualCondition"
+                },
+                {
+                    "name": "lessThanCondition",
+                    "type": "lessThanCondition"
+                },
+                {
+                    "name": "lestThanOrEqualCondition",
+                    "type": "lestThanOrEqualCondition"
+                },
+                {
+                    "name": "isNull",
+                    "type": "isNull"
+                },
+                {
+                    "name": "andCondition",
+                    "type": "andCondition"
+                },
+                {
+                    "name": "orCondition",
+                    "type": "orCondition"
+                },
+                {
+                    "name": "Javascript",
+                    "type": "Javascript"
+                },
+                {
+                    "name": "VBScript",
+                    "type": "VBScript"
+                },
+                {
+                    "name": "cSharpScript",
+                    "type": "cSharpScript"
+                },
+                {
+                    "name": "notCondition",
+                    "type": "notCondition"
+                }
+            ]
+        }
+  ]
+}

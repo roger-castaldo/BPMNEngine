@@ -26,6 +26,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                     if (n.NodeType == XmlNodeType.Text)
                         return n.Value;
                 }
+                foreach (XmlNode n in SubNodes)
+                {
+                    if (n.NodeType == XmlNodeType.CDATA)
+                        return ((XmlCDataSection)n).InnerText;
+                }
                 return "";
             }
         }

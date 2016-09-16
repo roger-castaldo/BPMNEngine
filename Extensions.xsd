@@ -90,44 +90,37 @@
   <xs:element name="andCondition" type="groupCondition"/>
   <xs:element name="orCondition" type="groupCondition"/>
 
-  <xs:element name="notCondition">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="idElement">
-          <xs:choice minOccurs="1" maxOccurs="1">
-            <xs:element minOccurs="0" maxOccurs="1" ref="isEqualCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanOrEqualCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="lessThanCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="lessThanOrEqualCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="isNull"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="andCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="orCondition"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="Javascript"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="VBScript"/>
-            <xs:element minOccurs="0" maxOccurs="1" ref="cSharpScript"/>
-          </xs:choice>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="baseConditionSet">
+    <xs:complexContent>
+      <xs:extension base="idElement">
+        <xs:choice minOccurs="1" maxOccurs="1">
+          <xs:element minOccurs="0" maxOccurs="1" ref="isEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanOrEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="lessThanCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="lessThanOrEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="isNull"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="andCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="orCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="Javascript"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="VBScript"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="cSharpScript"/>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="notCondition" type="baseConditionSet"/>
 
-  <xs:element name="conditionSet">
-    <xs:complexType>
-      <xs:choice minOccurs="1" maxOccurs="unbounded">
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="isEqualCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanOrEqualCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanOrEqualCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="isNull"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="andCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="orCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="notCondition"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="Javascript"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="VBScript"/>
-        <xs:element minOccurs="0" maxOccurs="unbounded" ref="cSharpScript"/>
-      </xs:choice>
-    </xs:complexType>
-  </xs:element>
+  <xs:complexType name="fullConditionSet">
+    <xs:complexContent>
+      <xs:extension base="baseConditionSet">
+        <xs:choice minOccurs="0" maxOccurs="1">
+          <xs:element minOccurs="0" maxOccurs="1" ref="notCondition"/>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:element name="ConditionSet" type="fullConditionSet"/>
 </xs:schema>

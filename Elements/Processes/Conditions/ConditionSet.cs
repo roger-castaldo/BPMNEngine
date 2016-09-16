@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [XMLTag("exts", "conditionSet")]
+    [XMLTag("exts", "ConditionSet")]
     internal class ConditionSet : AConditionSet
     {
         public ConditionSet(XmlElement elem, XmlPrefixMap map)

@@ -111,15 +111,18 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         #region Validations
-        private IsEventStartValid _isEventStartValid;
+        private static bool _DefaultEventStartValid(IElement Event, ProcessVariablesContainer variables){return false;}
+        private IsEventStartValid _isEventStartValid = new IsEventStartValid(_DefaultEventStartValid);
         public IsEventStartValid IsEventStartValid { get { return _isEventStartValid; } set { _isEventStartValid = value; } }
 
-        private IsProcessStartValid _isProcessStartValid;
+        private static bool _DefaultProcessStartValid(IElement Event, ProcessVariablesContainer variables){return false;}
+        private IsProcessStartValid _isProcessStartValid = new IsProcessStartValid(_DefaultProcessStartValid);
         public IsProcessStartValid IsProcessStartValid { get { return _isProcessStartValid; } set { _isProcessStartValid = value; } }
         #endregion
 
         #region Conditions
-        private IsFlowValid _isFlowValid;
+        private static bool _DefaultFlowValid(IElement flow, ProcessVariablesContainer variables) { return false; }
+        private IsFlowValid _isFlowValid = new IsFlowValid(_DefaultFlowValid);
         public IsFlowValid IsFlowValid { get { return _isFlowValid; } set { _isFlowValid = value; } }
         #endregion
 
@@ -402,10 +405,6 @@ namespace Org.Reddragonit.BpmEngine
 
         public bool BeginProcess(ProcessVariablesContainer variables)
         {
-            if (_isProcessStartValid==null)
-                throw new Exception("You must set the delegate IsProcessStartValid in order to start a process.");
-            if (_isEventStartValid == null)
-                throw new Exception("You must set the delegate IsEventStartValid in order to start a process.");
             bool ret = false;
             foreach (IElement elem in _FullElements)
             {
@@ -567,8 +566,8 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     _state.Path.StartEvent(evnt, sourceID);
                 }
-                bool success = false;
-                if (_isEventStartValid != null)
+                bool success = true;
+                if (_isEventStartValid != null  && (evnt is IntermediateCatchEvent || evnt is StartEvent))
                 {
                     try
                     {

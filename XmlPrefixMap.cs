@@ -64,5 +64,17 @@ namespace Org.Reddragonit.BpmEngine
             }
             return ret;
         }
+
+        internal bool isMatch(string prefix, string tag, string nodeName)
+        {
+            if (string.Format("{0}:{1}", prefix, tag) == nodeName)
+                return true;
+            foreach (string str in Translate(prefix))
+            {
+                if (string.Format("{0}:{1}", str, tag) == nodeName)
+                    return true;
+            }
+            return false;
+        }
     }
 }

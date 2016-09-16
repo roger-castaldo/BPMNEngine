@@ -33,13 +33,7 @@ namespace Org.Reddragonit.BpmEngine.Attributes
             if (tagName == ToString())
                 return true;
             else if (_prefix!=null)
-            {
-                foreach (string str in map.Translate(_prefix))
-                {
-                    if (string.Format("{0}:{1}", str, _name) == tagName)
-                        return true;
-                }
-            }
+                return map.isMatch(_prefix, _name, tagName);
             return false;
         }
     }
