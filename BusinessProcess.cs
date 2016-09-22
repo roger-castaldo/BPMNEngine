@@ -1,5 +1,4 @@
-﻿using ImageMagick;
-using Org.Reddragonit.BpmEngine.Attributes;
+﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
@@ -18,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine
 {
     public sealed class BusinessProcess
     {
-        private const int _ANIMATION_DELAY = 100;
+        private const int _ANIMATION_DELAY = 1000;
         private const int _DEFAULT_PADDING = 100;
         private const int _VARIABLE_NAME_WIDTH = 200;
         private const int _VARIABLE_VALUE_WIDTH = 300;
@@ -351,21 +350,19 @@ namespace Org.Reddragonit.BpmEngine
 
         public byte[] Animate(bool outputVariables)
         {
-            MagickImageCollection collection = new MagickImageCollection();
+            MemoryStream ms = new MemoryStream();
+            Drawing.Gif.Encoder enc = new Drawing.Gif.Encoder();
+            enc.Start(ms);
+            enc.SetDelay(_ANIMATION_DELAY);
+            enc.SetRepeat(0);
             _state.Path.StartAnimation();
             while (_state.Path.HasNext())
             {
-                collection.Add(new MagickImage(Diagram(outputVariables)));
-                collection[collection.Count - 1].AnimationDelay = _ANIMATION_DELAY;
+                enc.AddFrame(Diagram(outputVariables));
                 _state.Path.MoveToNextStep();
             }
             _state.Path.FinishAnimation();
-            MemoryStream ms = new MemoryStream();
-            QuantizeSettings settings = new QuantizeSettings();
-            settings.Colors = 256;
-            collection.Quantize(settings);
-            collection.Optimize();
-            collection.Write(ms,MagickFormat.Gif);
+            enc.Finish();
             return ms.ToArray();
         }
 

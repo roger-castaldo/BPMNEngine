@@ -31,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Magick.NET-Q8-x64, Version=7.0.0.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\libraries\Magick.NET-Q8-x64.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -44,6 +40,9 @@
     <Compile Include="Attributes\AttributeRegex.cs" />
     <Compile Include="Attributes\RequiredAttribute.cs" />
     <Compile Include="Delegates.cs" />
+    <Compile Include="Drawing\Gif\Encoder.cs" />
+    <Compile Include="Drawing\Gif\LZWEncoder.cs" />
+    <Compile Include="Drawing\Gif\NeuQuant.cs" />
     <Compile Include="Elements\Processes\Conditions\ACompareCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
     <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
@@ -127,9 +126,7 @@
     <EmbeddedResource Include="symbols.Green.png" />
     <EmbeddedResource Include="symbols.Red.png" />
     <EmbeddedResource Include="symbols.Black.png" />
-    <Content Include="Magick.NET-Q8-x64.Native.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="ConditionsPanel.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Extensions.xsd">
@@ -137,6 +134,7 @@
     </None>
     <None Include="moddle.json" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

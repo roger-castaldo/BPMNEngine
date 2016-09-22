@@ -6,8 +6,8 @@
         options.readonly = (options.readonly == undefined ? false : options.readonly);
         if (panel == null) {
             panel = $('<div></div>');
-            width = $($(canvas._container).parent()).width() / 3-9;
-            height = $($(canvas._container).parent()).height()-10;
+            width = $($(canvas._container).parent()).width() / 3 - 9;
+            height = $($(canvas._container).parent()).height() - 10;
             //#CCCCCC
             panel.attr('style', 'display:none;width:' + width.toString() + 'px;height:' + height.toString() + 'px;position:absolute;right:0;top:0;z-index:20;background-color:#F8F8F8;padding:4px;border-left:solid 1px #CCCCCC;');
             $(canvas._container).after(panel);
@@ -34,16 +34,16 @@
                         case 'bpmn:ScriptTask':
                             panel.append('<div style="text-align:center;width:100%;border-bottom:solid 1px #CCCCCC"><h4>Script</h4></div>');
                             panel.append('<div style="text-align:center;width:100%;border-bottom:solid 1px #CCCCCC"><select name="scriptLanguage"><option value="Javascript">Javascript</option><option value="cSharpScript">C# Script</option><option value="VBScript">VB.Net Script</option><textarea cols="35" rows="30" name="scriptCode"></textarea></div>');
-                            if (businessObject.extensionElements!=undefined){
-                                for(var x=0;x<businessObject.extensionElements.values.length;x++){
-                                    if (['exts:cSharpScript','exts:VBScript','exts:Javascript'].indexOf(businessObject.extensionElements.values[x].$type)>=0){
+                            if (businessObject.extensionElements != undefined) {
+                                for (var x = 0; x < businessObject.extensionElements.values.length; x++) {
+                                    if (['exts:cSharpScript', 'exts:VBScript', 'exts:Javascript'].indexOf(businessObject.extensionElements.values[x].$type) >= 0) {
                                         $(panel.find('[name="scriptCode"]')[0]).val(businessObject.extensionElements.values[x].code);
                                         $(panel.find('[name="scriptLanguage"]>option[value="' + businessObject.extensionElements.values[x].$type.substring(4) + '"]')[0]).prop('selected', true);
                                     }
                                 }
                             }
                             if (options.readonly) {
-                                $(panel.find('[name="scriptCode"],[name="scriptLanguage"]')).prop('enabled', false);
+                                $(panel.find('[name="scriptCode"],[name="scriptLanguage"]')).prop('disabled', true);
                             }
                             break;
                         case 'bpmn:Process':
@@ -55,7 +55,7 @@
                             var dv = $('<div style="text-align:center;width:100%;border-bottom:solid 1px #CCCCCC"><h4>Conditions</h4></div>');
                             panel.append(dv);
                             if (options.readonly) {
-                                if (this._RecurBuildConditionMessage==undefined){
+                                if (this._RecurBuildConditionMessage == undefined) {
                                     this._RecurBuildConditionMessage = function (element) {
                                         var ret = "";
                                         for (var prop in element) {
@@ -71,7 +71,7 @@
                                                     var cond = '=';
                                                     switch (prop) {
                                                         case 'greaterThanCondition':
-                                                            cond='>';
+                                                            cond = '>';
                                                             break;
                                                         case 'greaterThanOrEqualCondition':
                                                             cond = '>=';
@@ -83,7 +83,7 @@
                                                             cond = '<=';
                                                             break;
                                                     }
-                                                    ret = left + ' '+cond+' ' + right;
+                                                    ret = left + ' ' + cond + ' ' + right;
                                                     break;
                                                 case 'isNull':
                                                     ret = 'Variable["' + val.variable + '"] does not have a value';
@@ -103,26 +103,49 @@
                                                             lang = 'VB';
                                                             break;
                                                     }
-                                                    ret = lang+'EVAL(' + val.code + ')';
+                                                    ret = lang + 'EVAL(' + val.code + ')';
+                                                    break;
+                                                case 'andCondition':
+                                                case 'orCondition':
+                                                    ret = '(';
+                                                    var tag = (prop == 'orCondition' ? 'OR' : 'AND');
+                                                    for (var p in val) {
+                                                        var sval = val[p];
+                                                        if (!Array.isArray(sval)) {
+                                                            sval = [sval];
+                                                        }
+                                                        for (var x = 0; x < sval.length; x++) {
+                                                            var tobj = {};
+                                                            tobj[p] = sval[x];
+                                                            var tmp = arguments.callee(tobj);
+                                                            if (tmp != '') {
+                                                                ret += ' ' + (ret == '(' ? '' : tag + ' ') + tmp;
+                                                            }
+                                                        }
+                                                    }
+                                                    ret += ' )';
                                                     break;
                                             }
                                         }
                                         return ret;
                                     };
                                 }
-                                var conditions=null;
-                                if (businessObject.extensionElements!=undefined){
-                                    for(var x=0;x<businessObject.extensionElements.values.length;x++){
-                                        if (businessObject.extensionElements.values[x].$type=="exts:ConditionSet"){
+                                var conditions = null;
+                                if (businessObject.extensionElements != undefined) {
+                                    for (var x = 0; x < businessObject.extensionElements.values.length; x++) {
+                                        if (businessObject.extensionElements.values[x].$type == "exts:ConditionSet") {
                                             conditions = this._RecurBuildConditionMessage(businessObject.extensionElements.values[x]);
                                         }
                                     }
                                 }
-                                dv.append('<p>' + (conditions==null ? 'No conditions set' : conditions + '</p>'));
+                                dv.append('<p>' + (conditions == null ? 'No conditions set' : conditions + '</p>'));
                             }
                             break;
                     }
                     panel.show();
+                    break;
+                default:
+                    panel.hide();
                     break;
             }
         });
