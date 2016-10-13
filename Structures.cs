@@ -132,41 +132,44 @@ namespace Org.Reddragonit.BpmEngine
         {
             _name = elem.Attributes["name"].Value;
             _pathStepIndex = int.Parse(elem.Attributes["pathStepIndex"].Value);
+            string text = elem.InnerText;
+            if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
+                text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
             _value = null;
             switch ((VariableTypes)Enum.Parse(typeof(VariableTypes),elem.Attributes["type"].Value))
             {
                 case VariableTypes.Boolean:
-                    _value = bool.Parse(elem.InnerText);
+                    _value = bool.Parse(text);
                     break;
                 case VariableTypes.Byte:
-                    _value = Convert.FromBase64String(elem.InnerText);
+                    _value = Convert.FromBase64String(text);
                     break;
                 case VariableTypes.Char:
-                    _value = elem.InnerText[0];
+                    _value = text[0];
                     break;
                 case VariableTypes.DateTime:
-                    _value = DateTime.Parse(elem.InnerText);
+                    _value = DateTime.Parse(text);
                     break;
                 case VariableTypes.Decimal:
-                    _value = decimal.Parse(elem.InnerText);
+                    _value = decimal.Parse(text);
                     break;
                 case VariableTypes.Double:
-                    _value = double.Parse(elem.InnerText);
+                    _value = double.Parse(text);
                     break;
                 case VariableTypes.Float:
-                    _value = float.Parse(elem.InnerText);
+                    _value = float.Parse(text);
                     break;
                 case VariableTypes.Integer:
-                    _value = int.Parse(elem.InnerText);
+                    _value = int.Parse(text);
                     break;
                 case VariableTypes.Long:
-                    _value = long.Parse(elem.InnerText);
+                    _value = long.Parse(text);
                     break;
                 case VariableTypes.Short:
-                    _value = short.Parse(elem.InnerText);
+                    _value = short.Parse(text);
                     break;
                 case VariableTypes.String:
-                    _value = elem.InnerText;
+                    _value = text;
                     break;
             }
         }
@@ -187,53 +190,45 @@ namespace Org.Reddragonit.BpmEngine
                 writer.WriteAttributeString("type",VariableTypes.Null.ToString());
             else
             {
+                string text = _value.ToString();
                 switch (_value.GetType().FullName)
                 {
                     case "System.Boolean":
                         writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Byte[]":
                         writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
-                        writer.WriteValue(Convert.ToBase64String((byte[])_value));
+                        text = Convert.ToBase64String((byte[])_value);
                         break;
                     case "System.Char":
                         writer.WriteAttributeString("type", VariableTypes.Char.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.DateTime":
                         writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Decimal":
                         writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Double":
                         writer.WriteAttributeString("type", VariableTypes.Double.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Single":
                         writer.WriteAttributeString("type", VariableTypes.Float.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Int32":
                         writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Int64":
                         writer.WriteAttributeString("type", VariableTypes.Long.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.Int16":
                         writer.WriteAttributeString("type", VariableTypes.Short.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                     case "System.String":
                         writer.WriteAttributeString("type", VariableTypes.String.ToString());
-                        writer.WriteValue(_value.ToString());
                         break;
                 }
+                writer.WriteCData(text);
             }
             writer.WriteEndElement();
         }
