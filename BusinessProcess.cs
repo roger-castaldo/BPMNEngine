@@ -373,6 +373,8 @@ namespace Org.Reddragonit.BpmEngine
             ret._components = new List<object>(_components.ToArray());
             if (includeState)
                 ret._state = _state;
+            else
+                ret._state = new ProcessState(new ProcessStepComplete(ret._ProcessStepComplete), new ProcessStepError(ret._ProcessStepError));
             if (includeDelegates)
             {
                 ret.OnEventStarted = OnEventStarted;
