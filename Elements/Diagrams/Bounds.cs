@@ -18,11 +18,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [AttributeRegex("height", "^\\d+(\\.\\d+)?$")]
     internal class Bounds : AElement
     {
-        public Rectangle Rectangle
+        public RectangleF Rectangle
         {
             get
             {
-                return new Rectangle(
+                return new RectangleF(
                     (int)double.Parse(_GetAttributeValue("x")),
                     (int)double.Parse(_GetAttributeValue("y")),
                     (int)double.Parse(_GetAttributeValue("width")),

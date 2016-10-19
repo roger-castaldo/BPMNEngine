@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [RequiredAttribute("id")]
     internal class Shape : ADiagramElement
     {
-        public Rectangle Rectangle
+        public RectangleF Rectangle
         {
             get
             {

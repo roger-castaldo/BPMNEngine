@@ -37,10 +37,10 @@ namespace Org.Reddragonit.BpmEngine.Elements
             if (elem is Bounds)
             {
                 Bounds b = (Bounds)elem;
-                minX = Math.Min(minX, b.Rectangle.X);
-                maxX = Math.Max(maxX, b.Rectangle.X + b.Rectangle.Width);
-                minY = Math.Min(minY, b.Rectangle.Y);
-                maxY = Math.Max(maxY, b.Rectangle.Y + b.Rectangle.Height);
+                minX = Math.Min(minX, (int)b.Rectangle.X);
+                maxX = Math.Max(maxX, (int)b.Rectangle.X + (int)b.Rectangle.Width);
+                minY = Math.Min(minY, (int)b.Rectangle.Y);
+                maxY = Math.Max(maxY, (int)b.Rectangle.Y + (int)b.Rectangle.Height);
             }
             else if (elem is Waypoint)
             {
@@ -137,25 +137,25 @@ namespace Org.Reddragonit.BpmEngine.Elements
                             gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 11, 11, 11));
                             gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X + shape.Rectangle.Width - 11, shape.Rectangle.Y, 11, 11));
                             gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X + shape.Rectangle.Width - 11, shape.Rectangle.Y + shape.Rectangle.Height - 11, 11, 11));
-                            gp.FillPolygon(Brushes.White, new Point[]{
-                                new Point(shape.Rectangle.X,shape.Rectangle.Y+5),
-                                new Point(shape.Rectangle.X+5,shape.Rectangle.Y+5),
-                                new Point(shape.Rectangle.X+5,shape.Rectangle.Y),
-                                new Point(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y),
-                                new Point(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y+5),
-                                new Point(shape.Rectangle.X+shape.Rectangle.Width,shape.Rectangle.Y+5),
-                                new Point(shape.Rectangle.X+shape.Rectangle.Width,shape.Rectangle.Y+shape.Rectangle.Height-5),
-                                new Point(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y+shape.Rectangle.Height-5),
-                                new Point(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y+shape.Rectangle.Height),
-                                new Point(shape.Rectangle.X+5,shape.Rectangle.Y+shape.Rectangle.Height),
-                                new Point(shape.Rectangle.X+5,shape.Rectangle.Y+shape.Rectangle.Height-5),
-                                new Point(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height-5),
-                                new Point(shape.Rectangle.X,shape.Rectangle.Y+5)
+                            gp.FillPolygon(Brushes.White, new PointF[]{
+                                new PointF(shape.Rectangle.X,shape.Rectangle.Y+5),
+                                new PointF(shape.Rectangle.X+5,shape.Rectangle.Y+5),
+                                new PointF(shape.Rectangle.X+5,shape.Rectangle.Y),
+                                new PointF(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y),
+                                new PointF(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y+5),
+                                new PointF(shape.Rectangle.X+shape.Rectangle.Width,shape.Rectangle.Y+5),
+                                new PointF(shape.Rectangle.X+shape.Rectangle.Width,shape.Rectangle.Y+shape.Rectangle.Height-5),
+                                new PointF(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y+shape.Rectangle.Height-5),
+                                new PointF(shape.Rectangle.X+shape.Rectangle.Width-5,shape.Rectangle.Y+shape.Rectangle.Height),
+                                new PointF(shape.Rectangle.X+5,shape.Rectangle.Y+shape.Rectangle.Height),
+                                new PointF(shape.Rectangle.X+5,shape.Rectangle.Y+shape.Rectangle.Height-5),
+                                new PointF(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height-5),
+                                new PointF(shape.Rectangle.X,shape.Rectangle.Y+5)
                             });
-                            gp.DrawLine(p, new Point(shape.Rectangle.X + 5, shape.Rectangle.Y), new Point(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y));
-                            gp.DrawLine(p, new Point(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + 5), new Point(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + shape.Rectangle.Height - 5));
-                            gp.DrawLine(p, new Point(shape.Rectangle.X + 5, shape.Rectangle.Y + shape.Rectangle.Height), new Point(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y + shape.Rectangle.Height));
-                            gp.DrawLine(p, new Point(shape.Rectangle.X, shape.Rectangle.Y + 5), new Point(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 5));
+                            gp.DrawLine(p, new PointF(shape.Rectangle.X + 5, shape.Rectangle.Y), new PointF(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y));
+                            gp.DrawLine(p, new PointF(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + 5), new PointF(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + shape.Rectangle.Height - 5));
+                            gp.DrawLine(p, new PointF(shape.Rectangle.X + 5, shape.Rectangle.Y + shape.Rectangle.Height), new PointF(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y + shape.Rectangle.Height));
+                            gp.DrawLine(p, new PointF(shape.Rectangle.X, shape.Rectangle.Y + 5), new PointF(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 5));
                             switch (icon.Value)
                             {
                                 case BPMIcons.Task:
@@ -183,7 +183,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                                     rect = new Rectangle(272, 111, 49, 30);
                                     break;
                             }
-                            gp.DrawImage(img, new Rectangle(shape.Rectangle.X+5,shape.Rectangle.Y+5,20,15), rect, GraphicsUnit.Pixel);
+                            gp.DrawImage(img, new RectangleF(shape.Rectangle.X+5,shape.Rectangle.Y+5,15,15), rect, GraphicsUnit.Pixel);
                             break;
                         default:
                             switch (icon.Value)
@@ -277,34 +277,37 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 if (elem != null)
                 {
                     if (elem is TextAnnotation)
-                        gp.DrawLines(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new Point[]{
-                            new Point(shape.Rectangle.X+20,shape.Rectangle.Y),
-                            new Point(shape.Rectangle.X,shape.Rectangle.Y),
-                            new Point(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height),
-                            new Point(shape.Rectangle.X+20,shape.Rectangle.Y+shape.Rectangle.Height)
+                        gp.DrawLines(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new PointF[]{
+                            new PointF(shape.Rectangle.X+20,shape.Rectangle.Y),
+                            new PointF(shape.Rectangle.X,shape.Rectangle.Y),
+                            new PointF(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height),
+                            new PointF(shape.Rectangle.X+20,shape.Rectangle.Y+shape.Rectangle.Height)
                         });
                     else if (elem is Lane || elem is Participant)
-                        gp.DrawRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), shape.Rectangle);
+                        gp.DrawRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), Rectangle.Round(shape.Rectangle));
                     if (elem.ToString() != "")
                     {
                         if (shape.Label != null)
-                            gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), shape.Label.Bounds.Rectangle);
+                        {
+                            SizeF sf = gp.MeasureString(elem.ToString(), Constants.FONT, new SizeF(shape.Label.Bounds.Rectangle.Width, float.MaxValue), Constants.STRING_FORMAT);
+                            gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Label.Bounds.Rectangle.X,shape.Label.Bounds.Rectangle.Y,Math.Max(shape.Label.Bounds.Rectangle.Width,sf.Width),Math.Max(shape.Label.Bounds.Rectangle.Height,sf.Height)), Constants.STRING_FORMAT);
+                        }
                         else
                         {
                             SizeF size = gp.MeasureString(elem.ToString(), Constants.FONT);
                             if (elem is Lane || elem is LaneSet || elem is Participant)
                             {
-                                Bitmap tbmp = new Bitmap((int)size.Height*2, (int)size.Width);
+                                Bitmap tbmp = new Bitmap((int)size.Height * 2, (int)size.Width);
                                 Graphics g = Graphics.FromImage(tbmp);
                                 g.TranslateTransform(tbmp.Width / 2, tbmp.Height);
                                 g.RotateTransform(-90);
                                 g.TranslateTransform(0, 0);
-                                g.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status),0,0);
+                                g.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), 0, 0);
                                 g.Save();
-                                gp.DrawImage(tbmp,new PointF(shape.Rectangle.X-7,shape.Rectangle.Y+((shape.Rectangle.Height-tbmp.Height)/2)));
+                                gp.DrawImage(tbmp, new PointF(shape.Rectangle.X - 7, shape.Rectangle.Y + ((shape.Rectangle.Height - tbmp.Height) / 2)));
                             }
                             else
-                                gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), (float)shape.Rectangle.X + (((float)shape.Rectangle.Width - size.Width) / 2), (float)shape.Rectangle.Y + (((float)shape.Rectangle.Height - size.Height) / 2));
+                                gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f), Constants.STRING_FORMAT);
                         }
                     }
                 }
@@ -317,7 +320,10 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 {
                     IElement elem = definition.LocateElement(edge.bpmnElement);
                     if (elem != null)
-                        gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), edge.Label.Bounds.Rectangle);
+                    {
+                        SizeF sf = gp.MeasureString(elem.ToString(), Constants.FONT, new SizeF(edge.Label.Bounds.Rectangle.Width, edge.Label.Bounds.Rectangle.Height), Constants.STRING_FORMAT);
+                        gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(edge.Label.Bounds.Rectangle.X,edge.Label.Bounds.Rectangle.Y,Math.Max(edge.Label.Bounds.Rectangle.Width,sf.Width),Math.Max(edge.Label.Bounds.Rectangle.Height,sf.Height)), Constants.STRING_FORMAT);
+                    }
                 }
             }
             return bmp;
