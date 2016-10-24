@@ -187,6 +187,25 @@ namespace Org.Reddragonit.BpmEngine
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
         }
 
+        public void CompleteUserTask(string taskID, ProcessVariablesContainer variables)
+        {
+            _CompleteExternalTask(taskID, variables);
+        }
+
+        public void ErrorUserTask(string taskID, Exception ex)
+        {
+            _ErrorExternalTask(taskID, ex);
+        }
+
+        public void CompleteManualTask(string taskID, ProcessVariablesContainer variables)
+        {
+            _CompleteExternalTask(taskID, variables);
+        }
+
+        public void ErrorManualTask(string taskID, Exception ex)
+        {
+            _ErrorExternalTask(taskID, ex);
+        }
         #endregion
 
         #endregion
