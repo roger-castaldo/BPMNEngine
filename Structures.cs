@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 
@@ -7,6 +8,8 @@ namespace Org.Reddragonit.BpmEngine
 {
     internal struct sPathEntry
     {
+        private const string _DATETIME_FORMAT = "yyyyMMddHHmmssfff";
+
         private string _incomingID;
         public string IncomingID { get { return _incomingID; } }
         private string[] _outgoingID;
@@ -25,8 +28,8 @@ namespace Org.Reddragonit.BpmEngine
             _incomingID = (elem.Attributes["incomingID"] == null ? null : elem.Attributes["incomingID"].Value);
             _elementID = elem.Attributes["elementID"].Value;
             _status = (StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes["status"].Value);
-            _startTime = DateTime.Parse(elem.Attributes["startTime"].Value);
-            _endTime = (elem.Attributes["endTime"] == null ? (DateTime?)null : DateTime.Parse(elem.Attributes["endTime"].Value));
+            _startTime = DateTime.ParseExact(elem.Attributes["startTime"].Value,_DATETIME_FORMAT, CultureInfo.InvariantCulture);
+            _endTime = (elem.Attributes["endTime"] == null ? (DateTime?)null : DateTime.ParseExact(elem.Attributes["endTime"].Value,_DATETIME_FORMAT, CultureInfo.InvariantCulture));
             _outgoingID = null;
             if (elem.Attributes["outgoingID"] != null)
                 _outgoingID = new string[] { elem.Attributes["outgoingID"].Value };
@@ -96,9 +99,9 @@ namespace Org.Reddragonit.BpmEngine
                 writer.WriteAttributeString("incomingID", _incomingID);
             writer.WriteAttributeString("elementID", _elementID);
             writer.WriteAttributeString("status", _status.ToString());
-            writer.WriteAttributeString("startTime", _startTime.ToString());
+            writer.WriteAttributeString("startTime", _startTime.ToString(_DATETIME_FORMAT));
             if (_endTime.HasValue)
-                writer.WriteAttributeString("endtime", _endTime.Value.ToString());
+                writer.WriteAttributeString("endTime", _endTime.Value.ToString(_DATETIME_FORMAT));
             if (_outgoingID != null)
             {
                 if (_outgoingID.Length == 1)
