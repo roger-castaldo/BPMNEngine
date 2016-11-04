@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,10 +24,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                     ExtensionElements ee = (ExtensionElements)ExtensionElement;
                     if (ee.Children != null)
                     {
-                        if (ee.Children[0] is AScript)
+                        foreach (IElement ie in ee.Children)
                         {
-                            callDelegate = false;
-                            variables = (ProcessVariablesContainer)((AScript)ee.Children[0]).Invoke(variables);
+                            if (ie is AScript)
+                            {
+                                callDelegate = false;
+                                variables = (ProcessVariablesContainer)((AScript)ie).Invoke(variables);
+                                break;
+                            }
                         }
                     }
                 }

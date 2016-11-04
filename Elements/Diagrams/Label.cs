@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +10,20 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [XMLTag("bpmndi","BPMNLabel")]
     internal class Label : AParentElement
     {
-        public Bounds Bounds { get { return (Children.Length>0 ? (Bounds)Children[0] : null);} }
+        public Bounds Bounds {
+            get {
+                Bounds ret = null;
+                foreach (IElement ie in Children)
+                {
+                    if (ie is Bounds)
+                    {
+                        ret = (Bounds)ie;
+                        break;
+                    }
+                }
+                return ret;
+            }
+        }
 
         public Label(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }

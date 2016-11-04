@@ -42,9 +42,10 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     ExtensionElements ee = (ExtensionElements)ExtensionElement;
                     if (ee.Children != null)
                     {
-                        if (ee.Children[0] is ConditionSet)
+                        foreach (IElement ie in ee.Children)
                         {
-                            return ((ConditionSet)ee.Children[0]).Evaluate(variables);
+                            if (ie is ConditionSet)
+                                return ((ConditionSet)ie).Evaluate(variables);
                         }
                     }
                 }

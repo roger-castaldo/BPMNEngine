@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,9 +23,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                     ExtensionElements ee = (ExtensionElements)ExtensionElement;
                     if (ee.Children != null)
                     {
-                        if (ee.Children[0] is ConditionSet)
+                        foreach (IElement ie in ee.Children)
                         {
-                            return ((ConditionSet)ee.Children[0]).Evaluate(variables);
+                            if (ie is ConditionSet)
+                                return ((ConditionSet)ie).Evaluate(variables);
                         }
                     }
                 }
