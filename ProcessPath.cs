@@ -184,7 +184,17 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        internal void SucceedTask(UserTask task,string completedByID)
+        {
+            _SucceedTask(task, completedByID);
+        }
+
         internal void SucceedTask(ATask task)
+        {
+            _SucceedTask(task, null);
+        }
+
+        private void _SucceedTask(ATask task,string completedByID)
         {
             lock (_pathEntries)
             {
@@ -200,9 +210,9 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
                 if (task.Outgoing == null)
-                    _pathEntries.Add(new sPathEntry(task.id, StepStatuses.Succeeded, start, incoming, DateTime.Now));
+                    _pathEntries.Add(new sPathEntry(task.id, StepStatuses.Succeeded, start, incoming, DateTime.Now,(task is UserTask ? completedByID : null)));
                 else
-                    _pathEntries.Add(new sPathEntry(task.id, StepStatuses.Succeeded, start, incoming, task.Outgoing[0], DateTime.Now));
+                    _pathEntries.Add(new sPathEntry(task.id, StepStatuses.Succeeded, start, incoming, task.Outgoing[0], DateTime.Now, (task is UserTask ? completedByID : null)));
                 _complete.BeginInvoke(task.id,(task.Outgoing==null ? null : task.Outgoing[0]), new AsyncCallback(_AsyncCallback), null);
             }
         }

@@ -22,6 +22,8 @@ namespace Org.Reddragonit.BpmEngine
         public DateTime StartTime { get { return _startTime; } }
         private DateTime? _endTime;
         public DateTime? EndTime { get { return _endTime; } }
+        private string _completedByID;
+        public string CompletedByID { get { return _completedByID; } }
 
         public sPathEntry(XmlElement elem)
         {
@@ -30,6 +32,7 @@ namespace Org.Reddragonit.BpmEngine
             _status = (StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes["status"].Value);
             _startTime = DateTime.ParseExact(elem.Attributes["startTime"].Value,_DATETIME_FORMAT, CultureInfo.InvariantCulture);
             _endTime = (elem.Attributes["endTime"] == null ? (DateTime?)null : DateTime.ParseExact(elem.Attributes["endTime"].Value,_DATETIME_FORMAT, CultureInfo.InvariantCulture));
+            _completedByID = (elem.Attributes["CompletedByID"] != null ? elem.Attributes["CompletedByID"].Value : null);
             _outgoingID = null;
             if (elem.Attributes["outgoingID"] != null)
                 _outgoingID = new string[] { elem.Attributes["outgoingID"].Value };
@@ -60,9 +63,10 @@ namespace Org.Reddragonit.BpmEngine
             _incomingID = incomingID;
             _outgoingID = null;
             _endTime = null;
+            _completedByID = null;
         }
 
-        public sPathEntry(string elementID, StepStatuses status, DateTime startTime, string incomingID,DateTime endTime)
+        public sPathEntry(string elementID, StepStatuses status, DateTime startTime, string incomingID,DateTime endTime,string completedByID)
         {
             _elementID = elementID;
             _status = status;
@@ -70,6 +74,18 @@ namespace Org.Reddragonit.BpmEngine
             _incomingID = incomingID;
             _outgoingID = null;
             _endTime = endTime;
+            _completedByID = completedByID;
+        }
+
+        public sPathEntry(string elementID, StepStatuses status, DateTime startTime, string incomingID, DateTime endTime)
+        {
+            _elementID = elementID;
+            _status = status;
+            _startTime = startTime;
+            _incomingID = incomingID;
+            _outgoingID = null;
+            _endTime = endTime;
+            _completedByID = null;
         }
 
         public sPathEntry(string elementID, StepStatuses status, DateTime startTime, string incomingID, string[] outgoingID, DateTime? endTime)
@@ -80,6 +96,18 @@ namespace Org.Reddragonit.BpmEngine
             _incomingID = incomingID;
             _outgoingID = outgoingID;
             _endTime = endTime;
+            _completedByID = null;
+        }
+
+        public sPathEntry(string elementID, StepStatuses status, DateTime startTime, string incomingID, string outgoingID, DateTime endTime, string completedByID)
+        {
+            _elementID = elementID;
+            _status = status;
+            _startTime = startTime;
+            _incomingID = incomingID;
+            _outgoingID = (outgoingID == null ? null : new string[] { outgoingID });
+            _endTime = endTime;
+            _completedByID = completedByID;
         }
 
         public sPathEntry(string elementID, StepStatuses status, DateTime startTime, string incomingID,string outgoingID, DateTime? endTime)
@@ -90,6 +118,7 @@ namespace Org.Reddragonit.BpmEngine
             _incomingID = incomingID;
             _outgoingID = (outgoingID == null ? null : new string[]{outgoingID});
             _endTime = endTime;
+            _completedByID = null;
         }
 
         public void Append(XmlWriter writer)
@@ -102,6 +131,8 @@ namespace Org.Reddragonit.BpmEngine
             writer.WriteAttributeString("startTime", _startTime.ToString(_DATETIME_FORMAT));
             if (_endTime.HasValue)
                 writer.WriteAttributeString("endTime", _endTime.Value.ToString(_DATETIME_FORMAT));
+            if (_completedByID != null)
+                writer.WriteAttributeString("CompletedByID", _completedByID);
             if (_outgoingID != null)
             {
                 if (_outgoingID.Length == 1)

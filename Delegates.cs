@@ -40,7 +40,7 @@ namespace Org.Reddragonit.BpmEngine
     public delegate void ProcessSendTask(IElement task, ref ProcessVariablesContainer variables);
     public delegate void ProcessServiceTask(IElement task, ref ProcessVariablesContainer variables);
     public delegate void ProcessTask(IElement task, ref ProcessVariablesContainer variables);
-    public delegate void CompleteUserTask(string taskID, ProcessVariablesContainer newVariables);
+    public delegate void CompleteUserTask(string taskID, ProcessVariablesContainer newVariables,string completedByID);
     public delegate void ErrorUserTask(string taskID, Exception ex);
     public delegate void BeginUserTask(IElement task, ProcessVariablesContainer variables, IElement lane, CompleteUserTask completeCallback, ErrorUserTask errorCallBack);
     #endregion

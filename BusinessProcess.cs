@@ -167,6 +167,22 @@ namespace Org.Reddragonit.BpmEngine
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
         }
 
+        private void _CompleteUserTask(string taskID, ProcessVariablesContainer variables,string completedByID)
+        {
+            bool success = false;
+            foreach (IElement elem in _FullElements)
+            {
+                if (elem.id == taskID && elem is ATask)
+                {
+                    _MergeVariables((UserTask)elem, variables,completedByID);
+                    success = true;
+                    break;
+                }
+            }
+            if (!success)
+                throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
+        }
+
         private void _ErrorExternalTask(string taskID, Exception ex)
         {
             bool success = false;
@@ -187,9 +203,9 @@ namespace Org.Reddragonit.BpmEngine
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
         }
 
-        public void CompleteUserTask(string taskID, ProcessVariablesContainer variables)
+        public void CompleteUserTask(string taskID, ProcessVariablesContainer variables,string completedByID)
         {
-            _CompleteExternalTask(taskID, variables);
+            _CompleteUserTask(taskID, variables,completedByID);
         }
 
         public void ErrorUserTask(string taskID, Exception ex)
@@ -659,7 +675,7 @@ namespace Org.Reddragonit.BpmEngine
                                     }
                                 }
                             }
-                            _beginUserTask(tsk, variables, ln, new CompleteUserTask(_CompleteExternalTask), new ErrorUserTask(_ErrorExternalTask));
+                            _beginUserTask(tsk, variables, ln, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
                             break;
                     }
                 }
@@ -672,7 +688,17 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        private void _MergeVariables(UserTask task, ProcessVariablesContainer variables, string completedByID)
+        {
+            _MergeVariables(task, variables, completedByID);
+        }
+
         private void _MergeVariables(ATask task, ProcessVariablesContainer variables)
+        {
+            _MergeVariables(task, variables, null);
+        }
+
+        private void _MergeVariables(ATask task, ProcessVariablesContainer variables,string completedByID)
         {
             lock (_state)
             {
@@ -697,7 +723,10 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (_onTaskCompleted != null)
                     _onTaskCompleted(task);
-                _state.Path.SucceedTask(task);
+                if (task is UserTask)
+                    _state.Path.SucceedTask((UserTask)task,completedByID);
+                else
+                    _state.Path.SucceedTask(task);
             }
         }
     }
