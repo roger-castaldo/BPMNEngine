@@ -51,5 +51,25 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
             return pars[1];
         }
+
+        protected override bool _IsValid(out string[] err)
+        {
+            try
+            {
+                if (_engineType == null)
+                    throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
+                object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+                object[] pars = new object[] { "variables", new ProcessVariablesContainer() };
+                _setValue.Invoke(engine, pars);
+                _execute.Invoke(engine, new object[] { _Code });
+            }
+            catch(Exception e)
+            {
+                err = new string[] { e.Message };
+                return false;
+            }
+            err = null;
+            return true;
+        }
     }
 }

@@ -11,5 +11,29 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
     {
         public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
+
+        public override bool IsValid(out string[] err)
+        {
+            if (Incoming == null)
+            {
+                err = new string[] { "Intermediate Throw Events must have an incoming path." };
+                return false;
+            }else if (Incoming.Length != 1)
+            {
+                err = new string[] { "Intermediate Throw Events must have only 1 incoming path." };
+                return false;
+            }
+            if (Outgoing == null)
+            {
+                err = new string[] { "Intermediate Throw Events must have an outgoing path." };
+                return false;
+            }
+            else if (Outgoing.Length != 1)
+            {
+                err = new string[] { "Intermediate Throw Events must have only 1 outgoing path." };
+                return false;
+            }
+            return base.IsValid(out err);
+        }
     }
 }

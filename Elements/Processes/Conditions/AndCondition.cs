@@ -24,11 +24,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return ret;
         }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Children.Length < 2 )
             {
-                err = "Not enough child elements found";
+                err = new string[] { "Not enough child elements found" };
                 return false;
             }
             return base.IsValid(out err);

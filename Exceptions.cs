@@ -6,6 +6,18 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
+    public class InvalidProcessDefinitionException : Exception
+    {
+        private Exception[] _processExceptions;
+        public Exception[] ProcessExceptions { get { return _processExceptions; } }
+
+        internal InvalidProcessDefinitionException(List<Exception> children)
+            : base("The process failed validation.  The property ProcessExceptions contains the list of details.")
+        {
+            _processExceptions = children.ToArray();
+        }
+    }
+
     public class MissingAttributeException : Exception
     {
         internal MissingAttributeException(XmlNode n, RequiredAttribute att)
@@ -24,7 +36,7 @@ namespace Org.Reddragonit.BpmEngine
 
     public class InvalidElementException : Exception
     {
-        internal InvalidElementException(XmlNode n, string err)
-            : base(string.Format("The element at {0} has an error. {1}", Utility.FindXPath(n), err)) { }
+        internal InvalidElementException(XmlNode n, string[] err)
+            : base(string.Format("The element at {0} has the following error(s):\n{1}", Utility.FindXPath(n), String.Join("\n\t",err))) { }
     }
 }

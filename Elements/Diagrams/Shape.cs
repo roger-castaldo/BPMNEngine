@@ -91,7 +91,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             return ret;
         }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             bool found = false;
             foreach (IElement elem in Children)
@@ -100,7 +100,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
             if (!found)
             {
-                err = "No bounds specified.";
+                err = new string[] { "No bounds specified." };
                 return false;
             }
             return base.IsValid(out err);

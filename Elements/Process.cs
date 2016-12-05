@@ -53,11 +53,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return isProcessStartValid(this, variables);
         }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Children.Length == 0)
             {
-                err = "No child elements found.";
+                err = new string[] { "No child elements found." };
                 return false;
             }
             return base.IsValid(out err);

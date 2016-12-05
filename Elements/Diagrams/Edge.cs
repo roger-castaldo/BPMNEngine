@@ -64,11 +64,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             return ret;
         }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Points.Length<2)
             {
-                err = "At least 2 points are required.";
+                err = new string[] { "At least 2 points are required." };
                 return false;
             }
             return base.IsValid(out err);

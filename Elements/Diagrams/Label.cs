@@ -28,11 +28,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         public Label(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Bounds == null)
             {
-                err = "No bounds specified.";
+                err = new string[] { "No bounds specified." };
                 return false;
             }
             return base.IsValid(out err);

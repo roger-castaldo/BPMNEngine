@@ -80,7 +80,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return _GetAttributeValue("name");
         }
 
-        public virtual bool IsValid(out string err)
+        public virtual bool IsValid(out string[] err)
         {
             err = null;
             return true;

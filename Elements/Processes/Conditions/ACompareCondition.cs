@@ -120,10 +120,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return ret;
         }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             bool foundLeft = this._GetAttributeValue("leftVariable")!=null;
             bool foundRight = this._GetAttributeValue("rightVariable")!=null;
+            List<string> errs = new List<string>();
             foreach (XmlNode n in SubNodes)
             {
                 if (n.NodeType == XmlNodeType.Element)
@@ -131,36 +132,26 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     if (_map.isMatch("exts", "right", n.Name) || n.Name == "right")
                     {
                         if (foundRight)
-                        {
-                            err = "Right value specified more than once.";
-                            return false;
-                        }
+                            errs.Add("Right value specified more than once.");
                         foundRight = true;
                     }
                     else if (_map.isMatch("exts", "left", n.Name) || n.Name == "left")
                     {
                         if (foundLeft)
-                        {
-                            err = "Left value specified more than once.";
-                            return false;
-                        }
+                            errs.Add("Left value specified more than once.");
                         foundLeft = true;
                     }
                 }
             }
             if (!foundRight && !foundLeft)
-            {
-                err = "Right and Left value missing.";
-                return false;
-            }
+                errs.Add("Right and Left value missing.");
             else if (!foundRight)
-            {
-                err = "Right value missing.";
-                return false;
-            }
+                errs.Add("Right value missing.");
             else if (!foundLeft)
+                errs.Add("Left value missing.");
+            if (errs.Count>0)
             {
-                err = "Left value missing.";
+                err = errs.ToArray();
                 return false;
             }
             return base.IsValid(out err);

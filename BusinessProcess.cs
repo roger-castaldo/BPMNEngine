@@ -234,6 +234,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public BusinessProcess(XmlDocument doc)
         {
+            List<Exception> exceptions = new List<Exception>();
             _processLock = new ManualResetEvent(false);
             _doc = doc;
             _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete),new ProcessStepError(_ProcessStepError));
@@ -254,7 +255,7 @@ namespace Org.Reddragonit.BpmEngine
                     _components.Add(n);
             }
             if (_Elements.Count == 0)
-                throw new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located.");
+                exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
             {
                 bool found = false;
@@ -264,31 +265,36 @@ namespace Org.Reddragonit.BpmEngine
                         found = true;
                 }
                 if (!found)
-                    throw new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located.");
+                    exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             }
-            foreach (IElement elem in _Elements)
-                _ValidateElement((AElement)elem);
+            if (exceptions.Count == 0)
+            {
+                foreach (IElement elem in _Elements)
+                    _ValidateElement((AElement)elem,ref exceptions);
+            }
+            if (exceptions.Count!=0)
+                throw new InvalidProcessDefinitionException(exceptions);
         }
 
-        private void _ValidateElement(AElement elem)
+        private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
         {
             foreach (RequiredAttribute ra in elem.GetType().GetCustomAttributes(typeof(RequiredAttribute), true))
             {
                 if (elem.Element.Attributes[ra.Name]==null)
-                    throw new MissingAttributeException(elem.Element,ra);
+                    exceptions.Add(new MissingAttributeException(elem.Element,ra));
             }
             foreach (AttributeRegex ar in elem.GetType().GetCustomAttributes(typeof(AttributeRegex),true))
             {
                 if (!ar.IsValid(elem))
-                    throw new InvalidAttributeValueException(elem.Element, ar);
+                    exceptions.Add(new InvalidAttributeValueException(elem.Element, ar));
             }
-            string err;
+            string[] err;
             if (!elem.IsValid(out err))
-                throw new InvalidElementException(elem.Element, err);
+                exceptions.Add(new InvalidElementException(elem.Element, err));
             if (elem is AParentElement)
             {
                 foreach (AElement e in ((AParentElement)elem).Children)
-                    _ValidateElement(e);
+                    _ValidateElement(e,ref exceptions);
             }
         }
 

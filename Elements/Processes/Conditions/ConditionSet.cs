@@ -18,11 +18,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return _Conditions[0].Evaluate(variables);
         }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Children.Length > 1)
             {
-                err = "Too many children found.";
+                err = new string[] { "Too many children found." };
                 return false;
             }
             return base.IsValid(out err);

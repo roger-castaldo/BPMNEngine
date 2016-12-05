@@ -56,9 +56,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
-        
-
         protected abstract object _Invoke(ProcessVariablesContainer variables);
+        protected abstract bool _IsValid(out string[] err);
 
         public object Invoke(ProcessVariablesContainer variables)
         {
@@ -69,6 +68,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             catch (Exception e) {
                 throw e;
             }
+        }
+
+        public sealed override bool IsValid(out string[] err)
+        {
+            if (!_IsValid(out err))
+                return false;
+            return base.IsValid(out err);
         }
     }
 }

@@ -30,11 +30,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
         public TextAnnotation(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Content=="")
             {
-                err = "No content was specified.";
+                err = new string[] { "No content was specified." };
                 return false;
             }
             return base.IsValid(out err);

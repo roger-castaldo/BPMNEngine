@@ -13,11 +13,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         public Plane(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (this.Children.Length == 0)
             {
-                err = "No child elements to render.";
+                err = new string[] { "No child elements to render." };
                 return false;
             }
             return base.IsValid(out err);

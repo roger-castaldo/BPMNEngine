@@ -13,11 +13,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public Collaboration(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool IsValid(out string err)
+        public override bool IsValid(out string[] err)
         {
             if (Children.Length == 0)
             {
-                err = "No child elements found.";
+                err = new string[] { "No child elements found." };
                 return false;
             }
             return base.IsValid(out err);

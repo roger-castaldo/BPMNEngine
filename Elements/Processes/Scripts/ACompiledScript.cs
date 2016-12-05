@@ -89,30 +89,40 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         protected abstract string _GenerateCode(string[] imports,string code);
         protected abstract CodeDomProvider _CodeProvider { get; }
         
-        protected sealed override object _Invoke(ProcessVariablesContainer variables)
+        private bool _CompileAssembly(out string errors)
         {
+            errors = null;
             lock (this)
             {
                 if (_assembly == null)
                 {
                     CompilerParameters compilerParams = new CompilerParameters
-                        {
-                            GenerateInMemory = true,
-                            GenerateExecutable = false,
-                            TreatWarningsAsErrors = false
-                        };
+                    {
+                        GenerateInMemory = true,
+                        GenerateExecutable = false,
+                        TreatWarningsAsErrors = false
+                    };
                     compilerParams.ReferencedAssemblies.AddRange(_Dlls);
-                    CompilerResults results = _CodeProvider.CompileAssemblyFromSource(compilerParams, new string[]{_GenerateCode(_Imports,_Code)});
+                    CompilerResults results = _CodeProvider.CompileAssemblyFromSource(compilerParams, new string[] { _GenerateCode(_Imports, _Code) });
                     if (results.Errors.Count > 0)
                     {
                         StringBuilder error = new StringBuilder();
                         foreach (CompilerError ce in results.Errors)
                             error.AppendLine(ce.ErrorText);
-                        throw new Exception(string.Format("Unable to compile script Code.  Errors:{0}", error.ToString()));
-                    }
-                    _assembly = results.CompiledAssembly;
+                        errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
+                        _assembly = null;
+                    }else
+                        _assembly = results.CompiledAssembly;
                 }
             }
+            return errors == null;
+        }
+
+        protected sealed override object _Invoke(ProcessVariablesContainer variables)
+        {
+            string errors;
+            if (!_CompileAssembly(out errors))
+                throw new Exception(errors);
             object o = _assembly.CreateInstance(_className);
             MethodInfo mi = o.GetType().GetMethod(_functionName);
             object[] args = new object[] { variables };
@@ -120,6 +130,20 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             if (mi.ReturnType==typeof(void))
                 ret = args[0];
             return ret;
+        }
+
+        protected override bool _IsValid(out string[] err)
+        {
+            _assembly = null;
+            string error;
+            if (!_CompileAssembly(out error))
+            {
+                err = new string[] { error };
+                return false;
+            }
+            else
+                err = null;
+            return true;
         }
     }
 }
