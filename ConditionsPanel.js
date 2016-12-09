@@ -8,15 +8,19 @@
                 ret.append('Left: <input type="text" name="left"/><br/>');
                 ret.append('Comparison: <select name="comparison"><option value="isEqualCondition">=</option><option value="greaterThanCondition">&gt;</option><option value="greaterThanOrEqualCondition">&gt;=</option><option value="lessThanCondition">&lt;</option><option value="lessThanOrEqualCondition">&lt;=</option></select><br/>');
                 ret.append('Right: <input type="text" name="right"/><br/>');
+                ret.append('Negated: <input type="checkbox" name="negated"/><br/>');
                 $(ret.find('[name="left"]')).val((val.leftVariable == undefined ? val.left : '${' + val.leftVariable + '}'));
                 $(ret.find('option[value="' + val.$type.substring(5) + '"]')[0]).prop('selected', true);
                 $(ret.find('[name="right"]')).val((val.rightVariable == undefined ? val.right : '${' + val.rightVariable + '}'));
+                $(ret.find('[name="negated"]')).prop('checked', val.negated);
                 return ret;
             },
             isnull: function (val) {
                 var ret = $('<div></div>');
                 ret.append('Variable: <input type="text" name="variable"/><br/>');
+                ret.append('Negated: <input type="checkbox" name="negated"/><br/>');
                 $(ret.find('[name="variable"]')).val(val.variable);
+                $(ret.find('[name="negated"]')).prop('checked', val.negated);
                 return ret;
             },
             script: function (val) {
@@ -29,6 +33,7 @@
             groupCondition: function (val) {
                 var ret = $('<div></div>');
                 ret.append('Group Type: <select><option value="AND">AND</option><option value="OR">OR</option></select><br/>');
+                ret.append('Negated: <input type="checkbox" name="negated"/><br/>');
                 switch (val.$type) {
                     case 'exts:orCondition':
                         $(ret.find('option[value="OR"]')[0]).prop('selected', true);
@@ -37,6 +42,7 @@
                         $(ret.find('option[value="AND"]')[0]).prop('selected', true);
                         break;
                 }
+                $(ret.find('[name="negated"]')).prop('checked', val.negated);
                 return ret;
             }
         };
@@ -44,6 +50,11 @@
             compareCondition: function (frm,elem) {
                 $(elem.find('[name="left"]')[0]).html($(frm.find('[name="left"]')).val());
                 $(elem.find('[name="right"]')[0]).html($(frm.find('[name="right"]')).val());
+                if (frm.find('input[name="negated"]:checked').length == 0) {
+                    $(elem.find('[name="negated"]')).show();
+                } else {
+                    $(elem.find('[name="negated"]')).hide();
+                }
                 switch ($(frm.find('select[name="comparison"]>option:selected')[0]).val()) {
                     case 'isEqualCondition':
                         $(elem.find('[name="comparison"]')[0]).html('=');
@@ -64,6 +75,11 @@
             },
             isnull: function (frm,elem) {
                 $(elem.find('[name="variable"]')[0]).html($(frm.find('[name="variable"]')[0]).val());
+                if (frm.find('input[name="negated"]:checked').length == 0) {
+                    $(elem.find('[name="negated"]')).show();
+                } else {
+                    $(elem.find('[name="negated"]')).hide();
+                }
             },
             script: function (frm,elem) {
                 $(elem.find('[name="code"]')[0]).html($(frm.find('textarea')[0]).val());
@@ -80,6 +96,11 @@
                 }
             },
             groupCondition: function (frm, elem) {
+                if (frm.find('input[name="negated"]:checked').length == 0) {
+                    $(elem.find('[name="negated"]')).show();
+                } else {
+                    $(elem.find('[name="negated"]')).hide();
+                }
                 $(elem.find('[name="condition"]')[0]).html($(frm.find('option:selected')[0]).val());
             }
         };
@@ -91,7 +112,8 @@
                 return tmp = { id: (parentId==undefined ? '' : parentId) + '_cond' + ((index==undefined ? this._randomIndex() : index)+1).toString() };
             },
             compareCondition:function(elem,parentId,index){
-                var tmp = this._base(parentId,index);
+                var tmp = this._base(parentId, index);
+                tmp.negated = elem.find('[name="negated"]:visible').length > 0;
                 var ret=null;
                 switch ($(elem.find('[name="comparison"]:first')[0]).text()) {
                     case '=':
@@ -121,20 +143,10 @@
                 return ret;
             },
             isnull : function(elem,parentId,index){
-                var tmp = this._base(parentId,index);
+                var tmp = this._base(parentId, index);
+                tmp.negated = elem.find('[name="negated"]:visible').length > 0;
                 var ret = moddle.create('exts:isNull', tmp);
                 ret.set('variable',$(elem.find('[name="variable"]:first')[0]).text());
-                return ret;
-            },
-            not:function(elem,parentId,index){
-                var tmp = this._base(parentId,index);
-                var ret = moddle.create('exts:notCondition', tmp);
-                if (index!=undefined){
-                    index++;
-                }
-                var subElem = $($(frmElement.find('[name="subCondition"]:first')[0]).children()[0]);
-                var sub = this[subElem.attr('name')](subElem,parentId,index);
-                ret.set(sub.$type.substring(5), sub);
                 return ret;
             },
             script:function(elem,parentId,index){
@@ -155,7 +167,8 @@
                 return ret;
             },
             groupCondition:function(elem,parentId,index){
-                var tmp = this._base(parentId,index);
+                var tmp = this._base(parentId, index);
+                tmp.negated = elem.find('[name="negated"]:visible').length > 0;
                 var ret=null;
                 switch($(elem.find('[name="condition"]:first')[0]).text()){
                     case 'OR':
@@ -294,7 +307,8 @@
                 var left = (val.leftVariable == undefined ? val.left : '${' + val.leftVariable + '}');
                 var right = (val.rightVariable == undefined ? val.right : '${' + val.rightVariable + '}');
                 var cond = '=';
-                ret.append('<span name="left">'+left + '</span> <span name="comparison">' + cond + '</span> <span name="right">' + right+'</span>');
+                ret.append('<span name="negated">NOT (</span><span name="left">' + left + '</span> <span name="comparison">' + cond + '</span> <span name="right">' + right + '</span><span name="negated">(</span>');
+                if (!val.negated) { $(ret.find('[name="negated"]')).hide();}
                 if (!readonly) {
                     ret.append(this._createDelete());
                     ret.append(this._createEdit());
@@ -324,26 +338,11 @@
             isNull : function(val,readonly){
                 var ret = this._base(val);
                 ret.attr('name', 'isnull');
-                ret.append('Variable["<span name="variable">' + val.variable + '</span>"] does not have a value');
+                ret.append('<span name="negated">NOT (</span>Variable["<span name="variable">' + val.variable + '</span>"] does not have a value<span name="negated">(</span>');
+                if (!val.negated) { $(ret.find('[name="negated"]')).hide(); }
                 if (!readonly) {
                     ret.append(this._createDelete());
                     ret.append(this._createEdit());
-                }
-                return ret;
-            },
-            notCondition:function(val,readonly){
-                var ret = this._base(val);
-                ret.attr('name', 'not');
-                ret.append('NOT (<span name="subCondition">');
-                for (var prop in val) {
-                    if (this[prop]!=undefined){
-                        ret.append(this[prop](val[prop],readonly));
-                        break;
-                    }
-                }
-                ret.append('</span>)');
-                if (!readonly) {
-                    ret.append(this._createDelete());
                 }
                 return ret;
             },
@@ -370,8 +369,9 @@
             andCondition:function(val,readonly){
                 var ret = this._base(val);
                 ret.attr('name', 'groupCondition');
-                ret.append('<span name="condition" style="text-align:left;float:left;">AND</span>');
+                ret.append('<span name="negated">NOT (</span><span name="condition" style="text-align:left;float:left;">AND</span><span name="negated">(</span>');
                 var tmp = $('<ul style="list-style:none;padding:0;padding-left:5px;border-left:solid 1px black;text-align:left;margin:0;"></ul>');
+                if (!val.negated) { $(ret.find('[name="negated"]')).hide(); }
                 for (var p in val) {
                     if (this[p]!=undefined){
                         var sval = val[p];
@@ -500,7 +500,7 @@
                                                 if (contentParser[frm.attr('name')]!=undefined){
                                                     tmp = contentParser[frm.attr('name')](frm,businessObject.id,0);
                                                 }
-                                                ['isEqualCondition', 'greaterThanCondition', 'greaterThanOrEqualCondition', 'lessThanCondition', 'lessThanOrEqualCondition', 'isNull', 'notCondition', 'cSharpScript', 'Javascript', 'VBScript', 'orCondition', 'andCondition'].forEach(function (prop) {
+                                                ['isEqualCondition', 'greaterThanCondition', 'greaterThanOrEqualCondition', 'lessThanCondition', 'lessThanOrEqualCondition', 'isNull', 'cSharpScript', 'Javascript', 'VBScript', 'orCondition', 'andCondition'].forEach(function (prop) {
                                                     if (businessObject.extensionElements.values[x].get(prop) != undefined) {
                                                         businessObject.extensionElements.values[x].set(prop, undefined);
                                                     }

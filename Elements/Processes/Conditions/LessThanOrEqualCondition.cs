@@ -12,7 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         public LessThanOrEqualCondition(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool Evaluate(ProcessVariablesContainer variables)
+        protected override bool _Evaluate(ProcessVariablesContainer variables)
         {
             return _Compare(variables) < 0;
         }

@@ -8,12 +8,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     [XMLTag("exts", "orCondition")]
     [RequiredAttribute("id")]
-    internal class OrCondition : AConditionSet
+    internal class OrCondition : ANegatableConditionSet
     {
         public OrCondition(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool Evaluate(ProcessVariablesContainer variables)
+        protected override bool _Evaluate(ProcessVariablesContainer variables)
         {
             bool ret = false;
             if (_Conditions != null)

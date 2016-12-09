@@ -6,8 +6,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [RequiredAttribute("id")]
-    internal abstract class ACompareCondition : ACondition
+    internal abstract class ACompareCondition : ANegatableCondition
     {
         private XmlPrefixMap _map;
 

@@ -46,13 +46,14 @@
     <Compile Include="Elements\Processes\Conditions\ACompareCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
     <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
+    <Compile Include="Elements\Processes\Conditions\ANegatableCondition.cs" />
+    <Compile Include="Elements\Processes\Conditions\ANegatableConditionSet.cs" />
     <Compile Include="Elements\Processes\Conditions\GreaterThanOrEqualCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\IsNull.cs" />
     <Compile Include="Elements\Processes\Conditions\LessThanOrEqualCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\LessThanCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\GreaterThanCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\IsEqualCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\NotCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\OrCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\AndCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ConditionSet.cs" />

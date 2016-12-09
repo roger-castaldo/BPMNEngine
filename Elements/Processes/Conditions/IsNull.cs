@@ -8,12 +8,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     [XMLTag("exts", "isNull")]
     [RequiredAttribute("id")]
-    internal class IsNull : ACondition
+    internal class IsNull : ANegatableCondition
     {
         public IsNull(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public override bool Evaluate(ProcessVariablesContainer variables)
+        protected override bool _Evaluate(ProcessVariablesContainer variables)
         {
             return variables[_GetAttributeValue("variable")] == null;
         }

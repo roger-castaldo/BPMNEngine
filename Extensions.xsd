@@ -9,6 +9,14 @@
   <xs:complexType name="idElement">
     <xs:attribute name="id" type="xs:string" use="required"/>
   </xs:complexType>
+
+  <xs:complexType name="negatableElement">
+    <xs:complexContent>
+      <xs:extension base="idElement">
+        <xs:attribute name="negated" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
   
   <xs:simpleType name="usingType">
     <xs:restriction base="xs:string">
@@ -33,7 +41,7 @@
 
   <xs:complexType name="compareConditionBase">
     <xs:complexContent>
-      <xs:extension base="idElement">
+      <xs:extension base="negatableElement">
         <xs:attribute name="leftVariable" type="xs:string" use="optional"/>
         <xs:attribute name="rightVariable" type="xs:string" use="optional"/>
       </xs:extension>
@@ -59,7 +67,7 @@
   <xs:element name="isNull">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="idElement">
+        <xs:extension base="negatableElement">
           <xs:attribute name="variable" use="required" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
@@ -68,7 +76,7 @@
 
   <xs:complexType name="groupCondition">
     <xs:complexContent>
-      <xs:extension base="idElement">
+      <xs:extension base="negatableElement">
         <xs:choice minOccurs="2" maxOccurs="unbounded">
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="isEqualCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="greaterThanCondition"/>
@@ -78,7 +86,6 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="isNull"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="andCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="orCondition"/>
-          <xs:element minOccurs="0" maxOccurs="unbounded" ref="notCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="Javascript"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="VBScript"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="cSharpScript"/>
@@ -90,7 +97,7 @@
   <xs:element name="andCondition" type="groupCondition"/>
   <xs:element name="orCondition" type="groupCondition"/>
 
-  <xs:complexType name="baseConditionSet">
+  <xs:complexType name="fullConditionSet">
     <xs:complexContent>
       <xs:extension base="idElement">
         <xs:choice minOccurs="1" maxOccurs="1">
@@ -105,18 +112,6 @@
           <xs:element minOccurs="0" maxOccurs="1" ref="Javascript"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="VBScript"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="cSharpScript"/>
-        </xs:choice>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  
-  <xs:element name="notCondition" type="baseConditionSet"/>
-
-  <xs:complexType name="fullConditionSet">
-    <xs:complexContent>
-      <xs:extension base="baseConditionSet">
-        <xs:choice minOccurs="0" maxOccurs="1">
-          <xs:element minOccurs="0" maxOccurs="1" ref="notCondition"/>
         </xs:choice>
       </xs:extension>
     </xs:complexContent>

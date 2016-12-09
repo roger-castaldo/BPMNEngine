@@ -86,9 +86,14 @@
             ],
             "properties": [
                 {
-                    "name": "id",
-                    "isAttr": true,
-                    "type": "String"
+                  "name": "id",
+                  "isAttr": true,
+                  "type": "String"
+                },
+                {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
                 },
                 {
                     "name": "leftVariable",
@@ -105,8 +110,8 @@
                     "type": "String"
                 },
                 {
-                    "name": "right",
-                    "type": "String"
+                  "name": "right",
+                  "type": "String"
                 }
             ]
         },
@@ -120,6 +125,11 @@
                     "name": "id",
                     "isAttr": true,
                     "type": "String"
+                },
+                {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
                 },
                 {
                     "name": "leftVariable",
@@ -153,6 +163,11 @@
                     "type": "String"
                 },
                 {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
+                },
+                {
                     "name": "leftVariable",
                     "isAttr": true,
                     "type": "String"
@@ -182,6 +197,11 @@
                     "name": "id",
                     "isAttr": true,
                     "type": "String"
+                },
+                {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
                 },
                 {
                     "name": "leftVariable",
@@ -215,6 +235,11 @@
                     "type": "String"
                 },
                 {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
+                },
+                {
                     "name": "leftVariable",
                     "isAttr": true,
                     "type": "String"
@@ -246,66 +271,14 @@
                     "type": "String"
                 },
                 {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
+                },
+                {
                     "name": "variable",
                     "isAttr": true,
                     "type": "String"
-                }
-            ]
-        },
-        {
-            "name": "notCondition",
-            "superClass": [
-                "Element"
-            ],
-            "properties": [
-                {
-                    "name": "id",
-                    "isAttr": true,
-                    "type": "String"
-                },
-                {
-                    "name": "isEqualCondition",
-                    "type": "isEqualCondition"
-                },
-                {
-                    "name": "greaterThanCondition",
-                    "type": "greaterThanCondition"
-                },
-                {
-                    "name": "greaterThanOrEqualCondition",
-                    "type": "greaterThanOrEqualCondition"
-                },
-                {
-                    "name": "lessThanCondition",
-                    "type": "lessThanCondition"
-                },
-                {
-                    "name": "lestThanOrEqualCondition",
-                    "type": "lestThanOrEqualCondition"
-                },
-                {
-                    "name": "isNull",
-                    "type": "isNull"
-                },
-                {
-                    "name": "andCondition",
-                    "type": "andCondition"
-                },
-                {
-                    "name": "orCondition",
-                    "type": "orCondition"
-                },
-                {
-                    "name": "Javascript",
-                    "type": "Javascript"
-                },
-                {
-                    "name": "VBScript",
-                    "type": "VBScript"
-                },
-                {
-                    "name": "cSharpScript",
-                    "type": "cSharpScript"
                 }
             ]
         },
@@ -319,6 +292,11 @@
                     "name": "id",
                     "isAttr": true,
                     "type": "String"
+                },
+                {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
                 },
                 {
                     "name": "isEqualCondition",
@@ -358,11 +336,6 @@
                 {
                     "name": "orCondition",
                     "type": "orCondition",
-                    "isMany": true
-                },
-                {
-                    "name": "notCondition",
-                    "type": "notCondition",
                     "isMany": true
                 },
                 {
@@ -394,6 +367,11 @@
                     "type": "String"
                 },
                 {
+                  "name": "negated",
+                  "isAttr": true,
+                  "type": "Boolean"
+                },
+                {
                     "name": "isEqualCondition",
                     "type": "isEqualCondition",
                     "isMany": true
@@ -431,11 +409,6 @@
                 {
                     "name": "orCondition",
                     "type": "orCondition",
-                    "isMany": true
-                },
-                {
-                    "name": "notCondition",
-                    "type": "notCondition",
                     "isMany": true
                 },
                 {
@@ -509,10 +482,6 @@
                 {
                     "name": "cSharpScript",
                     "type": "cSharpScript"
-                },
-                {
-                    "name": "notCondition",
-                    "type": "notCondition"
                 }
             ]
         }
