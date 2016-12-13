@@ -12,26 +12,5 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
         public ExtensionElements(XmlElement elem, XmlPrefixMap map)
             : base(elem, map) { }
 
-        public bool IsInternalExtension
-        {
-            get
-            {
-                bool ret = false;
-                if (SubNodes != null)
-                {
-                    int cnt = 0;
-                    foreach (XmlNode n in SubNodes)
-                    {
-                        if (n.NodeType == XmlNodeType.Element)
-                        {
-                            cnt++;
-                        }
-                    }
-                    if (Children != null)
-                        ret = cnt == Children.Length;
-                }
-                return ret;
-            }
-        }
     }
 }

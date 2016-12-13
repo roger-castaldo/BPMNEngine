@@ -16,28 +16,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
 
         internal void ProcessTask(ref ProcessVariablesContainer variables, ProcessScriptTask processScriptTask)
         {
-            bool callDelegate = true;
             if (ExtensionElement != null)
             {
-                if (((ExtensionElements)ExtensionElement).IsInternalExtension)
+                ExtensionElements ee = (ExtensionElements)ExtensionElement;
+                if (ee.Children != null)
                 {
-                    ExtensionElements ee = (ExtensionElements)ExtensionElement;
-                    if (ee.Children != null)
+                    foreach (IElement ie in ee.Children)
                     {
-                        foreach (IElement ie in ee.Children)
+                        if (ie is AScript)
                         {
-                            if (ie is AScript)
-                            {
-                                callDelegate = false;
-                                variables = (ProcessVariablesContainer)((AScript)ie).Invoke(variables);
-                                break;
-                            }
+                            variables = (ProcessVariablesContainer)((AScript)ie).Invoke(variables);
+                            break;
                         }
                     }
                 }
             }
-            if (callDelegate)
-                processScriptTask(this, ref variables);
+            processScriptTask(this, ref variables);
         }
     }
 }

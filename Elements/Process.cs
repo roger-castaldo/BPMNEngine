@@ -37,15 +37,15 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             if (ExtensionElement != null)
             {
-                if (((ExtensionElements)ExtensionElement).IsInternalExtension)
+                ExtensionElements ee = (ExtensionElements)ExtensionElement;
+                if (ee.Children != null)
                 {
-                    ExtensionElements ee = (ExtensionElements)ExtensionElement;
-                    if (ee.Children != null)
+                    foreach (IElement ie in ee.Children)
                     {
-                        foreach (IElement ie in ee.Children)
+                        if (ie is ConditionSet)
                         {
-                            if (ie is ConditionSet)
-                                return ((ConditionSet)ie).Evaluate(variables);
+                            if (!((ConditionSet)ie).Evaluate(variables))
+                                return false;
                         }
                     }
                 }

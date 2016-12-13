@@ -110,11 +110,11 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         #region Validations
-        private static bool _DefaultEventStartValid(IElement Event, ProcessVariablesContainer variables){return false;}
+        private static bool _DefaultEventStartValid(IElement Event, ProcessVariablesContainer variables){return true;}
         private IsEventStartValid _isEventStartValid = new IsEventStartValid(_DefaultEventStartValid);
         public IsEventStartValid IsEventStartValid { get { return _isEventStartValid; } set { _isEventStartValid = value; } }
 
-        private static bool _DefaultProcessStartValid(IElement Event, ProcessVariablesContainer variables){return false;}
+        private static bool _DefaultProcessStartValid(IElement Event, ProcessVariablesContainer variables){return true;}
         private IsProcessStartValid _isProcessStartValid = new IsProcessStartValid(_DefaultProcessStartValid);
         public IsProcessStartValid IsProcessStartValid { get { return _isProcessStartValid; } set { _isProcessStartValid = value; } }
         #endregion
@@ -457,6 +457,8 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             if (se.IsEventStartValid(variables, _isEventStartValid))
                             {
+                                if (_onProcessStarted != null)
+                                    _onProcessStarted(p);
                                 if (_onEventStarted!=null)
                                     _onEventStarted(se);
                                 _state.Path.StartEvent(se, null);
