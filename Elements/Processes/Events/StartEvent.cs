@@ -11,8 +11,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
     [XMLTag("bpmn","startEvent")]
     internal class StartEvent : AEvent
     {
-        public StartEvent(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public StartEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
+            : base(elem, map,parent) { }
 
         internal bool IsEventStartValid(ProcessVariablesContainer variables, IsEventStartValid isEventStartValid)
         {

@@ -14,8 +14,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
             get { return (_children == null ? new IElement[] { } : _children.ToArray()); }
         }
 
-        public AParentElement(XmlElement elem, XmlPrefixMap map)
-            : base(elem,map)
+        public AParentElement(XmlElement elem, XmlPrefixMap map,AElement parent)
+            : base(elem,map,parent)
         {
             if (SubNodes != null)
             {
@@ -23,7 +23,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 {
                     if (n.NodeType == XmlNodeType.Element)
                     {
-                        IElement subElem = Utility.ConstructElementType((XmlElement)n, map);
+                        IElement subElem = Utility.ConstructElementType((XmlElement)n, map,this);
                         if (subElem != null)
                         {
                             if (_children == null)

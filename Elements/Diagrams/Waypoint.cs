@@ -24,7 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
         }
 
-        public Waypoint(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Waypoint(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
     }
 }

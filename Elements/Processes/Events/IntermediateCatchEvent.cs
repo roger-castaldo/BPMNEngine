@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
     [XMLTag("bpmn", "intermediateCatchEvent")]
     internal class IntermediateCatchEvent : AEvent
     {
-        public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
+            : base(elem, map,parent) { }
 
         public override bool IsValid(out string[] err)
         {

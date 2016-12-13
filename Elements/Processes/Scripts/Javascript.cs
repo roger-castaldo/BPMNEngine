@@ -21,23 +21,36 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         {
             try
             {
-                _jintAssembly = Assembly.LoadFile(typeof(Javascript).Assembly.Location.Replace("BpmEngine.dll", "Jint.dll"));
-                if (_jintAssembly != null)
+                _jintAssembly = Assembly.Load("Jint");
+            }catch(Exception e)
+            {
+                _jintAssembly = null;
+                System.Diagnostics.Debug.WriteLine(e.Message);
+            }
+            if (_jintAssembly == null)
+            {
+                try
                 {
-                    _engineType = _jintAssembly.GetType("Jint.Engine");
-                    _setValue = _engineType.GetMethod("SetValue", new Type[] { typeof(string), typeof(object) });
-                    _execute = _engineType.GetMethod("Execute", new Type[] { typeof(string) });
-                    _getCompletionValue = _engineType.GetMethod("GetCompletionValue", Type.EmptyTypes);
-                    _toObject = _jintAssembly.GetType("Jint.Native.JsValue").GetMethod("ToObject");
+                    _jintAssembly = Assembly.LoadFile(typeof(Javascript).Assembly.Location.Replace("BpmEngine.dll", "Jint.dll"));
+                }
+                catch (Exception e)
+                {
+                    _jintAssembly = null;
+                    System.Diagnostics.Debug.WriteLine(e.Message);
                 }
             }
-            catch (Exception e) {
-                System.Diagnostics.Debug.WriteLine(e.Message);
+            if (_jintAssembly != null)
+            {
+                _engineType = _jintAssembly.GetType("Jint.Engine");
+                _setValue = _engineType.GetMethod("SetValue", new Type[] { typeof(string), typeof(object) });
+                _execute = _engineType.GetMethod("Execute", new Type[] { typeof(string) });
+                _getCompletionValue = _engineType.GetMethod("GetCompletionValue", Type.EmptyTypes);
+                _toObject = _jintAssembly.GetType("Jint.Native.JsValue").GetMethod("ToObject");
             }
         }
 
-        public Javascript(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Javascript(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         protected override object _Invoke(ProcessVariablesContainer variables)
         {

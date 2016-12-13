@@ -10,8 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [RequiredAttribute("id")]
     internal class IsNull : ANegatableCondition
     {
-        public IsNull(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public IsNull(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         protected override bool _Evaluate(ProcessVariablesContainer variables)
         {

@@ -11,8 +11,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [RequiredAttribute("id")]
     internal class Definition : AParentElement
     {
-        public Definition(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Definition(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public Diagram[] Diagrams
         {

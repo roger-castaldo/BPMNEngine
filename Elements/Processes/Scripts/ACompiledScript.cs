@@ -76,8 +76,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             _rand = new Random(DateTime.Now.Millisecond);
         }
 
-        public ACompiledScript(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map)
+        public ACompiledScript(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
         {
             lock (_rand)
             {

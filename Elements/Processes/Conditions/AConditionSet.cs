@@ -9,8 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     internal abstract class AConditionSet : ACondition
     {
-        public AConditionSet(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public AConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         protected ACondition[] _Conditions
         {

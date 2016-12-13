@@ -10,8 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [XMLTag("exts", "ConditionSet")]
     internal class ConditionSet : AConditionSet
     {
-        public ConditionSet(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public ConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool Evaluate(ProcessVariablesContainer variables)
         {

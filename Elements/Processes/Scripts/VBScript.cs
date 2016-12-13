@@ -35,8 +35,8 @@ Public Class {1}
     End Sub
 End Class";
 
-        public VBScript(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map)
+        public VBScript(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
         { }
 
         protected override string _GenerateCode(string[] imports, string code)

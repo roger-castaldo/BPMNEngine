@@ -41,8 +41,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
         }
 
-        public Shape(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Shape(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public BPMIcons? GetIcon(Definition definition)
         {

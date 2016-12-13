@@ -11,7 +11,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         private AScript _script;
 
         public ScriptCondition(AScript script)
-            : base(script.Element, null) {
+            : base(script.Element, null,null) {
                 _script = script;
         }
 

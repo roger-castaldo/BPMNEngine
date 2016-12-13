@@ -28,8 +28,8 @@ public class {1} {{
     }}
 }}";
 
-        public CSharpScript(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map)
+        public CSharpScript(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
         { }
 
         protected override string _GenerateCode(string[] imports,string code)

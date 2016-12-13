@@ -30,8 +30,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        public Process(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         internal bool IsProcessStartvalid(ProcessVariablesContainer variables, IsProcessStartValid isProcessStartValid)
         {

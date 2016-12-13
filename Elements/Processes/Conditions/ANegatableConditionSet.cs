@@ -14,8 +14,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         protected abstract bool _Evaluate(ProcessVariablesContainer variables);
 
-        public ANegatableConditionSet(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public ANegatableConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public sealed override bool Evaluate(ProcessVariablesContainer variables)
         {

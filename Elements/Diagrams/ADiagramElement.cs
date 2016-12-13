@@ -17,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             return definition.LocateElement(bpmnElement);
         }
 
-        public ADiagramElement(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public ADiagramElement(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
     }
 }

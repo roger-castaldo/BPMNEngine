@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
         public string sourceRef { get { return _GetAttributeValue("sourceRef"); } }
         public string targetRef { get { return _GetAttributeValue("targetRef"); } }
 
-        public MessageFlow(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public MessageFlow(XmlElement elem, XmlPrefixMap map,AElement parent)
+            : base(elem, map,parent) { }
     }
 }

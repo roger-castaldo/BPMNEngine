@@ -12,8 +12,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
     {
         private XmlPrefixMap _map;
 
-        public AScript(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) {
+        public AScript(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
+        {
                 _map = map;
         }
 

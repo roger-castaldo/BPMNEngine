@@ -41,8 +41,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
         }
 
-        public Edge(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Edge(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public Pen ConstructPen(Brush brush, Definition definition)
         {

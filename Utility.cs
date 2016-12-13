@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -91,11 +92,11 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map)
+        internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map,AElement parent)
         {
             Type t = Utility.LocateElementType(element.Name, map);
             if (t != null)
-                return (IElement)t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap) }).Invoke(new object[] { element, map });
+                return (IElement)t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap),typeof(AElement) }).Invoke(new object[] { element, map,parent });
             return null;
         }
 

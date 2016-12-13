@@ -10,8 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [RequiredAttribute("id")]
     internal class Plane : ADiagramElement
     {
-        public Plane(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Plane(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {

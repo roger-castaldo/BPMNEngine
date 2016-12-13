@@ -27,8 +27,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
             }
         }
 
-        public TextAnnotation(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public TextAnnotation(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {

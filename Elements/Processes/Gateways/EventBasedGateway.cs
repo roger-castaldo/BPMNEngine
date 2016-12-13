@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,8 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
     [XMLTag("bpmn","eventBasedGateway")]
     internal class EventBasedGateway : AGateway
     {
-        public EventBasedGateway(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public EventBasedGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override string[] EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, ProcessVariablesContainer variables)
         {

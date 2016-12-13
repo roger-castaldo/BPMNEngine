@@ -15,8 +15,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [RequiredAttribute("id")]
     internal class Diagram : AParentElement
     {
-        public Diagram(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public Size Size
         {
@@ -295,19 +295,22 @@ namespace Org.Reddragonit.BpmEngine.Elements
                         else
                         {
                             SizeF size = gp.MeasureString(elem.ToString(), Constants.FONT);
-                            if (elem is Lane || elem is LaneSet || elem is Participant)
+                            if (size.Height != 0 || size.Width != 0)
                             {
-                                Bitmap tbmp = new Bitmap((int)size.Height * 2, (int)size.Width);
-                                Graphics g = Graphics.FromImage(tbmp);
-                                g.TranslateTransform(tbmp.Width / 2, tbmp.Height);
-                                g.RotateTransform(-90);
-                                g.TranslateTransform(0, 0);
-                                g.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), 0, 0);
-                                g.Save();
-                                gp.DrawImage(tbmp, new PointF(shape.Rectangle.X - 7, shape.Rectangle.Y + ((shape.Rectangle.Height - tbmp.Height) / 2)));
+                                if (elem is Lane || elem is LaneSet || elem is Participant)
+                                {
+                                    Bitmap tbmp = new Bitmap((int)size.Height * 2, (int)size.Width);
+                                    Graphics g = Graphics.FromImage(tbmp);
+                                    g.TranslateTransform(tbmp.Width / 2, tbmp.Height);
+                                    g.RotateTransform(-90);
+                                    g.TranslateTransform(0, 0);
+                                    g.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), 0, 0);
+                                    g.Save();
+                                    gp.DrawImage(tbmp, new PointF(shape.Rectangle.X - 7, shape.Rectangle.Y + ((shape.Rectangle.Height - tbmp.Height) / 2)));
+                                }
+                                else
+                                    gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f), Constants.STRING_FORMAT);
                             }
-                            else
-                                gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f), Constants.STRING_FORMAT);
                         }
                     }
                 }

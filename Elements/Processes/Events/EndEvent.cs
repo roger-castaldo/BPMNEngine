@@ -3,14 +3,32 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Org.Reddragonit.BpmEngine.Interfaces;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn","endEvent")]
     internal class EndEvent : AEvent
     {
-        public EndEvent(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public EndEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
+
+        public IElement Process {
+            get
+            {
+                if (Parent == null)
+                    return null;
+                else
+                {
+                    AElement tmp = Parent;
+                    while (!(tmp is Process))
+                        tmp = tmp.Parent;
+                    if (tmp is Process)
+                        return tmp;
+                    return null;
+                }
+            }
+        }
 
         public override bool IsValid(out string[] err)
         {

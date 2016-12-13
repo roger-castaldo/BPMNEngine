@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,8 +11,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [RequiredAttribute("id")]
     internal class Collaboration : AParentElement
     {
-        public Collaboration(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public Collaboration(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {

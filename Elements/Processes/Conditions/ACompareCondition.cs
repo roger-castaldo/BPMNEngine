@@ -10,8 +10,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     {
         private XmlPrefixMap _map;
 
-        public ACompareCondition(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) {
+        public ACompareCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
+        {
                 _map = map;
         }
 

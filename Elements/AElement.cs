@@ -10,6 +10,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
 {
     internal abstract class AElement : IElement
     {
+        private AElement _parent;
+        public AElement Parent { get { return _parent; } }
+
         private XmlElement _element;
         internal XmlElement Element { get { return _element; } }
 
@@ -42,10 +45,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private IElement _extensionElement;
         public IElement ExtensionElement { get { return _extensionElement; } }
 
-        public AElement(XmlElement elem,XmlPrefixMap map)
+        public AElement(XmlElement elem,XmlPrefixMap map,AElement parent)
         {
             _element = elem;
             _extensionElement = null;
+            _parent = parent;
             if (SubNodes != null)
             {
                 Type t = typeof(ExtensionElements);
@@ -57,7 +61,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                         {
                             if (xt.Matches(map, n.Name))
                             {
-                                _extensionElement = new ExtensionElements((XmlElement)n,map);
+                                _extensionElement = new ExtensionElements((XmlElement)n,map,this);
                                 break;
                             }
                         }

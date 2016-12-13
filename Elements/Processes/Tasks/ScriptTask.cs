@@ -11,8 +11,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
     [XMLTag("bpmn", "scriptTask")]
     internal class ScriptTask : ATask
     {
-        public ScriptTask(XmlElement elem, XmlPrefixMap map)
-            : base(elem, map) { }
+        public ScriptTask(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         internal void ProcessTask(ref ProcessVariablesContainer variables, ProcessScriptTask processScriptTask)
         {
@@ -31,7 +31,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                     }
                 }
             }
-            processScriptTask(this, ref variables);
+            if (processScriptTask!=null)
+                processScriptTask(this, ref variables);
         }
     }
 }

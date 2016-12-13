@@ -245,7 +245,7 @@ namespace Org.Reddragonit.BpmEngine
                 if (n.NodeType == XmlNodeType.Element)
                 {
                     map.Load((XmlElement)n);
-                    IElement elem = Utility.ConstructElementType((XmlElement)n, map);
+                    IElement elem = Utility.ConstructElementType((XmlElement)n, map,null);
                     if (elem != null)
                         _components.Add(elem);
                     else
@@ -629,7 +629,11 @@ namespace Org.Reddragonit.BpmEngine
                     if (_onEventCompleted != null)
                         _onEventCompleted(evnt);
                     if (evnt is EndEvent)
+                    {
+                        if (_onProcessCompleted != null)
+                            _onProcessCompleted(((EndEvent)evnt).Process);
                         _processLock.Set();
+                    }
                 }
             }
             else if (elem is ATask)
