@@ -21,6 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 
         public bool IsFlowValid(IsFlowValid isFlowValid,ProcessVariablesContainer variables)
         {
+            bool ret = isFlowValid(this, variables);
             if (ExtensionElement != null)
             {
                 ExtensionElements ee = (ExtensionElements)ExtensionElement;
@@ -29,14 +30,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
                     foreach (IElement ie in ee.Children)
                     {
                         if (ie is ConditionSet)
-                        {
-                            if (!((ConditionSet)ie).Evaluate(variables))
-                                return false;
-                        }
+                            ret = ret & ((ConditionSet)ie).Evaluate(variables);
                     }
                 }
             }
-            return isFlowValid(this, variables);
+            return ret;
         }
     }
 }

@@ -38,7 +38,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         {
             if (Incoming != null)
             {
-                if (Incoming.Length > 0)
+                if (Incoming.Length > 0 && !SubType.HasValue)
                 {
                     err = new string[] { "Start Events cannot have an incoming path." };
                     return false;

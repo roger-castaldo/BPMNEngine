@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,28 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 {
                     if (elem is Diagram)
                         ret.Add((Diagram)elem);
+                }
+                return ret.ToArray();
+            }
+        }
+
+        public MessageFlow[] MessageFlows
+        {
+            get
+            {
+                List<MessageFlow> ret = new List<MessageFlow>();
+                foreach (IElement elem in Children)
+                {
+                    if (elem is Collaboration)
+                    {
+                        Collaboration collab = (Collaboration)elem;
+                        foreach (IElement msg in collab.Children)
+                        {
+                            if (msg is MessageFlow)
+                                ret.Add((MessageFlow)msg);
+                        }
+                        break;
+                    }
                 }
                 return ret.ToArray();
             }

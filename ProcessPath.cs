@@ -1,4 +1,5 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Processes;
+﻿using Org.Reddragonit.BpmEngine.Elements.Collaborations;
+using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
@@ -144,6 +145,15 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 _pathEntries.Add(new sPathEntry(Event.id, StepStatuses.Failed, start, incoming, DateTime.Now));
                 _error.BeginInvoke(Event, new AsyncCallback(_AsyncCallback), null);
+            }
+        }
+
+        internal void ProcessMessageFlow(MessageFlow flow)
+        {
+            lock (_pathEntries)
+            {
+                _pathEntries.Add(new sPathEntry(flow.id, StepStatuses.Succeeded, DateTime.Now, flow.sourceRef, flow.targetRef, DateTime.Now));
+                _complete.BeginInvoke(flow.id, flow.targetRef, new AsyncCallback(_AsyncCallback), null);
             }
         }
 

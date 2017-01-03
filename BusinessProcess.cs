@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
+using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
@@ -99,6 +100,9 @@ namespace Org.Reddragonit.BpmEngine
         private OnSequenceFlowCompleted _onSequenceFlowCompleted;
         public OnSequenceFlowCompleted OnSequenceFlowCompleted { get { return _onSequenceFlowCompleted; } set { _onSequenceFlowCompleted = value; } }
 
+        private OnMessageFlowCompleted _onMessageFlowCompleted;
+        public OnMessageFlowCompleted OnMessageFlowCompleted { get { return _onMessageFlowCompleted; } set { _onMessageFlowCompleted = value; } }
+
         private OnGatewayStarted _onGatewayStarted;
         public OnGatewayStarted OnGatewayStarted { get { return _onGatewayStarted; } set { _onGatewayStarted = value; } }
 
@@ -120,7 +124,7 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         #region Conditions
-        private static bool _DefaultFlowValid(IElement flow, ProcessVariablesContainer variables) { return false; }
+        private static bool _DefaultFlowValid(IElement flow, ProcessVariablesContainer variables) { return true; }
         private IsFlowValid _isFlowValid = new IsFlowValid(_DefaultFlowValid);
         public IsFlowValid IsFlowValid { get { return _isFlowValid; } set { _isFlowValid = value; } }
         #endregion
@@ -278,12 +282,12 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
         {
-            foreach (RequiredAttribute ra in elem.GetType().GetCustomAttributes(typeof(RequiredAttribute), true))
+            foreach (RequiredAttribute ra in Utility.GetCustomAttributesForClass(elem.GetType(),typeof(RequiredAttribute)))
             {
                 if (elem.Element.Attributes[ra.Name]==null)
                     exceptions.Add(new MissingAttributeException(elem.Element,ra));
             }
-            foreach (AttributeRegex ar in elem.GetType().GetCustomAttributes(typeof(AttributeRegex),true))
+            foreach (AttributeRegex ar in Utility.GetCustomAttributesForClass(elem.GetType(), typeof(AttributeRegex)))
             {
                 if (!ar.IsValid(elem))
                     exceptions.Add(new InvalidAttributeValueException(elem.Element, ar));
@@ -291,6 +295,8 @@ namespace Org.Reddragonit.BpmEngine
             string[] err;
             if (!elem.IsValid(out err))
                 exceptions.Add(new InvalidElementException(elem.Element, err));
+            if (elem.ExtensionElement != null)
+                _ValidateElement((ExtensionElements)elem.ExtensionElement, ref exceptions);
             if (elem is AParentElement)
             {
                 foreach (AElement e in ((AParentElement)elem).Children)
@@ -561,6 +567,15 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (_onSequenceFlowCompleted != null)
                     _onSequenceFlowCompleted(sf);
+            }else if (elem is MessageFlow)
+            {
+                MessageFlow mf = (MessageFlow)elem;
+                lock (_state)
+                {
+                    _state.Path.ProcessMessageFlow(mf);
+                }
+                if (_onMessageFlowCompleted != null)
+                    _onMessageFlowCompleted(mf);
             }
             else if (elem is AGateway)
             {
@@ -618,6 +633,15 @@ namespace Org.Reddragonit.BpmEngine
                     catch (Exception e)
                     {
                         success = false;
+                    }
+                }else if (evnt is IntermediateThrowEvent)
+                {
+                    TimeSpan? ts = evnt.GetTimeout(new ProcessVariablesContainer(evnt.id, _state));
+                    if (ts.HasValue)
+                    {
+                        if (ts.Value.TotalMilliseconds > 0)
+                            Thread.Sleep(ts.Value);
+                        success = true;
                     }
                 }
                 if (!success){

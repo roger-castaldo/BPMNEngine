@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,41 +8,38 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
-    internal abstract class AEvent : AFlowNode
+    internal abstract class AEvent : AParentFlowNode
     {
         public EventSubTypes? SubType
         {
             get
             {
                 EventSubTypes? ret = null;
-                foreach (XmlNode n in SubNodes)
+                foreach (IElement ie in this.Children)
                 {
-                    if (n.NodeType == XmlNodeType.Element)
+                    switch (ie.GetType().Name)
                     {
-                        switch (n.Name)
-                        {
-                            case "bpmn:messageEventDefinition":
-                                ret = EventSubTypes.Message;
-                                break;
-                            case "bpmn:timerEventDefinition":
-                                ret = EventSubTypes.Timer;
-                                break;
-                            case "bpmn:conditionalEventDefinition":
-                                ret = EventSubTypes.Conditional;
-                                break;
-                            case "bpmn:signalEventDefinition":
-                                ret = EventSubTypes.Signal;
-                                break;
-                            case "bpmn:escalationEventDefinition":
-                                ret = EventSubTypes.Escalation;
-                                break;
-                            case "bpmn:linkEventDefinition":
-                                ret = EventSubTypes.Link;
-                                break;
-                            case "bpmn:compensationEventDefinition":
-                                ret = EventSubTypes.Compensation;
-                                break;
-                        }
+                        case "MessageEventDefinition":
+                            ret = EventSubTypes.Message;
+                            break;
+                        case "TimerEventDefinition":
+                            ret = EventSubTypes.Timer;
+                            break;
+                        case "ConditionalEventDefinition":
+                            ret = EventSubTypes.Conditional;
+                            break;
+                        case "SignalEventDefinition":
+                            ret = EventSubTypes.Signal;
+                            break;
+                        case "EscalationEventDefinition":
+                            ret = EventSubTypes.Escalation;
+                            break;
+                        case "LinkEventDefinition":
+                            ret = EventSubTypes.Link;
+                            break;
+                        case "CompensationEventDefinition":
+                            ret = EventSubTypes.Compensation;
+                            break;
                     }
                 }
                 return ret;
@@ -50,5 +48,15 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 
         public AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
+
+        public TimeSpan? GetTimeout(ProcessVariablesContainer variables)
+        {
+            foreach (IElement ie in Children)
+            {
+                if (ie is TimerEventDefinition)
+                    return ((TimerEventDefinition)ie).GetTimeout(variables);
+            }
+            return null;
+        }
     }
 }

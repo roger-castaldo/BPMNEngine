@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -41,6 +42,27 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             get
             {
                 Type t = typeof(ConditionSet);
+                XmlNode n = Element.ParentNode;
+                while (n != null)
+                {
+                    foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), true))
+                    {
+                        if (xt.Matches(_map, n.Name))
+                        {
+                            return true;
+                        }
+                    }
+                    n = n.ParentNode;
+                }
+                return false;
+            }
+        }
+
+        protected bool _IsTimerEvent
+        {
+            get
+            {
+                Type t = typeof(TimerEventDefinition);
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {

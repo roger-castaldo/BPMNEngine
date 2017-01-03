@@ -16,6 +16,7 @@ namespace Org.Reddragonit.BpmEngine
     public delegate void OnProcessCompleted(IElement process);
     public delegate void OnProcessError(IElement process);
     public delegate void OnSequenceFlowCompleted(IElement flow);
+    public delegate void OnMessageFlowCompleted(IElement flow);
     public delegate void OnGatewayStarted(IElement gateway);
     public delegate void OnGatewayCompleted(IElement gateway);
     public delegate void OnGatewayError(IElement gateway);

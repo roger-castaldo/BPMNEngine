@@ -63,6 +63,15 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                                 case EventSubTypes.Message:
                                     ret = BPMIcons.MessageStartEvent;
                                     break;
+                                case EventSubTypes.Conditional:
+                                    ret = BPMIcons.ConditionalStartEvent;
+                                    break;
+                                case EventSubTypes.Signal:
+                                    ret = BPMIcons.SignalStartEvent;
+                                    break;
+                                case EventSubTypes.Timer:
+                                    ret = BPMIcons.TimerStartEvent;
+                                    break;
                             }
                         }
                     }
@@ -75,12 +84,69 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                                 case EventSubTypes.Message:
                                     ret = BPMIcons.MessageIntermediateThrowEvent;
                                     break;
+                                case EventSubTypes.Compensation:
+                                    ret = BPMIcons.CompensationIntermediateThrowEvent;
+                                    break;
+                                case EventSubTypes.Escalation:
+                                    ret = BPMIcons.EscalationIntermediateThrowEvent;
+                                    break;
+                                case EventSubTypes.Link:
+                                    ret = BPMIcons.LinkIntermediateThrowEvent;
+                                    break;
+                                case EventSubTypes.Signal:
+                                    ret = BPMIcons.SignalIntermediateThrowEvent;
+                                    break;
+                                case EventSubTypes.Timer:
+                                    ret = BPMIcons.TimerStartEvent;
+                                    break;
+                            }
+                        }
+                    }
+                    else if (elem is IntermediateCatchEvent)
+                    {
+                        if (evnt.SubType.HasValue)
+                        {
+                            switch (evnt.SubType.Value)
+                            {
+                                case EventSubTypes.Conditional:
+                                    ret = BPMIcons.ConditionalIntermediateCatchEvent;
+                                    break;
+                                case EventSubTypes.Link:
+                                    ret = BPMIcons.LinkIntermediateCatchEvent;
+                                    break;
+                                case EventSubTypes.Message:
+                                    ret = BPMIcons.MessageIntermediateCatchEvent;
+                                    break;
+                                case EventSubTypes.Signal:
+                                    ret = BPMIcons.SignalIntermediateCatchEvent;
+                                    break;
+                                case EventSubTypes.Timer:
+                                    ret = BPMIcons.TimerIntermediateCatchEvent;
+                                    break;
                             }
                         }
                     }
                     else if (elem is EndEvent)
                     {
                         ret = BPMIcons.EndEvent;
+                        if (evnt.SubType.HasValue)
+                        {
+                            switch (evnt.SubType.Value)
+                            {
+                                case EventSubTypes.Compensation:
+                                    ret = BPMIcons.CompensationEndEvent;
+                                    break;
+                                case EventSubTypes.Escalation:
+                                    ret = BPMIcons.EscalationEndEvent;
+                                    break;
+                                case EventSubTypes.Message:
+                                    ret = BPMIcons.MessageEndEvent;
+                                    break;
+                                case EventSubTypes.Signal:
+                                    ret = BPMIcons.SignalEndEvent;
+                                    break;
+                            }
+                        }
                     }
                 }
                 else if (elem is AGateway)

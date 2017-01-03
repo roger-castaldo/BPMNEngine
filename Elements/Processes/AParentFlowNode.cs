@@ -9,7 +9,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [RequiredAttribute("id")]
-    internal abstract class AFlowNode : AElement
+    internal abstract class AParentFlowNode : AParentElement
     {
         public string name { get { return _GetAttributeValue("name"); } }
 
@@ -57,7 +57,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             }
         }
 
-        public AFlowNode(XmlElement elem, XmlPrefixMap map, AElement parent)
+        public AParentFlowNode(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
         }

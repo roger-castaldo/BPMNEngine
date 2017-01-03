@@ -13,6 +13,18 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private AElement _parent;
         public AElement Parent { get { return _parent; } }
 
+        public Definition Definition
+        {
+            get
+            {
+                if (this is Definition)
+                    return (Definition)this;
+                if (Parent != null)
+                    return Parent.Definition;
+                return null;
+            }
+        }
+
         private XmlElement _element;
         internal XmlElement Element { get { return _element; } }
 

@@ -147,5 +147,20 @@ namespace Org.Reddragonit.BpmEngine
             }
             throw new ArgumentException("Couldn't find element within parent");
         }
+
+        internal static object[] GetCustomAttributesForClass(Type clazz,Type attributeType)
+        {
+            List<object> ret = new List<object>(clazz.GetCustomAttributes(attributeType,false));
+            Type parent = clazz.BaseType;
+            if (parent != typeof(object))
+            {
+                foreach (object obj in GetCustomAttributesForClass(parent,attributeType))
+                {
+                    if (!ret.Contains(obj))
+                        ret.Add(obj);
+                }
+            }
+            return ret.ToArray();
+        }
     }
 }

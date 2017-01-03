@@ -28,6 +28,14 @@ public class {1} {{
     }}
 }}";
 
+        private const string _CODE_BASE_TIMER_EVENT_TEMPLATE = @"{0}
+
+public class {1} {{
+    public DateTime {2}(ProcessVariablesContainer variables){{
+        {3}
+    }}
+}}";
+
         public CSharpScript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         { }
@@ -37,7 +45,7 @@ public class {1} {{
             StringBuilder sbUsing = new StringBuilder();
             foreach (string str in imports)
                 sbUsing.AppendFormat("using {0};\n", str);
-            return string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE), new object[]{
+            return string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (_IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
                 sbUsing.ToString(),
                 _ClassName,
                 _FunctionName,

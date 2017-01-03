@@ -39,10 +39,12 @@
   <ItemGroup>
     <Compile Include="Attributes\AttributeRegex.cs" />
     <Compile Include="Attributes\RequiredAttribute.cs" />
+    <Compile Include="DateString.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="Drawing\Gif\Encoder.cs" />
     <Compile Include="Drawing\Gif\LZWEncoder.cs" />
     <Compile Include="Drawing\Gif\NeuQuant.cs" />
+    <Compile Include="Elements\Processes\AParentFlowNode.cs" />
     <Compile Include="Elements\Processes\Conditions\ACompareCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
     <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
@@ -58,6 +60,14 @@
     <Compile Include="Elements\Processes\Conditions\AndCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ConditionSet.cs" />
     <Compile Include="Elements\Processes\Conditions\ScriptCondition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\LinkEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\CompensationEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\EscalationEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\SignalEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\ConditionalEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\TimerDefinition\XDateString.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\TimerEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\MessageEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\IntermediateCatchEvent.cs" />
     <Compile Include="Elements\Processes\ExtensionElements.cs" />
     <Compile Include="Elements\Processes\Gateways\EventBasedGateway.cs" />

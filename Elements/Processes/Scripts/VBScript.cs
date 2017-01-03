@@ -35,6 +35,17 @@ Public Class {1}
     End Sub
 End Class";
 
+        private const string _CODE_BASE_TIMER_EVENT_TEMPLATE = @"{0}
+
+Public Class {1}
+    Public Sub New()
+    End Sub
+
+    Public Function {2}(ByRef variables As ProcessVariablesContainer) AS DateTime
+        {3}
+    End Sub
+End Class";
+
         public VBScript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         { }
@@ -45,7 +56,7 @@ End Class";
             foreach (string str in imports)
                 sbUsing.AppendFormat("Imports {0}\n", str);
 
-            return string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE), new object[]{
+            return string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (_IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
                 sbUsing.ToString(),
                 _ClassName,
                 _FunctionName,
