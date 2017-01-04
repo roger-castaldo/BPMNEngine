@@ -8,8 +8,6 @@ namespace Org.Reddragonit.BpmEngine
 {
     internal struct sPathEntry
     {
-        private const string _DATETIME_FORMAT = "yyyyMMddHHmmssfff";
-
         private string _incomingID;
         public string IncomingID { get { return _incomingID; } }
         private string[] _outgoingID;
@@ -30,8 +28,8 @@ namespace Org.Reddragonit.BpmEngine
             _incomingID = (elem.Attributes["incomingID"] == null ? null : elem.Attributes["incomingID"].Value);
             _elementID = elem.Attributes["elementID"].Value;
             _status = (StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes["status"].Value);
-            _startTime = DateTime.ParseExact(elem.Attributes["startTime"].Value,_DATETIME_FORMAT, CultureInfo.InvariantCulture);
-            _endTime = (elem.Attributes["endTime"] == null ? (DateTime?)null : DateTime.ParseExact(elem.Attributes["endTime"].Value,_DATETIME_FORMAT, CultureInfo.InvariantCulture));
+            _startTime = DateTime.ParseExact(elem.Attributes["startTime"].Value,Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
+            _endTime = (elem.Attributes["endTime"] == null ? (DateTime?)null : DateTime.ParseExact(elem.Attributes["endTime"].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture));
             _completedByID = (elem.Attributes["CompletedByID"] != null ? elem.Attributes["CompletedByID"].Value : null);
             _outgoingID = null;
             if (elem.Attributes["outgoingID"] != null)
@@ -128,9 +126,9 @@ namespace Org.Reddragonit.BpmEngine
                 writer.WriteAttributeString("incomingID", _incomingID);
             writer.WriteAttributeString("elementID", _elementID);
             writer.WriteAttributeString("status", _status.ToString());
-            writer.WriteAttributeString("startTime", _startTime.ToString(_DATETIME_FORMAT));
+            writer.WriteAttributeString("startTime", _startTime.ToString(Constants.DATETIME_FORMAT));
             if (_endTime.HasValue)
-                writer.WriteAttributeString("endTime", _endTime.Value.ToString(_DATETIME_FORMAT));
+                writer.WriteAttributeString("endTime", _endTime.Value.ToString(Constants.DATETIME_FORMAT));
             if (_completedByID != null)
                 writer.WriteAttributeString("CompletedByID", _completedByID);
             if (_outgoingID != null)
@@ -270,6 +268,41 @@ namespace Org.Reddragonit.BpmEngine
         public int CompareTo(object obj)
         {
             return _pathStepIndex.CompareTo(((sVariableEntry)obj).PathStepIndex);
+        }
+    }
+
+    internal struct sStepSuspension
+    {
+        private string _id;
+        public string id { get { return _id; } }
+
+        private int _stepIndex;
+        public int StepIndex { get { return _stepIndex; } }
+
+        private DateTime _endTime;
+        public DateTime EndTime { get { return _endTime; } }
+
+        public sStepSuspension(string id, int stepIndex, TimeSpan span)
+        {
+            _id = id;
+            _stepIndex = stepIndex;
+            _endTime = DateTime.Now.Add(span);
+        }
+
+        public sStepSuspension(XmlElement elem)
+        {
+            _id = elem.Attributes["id"].Value;
+            _stepIndex = int.Parse(elem.Attributes["stepIndex"].Value);
+            _endTime = DateTime.ParseExact(elem.Attributes["endTime"].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
+        }
+
+        public void Append(XmlWriter writer)
+        {
+            writer.WriteStartElement("sStepSuspension");
+            writer.WriteAttributeString("id", _id);
+            writer.WriteAttributeString("stepIndex", _stepIndex.ToString());
+            writer.WriteAttributeString("endTime", _endTime.ToString(Constants.DATETIME_FORMAT));
+            writer.WriteEndElement();
         }
     }
 }

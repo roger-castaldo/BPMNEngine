@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
@@ -20,6 +21,8 @@ namespace Org.Reddragonit.BpmEngine
     public delegate void OnGatewayStarted(IElement gateway);
     public delegate void OnGatewayCompleted(IElement gateway);
     public delegate void OnGatewayError(IElement gateway);
+    public delegate void OnStateChange(XmlDocument stateDocument);
+    internal delegate void processStateChanged();
     #endregion
 
     #region Validations

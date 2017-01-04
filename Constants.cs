@@ -11,6 +11,7 @@ namespace Org.Reddragonit.BpmEngine
         public static readonly float[] DASH_PATTERN = new float[] { 3.0f, 3.0f };
         public const float FONT_SIZE = 9.5F;
         public static readonly Font FONT = new Font(FontFamily.GenericSerif, FONT_SIZE,FontStyle.Regular,GraphicsUnit.Point);
+        public const string DATETIME_FORMAT = "yyyyMMddHHmmssfff";
 
         public static StringFormat STRING_FORMAT
         {

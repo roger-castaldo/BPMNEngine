@@ -111,6 +111,8 @@ namespace Org.Reddragonit.BpmEngine
 
         private OnGatewayError _onGatewayError;
         public OnGatewayError OnGatewayError { get { return _onGatewayError; } set { _onGatewayError = value; } }
+
+        public OnStateChange OnStateChange { set { _state.OnStateChange = value; } }
         #endregion
 
         #region Validations
@@ -306,7 +308,36 @@ namespace Org.Reddragonit.BpmEngine
 
         public bool LoadState(XmlDocument doc)
         {
-            return _state.Load(doc);
+            if (_state.Load(doc))
+            {
+                foreach ( sStepSuspension ss in _state.SuspendedSteps)
+                {
+                    Thread th = new Thread(new ParameterizedThreadStart(_suspendEvent));
+                    th.Start((object)(new object[] { ss.id, ss.EndTime }));
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private void _suspendEvent(object parameters)
+        {
+            string id = (string)((object[])parameters)[0];
+            DateTime release = (DateTime)((object[])parameters)[1];
+            TimeSpan ts = release.Subtract(DateTime.Now);
+            if (ts.TotalMilliseconds > 0)
+                Thread.Sleep(ts);
+            foreach(IElement ie in _FullElements)
+            {
+                if (ie.id == id)
+                {
+                    AEvent evnt = (AEvent)ie;
+                    lock (_state) { _state.Path.SucceedEvent(evnt); }
+                    if (_onEventCompleted != null)
+                        _onEventCompleted(evnt);
+                    break;
+                }
+            }
         }
 
         public Bitmap Diagram(bool outputVariables)
@@ -639,6 +670,10 @@ namespace Org.Reddragonit.BpmEngine
                     TimeSpan? ts = evnt.GetTimeout(new ProcessVariablesContainer(evnt.id, _state));
                     if (ts.HasValue)
                     {
+                        lock (_state)
+                        {
+                            _state.SuspendStep(evnt.id, ts.Value);
+                        }
                         if (ts.Value.TotalMilliseconds > 0)
                             Thread.Sleep(ts.Value);
                         success = true;
