@@ -31,6 +31,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
                     break;
                 }
             }
+            if (!end.HasValue && this.ExtensionElement != null)
+            {
+                foreach (IElement ie in ((ExtensionElements)this.ExtensionElement).Children)
+                {
+                    if (ie is XDateString)
+                    {
+                        end = ((XDateString)ie).GetTime(variables);
+                        break;
+                    }
+                    else if (ie is AScript)
+                    {
+                        end = (DateTime)((AScript)ie).Invoke(variables);
+                        break;
+                    }
+                }
+            }
             return (end.HasValue ? end.Value.Subtract(now) : (TimeSpan?)null);
         }
     }
