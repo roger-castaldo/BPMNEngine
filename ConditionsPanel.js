@@ -154,7 +154,7 @@
                 var ret=null;
                 switch ($(elem.find('[name="language"]:first')[0]).text()) {
                     case 'C#':
-                        ret = moddle.create('exts:cSharpScript', tmp);
+                        ret = moddle.create('exts:CSharpScript', tmp);
                         break;
                     case 'JS':
                         ret = moddle.create('exts:Javascript', tmp);
@@ -436,7 +436,7 @@
                             panel.append('<div style="text-align:center;width:100%;border-bottom:solid 1px #CCCCCC"><select name="scriptLanguage"><option value="Javascript">Javascript</option><option value="cSharpScript">C# Script</option><option value="VBScript">VB.Net Script</option><textarea cols="35" rows="30" name="scriptCode"></textarea></div>');
                             if (businessObject.extensionElements != undefined) {
                                 for(var x=0;x<businessObject.extensionElements.values.length;x++){
-                                    if (['exts:cSharpScript', 'exts:VBScript', 'exts:Javascript'].indexOf(businessObject.extensionElements.values[x].$type) >= 0) {
+                                    if (['exts:CSharpScript', 'exts:VBScript', 'exts:Javascript'].indexOf(businessObject.extensionElements.values[x].$type) >= 0) {
                                         $(panel.find('[name="scriptCode"]')[0]).val(businessObject.extensionElements.values[x].code);
                                         $(panel.find('[name="scriptLanguage"]>option[value="' + businessObject.extensionElements.values[x].$type.substring(4) + '"]')[0]).prop('selected', true);
                                         index = x;

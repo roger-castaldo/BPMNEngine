@@ -4,8 +4,22 @@
     "associations": [ ],
 	"prefix": "exts",
     "types": [
-        {
-            "name": "cSharpScript",
+      {
+        "name": "DateString",
+        "superClass": [
+          "Element"
+        ],
+        "properties": [
+          {
+            "name": "code",
+            "type": "String",
+            "isBody": true,
+            "serialize": "String"
+          }
+        ]
+      },
+      {
+            "name": "CSharpScript",
             "superClass": [
                 "Element"
             ],
@@ -319,8 +333,8 @@
                     "isMany": true
                 },
                 {
-                    "name": "lestThanOrEqualCondition",
-                    "type": "lestThanOrEqualCondition",
+                    "name": "lessThanOrEqualCondition",
+                    "type": "lessThanOrEqualCondition",
                     "isMany": true
                 },
                 {
@@ -350,7 +364,7 @@
                 },
                 {
                     "name": "cSharpScript",
-                    "type": "cSharpScript",
+                    "type": "CSharpScript",
                     "isMany": true
                 }
             ]
@@ -392,8 +406,8 @@
                     "isMany": true
                 },
                 {
-                    "name": "lestThanOrEqualCondition",
-                    "type": "lestThanOrEqualCondition",
+                    "name": "lessThanOrEqualCondition",
+                    "type": "lessThanOrEqualCondition",
                     "isMany": true
                 },
                 {
@@ -423,7 +437,7 @@
                 },
                 {
                     "name": "cSharpScript",
-                    "type": "cSharpScript",
+                    "type": "CSharpScript",
                     "isMany": true
                 }
             ]
@@ -456,8 +470,8 @@
                     "type": "lessThanCondition"
                 },
                 {
-                    "name": "lestThanOrEqualCondition",
-                    "type": "lestThanOrEqualCondition"
+                    "name": "lessThanOrEqualCondition",
+                    "type": "lessThanOrEqualCondition"
                 },
                 {
                     "name": "isNull",
@@ -481,7 +495,7 @@
                 },
                 {
                     "name": "cSharpScript",
-                    "type": "cSharpScript"
+                    "type": "CSharpScript"
                 }
             ]
         }
