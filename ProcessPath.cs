@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
+using Org.Reddragonit.BpmEngine.Interfaces;
 
 namespace Org.Reddragonit.BpmEngine
 {
@@ -28,6 +29,63 @@ namespace Org.Reddragonit.BpmEngine
             _stateChanged = stateChanged;
             _pathEntries = new List<sPathEntry>();
             _lastStep = int.MaxValue;
+        }
+
+        internal sSuspendedStep[] ResumeSteps
+        {
+            get
+            {
+                List<sSuspendedStep> ret = new List<sSuspendedStep>();
+                foreach (sPathEntry spe in _pathEntries)
+                {
+                    switch (spe.Status)
+                    {
+                        case StepStatuses.Suspended:
+                            bool add = true;
+                            foreach (sSuspendedStep ss in ret)
+                            {
+                                if (ss.ElementID == spe.ElementID)
+                                {
+                                    add = false;
+                                    break;
+                                }
+                            }
+                            if (add)
+                                ret.Add(new sSuspendedStep(spe.IncomingID,spe.ElementID));
+                            break;
+                        case StepStatuses.Succeeded:
+                        case StepStatuses.Failed:
+                        case StepStatuses.Waiting:
+                            for(int x = 0; x < ret.Count; x++)
+                            {
+                                if (ret[x].ElementID == spe.ElementID)
+                                {
+                                    ret.RemoveAt(x);
+                                    break;
+                                }
+                            }
+                            if (spe.OutgoingID != null)
+                            {
+                                foreach (string str in spe.OutgoingID)
+                                {
+                                    bool addNext = true;
+                                    foreach (sSuspendedStep ss in ret)
+                                    {
+                                        if (ss.ElementID == str)
+                                        {
+                                            addNext = false;
+                                            break;
+                                        }
+                                    }
+                                    if (addNext)
+                                        ret.Add(new sSuspendedStep(spe.ElementID, str));
+                                }
+                            }
+                            break;
+                    }
+                }
+                return ret.ToArray();
+            }
         }
 
         internal bool IsStepWaiting(string id, int stepIndex)
@@ -293,6 +351,11 @@ namespace Org.Reddragonit.BpmEngine
                     _complete.BeginInvoke(gateway.id,outgoing, new AsyncCallback(_AsyncCallback), null);
                 }
             }
+        }
+
+        internal void SuspendElement(string sourceID, IElement elem)
+        {
+            _addPathEntry(new sPathEntry(elem.id, StepStatuses.Suspended, DateTime.Now, sourceID),false);
         }
     }
 }

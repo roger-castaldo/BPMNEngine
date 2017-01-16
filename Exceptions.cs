@@ -39,4 +39,10 @@ namespace Org.Reddragonit.BpmEngine
         internal InvalidElementException(XmlNode n, string[] err)
             : base(string.Format("The element at {0} has the following error(s):\n{1}", Utility.FindXPath(n), String.Join("\n\t",err))) { }
     }
+
+    public class NotSuspendedException : Exception
+    {
+        internal NotSuspendedException()
+            : base("Unable to resume a process that is not suspended.") { }
+    }
 }

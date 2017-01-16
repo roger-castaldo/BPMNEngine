@@ -305,4 +305,19 @@ namespace Org.Reddragonit.BpmEngine
             writer.WriteEndElement();
         }
     }
+
+    internal struct sSuspendedStep
+    {
+        private string _incomingID;
+        public string IncomingID { get { return _incomingID; } }
+
+        private string _elementID;
+        public string ElementID { get { return _elementID; } }
+
+        public sSuspendedStep(string incomingID,string elementID)
+        {
+            _incomingID = incomingID;
+            _elementID = elementID;
+        }
+    }
 }

@@ -38,6 +38,17 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        private bool _isSuspended = false;
+
+        internal sSuspendedStep[] ResumeSteps {
+            get
+            {
+                if (!_isSuspended)
+                    return null;
+                return _path.ResumeSteps;
+            }
+        }
+
         private List<sVariableEntry> _variables;
 
         internal object this[string elementID, string variableName]
@@ -131,6 +142,8 @@ namespace Org.Reddragonit.BpmEngine
                         switch (n.Name)
                         {
                             case "ProcessState":
+                                if (n.Attributes["isSuspended"] != null)
+                                    _isSuspended = bool.Parse(n.Attributes["isSuspended"].Value);
                                 foreach (XmlNode nd in n.ChildNodes)
                                 {
                                     if (nd.NodeType == XmlNodeType.Element)
@@ -186,6 +199,7 @@ namespace Org.Reddragonit.BpmEngine
                         XmlWriter writer = XmlWriter.Create(ms, settings);
                         writer.WriteStartDocument();
                         writer.WriteStartElement("ProcessState");
+                        writer.WriteAttributeString("isSuspended", _isSuspended.ToString());
                         _path.Append(writer);
                         writer.WriteStartElement("ProcessVariables");
                         foreach (sVariableEntry sve in _variables)
@@ -217,6 +231,16 @@ namespace Org.Reddragonit.BpmEngine
                 if (_onStateChange!=null)
                 { try { _onStateChange(this.Document); } catch (Exception ex) { } }
             }
+        }
+
+        internal void Suspend()
+        {
+            _isSuspended = true;
+        }
+
+        internal void Resume()
+        {
+            _isSuspended = false;
         }
     }
 }

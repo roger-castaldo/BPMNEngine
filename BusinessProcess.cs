@@ -24,6 +24,8 @@ namespace Org.Reddragonit.BpmEngine
         private const int _VARIABLE_VALUE_WIDTH = 300;
         private const int _VARIABLE_IMAGE_WIDTH = _VARIABLE_NAME_WIDTH+_VARIABLE_VALUE_WIDTH;
 
+        private bool _isSuspended = false;
+        private ManualResetEvent _mreSuspend;
         private List<object> _components;
         private List<IElement> _Elements
         {
@@ -236,12 +238,14 @@ namespace Org.Reddragonit.BpmEngine
 
         private BusinessProcess() {
             _processLock = new ManualResetEvent(false);
+            _mreSuspend = new ManualResetEvent(false);
         }
 
         public BusinessProcess(XmlDocument doc)
         {
             List<Exception> exceptions = new List<Exception>();
             _processLock = new ManualResetEvent(false);
+            _mreSuspend = new ManualResetEvent(false);
             _doc = doc;
             _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete),new ProcessStepError(_ProcessStepError));
             _components = new List<object>();
@@ -308,16 +312,40 @@ namespace Org.Reddragonit.BpmEngine
 
         public bool LoadState(XmlDocument doc)
         {
+            return LoadState(doc, false);
+        }
+
+        public bool LoadState(XmlDocument doc,bool autoResume)
+        {
             if (_state.Load(doc))
             {
-                foreach ( sStepSuspension ss in _state.SuspendedSteps)
+                if (autoResume)
+                    Resume();
+                return true;
+            }
+            return false;
+        }
+
+        public void Resume()
+        {
+            if (_isSuspended)
+            {
+                _isSuspended = false;
+                sSuspendedStep[] resumeSteps = _state.ResumeSteps;
+                _state.Resume();
+                if (resumeSteps != null)
+                {
+                    foreach (sSuspendedStep ss in resumeSteps)
+                        _ProcessStepComplete(ss.IncomingID, ss.ElementID);
+                }
+                foreach (sStepSuspension ss in _state.SuspendedSteps)
                 {
                     Thread th = new Thread(new ParameterizedThreadStart(_suspendEvent));
                     th.Start((object)(new object[] { ss.id, ss.EndTime }));
                 }
-                return true;
             }
-            return false;
+            else
+                throw new NotSuspendedException();
         }
 
         private void _suspendEvent(object parameters)
@@ -515,6 +543,13 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
+        public void Suspend()
+        {
+            _isSuspended = true;
+            _state.Suspend();
+            _mreSuspend.WaitOne(5000);
+        }
+
         #region ProcessLock
 
         public bool WaitForCompletion()
@@ -589,172 +624,191 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessElement(string sourceID,IElement elem)
         {
-            if (elem is SequenceFlow)
+            if (_isSuspended)
             {
-                SequenceFlow sf = (SequenceFlow)elem;
-                lock (_state)
-                {
-                    _state.Path.ProcessSequenceFlow(sf);
-                }
-                if (_onSequenceFlowCompleted != null)
-                    _onSequenceFlowCompleted(sf);
-            }else if (elem is MessageFlow)
-            {
-                MessageFlow mf = (MessageFlow)elem;
-                lock (_state)
-                {
-                    _state.Path.ProcessMessageFlow(mf);
-                }
-                if (_onMessageFlowCompleted != null)
-                    _onMessageFlowCompleted(mf);
+                _state.Path.SuspendElement(sourceID, elem);
+                _mreSuspend.Set();
             }
-            else if (elem is AGateway)
+            else
             {
-                AGateway gw = (AGateway)elem;
-                Definition def = null;
-                foreach (IElement e in _Elements){
-                    if (e is Definition){
-                        if (((Definition)e).LocateElement(gw.id)!=null){
-                            def = (Definition)e;
-                            break;
+                if (elem is SequenceFlow)
+                {
+                    SequenceFlow sf = (SequenceFlow)elem;
+                    lock (_state)
+                    {
+                        _state.Path.ProcessSequenceFlow(sf);
+                    }
+                    if (_onSequenceFlowCompleted != null)
+                        _onSequenceFlowCompleted(sf);
+                }
+                else if (elem is MessageFlow)
+                {
+                    MessageFlow mf = (MessageFlow)elem;
+                    lock (_state)
+                    {
+                        _state.Path.ProcessMessageFlow(mf);
+                    }
+                    if (_onMessageFlowCompleted != null)
+                        _onMessageFlowCompleted(mf);
+                }
+                else if (elem is AGateway)
+                {
+                    AGateway gw = (AGateway)elem;
+                    Definition def = null;
+                    foreach (IElement e in _Elements)
+                    {
+                        if (e is Definition)
+                        {
+                            if (((Definition)e).LocateElement(gw.id) != null)
+                            {
+                                def = (Definition)e;
+                                break;
+                            }
                         }
                     }
-                }
-                lock (_state)
-                {
-                    _state.Path.StartGateway(gw, sourceID);
-                }
-                if (_onGatewayStarted != null)
-                    _onGatewayStarted(gw);
-                string[] outgoings = null;
-                try
-                {
-                    outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ProcessVariablesContainer(elem.id, _state));
-                }
-                catch (Exception e)
-                {
-                    if (_onGatewayError != null)
-                        _onGatewayError(gw);
-                    outgoings = null;
-                }
-                lock (_state)
-                {
-                    if (outgoings == null)
-                        _state.Path.FailGateway(gw);
-                    else
-                        _state.Path.SuccessGateway(gw, outgoings);
-                }
-            }
-            else if (elem is AEvent)
-            {
-                AEvent evnt = (AEvent)elem;
-                if (_onEventStarted != null)
-                    _onEventStarted(evnt);
-                lock (_state)
-                {
-                    _state.Path.StartEvent(evnt, sourceID);
-                }
-                bool success = true;
-                if (_isEventStartValid != null  && (evnt is IntermediateCatchEvent || evnt is StartEvent))
-                {
+                    lock (_state)
+                    {
+                        _state.Path.StartGateway(gw, sourceID);
+                    }
+                    if (_onGatewayStarted != null)
+                        _onGatewayStarted(gw);
+                    string[] outgoings = null;
                     try
                     {
-                        success = _isEventStartValid(evnt, new ProcessVariablesContainer(evnt.id, _state));
+                        outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ProcessVariablesContainer(elem.id, _state));
                     }
                     catch (Exception e)
                     {
-                        success = false;
+                        if (_onGatewayError != null)
+                            _onGatewayError(gw);
+                        outgoings = null;
                     }
-                }else if (evnt is IntermediateThrowEvent)
-                {
-                    TimeSpan? ts = evnt.GetTimeout(new ProcessVariablesContainer(evnt.id, _state));
-                    if (ts.HasValue)
+                    lock (_state)
                     {
-                        lock (_state)
+                        if (outgoings == null)
+                            _state.Path.FailGateway(gw);
+                        else
+                            _state.Path.SuccessGateway(gw, outgoings);
+                    }
+                }
+                else if (elem is AEvent)
+                {
+                    AEvent evnt = (AEvent)elem;
+                    if (_onEventStarted != null)
+                        _onEventStarted(evnt);
+                    lock (_state)
+                    {
+                        _state.Path.StartEvent(evnt, sourceID);
+                    }
+                    bool success = true;
+                    if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
+                    {
+                        try
                         {
-                            _state.SuspendStep(evnt.id, ts.Value);
+                            success = _isEventStartValid(evnt, new ProcessVariablesContainer(evnt.id, _state));
                         }
-                        if (ts.Value.TotalMilliseconds > 0)
-                            Thread.Sleep(ts.Value);
-                        success = true;
+                        catch (Exception e)
+                        {
+                            success = false;
+                        }
+                    }
+                    else if (evnt is IntermediateThrowEvent)
+                    {
+                        TimeSpan? ts = evnt.GetTimeout(new ProcessVariablesContainer(evnt.id, _state));
+                        if (ts.HasValue)
+                        {
+                            lock (_state)
+                            {
+                                _state.SuspendStep(evnt.id, ts.Value);
+                            }
+                            if (ts.Value.TotalMilliseconds > 0)
+                                Thread.Sleep(ts.Value);
+                            success = true;
+                        }
+                    }
+                    if (!success)
+                    {
+                        lock (_state) { _state.Path.FailEvent(evnt); }
+                        if (_onEventError != null)
+                            _onEventError(evnt);
+                    }
+                    else
+                    {
+                        lock (_state) { _state.Path.SucceedEvent(evnt); }
+                        if (_onEventCompleted != null)
+                            _onEventCompleted(evnt);
+                        if (evnt is EndEvent)
+                        {
+                            if (_onProcessCompleted != null)
+                                _onProcessCompleted(((EndEvent)evnt).Process);
+                            _processLock.Set();
+                        }
                     }
                 }
-                if (!success){
-                    lock (_state) { _state.Path.FailEvent(evnt); }
-                    if (_onEventError != null)
-                        _onEventError(evnt);
-                } else{
-                    lock (_state) { _state.Path.SucceedEvent(evnt); }
-                    if (_onEventCompleted != null)
-                        _onEventCompleted(evnt);
-                    if (evnt is EndEvent)
+                else if (elem is ATask)
+                {
+                    ATask tsk = (ATask)elem;
+                    if (_onTaskStarted != null)
+                        _onTaskStarted(tsk);
+                    lock (_state)
                     {
-                        if (_onProcessCompleted != null)
-                            _onProcessCompleted(((EndEvent)evnt).Process);
-                        _processLock.Set();
+                        _state.Path.StartTask(tsk, sourceID);
                     }
-                }
-            }
-            else if (elem is ATask)
-            {
-                ATask tsk = (ATask)elem;
-                if (_onTaskStarted != null)
-                    _onTaskStarted(tsk);
-                lock (_state)
-                {
-                    _state.Path.StartTask(tsk, sourceID);
-                }
-                try
-                {
-                    ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id,_state);
-                    switch (elem.GetType().Name)
+                    try
                     {
-                        case "BusinessRuleTask":
-                            _processBusinessRuleTask(tsk, ref variables);
-                            _MergeVariables(tsk, variables);
-                            break;
-                        case "ManualTask":
-                            _beginManualTask(tsk, variables, new CompleteManualTask(_CompleteExternalTask), new ErrorManualTask(_ErrorExternalTask));
-                            break;
-                        case "RecieveTask":
-                            _processRecieveTask(tsk, ref variables);
-                            _MergeVariables(tsk, variables);
-                            break;
-                        case "ScriptTask":
-                            ((ScriptTask)tsk).ProcessTask(ref variables, _processScriptTask);
-                            _MergeVariables(tsk, variables);
-                            break;
-                        case "SendTask":
-                            _processSendTask(tsk, ref variables);
-                            _MergeVariables(tsk, variables);
-                            break;
-                        case "ServiceTask":
-                            _processServiceTask(tsk, ref variables);
-                            _MergeVariables(tsk, variables);
-                            break;
-                        case "Task":
-                            _processTask(tsk, ref variables);
-                            _MergeVariables(tsk, variables);
-                            break;
-                        case "UserTask":
-                            Lane ln = null;
-                            foreach (IElement e in _FullElements){
-                                if (e is Lane){
-                                    if (new List<string>(((Lane)e).Nodes).Contains(tsk.id)){
-                                        ln = (Lane)e;
-                                        break;
+                        ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state);
+                        switch (elem.GetType().Name)
+                        {
+                            case "BusinessRuleTask":
+                                _processBusinessRuleTask(tsk, ref variables);
+                                _MergeVariables(tsk, variables);
+                                break;
+                            case "ManualTask":
+                                _beginManualTask(tsk, variables, new CompleteManualTask(_CompleteExternalTask), new ErrorManualTask(_ErrorExternalTask));
+                                break;
+                            case "RecieveTask":
+                                _processRecieveTask(tsk, ref variables);
+                                _MergeVariables(tsk, variables);
+                                break;
+                            case "ScriptTask":
+                                ((ScriptTask)tsk).ProcessTask(ref variables, _processScriptTask);
+                                _MergeVariables(tsk, variables);
+                                break;
+                            case "SendTask":
+                                _processSendTask(tsk, ref variables);
+                                _MergeVariables(tsk, variables);
+                                break;
+                            case "ServiceTask":
+                                _processServiceTask(tsk, ref variables);
+                                _MergeVariables(tsk, variables);
+                                break;
+                            case "Task":
+                                _processTask(tsk, ref variables);
+                                _MergeVariables(tsk, variables);
+                                break;
+                            case "UserTask":
+                                Lane ln = null;
+                                foreach (IElement e in _FullElements)
+                                {
+                                    if (e is Lane)
+                                    {
+                                        if (new List<string>(((Lane)e).Nodes).Contains(tsk.id))
+                                        {
+                                            ln = (Lane)e;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                            _beginUserTask(tsk, variables, ln, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
-                            break;
+                                _beginUserTask(tsk, variables, ln, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
+                                break;
+                        }
                     }
-                }
-                catch (Exception e)
-                {
-                    if (_onTaskError != null)
-                        _onTaskError(tsk);
-                    lock (_state) { _state.Path.FailTask(tsk); }
+                    catch (Exception e)
+                    {
+                        if (_onTaskError != null)
+                            _onTaskError(tsk);
+                        lock (_state) { _state.Path.FailTask(tsk); }
+                    }
                 }
             }
         }
