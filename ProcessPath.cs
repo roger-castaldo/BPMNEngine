@@ -126,7 +126,12 @@ namespace Org.Reddragonit.BpmEngine
         public void Append(XmlWriter writer)
         {
             writer.WriteStartElement("ProcessPath");
-            foreach (sPathEntry spe in _pathEntries)
+            sPathEntry[] paths = new sPathEntry[0];
+            lock (_pathEntries)
+            {
+                paths = _pathEntries.ToArray();
+            }
+            foreach (sPathEntry spe in paths)
                 spe.Append(writer);
             writer.WriteEndElement();
         }
@@ -135,6 +140,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal bool Load(XmlElement element)
         {
+            Log.Debug("Loading Process Path from XML Element");
             try
             {
                 foreach (XmlNode n in element.ChildNodes)
@@ -189,11 +195,13 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void StartEvent(AEvent Event, string incoming)
         {
+            Log.Debug("Starting Event {0} in Process Path", new object[] { Event.id });
             _addPathEntry(new sPathEntry(Event.id, StepStatuses.Waiting, DateTime.Now, incoming),false);
         }
 
         internal void SucceedEvent(AEvent Event)
         {
+            Log.Debug("Succeeding Event {0} in Process Path", new object[] { Event.id });
             lock (_pathEntries)
             {
                 string incoming = null;
@@ -217,6 +225,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void FailEvent(AEvent Event)
         {
+            Log.Debug("Failing Event {0} in Process Path", new object[] { Event.id });
             lock (_pathEntries)
             {
                 string incoming = null;
@@ -237,23 +246,27 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void ProcessMessageFlow(MessageFlow flow)
         {
+            Log.Debug("Processing Message Flow {0} in Process Path", new object[] { flow.id });
             _addPathEntry(new sPathEntry(flow.id, StepStatuses.Succeeded, DateTime.Now, flow.sourceRef, flow.targetRef, DateTime.Now), false);
             _complete.BeginInvoke(flow.id, flow.targetRef, new AsyncCallback(_AsyncCallback), null);
         }
 
         internal void ProcessSequenceFlow(SequenceFlow flow)
         {
+            Log.Debug("Processing Sequence Flow {0} in Process Path", new object[] { flow.id });
             _addPathEntry(new sPathEntry(flow.id, StepStatuses.Succeeded, DateTime.Now, flow.sourceRef, flow.targetRef, DateTime.Now), false);
             _complete.BeginInvoke(flow.id, flow.targetRef, new AsyncCallback(_AsyncCallback), null);
         }
 
         internal void StartTask(ATask task, string incoming)
         {
+            Log.Debug("Starting Task {0} in Process Path", new object[] { task.id });
             _addPathEntry(new sPathEntry(task.id, StepStatuses.Waiting, DateTime.Now, incoming), false);
         }
 
         internal void FailTask(ATask task)
         {
+            Log.Debug("Failing Task {0} in Process Path", new object[] { task.id });
             lock (_pathEntries)
             {
                 string incoming = null;
@@ -274,11 +287,13 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void SucceedTask(UserTask task,string completedByID)
         {
+            Log.Debug("Succeeding Task {0} in Process Path with Completed By ID {1}", new object[] { task.id,completedByID });
             _SucceedTask(task, completedByID);
         }
 
         internal void SucceedTask(ATask task)
         {
+            Log.Debug("Succeeding Task {0} in Process Path", new object[] { task.id });
             _SucceedTask(task, null);
         }
 
@@ -307,11 +322,13 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void StartGateway(AGateway gateway, string incoming)
         {
+            Log.Debug("Starting Gateway {0} in Process Path", new object[] { gateway.id });
             _addPathEntry(new sPathEntry(gateway.id, StepStatuses.Waiting, DateTime.Now, incoming), false);
         }
 
         internal void FailGateway(AGateway gateway)
         {
+            Log.Debug("Failing Gateway {0} in Process Path", new object[] { gateway.id });
             lock (_pathEntries)
             {
                 string incoming = null;
@@ -332,6 +349,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void SuccessGateway(AGateway gateway,string[] chosenExits)
         {
+            Log.Debug("Succeeding Gateway {0} in Process Path", new object[] { gateway.id });
             lock (_pathEntries)
             {
                 string incoming = null;
@@ -355,6 +373,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void SuspendElement(string sourceID, IElement elem)
         {
+            Log.Debug("Suspending Element {0} in Process Path", new object[] { elem.id });
             _addPathEntry(new sPathEntry(elem.id, StepStatuses.Suspended, DateTime.Now, sourceID),false);
         }
     }

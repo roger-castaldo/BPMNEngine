@@ -11,16 +11,21 @@ namespace Org.Reddragonit.BpmEngine
 
         public ProcessVariablesContainer()
         {
+            Log.Debug("Establishing a new Process Variables Container");
             _variables = new List<sVariableEntry>();
             _stepIndex = -1;
         }
 
         internal ProcessVariablesContainer(string elementID, ProcessState state)
         {
+            Log.Debug("Producing Process Variables Container for element[{0}]", new object[] { elementID });
             _stepIndex = state.Path.CurrentStepIndex(elementID);
             _variables = new List<sVariableEntry>();
             foreach (string str in state[elementID])
-                _variables.Add(new sVariableEntry(str, _stepIndex, state[elementID,str]));
+            {
+                Log.Debug("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID });
+                _variables.Add(new sVariableEntry(str, _stepIndex, state[elementID, str]));
+            }
         }
 
         public object this[string name]

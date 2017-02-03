@@ -43,6 +43,7 @@ namespace Org.Reddragonit.BpmEngine
                         prefix = "exts";
                     if (prefix != null)
                     {
+                        Log.Debug("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) });
                         if (!_prefixMaps.ContainsKey(prefix))
                             _prefixMaps.Add(prefix, new List<string>());
                         List<string> tmp = _prefixMaps[prefix];
@@ -54,23 +55,29 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        internal List<string> Translate(string prefix)
+        private List<string> _Translate(string prefix)
         {
+            Log.Debug("Attempting to translate xml prefix {0}", new object[] { prefix });
             List<string> ret = new List<string>();
             lock (_prefixMaps)
             {
                 if (_prefixMaps.ContainsKey(prefix))
+                {
+                    Log.Debug("Translation for XML Prefix {0} located", new object[] { prefix });
                     ret.AddRange(_prefixMaps[prefix].ToArray());
+                }
             }
             return ret;
         }
 
         internal bool isMatch(string prefix, string tag, string nodeName)
         {
+            Log.Debug("Checking if prefix {0} matches {1}:{2}",new object[] { nodeName,prefix,tag });
             if (string.Format("{0}:{1}", prefix, tag) == nodeName)
                 return true;
-            foreach (string str in Translate(prefix))
+            foreach (string str in _Translate(prefix))
             {
+                Log.Debug("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName,str,tag});
                 if (string.Format("{0}:{1}", str, tag) == nodeName)
                     return true;
             }

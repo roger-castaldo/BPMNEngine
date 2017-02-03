@@ -52,6 +52,7 @@ End Class";
 
         protected override string _GenerateCode(string[] imports, string code)
         {
+            Log.Info("Generating VB Code for script compilation for script element {0}", new object[] { id });
             StringBuilder sbUsing = new StringBuilder();
             foreach (string str in imports)
                 sbUsing.AppendFormat("Imports {0}\n", str);

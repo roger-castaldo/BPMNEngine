@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 
@@ -14,9 +15,12 @@ namespace Org.Reddragonit.BpmEngine
         private ProcessPath _path;
         internal ProcessPath Path { get { return _path; } }
 
+        private StringBuilder _sbLog;
+
         private List<sStepSuspension> _suspensions;
         internal void SuspendStep(string elementID,TimeSpan span)
         {
+            Log.Debug("Suspending Step[{0}] for {1}", new object[] { elementID, span });
             lock (_suspensions)
             {
                 _suspensions.Add(new BpmEngine.sStepSuspension(elementID, _path.CurrentStepIndex(elementID), span));
@@ -129,10 +133,12 @@ namespace Org.Reddragonit.BpmEngine
             _path = new ProcessPath(complete,error,new processStateChanged(_stateChanged));
             _variables = new List<sVariableEntry>();
             _suspensions = new List<BpmEngine.sStepSuspension>();
+            _sbLog = new StringBuilder();
         }
 
         internal bool Load(XmlDocument doc)
         {
+            Log.Debug("Loading Process State");
             try
             {
                 foreach (XmlNode n in doc.ChildNodes)
@@ -151,9 +157,11 @@ namespace Org.Reddragonit.BpmEngine
                                         switch (nd.Name)
                                         {
                                             case "ProcessPath":
+                                                Log.Debug("Loading Process Path...");
                                                 _path.Load((XmlElement)nd);
                                                 break;
                                             case "ProcessVariables":
+                                                Log.Debug("Loading Process Variables...");
                                                 foreach (XmlNode pnd in nd.ChildNodes)
                                                 {
                                                     if (pnd.NodeType == XmlNodeType.Element)
@@ -162,10 +170,21 @@ namespace Org.Reddragonit.BpmEngine
                                                 _variables.Sort();
                                                 break;
                                             case "SuspendedSteps":
+                                                Log.Debug("Loading Suspended Steps...");
                                                 foreach (XmlNode ssnd in nd.ChildNodes)
                                                 {
                                                     if (ssnd.NodeType == XmlNodeType.Element)
                                                         _suspensions.Add(new BpmEngine.sStepSuspension((XmlElement)ssnd));
+                                                }
+                                                break;
+                                            case "ProcessLog":
+                                                Log.Debug("Loading Process Log...");
+                                                lock (_sbLog)
+                                                {
+                                                    if (_sbLog.Length > 0)
+                                                        _sbLog = new StringBuilder(((XmlCDataSection)nd.ChildNodes[0]).InnerText+_sbLog.ToString());
+                                                    else
+                                                        _sbLog = new StringBuilder(((XmlCDataSection)nd.ChildNodes[0]).InnerText);
                                                 }
                                                 break;
                                         }
@@ -178,6 +197,7 @@ namespace Org.Reddragonit.BpmEngine
             }
             catch (Exception e)
             {
+                Log.Exception(e);
                 return false;
             }
             return true;
@@ -200,24 +220,44 @@ namespace Org.Reddragonit.BpmEngine
                         writer.WriteStartDocument();
                         writer.WriteStartElement("ProcessState");
                         writer.WriteAttributeString("isSuspended", _isSuspended.ToString());
-                        _path.Append(writer);
+                        lock (_path)
+                        {
+                            _path.Append(writer);
+                        }
                         writer.WriteStartElement("ProcessVariables");
-                        foreach (sVariableEntry sve in _variables)
+                        sVariableEntry[] vars = new sVariableEntry[0];
+                        lock (_variables) {
+                            vars = _variables.ToArray();
+                        }
+                        foreach (sVariableEntry sve in vars)
                             sve.Append(writer);
                         writer.WriteEndElement();
                         writer.WriteStartElement("SuspendedSteps");
-                        foreach (sStepSuspension ss in _suspensions)
+                        sStepSuspension[] ssteps = new sStepSuspension[0];
+                        lock (_suspensions)
+                        {
+                            ssteps = _suspensions.ToArray();
+                        }
+                        foreach (sStepSuspension ss in ssteps)
                             ss.Append(writer);
                         writer.WriteEndElement();
+                        if (_sbLog.Length > 0)
+                        {
+                            writer.WriteStartElement("ProcessLog");
+                            lock (_lock)
+                            {
+                                writer.WriteCData(_sbLog.ToString());
+                            }
+                            writer.WriteEndElement();
+                        }
                         writer.WriteEndElement();
                         writer.Flush();
-                        System.Diagnostics.Debug.WriteLine(UTF8Encoding.UTF8.GetString(ms.ToArray()));
                         ms.Position = 0;
                         ret.Load(ms);
                     }
                     catch (Exception e)
                     {
-                        System.Diagnostics.Debug.WriteLine(e.Message);
+                        Log.Exception(e);
                     }
                 }
                 return ret;
@@ -235,12 +275,71 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void Suspend()
         {
+            Log.Debug("Suspending Process State");
             _isSuspended = true;
         }
 
         internal void Resume()
         {
+            Log.Debug("Resuming Process State");
             _isSuspended = false;
+        }
+
+        internal void LogLine(AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
+        {
+            lock (_lock)
+            {
+                _sbLog.AppendLine(string.Format("{0}|{1}|{2}|{3}[{4}]|{5}", new object[]
+                {
+                    timestamp.ToString(Constants.DATETIME_FORMAT),
+                    level,
+                    assembly.Name,
+                    fileName,
+                    lineNumber,
+                    message
+                }));
+            }
+        }
+
+        internal void LogException(AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
+        {
+            StringBuilder sb = new StringBuilder();
+            if (exception is InvalidProcessDefinitionException)
+            {
+                sb.AppendLine(string.Format(@"MESSAGE:{0}
+STACKTRACE:{1}", new object[]
+                {
+                exception.Message,
+                exception.StackTrace
+                }));
+                foreach (Exception e in ((InvalidProcessDefinitionException)exception).ProcessExceptions)
+                {
+                    sb.AppendLine(string.Format(@"MESSAGE:{0}
+STACKTRACE:{1}", new object[]
+                {
+                e.Message,
+                e.StackTrace
+                }));
+                }
+            }
+            else
+            {
+                Exception ex = exception;
+                bool isInner = false;
+                while (ex != null)
+                {
+                    sb.AppendLine(string.Format(@"{2}MESSAGE:{0}
+STACKTRACE:{1}", new object[]
+                {
+                ex.Message,
+                ex.StackTrace,
+                (isInner ? "INNER_EXCEPTION:" : "")
+                }));
+                    isInner = true;
+                    ex = ex.InnerException;
+                }
+            }
+            LogLine(assembly, fileName, lineNumber, LogLevels.Error, timestamp, sb.ToString());   
         }
     }
 }

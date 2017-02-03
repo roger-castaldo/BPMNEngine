@@ -120,15 +120,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 
         protected sealed override object _Invoke(ProcessVariablesContainer variables)
         {
+            Log.Debug("Attempting to compile script to execute for script element {0}",new object[] { id });
             string errors;
             if (!_CompileAssembly(out errors))
                 throw new Exception(errors);
+            Log.Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
             object o = _assembly.CreateInstance(_className);
+            Log.Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
             MethodInfo mi = o.GetType().GetMethod(_functionName);
             object[] args = new object[] { variables };
+            Log.Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
             object ret = mi.Invoke(o, args);
-            if (mi.ReturnType==typeof(void))
+            if (mi.ReturnType == typeof(void))
+            {
+                Log.Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { id });
                 ret = args[0];
+            }
             return ret;
         }
 

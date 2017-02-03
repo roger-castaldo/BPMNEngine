@@ -1,6 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 
@@ -52,5 +53,10 @@ namespace Org.Reddragonit.BpmEngine
     #region internals
     internal delegate void ProcessStepComplete(string sourceID,string outgoingID);
     internal delegate void ProcessStepError(IElement step);
+    #endregion
+
+    #region Logging
+    public delegate void LogLine(AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message);
+    public delegate void LogException(AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception);
     #endregion
 }

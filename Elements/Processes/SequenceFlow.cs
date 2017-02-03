@@ -21,6 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 
         public bool IsFlowValid(IsFlowValid isFlowValid,ProcessVariablesContainer variables)
         {
+            Log.Debug("Checking if Sequence Flow[{0}] is valid", new object[] { id });
             bool ret = isFlowValid(this, variables);
             if (ExtensionElement != null)
             {

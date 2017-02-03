@@ -28,4 +28,12 @@ namespace Org.Reddragonit.BpmEngine
         Byte,
         Null
     }
+    public enum LogLevels
+    {
+        None = 0x00,
+        Fatal = 0x01,
+        Error = 0x02,
+        Info = 0x03,
+        Debug = 0x04
+    }
 }

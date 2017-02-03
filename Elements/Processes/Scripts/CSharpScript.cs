@@ -42,6 +42,7 @@ public class {1} {{
 
         protected override string _GenerateCode(string[] imports,string code)
         {
+            Log.Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
             StringBuilder sbUsing = new StringBuilder();
             foreach (string str in imports)
                 sbUsing.AppendFormat("using {0};\n", str);

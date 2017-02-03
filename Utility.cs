@@ -43,6 +43,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public static Type LocateElementType(string tagName,XmlPrefixMap map)
         {
+            Log.Debug("Attempting to locate ElementType for XML tag {0}", new object[] { tagName });
             Type ret = null;
             foreach (Type t in LocateTypeInstances(typeof(IElement)))
             {
@@ -52,6 +53,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         if (xt.Matches(map,tagName))
                         {
+                            Log.Debug("Located type {0} for XML tag {1}", new object[] { t.FullName, tagName });
                             ret = t;
                             break;
                         }
@@ -94,9 +96,13 @@ namespace Org.Reddragonit.BpmEngine
 
         internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map,AElement parent)
         {
+            Log.Debug("Attempting to construct Element from XML element {0}", new object[] { element.Name });
             Type t = Utility.LocateElementType(element.Name, map);
             if (t != null)
-                return (IElement)t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap),typeof(AElement) }).Invoke(new object[] { element, map,parent });
+            {
+                Log.Info("Constructing IElement from XML tag {0} of type {1}", new object[] { element.Name, t.FullName });
+                return (IElement)t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }).Invoke(new object[] { element, map, parent });
+            }
             return null;
         }
 
@@ -119,14 +125,16 @@ namespace Org.Reddragonit.BpmEngine
                     case XmlNodeType.Document:
                         return builder.ToString();
                     default:
-                        throw new ArgumentException("Only elements and attributes are supported");
+                        throw Log._Exception(new ArgumentException("Only elements and attributes are supported"));
+                        break;
                 }
             }
-            throw new ArgumentException("Node was not in a document");
+            throw Log._Exception(new ArgumentException("Node was not in a document"));
         }
 
         public static int FindElementIndex(XmlElement element)
         {
+            Log.Debug("Locating Element Index for element {0}", new object[] { element.Name });
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
             {
@@ -139,13 +147,11 @@ namespace Org.Reddragonit.BpmEngine
                 if (candidate is XmlElement && candidate.Name == element.Name)
                 {
                     if (candidate == element)
-                    {
                         return index;
-                    }
                     index++;
                 }
             }
-            throw new ArgumentException("Couldn't find element within parent");
+            throw Log._Exception(new ArgumentException("Couldn't find element within parent"));
         }
 
         internal static object[] GetCustomAttributesForClass(Type clazz,Type attributeType)

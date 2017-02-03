@@ -22,6 +22,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public DateTime GetTime(ProcessVariablesContainer variables)
         {
+            Log.Info("Attempting to parse DateString [{0}]", new object[] { _value });
             DateTime ret = DateTime.Now;
             bool isFirst = true;
             string buffer = "";
@@ -98,7 +99,7 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             if (buffer != "")
-                throw new Exception(string.Format("Invalid Date String Specified [{0}]", buffer));
+                throw Log._Exception(new Exception(string.Format("Invalid Date String Specified [{0}]", buffer)));
             return ret;
         }
 
@@ -121,7 +122,8 @@ namespace Org.Reddragonit.BpmEngine
                 case "second":
                     return dateTime.AddSeconds(value);
                 default:
-                    throw new Exception("Internal error: Unhandled relative date/time case.");
+                    throw Log._Exception(new Exception("Internal error: Unhandled relative date/time case."));
+                    break;
             }
         }
     }

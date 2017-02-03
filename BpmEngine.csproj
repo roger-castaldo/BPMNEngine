@@ -124,6 +124,7 @@
     <Compile Include="Exceptions.cs" />
     <Compile Include="Interfaces\IElement.cs" />
     <Compile Include="Interfaces\IParentElement.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="ProcessPath.cs" />
     <Compile Include="ProcessState.cs" />
     <Compile Include="ProcessVariablesContainer.cs" />
