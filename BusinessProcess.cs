@@ -208,7 +208,7 @@ namespace Org.Reddragonit.BpmEngine
                 if (elem.id == taskID && elem is ATask)
                 {
                     if (_onTaskError != null)
-                        _onTaskError((ATask)elem);
+                        _onTaskError((ATask)elem, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                     lock (_state)
                     {
                         _state.Path.FailTask((ATask)elem);
@@ -400,7 +400,7 @@ namespace Org.Reddragonit.BpmEngine
                     AEvent evnt = (AEvent)ie;
                     lock (_state) { _state.Path.SucceedEvent(evnt); }
                     if (_onEventCompleted != null)
-                        _onEventCompleted(evnt);
+                        _onEventCompleted(evnt,new ReadOnlyProcessVariablesContainer(ie.id,_state));
                     break;
                 }
             }
@@ -573,15 +573,15 @@ namespace Org.Reddragonit.BpmEngine
                             {
                                 WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
                                 if (_onProcessStarted != null)
-                                    _onProcessStarted(p);
+                                    _onProcessStarted(p, new ReadOnlyProcessVariablesContainer(variables));
                                 if (_onEventStarted!=null)
-                                    _onEventStarted(se);
+                                    _onEventStarted(se, new ReadOnlyProcessVariablesContainer(variables));
                                 _state.Path.StartEvent(se, null);
                                 foreach (string str in variables.Keys)
                                     _state[se.id,str]=variables[str];
                                 _state.Path.SucceedEvent(se);
                                 if (_onEventCompleted!=null)
-                                    _onEventCompleted(se);
+                                    _onEventCompleted(se, new ReadOnlyProcessVariablesContainer(se.id, _state));
                                 ret=true;
                             }
                         }
@@ -699,7 +699,7 @@ namespace Org.Reddragonit.BpmEngine
                         _state.Path.ProcessSequenceFlow(sf);
                     }
                     if (_onSequenceFlowCompleted != null)
-                        _onSequenceFlowCompleted(sf);
+                        _onSequenceFlowCompleted(sf,new ReadOnlyProcessVariablesContainer(elem.id,_state));
                 }
                 else if (elem is MessageFlow)
                 {
@@ -709,7 +709,7 @@ namespace Org.Reddragonit.BpmEngine
                         _state.Path.ProcessMessageFlow(mf);
                     }
                     if (_onMessageFlowCompleted != null)
-                        _onMessageFlowCompleted(mf);
+                        _onMessageFlowCompleted(mf, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                 }
                 else if (elem is AGateway)
                 {
@@ -731,7 +731,7 @@ namespace Org.Reddragonit.BpmEngine
                         _state.Path.StartGateway(gw, sourceID);
                     }
                     if (_onGatewayStarted != null)
-                        _onGatewayStarted(gw);
+                        _onGatewayStarted(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                     string[] outgoings = null;
                     try
                     {
@@ -741,7 +741,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         WriteLogException(new StackFrame(1, true), DateTime.Now, e);
                         if (_onGatewayError != null)
-                            _onGatewayError(gw);
+                            _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                         outgoings = null;
                     }
                     lock (_state)
@@ -756,7 +756,7 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     AEvent evnt = (AEvent)elem;
                     if (_onEventStarted != null)
-                        _onEventStarted(evnt);
+                        _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                     lock (_state)
                     {
                         _state.Path.StartEvent(evnt, sourceID);
@@ -792,17 +792,17 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         lock (_state) { _state.Path.FailEvent(evnt); }
                         if (_onEventError != null)
-                            _onEventError(evnt);
+                            _onEventError(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                     }
                     else
                     {
                         lock (_state) { _state.Path.SucceedEvent(evnt); }
                         if (_onEventCompleted != null)
-                            _onEventCompleted(evnt);
+                            _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                         if (evnt is EndEvent)
                         {
                             if (_onProcessCompleted != null)
-                                _onProcessCompleted(((EndEvent)evnt).Process);
+                                _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                             _processLock.Set();
                         }
                     }
@@ -811,7 +811,7 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     ATask tsk = (ATask)elem;
                     if (_onTaskStarted != null)
-                        _onTaskStarted(tsk);
+                        _onTaskStarted(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                     lock (_state)
                     {
                         _state.Path.StartTask(tsk, sourceID);
@@ -869,7 +869,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         WriteLogException(new StackFrame(1, true), DateTime.Now, e);
                         if (_onTaskError != null)
-                            _onTaskError(tsk);
+                            _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state));
                         lock (_state) { _state.Path.FailTask(tsk); }
                     }
                 }
@@ -911,7 +911,7 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
                 if (_onTaskCompleted != null)
-                    _onTaskCompleted(task);
+                    _onTaskCompleted(task, new ReadOnlyProcessVariablesContainer(task.id, _state));
                 if (task is UserTask)
                     _state.Path.SucceedTask((UserTask)task,completedByID);
                 else

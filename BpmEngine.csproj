@@ -129,6 +129,7 @@
     <Compile Include="ProcessState.cs" />
     <Compile Include="ProcessVariablesContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadOnlyProcessVariablesContainer.cs" />
     <Compile Include="Structures.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="XmlPrefixMap.cs" />

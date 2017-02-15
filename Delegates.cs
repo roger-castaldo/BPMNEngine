@@ -8,20 +8,20 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine
 {
     #region Ons
-    public delegate void OnEventStarted(IElement Event);
-    public delegate void OnEventCompleted(IElement Event);
-    public delegate void OnEventError(IElement Event);
-    public delegate void OnTaskStarted(IElement task);
-    public delegate void OnTaskCompleted(IElement task);
-    public delegate void OnTaskError(IElement task);
-    public delegate void OnProcessStarted(IElement process);
-    public delegate void OnProcessCompleted(IElement process);
-    public delegate void OnProcessError(IElement process);
-    public delegate void OnSequenceFlowCompleted(IElement flow);
-    public delegate void OnMessageFlowCompleted(IElement flow);
-    public delegate void OnGatewayStarted(IElement gateway);
-    public delegate void OnGatewayCompleted(IElement gateway);
-    public delegate void OnGatewayError(IElement gateway);
+    public delegate void OnEventStarted(IElement Event, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnEventCompleted(IElement Event, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnEventError(IElement Event, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnTaskStarted(IElement task, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnTaskCompleted(IElement task, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnTaskError(IElement task, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnProcessStarted(IElement process, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnProcessCompleted(IElement process, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnProcessError(IElement process, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnSequenceFlowCompleted(IElement flow, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnMessageFlowCompleted(IElement flow, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnGatewayStarted(IElement gateway, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnGatewayCompleted(IElement gateway, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnGatewayError(IElement gateway, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnStateChange(XmlDocument stateDocument);
     internal delegate void processStateChanged();
     #endregion
