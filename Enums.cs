@@ -26,7 +26,8 @@ namespace Org.Reddragonit.BpmEngine
         Boolean,
         Float,
         Byte,
-        Null
+        Null,
+        File
     }
     public enum LogLevels
     {

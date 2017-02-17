@@ -164,45 +164,50 @@ namespace Org.Reddragonit.BpmEngine
         {
             _name = elem.Attributes["name"].Value;
             _pathStepIndex = int.Parse(elem.Attributes["pathStepIndex"].Value);
-            string text = elem.InnerText;
-            if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
-                text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
-            _value = null;
-            switch ((VariableTypes)Enum.Parse(typeof(VariableTypes),elem.Attributes["type"].Value))
+            if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value) == VariableTypes.File)
+                _value = new sFile((XmlElement)elem.ChildNodes[0]);
+            else
             {
-                case VariableTypes.Boolean:
-                    _value = bool.Parse(text);
-                    break;
-                case VariableTypes.Byte:
-                    _value = Convert.FromBase64String(text);
-                    break;
-                case VariableTypes.Char:
-                    _value = text[0];
-                    break;
-                case VariableTypes.DateTime:
-                    _value = DateTime.Parse(text);
-                    break;
-                case VariableTypes.Decimal:
-                    _value = decimal.Parse(text);
-                    break;
-                case VariableTypes.Double:
-                    _value = double.Parse(text);
-                    break;
-                case VariableTypes.Float:
-                    _value = float.Parse(text);
-                    break;
-                case VariableTypes.Integer:
-                    _value = int.Parse(text);
-                    break;
-                case VariableTypes.Long:
-                    _value = long.Parse(text);
-                    break;
-                case VariableTypes.Short:
-                    _value = short.Parse(text);
-                    break;
-                case VariableTypes.String:
-                    _value = text;
-                    break;
+                string text = elem.InnerText;
+                if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
+                    text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
+                _value = null;
+                switch ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value))
+                {
+                    case VariableTypes.Boolean:
+                        _value = bool.Parse(text);
+                        break;
+                    case VariableTypes.Byte:
+                        _value = Convert.FromBase64String(text);
+                        break;
+                    case VariableTypes.Char:
+                        _value = text[0];
+                        break;
+                    case VariableTypes.DateTime:
+                        _value = DateTime.Parse(text);
+                        break;
+                    case VariableTypes.Decimal:
+                        _value = decimal.Parse(text);
+                        break;
+                    case VariableTypes.Double:
+                        _value = double.Parse(text);
+                        break;
+                    case VariableTypes.Float:
+                        _value = float.Parse(text);
+                        break;
+                    case VariableTypes.Integer:
+                        _value = int.Parse(text);
+                        break;
+                    case VariableTypes.Long:
+                        _value = long.Parse(text);
+                        break;
+                    case VariableTypes.Short:
+                        _value = short.Parse(text);
+                        break;
+                    case VariableTypes.String:
+                        _value = text;
+                        break;
+                }
             }
         }
 
@@ -222,45 +227,50 @@ namespace Org.Reddragonit.BpmEngine
                 writer.WriteAttributeString("type",VariableTypes.Null.ToString());
             else
             {
-                string text = _value.ToString();
-                switch (_value.GetType().FullName)
+                if (_value is sFile)
+                    ((sFile)_value).Append(writer);
+                else
                 {
-                    case "System.Boolean":
-                        writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
-                        break;
-                    case "System.Byte[]":
-                        writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
-                        text = Convert.ToBase64String((byte[])_value);
-                        break;
-                    case "System.Char":
-                        writer.WriteAttributeString("type", VariableTypes.Char.ToString());
-                        break;
-                    case "System.DateTime":
-                        writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
-                        break;
-                    case "System.Decimal":
-                        writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
-                        break;
-                    case "System.Double":
-                        writer.WriteAttributeString("type", VariableTypes.Double.ToString());
-                        break;
-                    case "System.Single":
-                        writer.WriteAttributeString("type", VariableTypes.Float.ToString());
-                        break;
-                    case "System.Int32":
-                        writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
-                        break;
-                    case "System.Int64":
-                        writer.WriteAttributeString("type", VariableTypes.Long.ToString());
-                        break;
-                    case "System.Int16":
-                        writer.WriteAttributeString("type", VariableTypes.Short.ToString());
-                        break;
-                    case "System.String":
-                        writer.WriteAttributeString("type", VariableTypes.String.ToString());
-                        break;
+                    string text = _value.ToString();
+                    switch (_value.GetType().FullName)
+                    {
+                        case "System.Boolean":
+                            writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
+                            break;
+                        case "System.Byte[]":
+                            writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
+                            text = Convert.ToBase64String((byte[])_value);
+                            break;
+                        case "System.Char":
+                            writer.WriteAttributeString("type", VariableTypes.Char.ToString());
+                            break;
+                        case "System.DateTime":
+                            writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
+                            break;
+                        case "System.Decimal":
+                            writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
+                            break;
+                        case "System.Double":
+                            writer.WriteAttributeString("type", VariableTypes.Double.ToString());
+                            break;
+                        case "System.Single":
+                            writer.WriteAttributeString("type", VariableTypes.Float.ToString());
+                            break;
+                        case "System.Int32":
+                            writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
+                            break;
+                        case "System.Int64":
+                            writer.WriteAttributeString("type", VariableTypes.Long.ToString());
+                            break;
+                        case "System.Int16":
+                            writer.WriteAttributeString("type", VariableTypes.Short.ToString());
+                            break;
+                        case "System.String":
+                            writer.WriteAttributeString("type", VariableTypes.String.ToString());
+                            break;
+                    }
+                    writer.WriteCData(text);
                 }
-                writer.WriteCData(text);
             }
             writer.WriteEndElement();
         }
@@ -318,6 +328,59 @@ namespace Org.Reddragonit.BpmEngine
         {
             _incomingID = incomingID;
             _elementID = elementID;
+        }
+    }
+
+    public struct sFile
+    {
+        private string _name;
+        public string Name { get { return _name; } }
+
+        private string _extension;
+        public string Extension { get { return _extension; } }
+
+        private string _contentType;
+        public string ContentType { get { return _contentType; } }
+
+        private byte[] _content;
+        public byte[] Content { get { return _content; } }
+
+        public sFile(string name, string extension)
+            :this(name,extension,null,new byte[0])
+        {}
+
+        public sFile(string name, string extension, byte[] content)
+            : this(name, extension, null, content)
+        {}
+
+        public sFile(string name,string extension,string contentType,byte[] content)
+        {
+            _name = name;
+            _extension = extension;
+            _contentType = contentType;
+            _content = content;
+        }
+
+        internal sFile(XmlElement elem)
+        {
+            _name = elem.Attributes["Name"].Value;
+            _extension = elem.Attributes["Extension"].Value;
+            _contentType = (elem.Attributes["ContentType"] == null ? null : elem.Attributes["ContentType"].Value);
+            _content = new byte[0];
+            if (elem.ChildNodes.Count > 0)
+                _content = Convert.FromBase64String(((XmlCDataSection)elem.ChildNodes[0]).InnerText);
+        }
+
+        internal void Append(XmlWriter writer)
+        {
+            writer.WriteStartElement("sFile");
+            writer.WriteAttributeString("Name", _name);
+            writer.WriteAttributeString("Extension", _extension);
+            if (_contentType != null)
+                writer.WriteAttributeString("ContentType", _contentType);
+            if (_content.Length > 0)
+                writer.WriteCData(Convert.ToBase64String(_content));
+            writer.WriteEndElement();
         }
     }
 }
