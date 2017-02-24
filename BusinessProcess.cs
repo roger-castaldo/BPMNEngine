@@ -359,6 +359,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public void Resume()
         {
+            _current = this;
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
             if (_isSuspended)
             {
@@ -558,6 +559,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public bool BeginProcess(ProcessVariablesContainer variables)
         {
+            _current = this;
             WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             bool ret = false;
             foreach (IElement elem in _FullElements)

@@ -49,18 +49,21 @@ namespace Org.Reddragonit.BpmEngine
 
         private static void _LogLine(LogLevels level, string message)
         {
-            BusinessProcess.Current.WriteLogLine(level, new StackFrame(3, true), DateTime.Now, message);
+            if (BusinessProcess.Current!=null)
+                BusinessProcess.Current.WriteLogLine(level, new StackFrame(3, true), DateTime.Now, message);
         }
 
         internal static Exception _Exception(Exception exception)
         {
-            BusinessProcess.Current.WriteLogException(new StackFrame(2, true), DateTime.Now, exception);
+            if (BusinessProcess.Current != null)
+                BusinessProcess.Current.WriteLogException(new StackFrame(2, true), DateTime.Now, exception);
             return exception;
         }
 
         public static void Exception(Exception exception)
         {
-            BusinessProcess.Current.WriteLogException(new StackFrame(2, true), DateTime.Now, exception);
+            if (BusinessProcess.Current != null)
+                BusinessProcess.Current.WriteLogException(new StackFrame(2, true), DateTime.Now, exception);
         }
     }
 }

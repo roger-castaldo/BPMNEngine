@@ -11,7 +11,6 @@ namespace Org.Reddragonit.BpmEngine
 
         public ProcessVariablesContainer()
         {
-            Log.Debug("Establishing a new Process Variables Container");
             _variables = new List<sVariableEntry>();
             _stepIndex = -1;
         }
