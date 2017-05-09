@@ -880,7 +880,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _MergeVariables(UserTask task, ProcessVariablesContainer variables, string completedByID)
         {
-            _MergeVariables(task, variables, completedByID);
+            _MergeVariables((ATask)task, variables, completedByID);
         }
 
         private void _MergeVariables(ATask task, ProcessVariablesContainer variables)
