@@ -41,9 +41,7 @@
     <Compile Include="Attributes\RequiredAttribute.cs" />
     <Compile Include="DateString.cs" />
     <Compile Include="Delegates.cs" />
-    <Compile Include="Drawing\Gif\Encoder.cs" />
-    <Compile Include="Drawing\Gif\LZWEncoder.cs" />
-    <Compile Include="Drawing\Gif\NeuQuant.cs" />
+    <Compile Include="Drawing\GifEncoder.cs" />
     <Compile Include="Elements\Collaborations\Text.cs" />
     <Compile Include="Elements\DefinitionFile.cs" />
     <Compile Include="Elements\DefinitionVariable.cs" />

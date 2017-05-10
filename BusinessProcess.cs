@@ -20,7 +20,7 @@ namespace Org.Reddragonit.BpmEngine
 {
     public sealed class BusinessProcess
     {
-        private const int _ANIMATION_DELAY = 1000;
+        private static readonly TimeSpan _ANIMATION_DELAY = new TimeSpan(0,0,1);
         private const int _DEFAULT_PADDING = 100;
         private const int _VARIABLE_NAME_WIDTH = 200;
         private const int _VARIABLE_VALUE_WIDTH = 300;
@@ -551,18 +551,17 @@ namespace Org.Reddragonit.BpmEngine
             _current = this;
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             MemoryStream ms = new MemoryStream();
-            Drawing.Gif.Encoder enc = new Drawing.Gif.Encoder();
-            enc.Start(ms);
-            enc.SetDelay(_ANIMATION_DELAY);
-            enc.SetRepeat(0);
-            _state.Path.StartAnimation();
-            while (_state.Path.HasNext())
+            using (Drawing.GifEncoder enc = new Drawing.GifEncoder(ms))
             {
-                enc.AddFrame(Diagram(outputVariables));
-                _state.Path.MoveToNextStep();
+                enc.FrameDelay = _ANIMATION_DELAY;
+                _state.Path.StartAnimation();
+                while (_state.Path.HasNext())
+                {
+                    enc.AddFrame(Diagram(outputVariables));
+                    _state.Path.MoveToNextStep();
+                }
+                _state.Path.FinishAnimation();
             }
-            _state.Path.FinishAnimation();
-            enc.Finish();
             return ms.ToArray();
         }
 
