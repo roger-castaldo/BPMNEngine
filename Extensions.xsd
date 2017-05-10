@@ -118,4 +118,36 @@
   </xs:complexType>
   
   <xs:element name="ConditionSet" type="fullConditionSet"/>
+
+  <xs:simpleType name="variableTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DateTime"/>
+      <xs:enumeration value="Integer"/>
+      <xs:enumeration value="Short"/>
+      <xs:enumeration value="Long"/>
+      <xs:enumeration value="Double"/>
+      <xs:enumeration value="Decimal"/>
+      <xs:enumeration value="String"/>
+      <xs:enumeration value="Char"/>
+      <xs:enumeration value="Boolea"/>
+      <xs:enumeration value="Float"/>
+      <xs:enumeration value="Byte"/>
+      <xs:enumeration value="Null"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="DefinitionVariable">
+    <xs:complexType>
+      <xs:attribute name="Name" type="xs:string" use="required"/>
+      <xs:attribute name="Type" type="variableTypes" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="DefinitionFile">
+    <xs:complexType>
+      <xs:attribute name="Name" use="required" type="xs:string"/>
+      <xs:attribute name="Extension" use="required" type="xs:string"/>
+      <xs:attribute name="ContentType" use="optional" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

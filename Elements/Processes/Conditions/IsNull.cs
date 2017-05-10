@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         protected override bool _Evaluate(ProcessVariablesContainer variables)
         {
-            return variables[_GetAttributeValue("variable")] == null;
+            return variables[this["variable"]] == null;
         }
     }
 }

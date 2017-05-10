@@ -11,8 +11,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [RequiredAttribute("id")]
     internal class Participant : AElement
     {
-        public string Name { get { return _GetAttributeValue("name"); } }
-        public string ProcessRef { get { return _GetAttributeValue("processRef"); } }
+        public string Name { get { return this["name"]; } }
+        public string ProcessRef { get { return this["processRef"]; } }
 
         public Participant(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)

@@ -19,8 +19,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             get
             {
                 return new Point(
-                    (int)double.Parse(_GetAttributeValue("x")),
-                    (int)double.Parse(_GetAttributeValue("y")));
+                    (int)double.Parse(this["x"]),
+                    (int)double.Parse(this["y"]));
             }
         }
 

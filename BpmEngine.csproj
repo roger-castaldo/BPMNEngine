@@ -44,7 +44,9 @@
     <Compile Include="Drawing\Gif\Encoder.cs" />
     <Compile Include="Drawing\Gif\LZWEncoder.cs" />
     <Compile Include="Drawing\Gif\NeuQuant.cs" />
-    <Compile Include="Elements\Processes\AParentFlowNode.cs" />
+    <Compile Include="Elements\Collaborations\Text.cs" />
+    <Compile Include="Elements\DefinitionFile.cs" />
+    <Compile Include="Elements\DefinitionVariable.cs" />
     <Compile Include="Elements\Processes\Conditions\ACompareCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
     <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
@@ -70,9 +72,12 @@
     <Compile Include="Elements\Processes\Events\Definitions\MessageEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\IntermediateCatchEvent.cs" />
     <Compile Include="Elements\Processes\ExtensionElements.cs" />
+    <Compile Include="Elements\Processes\FlowNodeRef.cs" />
     <Compile Include="Elements\Processes\Gateways\EventBasedGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\ComplexGateway.cs" />
     <Compile Include="Elements\Processes\Gateways\InclusiveGateway.cs" />
+    <Compile Include="Elements\Processes\IncomingFlow.cs" />
+    <Compile Include="Elements\Processes\OutgoingFlow.cs" />
     <Compile Include="Elements\Processes\Scripts\Javascript.cs" />
     <Compile Include="Elements\Processes\Tasks\BusinessRuleTask.cs" />
     <Compile Include="Elements\Processes\Scripts\ACompiledScript.cs" />

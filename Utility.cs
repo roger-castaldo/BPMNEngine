@@ -168,5 +168,102 @@ namespace Org.Reddragonit.BpmEngine
             }
             return ret.ToArray();
         }
+
+        internal static object ExtractVariableValue(VariableTypes type,string text)
+        {
+            if (type == VariableTypes.Null)
+                return null;
+            object ret = null;
+            switch (type)
+            {
+                case VariableTypes.Boolean:
+                    ret = bool.Parse(text);
+                    break;
+                case VariableTypes.Byte:
+                    ret = Convert.FromBase64String(text);
+                    break;
+                case VariableTypes.Char:
+                    ret = text[0];
+                    break;
+                case VariableTypes.DateTime:
+                    ret = DateTime.Parse(text);
+                    break;
+                case VariableTypes.Decimal:
+                    ret = decimal.Parse(text);
+                    break;
+                case VariableTypes.Double:
+                    ret = double.Parse(text);
+                    break;
+                case VariableTypes.Float:
+                    ret = float.Parse(text);
+                    break;
+                case VariableTypes.Integer:
+                    ret = int.Parse(text);
+                    break;
+                case VariableTypes.Long:
+                    ret = long.Parse(text);
+                    break;
+                case VariableTypes.Short:
+                    ret = short.Parse(text);
+                    break;
+                case VariableTypes.String:
+                    ret = text;
+                    break;
+            }
+            return ret;
+        }
+
+        internal static void EncodeVariableValue(object value,XmlWriter writer)
+        {
+            if (value == null)
+                writer.WriteAttributeString("type", VariableTypes.Null.ToString());
+            else
+            {
+                if (value is sFile)
+                    ((sFile)value).Append(writer);
+                else
+                {
+                    string text = value.ToString();
+                    switch (value.GetType().FullName)
+                    {
+                        case "System.Boolean":
+                            writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
+                            break;
+                        case "System.Byte[]":
+                            writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
+                            text = Convert.ToBase64String((byte[])value);
+                            break;
+                        case "System.Char":
+                            writer.WriteAttributeString("type", VariableTypes.Char.ToString());
+                            break;
+                        case "System.DateTime":
+                            writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
+                            break;
+                        case "System.Decimal":
+                            writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
+                            break;
+                        case "System.Double":
+                            writer.WriteAttributeString("type", VariableTypes.Double.ToString());
+                            break;
+                        case "System.Single":
+                            writer.WriteAttributeString("type", VariableTypes.Float.ToString());
+                            break;
+                        case "System.Int32":
+                            writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
+                            break;
+                        case "System.Int64":
+                            writer.WriteAttributeString("type", VariableTypes.Long.ToString());
+                            break;
+                        case "System.Int16":
+                            writer.WriteAttributeString("type", VariableTypes.Short.ToString());
+                            break;
+                        case "System.String":
+                            writer.WriteAttributeString("type", VariableTypes.String.ToString());
+                            break;
+                    }
+                    writer.WriteCData(text);
+                }
+            }
+        }
     }
 }

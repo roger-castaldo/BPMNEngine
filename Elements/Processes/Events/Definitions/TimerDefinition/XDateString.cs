@@ -13,6 +13,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.TimerD
         {
             get
             {
+                if (this["Code"] != null)
+                    return this["Code"];
                 foreach (XmlNode n in SubNodes)
                 {
                     if (n.NodeType == XmlNodeType.Text)

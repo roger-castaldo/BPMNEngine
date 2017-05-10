@@ -9,22 +9,19 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [RequiredAttribute("id")]
-    internal abstract class AFlowNode : AElement
+    internal abstract class AFlowNode : AParentElement
     {
-        public string name { get { return _GetAttributeValue("name"); } }
+        public string name { get { return this["name"]; } }
 
         public string[] Incoming
         {
             get
             {
                 List<string> ret = new List<string>();
-                foreach (XmlNode n in SubNodes)
+                foreach (IElement elem in this.Children)
                 {
-                    if (n.NodeType == XmlNodeType.Element)
-                    {
-                        if (n.Name == "bpmn:incoming")
-                            ret.Add(n.InnerText);
-                    }
+                    if (elem is IncomingFlow)
+                        ret.Add(((IncomingFlow)elem).Value);
                 }
                 foreach (MessageFlow msgFlow in Definition.MessageFlows)
                 {
@@ -40,13 +37,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             get
             {
                 List<string> ret = new List<string>();
-                foreach (XmlNode n in SubNodes)
+                foreach (IElement elem in this.Children)
                 {
-                    if (n.NodeType == XmlNodeType.Element)
-                    {
-                        if (n.Name == "bpmn:outgoing")
-                            ret.Add(n.InnerText);
-                    }
+                    if (elem is OutgoingFlow)
+                        ret.Add(((OutgoingFlow)elem).Value);
                 }
                 foreach (MessageFlow msgFlow in Definition.MessageFlows)
                 {

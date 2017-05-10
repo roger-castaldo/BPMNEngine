@@ -22,7 +22,7 @@ namespace Org.Reddragonit.BpmEngine.Attributes
 
         public bool IsValid(AElement elem)
         {
-            return _reg.IsMatch(elem.Element.Attributes[_name].Value);
+            return _reg.IsMatch(elem[_name]);
         }
     }
 }

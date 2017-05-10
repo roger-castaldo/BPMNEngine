@@ -20,8 +20,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         {
             int ret = -1;
             object left = null;
-            if (_GetAttributeValue("leftVariable") != null)
-                left = variables[_GetAttributeValue("leftVariable")];
+            if (this["leftVariable"] != null)
+                left = variables[this["leftVariable"]];
             else
             {
                 if (SubNodes != null)
@@ -40,8 +40,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 }
             }
             object right = null;
-            if (_GetAttributeValue("rightVariable") != null)
-                right = variables[_GetAttributeValue("rightVariable")];
+            if (this["rightVariable"] != null)
+                right = variables[this["rightVariable"]];
             else
             {
                 if (SubNodes != null)
@@ -122,8 +122,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public override bool IsValid(out string[] err)
         {
-            bool foundLeft = this._GetAttributeValue("leftVariable")!=null;
-            bool foundRight = this._GetAttributeValue("rightVariable")!=null;
+            bool foundLeft = this["leftVariable"]!=null;
+            bool foundRight = this["rightVariable"]!=null;
             List<string> errs = new List<string>();
             foreach (XmlNode n in SubNodes)
             {

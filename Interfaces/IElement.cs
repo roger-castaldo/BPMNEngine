@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
     {
         string id { get; }
         XmlNode[] SubNodes { get; }
-        XmlAttribute[] Attributes { get; }
+        string this[string attributeName]{ get; }
         IElement ExtensionElement { get; }
     }
 }

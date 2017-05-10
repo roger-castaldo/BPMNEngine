@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,18 +9,18 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
 {
     [XMLTag("bpmn","textAnnotation")]
     [RequiredAttribute("id")]
-    internal class TextAnnotation : AElement
+    internal class TextAnnotation : AParentElement
     {
         public string Content
         {
             get
             {
                 string ret = "";
-                foreach (XmlNode n in SubNodes)
+                foreach (IElement elem in this.Children)
                 {
-                    if (n.Name=="bpmn:text")
+                    if (elem is Text)
                     {
-                        ret = n.InnerText;
+                        ret = ((Text)elem).Value;
                         break;
                     }
                 }

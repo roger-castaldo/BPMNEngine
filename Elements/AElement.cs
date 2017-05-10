@@ -30,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public string id
         {
-            get { return (_GetAttributeValue("id")==null ? Utility.FindXPath(_element) : _GetAttributeValue("id")); }
+            get { return (this["id"]==null ? Utility.FindXPath(_element) : this["id"]); }
         }
 
         public XmlNode[] SubNodes
@@ -43,14 +43,20 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        public XmlAttribute[] Attributes
+        public string this[string attributeName]
         {
             get
             {
-                List<XmlAttribute> ret = new List<XmlAttribute>();
+                string value = null;
                 foreach (XmlAttribute att in _element.Attributes)
-                    ret.Add(att);
-                return ret.ToArray();
+                {
+                    if (att.Name.ToLower()==attributeName.ToLower())
+                    {
+                        value = att.Value;
+                        break;
+                    }
+                }
+                return value;
             }
         }
 
@@ -84,16 +90,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        protected string _GetAttributeValue(string name)
-        {
-            return (_element.Attributes[name] == null ? null : _element.Attributes[name].Value);
-        }
-
         public sealed override string ToString()
         {
             if (this.GetType().Name == "TextAnnotation")
                 return (string)this.GetType().GetProperty("Content").GetValue(this, new object[] { });
-            return _GetAttributeValue("name");
+            return this["name"];
         }
 
         public virtual bool IsValid(out string[] err)

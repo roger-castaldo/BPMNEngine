@@ -30,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Attributes
 
         internal bool Matches(XmlPrefixMap map, string tagName)
         {
-            if (tagName == ToString())
+            if (tagName.ToLower() == ToString().ToLower())
                 return true;
             else if (_prefix!=null)
                 return map.isMatch(_prefix, _name, tagName);

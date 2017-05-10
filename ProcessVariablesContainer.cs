@@ -9,17 +9,21 @@ namespace Org.Reddragonit.BpmEngine
         private List<sVariableEntry> _variables;
         private int _stepIndex;
 
+        private BusinessProcess _process = null;
+        internal void SetProcess(BusinessProcess process) { _process = process; }
+
         public ProcessVariablesContainer()
         {
             _variables = new List<sVariableEntry>();
             _stepIndex = -1;
         }
 
-        internal ProcessVariablesContainer(string elementID, ProcessState state)
+        internal ProcessVariablesContainer(string elementID, ProcessState state,BusinessProcess process)
         {
             Log.Debug("Producing Process Variables Container for element[{0}]", new object[] { elementID });
             _stepIndex = state.Path.CurrentStepIndex(elementID);
             _variables = new List<sVariableEntry>();
+            _process = process;
             foreach (string str in state[elementID])
             {
                 Log.Debug("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID });
@@ -32,17 +36,23 @@ namespace Org.Reddragonit.BpmEngine
             get
             {
                 object ret = null;
+                bool found = false;
                 lock (_variables)
                 {
                     foreach (sVariableEntry sve in _variables)
                     {
                         if (sve.Name == name)
                         {
+                            found = true;
                             ret = sve.Value;
                             break;
                         }
                     }
                 }
+                if (!found && _process != null)
+                    ret = _process[name];
+                else if (!found && BusinessProcess.Current != null)
+                    ret = BusinessProcess.Current[name];
                 return ret;
             }
             set

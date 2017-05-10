@@ -8,9 +8,9 @@ namespace Org.Reddragonit.BpmEngine
     {
         private ProcessVariablesContainer _variables;
 
-        internal ReadOnlyProcessVariablesContainer(string elementID, ProcessState state)
+        internal ReadOnlyProcessVariablesContainer(string elementID, ProcessState state,BusinessProcess process)
         {
-            _variables = new BpmEngine.ProcessVariablesContainer(elementID,state);
+            _variables = new BpmEngine.ProcessVariablesContainer(elementID,state,process);
         }
 
         internal ReadOnlyProcessVariablesContainer(ProcessVariablesContainer variables)

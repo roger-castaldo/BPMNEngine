@@ -30,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                     {
                         if (n.NodeType == XmlNodeType.Element)
                         {
-                            if (n.Name == "using")
+                            if (n.Name.ToLower() == "using")
                                 ret.Add(n.InnerText);
                         }
                     }
@@ -50,7 +50,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                     {
                         if (n.NodeType == XmlNodeType.Element)
                         {
-                            if (n.Name == "dll")
+                            if (n.Name.ToLower() == "dll")
                                 ret.Add(n.InnerText);
                         }
                     }

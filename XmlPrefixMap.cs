@@ -73,12 +73,12 @@ namespace Org.Reddragonit.BpmEngine
         internal bool isMatch(string prefix, string tag, string nodeName)
         {
             Log.Debug("Checking if prefix {0} matches {1}:{2}",new object[] { nodeName,prefix,tag });
-            if (string.Format("{0}:{1}", prefix, tag) == nodeName)
+            if (string.Format("{0}:{1}", prefix, tag).ToLower() == nodeName.ToLower())
                 return true;
             foreach (string str in _Translate(prefix))
             {
                 Log.Debug("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName,str,tag});
-                if (string.Format("{0}:{1}", str, tag) == nodeName)
+                if (string.Format("{0}:{1}", str, tag).ToLower() == nodeName.ToLower())
                     return true;
             }
             return false;

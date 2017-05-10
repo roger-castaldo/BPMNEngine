@@ -10,7 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
     [RequiredAttribute("id")]
     internal abstract class ANegatableConditionSet : AConditionSet
     {
-        protected bool _negated { get { return bool.Parse(this._GetAttributeValue("negated")); } }
+        protected bool _negated { get { return bool.Parse(this["negated"]); } }
 
         protected abstract bool _Evaluate(ProcessVariablesContainer variables);
 

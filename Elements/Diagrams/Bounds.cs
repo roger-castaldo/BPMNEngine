@@ -23,10 +23,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             get
             {
                 return new RectangleF(
-                    (int)double.Parse(_GetAttributeValue("x")),
-                    (int)double.Parse(_GetAttributeValue("y")),
-                    (int)double.Parse(_GetAttributeValue("width")),
-                    (int)double.Parse(_GetAttributeValue("height")));
+                    (int)double.Parse(this["x"]),
+                    (int)double.Parse(this["y"]),
+                    (int)double.Parse(this["width"]),
+                    (int)double.Parse(this["height"]));
             }
         }
 

@@ -9,26 +9,23 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","lane")]
     [RequiredAttribute("id")]
-    internal class Lane : AElement
+    internal class Lane : AParentElement
     {
         public string[] Nodes
         {
             get
             {
                 List<string> ret = new List<string>();
-                foreach (XmlNode n in SubNodes)
+                foreach (AElement elem in Children)
                 {
-                    if (n.NodeType == XmlNodeType.Element)
-                    {
-                        if (n.Name == "bpmn:flowNodeRef")
-                            ret.Add(n.InnerText);
-                    }
+                    if (elem is FlowNodeRef)
+                        ret.Add(((FlowNodeRef)elem).Value);
                 }
                 return ret.ToArray();
             }
         }
 
-        public string name { get { return _GetAttributeValue("name"); } }
+        public string name { get { return this["name"]; } }
 
         public Lane(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map,parent) { }

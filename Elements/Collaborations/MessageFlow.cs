@@ -12,8 +12,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [RequiredAttribute("id")]
     internal class MessageFlow : AElement
     {
-        public string sourceRef { get { return _GetAttributeValue("sourceRef"); } }
-        public string targetRef { get { return _GetAttributeValue("targetRef"); } }
+        public string sourceRef { get { return this["sourceRef"]; } }
+        public string targetRef { get { return this["targetRef"]; } }
 
         public MessageFlow(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }

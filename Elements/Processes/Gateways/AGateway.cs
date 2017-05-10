@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
         public abstract string[] EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid,ProcessVariablesContainer variables);
         public abstract bool IsIncomingFlowComplete(string incomingID, ProcessPath path);
 
-        public string Default { get { return _GetAttributeValue("default"); } }
+        public string Default { get { return this["default"]; } }
 
         public override bool IsValid(out string[] err)
         {

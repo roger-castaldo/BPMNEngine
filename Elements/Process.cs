@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [RequiredAttribute("id")]
     internal class Process : AParentElement
     {
-        public bool isExecutable { get { return (_GetAttributeValue("isExecutable") == null ? false : bool.Parse(_GetAttributeValue("isExecutable"))); } }
+        public bool isExecutable { get { return (this["isExecutable"] == null ? false : bool.Parse(this["isExecutable"])); } }
 
         public StartEvent[] StartEvents
         {

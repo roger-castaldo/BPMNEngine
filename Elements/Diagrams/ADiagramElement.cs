@@ -10,7 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [RequiredAttribute("bpmnElement")]
     internal abstract class ADiagramElement : AParentElement
     {
-        public string bpmnElement { get { return _GetAttributeValue("bpmnElement"); } }
+        public string bpmnElement { get { return this["bpmnElement"]; } }
 
         protected IElement _GetLinkedElement(Definition definition)
         {

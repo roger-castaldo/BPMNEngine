@@ -171,107 +171,22 @@ namespace Org.Reddragonit.BpmEngine
                 string text = elem.InnerText;
                 if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
                     text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
-                _value = null;
-                switch ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value))
-                {
-                    case VariableTypes.Boolean:
-                        _value = bool.Parse(text);
-                        break;
-                    case VariableTypes.Byte:
-                        _value = Convert.FromBase64String(text);
-                        break;
-                    case VariableTypes.Char:
-                        _value = text[0];
-                        break;
-                    case VariableTypes.DateTime:
-                        _value = DateTime.Parse(text);
-                        break;
-                    case VariableTypes.Decimal:
-                        _value = decimal.Parse(text);
-                        break;
-                    case VariableTypes.Double:
-                        _value = double.Parse(text);
-                        break;
-                    case VariableTypes.Float:
-                        _value = float.Parse(text);
-                        break;
-                    case VariableTypes.Integer:
-                        _value = int.Parse(text);
-                        break;
-                    case VariableTypes.Long:
-                        _value = long.Parse(text);
-                        break;
-                    case VariableTypes.Short:
-                        _value = short.Parse(text);
-                        break;
-                    case VariableTypes.String:
-                        _value = text;
-                        break;
-                }
+                _value = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text);
             }
         }
 
         public sVariableEntry(string name, int pathStepIndex, object value)
         {
             _name = name;
-            _pathStepIndex = pathStepIndex;
             _value = value;
+            _pathStepIndex = pathStepIndex;
         }
 
         public void Append(XmlWriter writer)
         {
             writer.WriteStartElement("sVariableEntry");
-            writer.WriteAttributeString("name", _name);
             writer.WriteAttributeString("pathStepIndex", _pathStepIndex.ToString());
-            if (_value == null)
-                writer.WriteAttributeString("type",VariableTypes.Null.ToString());
-            else
-            {
-                if (_value is sFile)
-                    ((sFile)_value).Append(writer);
-                else
-                {
-                    string text = _value.ToString();
-                    switch (_value.GetType().FullName)
-                    {
-                        case "System.Boolean":
-                            writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
-                            break;
-                        case "System.Byte[]":
-                            writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
-                            text = Convert.ToBase64String((byte[])_value);
-                            break;
-                        case "System.Char":
-                            writer.WriteAttributeString("type", VariableTypes.Char.ToString());
-                            break;
-                        case "System.DateTime":
-                            writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
-                            break;
-                        case "System.Decimal":
-                            writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
-                            break;
-                        case "System.Double":
-                            writer.WriteAttributeString("type", VariableTypes.Double.ToString());
-                            break;
-                        case "System.Single":
-                            writer.WriteAttributeString("type", VariableTypes.Float.ToString());
-                            break;
-                        case "System.Int32":
-                            writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
-                            break;
-                        case "System.Int64":
-                            writer.WriteAttributeString("type", VariableTypes.Long.ToString());
-                            break;
-                        case "System.Int16":
-                            writer.WriteAttributeString("type", VariableTypes.Short.ToString());
-                            break;
-                        case "System.String":
-                            writer.WriteAttributeString("type", VariableTypes.String.ToString());
-                            break;
-                    }
-                    writer.WriteCData(text);
-                }
-            }
+            Utility.EncodeVariableValue(_value, writer);
             writer.WriteEndElement();
         }
 
@@ -381,6 +296,21 @@ namespace Org.Reddragonit.BpmEngine
             if (_content.Length > 0)
                 writer.WriteCData(Convert.ToBase64String(_content));
             writer.WriteEndElement();
+        }
+    }
+
+    public struct sProcessRuntimeConstant
+    {
+        private string _name;
+        public string Name { get { return _name; } }
+
+        private object _value;
+        public object Value { get { return _value; } }
+
+        public sProcessRuntimeConstant(string name,object value)
+        {
+            _name = name;
+            _value = value;
         }
     }
 }
