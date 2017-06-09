@@ -723,7 +723,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         if (elem is IntermediateCatchEvent)
                         {
-                            if (_isEventStartValid(elem, new ProcessVariablesContainer(step.id, _state,this)))
+                            if (_isEventStartValid((IStepElement)elem, new ProcessVariablesContainer(step.id, _state,this)))
                             {
                                 WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", elem.id));
                                 _ProcessElement(step.id, elem);
@@ -904,19 +904,7 @@ namespace Org.Reddragonit.BpmEngine
                                 _MergeVariables(tsk, variables);
                                 break;
                             case "UserTask":
-                                Lane ln = null;
-                                foreach (IElement e in _FullElements)
-                                {
-                                    if (e is Lane)
-                                    {
-                                        if (new List<string>(((Lane)e).Nodes).Contains(tsk.id))
-                                        {
-                                            ln = (Lane)e;
-                                            break;
-                                        }
-                                    }
-                                }
-                                _beginUserTask(tsk, variables, ln, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
+                               _beginUserTask(tsk, variables, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
                                 break;
                         }
                     }

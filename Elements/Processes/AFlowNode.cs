@@ -9,9 +9,51 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [RequiredAttribute("id")]
-    internal abstract class AFlowNode : AParentElement
+    internal abstract class AFlowNode : AParentElement, IStepElement
     {
         public string name { get { return this["name"]; } }
+
+        public IElement Process
+        {
+            get
+            {
+                IElement elem = Parent;
+                while (elem != null)
+                {
+                    if (elem is Process)
+                        return elem;
+                    else if (elem is AElement)
+                        elem = ((AElement)elem).Parent;
+                }
+                return null;
+            }
+        }
+
+        public IElement Lane
+        {
+            get
+            {
+                Process p = (Process)Process;
+                if (p != null)
+                {
+                    foreach (IElement ie in p.Children)
+                    {
+                        if (ie is LaneSet)
+                        {
+                            foreach (IElement ln in ((LaneSet)ie).Children)
+                            {
+                                if (ln is Lane)
+                                {
+                                    if (new List<string>(((Lane)ln).Nodes).Contains(id))
+                                        return ln;
+                                }
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+        }
 
         public string[] Incoming
         {

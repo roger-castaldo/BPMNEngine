@@ -126,6 +126,7 @@
     <Compile Include="Elements\Processes\Tasks\Task.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="Interfaces\IElement.cs" />
+    <Compile Include="Interfaces\IStepElement.cs" />
     <Compile Include="Interfaces\IParentElement.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="ProcessPath.cs" />
