@@ -240,7 +240,7 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
                 _addPathEntry(new sPathEntry(Event.id, StepStatuses.Failed, start, incoming, DateTime.Now),true);
-                _error.BeginInvoke(Event, new AsyncCallback(_AsyncCallback), null);
+                _error.BeginInvoke(Event,null, new AsyncCallback(_AsyncCallback), null);
             }
         }
 
@@ -264,7 +264,7 @@ namespace Org.Reddragonit.BpmEngine
             _addPathEntry(new sPathEntry(task.id, StepStatuses.Waiting, DateTime.Now, incoming), false);
         }
 
-        internal void FailTask(ATask task)
+        internal void FailTask(ATask task,Exception ex)
         {
             Log.Debug("Failing Task {0} in Process Path", new object[] { task.id });
             lock (_pathEntries)
@@ -281,7 +281,7 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
                 _addPathEntry(new sPathEntry(task.id, StepStatuses.Failed, start, incoming, DateTime.Now),true);
-                _error.BeginInvoke(task, new AsyncCallback(_AsyncCallback), null);
+                _error.BeginInvoke(task,ex, new AsyncCallback(_AsyncCallback), null);
             }
         }
 
@@ -343,7 +343,7 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
                 _addPathEntry(new sPathEntry(gateway.id, StepStatuses.Failed, start, incoming, DateTime.Now),true);
-                _error.BeginInvoke(gateway, new AsyncCallback(_AsyncCallback), null);
+                _error.BeginInvoke(gateway,null, new AsyncCallback(_AsyncCallback), null);
             }
         }
 

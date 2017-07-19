@@ -16,7 +16,7 @@ namespace Org.Reddragonit.BpmEngine
     public delegate void OnTaskError(IStepElement task, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnProcessStarted(IElement process, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnProcessCompleted(IElement process, ReadOnlyProcessVariablesContainer variables);
-    public delegate void OnProcessError(IElement process, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnProcessError(IElement process,IElement sourceElement, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnSequenceFlowCompleted(IElement flow, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnMessageFlowCompleted(IElement flow, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnGatewayStarted(IStepElement gateway, ReadOnlyProcessVariablesContainer variables);
@@ -52,7 +52,7 @@ namespace Org.Reddragonit.BpmEngine
 
     #region internals
     internal delegate void ProcessStepComplete(string sourceID,string outgoingID);
-    internal delegate void ProcessStepError(IElement step);
+    internal delegate void ProcessStepError(IElement step,Exception ex);
     #endregion
 
     #region Logging

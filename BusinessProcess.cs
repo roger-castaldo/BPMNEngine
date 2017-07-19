@@ -253,10 +253,10 @@ namespace Org.Reddragonit.BpmEngine
                 if (elem.id == taskID && elem is ATask)
                 {
                     if (_onTaskError != null)
-                        _onTaskError((ATask)elem, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
+                        _onTaskError((ATask)elem, new ReadOnlyProcessVariablesContainer(elem.id, _state,this,ex));
                     lock (_state)
                     {
-                        _state.Path.FailTask((ATask)elem);
+                        _state.Path.FailTask((ATask)elem,ex);
                     }
                     break;
                 }
@@ -700,10 +700,22 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        private void _ProcessStepError(IElement step) {
+        private void _ProcessStepError(IElement step,Exception ex) {
             _current = this;
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
-            if (_isEventStartValid != null)
+            bool success = false;
+            if (step is ATask)
+            {
+                ATask atsk = (ATask)step;
+                string destID = atsk.CatchEventPath;
+                if (destID != null)
+                {
+                    WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", destID));
+                    success = true;
+                    _ProcessElement(step.id, atsk.Definition.LocateElement(destID));
+                }
+            }
+            if (_isEventStartValid != null && !success)
             {
                 Definition def = null;
                 foreach (IElement elem in _Elements)
@@ -726,12 +738,18 @@ namespace Org.Reddragonit.BpmEngine
                             if (_isEventStartValid((IStepElement)elem, new ProcessVariablesContainer(step.id, _state,this)))
                             {
                                 WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", elem.id));
+                                success = true;
                                 _ProcessElement(step.id, elem);
                                 break;
                             }
                         }
                     }
                 }
+            }
+            if (!success)
+            {
+                if (_onProcessError!=null)
+                    _onProcessError.Invoke(((IStepElement)step).Process,step,new ReadOnlyProcessVariablesContainer(step.id,_state,this,ex));
             }
         }
 
@@ -912,8 +930,8 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         WriteLogException(new StackFrame(1, true), DateTime.Now, e);
                         if (_onTaskError != null)
-                            _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
-                        lock (_state) { _state.Path.FailTask(tsk); }
+                            _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state,this,e));
+                        lock (_state) { _state.Path.FailTask(tsk,e); }
                     }
                 }
             }
