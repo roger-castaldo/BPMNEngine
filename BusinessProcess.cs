@@ -402,6 +402,7 @@ namespace Org.Reddragonit.BpmEngine
             if (_state.Load(doc))
             {
                 WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
+                _isSuspended = _state.IsSuspended;
                 if (autoResume)
                     Resume();
                 return true;

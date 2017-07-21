@@ -43,6 +43,7 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         private bool _isSuspended = false;
+        internal bool IsSuspended { get { return _isSuspended; } }
 
         internal sSuspendedStep[] ResumeSteps {
             get
