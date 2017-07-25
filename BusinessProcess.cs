@@ -657,6 +657,8 @@ namespace Org.Reddragonit.BpmEngine
             _isSuspended = true;
             _state.Suspend();
             _mreSuspend.WaitOne(5000);
+            if (_state.OnStateChange != null)
+                _state.OnStateChange(_state.Document);
         }
 
         #region ProcessLock

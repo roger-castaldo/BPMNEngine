@@ -125,7 +125,7 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         private OnStateChange _onStateChange;
-        internal OnStateChange OnStateChange { set { _onStateChange = value; } }
+        internal OnStateChange OnStateChange { set { _onStateChange = value; } get { return _onStateChange; } }
 
         internal ProcessState(ProcessStepComplete complete, ProcessStepError error)
         {
