@@ -8,7 +8,6 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
-    [RequiredAttribute("id")]
     internal abstract class AScript : AElement
     {
         private XmlPrefixMap _map;

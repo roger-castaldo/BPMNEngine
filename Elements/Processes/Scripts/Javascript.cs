@@ -10,6 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
     [XMLTag("exts", "Javascript")]
     internal class Javascript : AScript
     {
+        private const string _codeExecReturnFormat = "(function(){{ {0} }})();";
+
         private static Assembly _jintAssembly;
         private static Type _engineType;
         private static MethodInfo _setValue;
@@ -60,7 +62,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             object[] pars = new object[] { "variables", variables };
             Log.Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
             _setValue.Invoke(engine, pars);
-            object ret = _toObject.Invoke(_getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { _Code }),new object[]{}),new object[]{});
+            object ret = null;
+            if (_Code.Contains("return "))
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) }), new object[] { });
+            else 
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { _Code }),new object[]{});
             if (_IsCondition)
                 return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
             else if (_IsTimerEvent)
@@ -77,7 +83,27 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
                 object[] pars = new object[] { "variables", new ProcessVariablesContainer() };
                 _setValue.Invoke(engine, pars);
-                _execute.Invoke(engine, new object[] { _Code });
+                try
+                {
+                    _execute.Invoke(engine, new object[] { _Code });
+                }catch(Exception ex)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        if (ex.InnerException.Message.Contains("Illegal return statement"))
+                        {
+                            try
+                            {
+                                _execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) });
+                            }catch(Exception ecx)
+                            {
+                                throw ecx;
+                            }
+                        }else
+                            throw ex;
+                    }else
+                        throw ex;
+                }
             }
             catch(Exception e)
             {

@@ -6,11 +6,9 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
-    [RequiredAttribute("negated")]
-    [RequiredAttribute("id")]
     internal abstract class ANegatableConditionSet : AConditionSet
     {
-        protected bool _negated { get { return bool.Parse(this["negated"]); } }
+        protected bool _negated { get { return (this["negated"] == null ? false : bool.Parse(this["negated"])); } }
 
         protected abstract bool _Evaluate(ProcessVariablesContainer variables);
 

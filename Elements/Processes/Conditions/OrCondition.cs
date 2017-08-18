@@ -7,7 +7,6 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     [XMLTag("exts", "orCondition")]
-    [RequiredAttribute("id")]
     internal class OrCondition : ANegatableConditionSet
     {
         public OrCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
