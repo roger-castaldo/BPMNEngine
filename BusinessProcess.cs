@@ -831,12 +831,12 @@ namespace Org.Reddragonit.BpmEngine
                 else if (elem is AEvent)
                 {
                     AEvent evnt = (AEvent)elem;
-                    if (_onEventStarted != null)
-                        _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
                     lock (_state)
                     {
                         _state.Path.StartEvent(evnt, sourceID);
                     }
+                    if (_onEventStarted != null)
+                        _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
                     bool success = true;
                     if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
                     {
@@ -886,12 +886,12 @@ namespace Org.Reddragonit.BpmEngine
                 else if (elem is ATask)
                 {
                     ATask tsk = (ATask)elem;
-                    if (_onTaskStarted != null)
-                        _onTaskStarted(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
                     lock (_state)
                     {
                         _state.Path.StartTask(tsk, sourceID);
                     }
+                    if (_onTaskStarted != null)
+                        _onTaskStarted(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
                     try
                     {
                         ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state,this);
