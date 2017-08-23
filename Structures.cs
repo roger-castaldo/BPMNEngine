@@ -185,6 +185,7 @@ namespace Org.Reddragonit.BpmEngine
         public void Append(XmlWriter writer)
         {
             writer.WriteStartElement("sVariableEntry");
+            writer.WriteAttributeString("name", _name);
             writer.WriteAttributeString("pathStepIndex", _pathStepIndex.ToString());
             Utility.EncodeVariableValue(_value, writer);
             writer.WriteEndElement();
