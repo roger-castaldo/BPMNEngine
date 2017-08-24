@@ -169,9 +169,14 @@ namespace Org.Reddragonit.BpmEngine
             else
             {
                 string text = elem.InnerText;
-                if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
-                    text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
-                _value = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text);
+                if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value) != VariableTypes.Null)
+                {
+                    if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
+                        text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
+                    _value = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text);
+                }
+                else
+                    _value = null;
             }
         }
 
