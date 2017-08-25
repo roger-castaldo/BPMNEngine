@@ -1,10 +1,12 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Text;
 using System.Xml;
 
@@ -14,6 +16,17 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [RequiredAttribute("id")]
     internal class Edge : ADiagramElement
     {
+
+        private CustomLineCap _defaultFlowCap
+        {
+            get
+            {
+                GraphicsPath gp = new GraphicsPath();
+                gp.AddLine(new PointF(-1.5f,-3.5f),new PointF(1.5f,-1.5f));
+                return new CustomLineCap(null, gp);
+            }
+        }
+
         public Point[] Points
         {
             get
@@ -60,6 +73,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                 }
                 else
                     ret.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                if (elem is SequenceFlow || elem is MessageFlow)
+                {
+                    string sourceRef = (elem is SequenceFlow ? ((SequenceFlow)elem).sourceRef : ((MessageFlow)elem).sourceRef);
+                    IElement gelem = definition.LocateElement(sourceRef);
+                    if (gelem != null)
+                    {
+                        if (gelem is AGateway)
+                        {
+                            if ((((AGateway)gelem).Default == null ? "" : ((AGateway)gelem).Default) == elem.id)
+                                ret.CustomStartCap = _defaultFlowCap;
+                        }
+                    }
+                }
             }
             return ret;
         }
