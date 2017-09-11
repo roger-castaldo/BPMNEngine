@@ -493,58 +493,61 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             if (outputVariables)
-            {
-                SizeF sz = gp.MeasureString("Variables", Constants.FONT);
-                int varHeight = (int)sz.Height+2;
-                string[] keys = _state[null];
-                foreach (string str in keys)
-                    varHeight += (int)gp.MeasureString(str, Constants.FONT).Height + 2;
-                Bitmap vmap = new Bitmap(_VARIABLE_IMAGE_WIDTH, varHeight);
-                gp = Graphics.FromImage(vmap);
-                gp.FillRectangle(Brushes.White, new Rectangle(0, 0, vmap.Width, vmap.Height));
-                Pen p = new Pen(Brushes.Black, Constants.PEN_WIDTH);
-                gp.DrawRectangle(p, new Rectangle(0, 0, vmap.Width, vmap.Height));
-                gp.DrawLine(p, new Point(0, (int)sz.Height + 2), new Point(_VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
-                gp.DrawLine(p,new Point(_VARIABLE_NAME_WIDTH,(int)sz.Height + 2),new Point(_VARIABLE_NAME_WIDTH,vmap.Height));
-                gp.DrawString("Variables", Constants.FONT, Brushes.Black, new PointF((vmap.Width - sz.Width) / 2, 2));
-                int curY = (int)sz.Height+2;
-                for (int x = 0; x < keys.Length; x++)
-                {
-                    string label = keys[x];
-                    SizeF szLabel = gp.MeasureString(keys[x], Constants.FONT);
-                    while (szLabel.Width > _VARIABLE_NAME_WIDTH)
-                    {
-                        if (label.EndsWith("..."))
-                            label = label.Substring(0, label.Length - 4) + "...";
-                        else
-                            label = label.Substring(0, label.Length - 1) + "...";
-                        szLabel = gp.MeasureString(label, Constants.FONT);
-                    }
-                    string val = (_state[null, keys[x]] == null ? "" : _state[null, keys[x]].ToString());
-                    SizeF szValue = gp.MeasureString(val, Constants.FONT);
-                    if (szValue.Width > _VARIABLE_VALUE_WIDTH)
-                    {
-                        if (val.EndsWith("..."))
-                            val = val.Substring(0, val.Length - 4) + "...";
-                        else
-                            val = val.Substring(0, val.Length - 1) + "...";
-                        szValue = gp.MeasureString(val, Constants.FONT);
-                    }
-                    gp.DrawString(label, Constants.FONT, Brushes.Black, new Point(2, curY));
-                    gp.DrawString(val, Constants.FONT, Brushes.Black, new Point(2 + _VARIABLE_NAME_WIDTH, curY));
-                    curY += (int)Math.Max(szLabel.Height, szValue.Height) + 2;
-                    gp.DrawLine(p, new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
-                }
-                gp.Flush();
-                Bitmap tret = new Bitmap(ret.Width + _DEFAULT_PADDING + vmap.Width, Math.Max(ret.Height, vmap.Height + _DEFAULT_PADDING));
-                gp = Graphics.FromImage(tret);
-                gp.FillRectangle(Brushes.White, new Rectangle(0, 0, tret.Width, tret.Height));
-                gp.DrawImage(ret, new Point(0, 0));
-                gp.DrawImage(vmap, new Point(ret.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
-                gp.Flush();
-                ret = tret;
-            }
+                ret = _AppendVariables(ret, gp);
             return ret;
+        }
+
+        private Bitmap _AppendVariables(Bitmap ret, Graphics gp)
+        {
+            SizeF sz = gp.MeasureString("Variables", Constants.FONT);
+            int varHeight = (int)sz.Height + 2;
+            string[] keys = _state[null];
+            foreach (string str in keys)
+                varHeight += (int)gp.MeasureString(str, Constants.FONT).Height + 2;
+            Bitmap vmap = new Bitmap(_VARIABLE_IMAGE_WIDTH, varHeight);
+            gp = Graphics.FromImage(vmap);
+            gp.FillRectangle(Brushes.White, new Rectangle(0, 0, vmap.Width, vmap.Height));
+            Pen p = new Pen(Brushes.Black, Constants.PEN_WIDTH);
+            gp.DrawRectangle(p, new Rectangle(0, 0, vmap.Width, vmap.Height));
+            gp.DrawLine(p, new Point(0, (int)sz.Height + 2), new Point(_VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
+            gp.DrawLine(p, new Point(_VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(_VARIABLE_NAME_WIDTH, vmap.Height));
+            gp.DrawString("Variables", Constants.FONT, Brushes.Black, new PointF((vmap.Width - sz.Width) / 2, 2));
+            int curY = (int)sz.Height + 2;
+            for (int x = 0; x < keys.Length; x++)
+            {
+                string label = keys[x];
+                SizeF szLabel = gp.MeasureString(keys[x], Constants.FONT);
+                while (szLabel.Width > _VARIABLE_NAME_WIDTH)
+                {
+                    if (label.EndsWith("..."))
+                        label = label.Substring(0, label.Length - 4) + "...";
+                    else
+                        label = label.Substring(0, label.Length - 1) + "...";
+                    szLabel = gp.MeasureString(label, Constants.FONT);
+                }
+                string val = (_state[null, keys[x]] == null ? "" : _state[null, keys[x]].ToString());
+                SizeF szValue = gp.MeasureString(val, Constants.FONT);
+                if (szValue.Width > _VARIABLE_VALUE_WIDTH)
+                {
+                    if (val.EndsWith("..."))
+                        val = val.Substring(0, val.Length - 4) + "...";
+                    else
+                        val = val.Substring(0, val.Length - 1) + "...";
+                    szValue = gp.MeasureString(val, Constants.FONT);
+                }
+                gp.DrawString(label, Constants.FONT, Brushes.Black, new Point(2, curY));
+                gp.DrawString(val, Constants.FONT, Brushes.Black, new Point(2 + _VARIABLE_NAME_WIDTH, curY));
+                curY += (int)Math.Max(szLabel.Height, szValue.Height) + 2;
+                gp.DrawLine(p, new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
+            }
+            gp.Flush();
+            Bitmap tret = new Bitmap(ret.Width + _DEFAULT_PADDING + vmap.Width, Math.Max(ret.Height, vmap.Height + _DEFAULT_PADDING));
+            gp = Graphics.FromImage(tret);
+            gp.FillRectangle(Brushes.White, new Rectangle(0, 0, tret.Width, tret.Height));
+            gp.DrawImage(ret, new Point(0, 0));
+            gp.DrawImage(vmap, new Point(ret.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
+            gp.Flush();
+            return tret;
         }
 
         public byte[] Animate(bool outputVariables)
@@ -556,10 +559,32 @@ namespace Org.Reddragonit.BpmEngine
             {
                 enc.FrameDelay = _ANIMATION_DELAY;
                 _state.Path.StartAnimation();
+                Bitmap bd = Diagram(false);
+                Graphics gp = Graphics.FromImage(bd);
+                enc.AddFrame((outputVariables ? _AppendVariables(bd, gp) : bd));
                 while (_state.Path.HasNext())
                 {
-                    enc.AddFrame(Diagram(outputVariables));
-                    _state.Path.MoveToNextStep();
+                    string nxtStep = _state.Path.MoveToNextStep();
+                    if (nxtStep != null)
+                    {
+                        int padding = _DEFAULT_PADDING / 2;
+                        foreach (IElement elem in _Elements)
+                        {
+                            if (elem is Definition)
+                            {
+                                foreach (Diagram d in ((Definition)elem).Diagrams)
+                                {
+                                    if (d.RendersElement(nxtStep))
+                                    {
+                                        gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
+                                        break;
+                                    }
+                                    padding += d.Size.Height + _DEFAULT_PADDING;
+                                }
+                            }
+                        }
+                        enc.AddFrame((outputVariables ? _AppendVariables(bd, gp) : bd));
+                    }
                 }
                 _state.Path.FinishAnimation();
             }

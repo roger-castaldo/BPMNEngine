@@ -161,9 +161,10 @@ namespace Org.Reddragonit.BpmEngine
             _lastStep = -1;
         }
 
-        internal void MoveToNextStep()
+        internal string MoveToNextStep()
         {
             _lastStep++;
+            return ((_lastStep==0 || (_lastStep>_pathEntries.Count)) ? null : _pathEntries[_lastStep-1].ElementID);
         }
 
         internal bool HasNext()
