@@ -55,9 +55,9 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                 }
                 else
                 {
-                    _colorTableByteLength = (int)((int)_packedField & 0x07);
+                    _colorTableByteLength = (int)((int)_packedField & 0x70)>>4;
                     colorTableLength = (int)Math.Pow(2, _colorTableByteLength + 1);
-                    _packedField = (byte)(0x80 | (((int)_packedField & 0x10) >> 1) | _colorTableByteLength);
+                    _packedField = (byte)(0x80 | (_colorTableByteLength<<4) | (((int)_packedField & 0x10) >> 1) | _colorTableByteLength);
                 }
                 _colorTable = br.ReadBytes(colorTableLength * 3);
                 if (!gif87a)
@@ -93,10 +93,27 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                 if (((int)tb & 0x80) == (int)0x80)
                 {
                     len = (int)Math.Pow(2, ((int)tb & 0x07) + 1);
-                    _colorTableByteLength = tb & 0x07;
-                    _colorTable = br.ReadBytes(len * 3);
+                    if (len !=2 )
+                    {
+                        _colorTableByteLength = tb & 0x07;
+                        _colorTable = br.ReadBytes(len * 3);
+                    }
                 }
-                _data = br.ReadBytes((int)(br.BaseStream.Length - br.BaseStream.Position - 1));
+                MemoryStream msData = new MemoryStream();
+                BinaryWriter bw = new BinaryWriter(msData);
+                bw.Write(br.ReadByte());
+                len = br.ReadByte();
+                while (len != 0)
+                {
+                    bw.Write((byte)len);
+                    bw.Write(br.ReadBytes(len));
+                    len = br.ReadByte();
+                }
+                bw.Write((byte)0x00);
+                if (br.ReadByte()==0x00)
+                    bw.Write((byte)0x00);
+                bw.Flush();
+                _data = msData.ToArray();
             }
         }
 
