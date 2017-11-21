@@ -403,7 +403,7 @@ namespace Org.Reddragonit.BpmEngine
             {
                 WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
                 _isSuspended = _state.IsSuspended;
-                if (autoResume)
+                if (autoResume&&_isSuspended)
                     Resume();
                 return true;
             }
