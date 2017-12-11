@@ -210,6 +210,10 @@ namespace Org.Reddragonit.BpmEngine
                 case VariableTypes.String:
                     ret = text;
                     break;
+                case VariableTypes.Hashtable:
+                    System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    ret = bf.Deserialize(new MemoryStream(Convert.FromBase64String(text)));
+                    break;
             }
             return ret;
         }
@@ -334,6 +338,15 @@ namespace Org.Reddragonit.BpmEngine
                                     writer.WriteEndElement();
                                 }
                                 break;
+                            case "System.Collections.Hashtable":
+                                writer.WriteAttributeString("type", VariableTypes.Hashtable.ToString());
+                                foreach (Hashtable ht in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(_EncodeHashtable(ht));
+                                    writer.WriteEndElement();
+                                }
+                                break;
                         }
                     }
                 }
@@ -381,11 +394,23 @@ namespace Org.Reddragonit.BpmEngine
                             case "System.String":
                                 writer.WriteAttributeString("type", VariableTypes.String.ToString());
                                 break;
+                            case "System.Collections.Hashtable":
+                                writer.WriteAttributeString("type", VariableTypes.Hashtable.ToString());
+                                text = _EncodeHashtable((Hashtable)value);
+                                break;
                         }
                         writer.WriteCData(text);
                     }
                 }
             }
+        }
+
+        private static string _EncodeHashtable(Hashtable hash)
+        {
+            MemoryStream ms = new MemoryStream();
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            bf.Serialize(ms, hash);
+            return Convert.ToBase64String(ms.ToArray());
         }
     }
 }

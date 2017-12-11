@@ -535,6 +535,12 @@ namespace Org.Reddragonit.BpmEngine
                         foreach (object o in (IEnumerable)_state[null, keys[x]])
                             val += string.Format("{0},", o);
                         val = val.Substring(0, val.Length - 1);
+                    }else if (_state[null,keys[x]] is Hashtable)
+                    {
+                        val = "{";
+                        foreach (string key in ((Hashtable)_state[null, keys[x]]).Keys)
+                            val += string.Format("{{\"{0}\":\"{1}\"}},", key, ((Hashtable)_state[null, keys[x]])[key]);
+                        val = val.Substring(0, val.Length - 1)+"}";
                     }
                     else
                         val = _state[null, keys[x]].ToString();

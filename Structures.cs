@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -210,6 +211,9 @@ namespace Org.Reddragonit.BpmEngine
                                 break;
                             case VariableTypes.String:
                                 _value = Array.CreateInstance(typeof(string), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Hashtable:
+                                _value = Array.CreateInstance(typeof(Hashtable), elem.ChildNodes.Count);
                                 break;
                         }
                         for(int x = 0; x < elem.ChildNodes.Count; x++)
