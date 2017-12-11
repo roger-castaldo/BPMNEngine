@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -219,49 +220,170 @@ namespace Org.Reddragonit.BpmEngine
                 writer.WriteAttributeString("type", VariableTypes.Null.ToString());
             else
             {
-                if (value is sFile)
-                    ((sFile)value).Append(writer);
+                if (value.GetType().IsArray && value.GetType().FullName!="System.Byte[]")
+                {
+                    writer.WriteAttributeString("isArray", "true");
+                    if (value.GetType().GetElementType().FullName == typeof(sFile).FullName)
+                    {
+                        foreach (sFile sf in (IEnumerable)value)
+                        {
+                            writer.WriteStartElement("Value");
+                            sf.Append(writer);
+                            writer.WriteEndElement();
+                        }
+                    }else
+                    {
+                        switch (value.GetType().GetElementType().FullName)
+                        {
+                            case "System.Boolean":
+                                writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
+                                foreach (bool b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Byte[]":
+                                writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
+                                foreach (byte[] b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    Convert.ToBase64String(b);
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Char":
+                                writer.WriteAttributeString("type", VariableTypes.Char.ToString());
+                                foreach (char b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.DateTime":
+                                writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
+                                foreach (DateTime b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Decimal":
+                                writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
+                                foreach (Decimal b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Double":
+                                writer.WriteAttributeString("type", VariableTypes.Double.ToString());
+                                foreach (double b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Single":
+                                writer.WriteAttributeString("type", VariableTypes.Float.ToString());
+                                foreach (Single b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Int32":
+                                writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
+                                foreach (int b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Int64":
+                                writer.WriteAttributeString("type", VariableTypes.Long.ToString());
+                                foreach (long b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.Int16":
+                                writer.WriteAttributeString("type", VariableTypes.Short.ToString());
+                                foreach (short b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                            case "System.String":
+                                writer.WriteAttributeString("type", VariableTypes.String.ToString());
+                                foreach (string b in (IEnumerable)value)
+                                {
+                                    writer.WriteStartElement("Value");
+                                    writer.WriteCData(b.ToString());
+                                    writer.WriteEndElement();
+                                }
+                                break;
+                        }
+                    }
+                }
                 else
                 {
-                    string text = value.ToString();
-                    switch (value.GetType().FullName)
+                    writer.WriteAttributeString("isArray", "false");
+                    if (value is sFile)
+                        ((sFile)value).Append(writer);
+                    else
                     {
-                        case "System.Boolean":
-                            writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
-                            break;
-                        case "System.Byte[]":
-                            writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
-                            text = Convert.ToBase64String((byte[])value);
-                            break;
-                        case "System.Char":
-                            writer.WriteAttributeString("type", VariableTypes.Char.ToString());
-                            break;
-                        case "System.DateTime":
-                            writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
-                            break;
-                        case "System.Decimal":
-                            writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
-                            break;
-                        case "System.Double":
-                            writer.WriteAttributeString("type", VariableTypes.Double.ToString());
-                            break;
-                        case "System.Single":
-                            writer.WriteAttributeString("type", VariableTypes.Float.ToString());
-                            break;
-                        case "System.Int32":
-                            writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
-                            break;
-                        case "System.Int64":
-                            writer.WriteAttributeString("type", VariableTypes.Long.ToString());
-                            break;
-                        case "System.Int16":
-                            writer.WriteAttributeString("type", VariableTypes.Short.ToString());
-                            break;
-                        case "System.String":
-                            writer.WriteAttributeString("type", VariableTypes.String.ToString());
-                            break;
+                        string text = value.ToString();
+                        switch (value.GetType().FullName)
+                        {
+                            case "System.Boolean":
+                                writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
+                                break;
+                            case "System.Byte[]":
+                                writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
+                                text = Convert.ToBase64String((byte[])value);
+                                break;
+                            case "System.Char":
+                                writer.WriteAttributeString("type", VariableTypes.Char.ToString());
+                                break;
+                            case "System.DateTime":
+                                writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
+                                break;
+                            case "System.Decimal":
+                                writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
+                                break;
+                            case "System.Double":
+                                writer.WriteAttributeString("type", VariableTypes.Double.ToString());
+                                break;
+                            case "System.Single":
+                                writer.WriteAttributeString("type", VariableTypes.Float.ToString());
+                                break;
+                            case "System.Int32":
+                                writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
+                                break;
+                            case "System.Int64":
+                                writer.WriteAttributeString("type", VariableTypes.Long.ToString());
+                                break;
+                            case "System.Int16":
+                                writer.WriteAttributeString("type", VariableTypes.Short.ToString());
+                                break;
+                            case "System.String":
+                                writer.WriteAttributeString("type", VariableTypes.String.ToString());
+                                break;
+                        }
+                        writer.WriteCData(text);
                     }
-                    writer.WriteCData(text);
                 }
             }
         }

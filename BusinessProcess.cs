@@ -7,6 +7,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -525,7 +526,19 @@ namespace Org.Reddragonit.BpmEngine
                         label = label.Substring(0, label.Length - 1) + "...";
                     szLabel = gp.MeasureString(label, Constants.FONT);
                 }
-                string val = (_state[null, keys[x]] == null ? "" : _state[null, keys[x]].ToString());
+                string val = "";
+                if (_state[null, keys[x]] != null)
+                {
+                    if (_state[null, keys[x]].GetType().IsArray)
+                    {
+                        val = "";
+                        foreach (object o in (IEnumerable)_state[null, keys[x]])
+                            val += string.Format("{0},", o);
+                        val = val.Substring(0, val.Length - 1);
+                    }
+                    else
+                        val = _state[null, keys[x]].ToString();
+                }
                 SizeF szValue = gp.MeasureString(val, Constants.FONT);
                 if (szValue.Width > _VARIABLE_VALUE_WIDTH)
                 {

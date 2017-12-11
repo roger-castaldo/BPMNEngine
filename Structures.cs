@@ -168,12 +168,65 @@ namespace Org.Reddragonit.BpmEngine
                 _value = new sFile((XmlElement)elem.ChildNodes[0]);
             else
             {
-                string text = elem.InnerText;
                 if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value) != VariableTypes.Null)
                 {
-                    if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
-                        text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
-                    _value = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text);
+                    if ((elem.Attributes["isArray"] == null ? false : bool.Parse(elem.Attributes["isArray"].Value)))
+                    {
+                        _value = null;
+                        switch((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value))
+                        {
+                            case VariableTypes.Boolean:
+                                _value = Array.CreateInstance(typeof(bool), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Byte:
+                                _value = Array.CreateInstance(typeof(byte[]), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Char:
+                                _value = Array.CreateInstance(typeof(char), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.DateTime:
+                                _value = Array.CreateInstance(typeof(DateTime), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Decimal:
+                                _value = Array.CreateInstance(typeof(decimal), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Double:
+                                _value = Array.CreateInstance(typeof(double), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.File:
+                                _value = Array.CreateInstance(typeof(sFile), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Float:
+                                _value = Array.CreateInstance(typeof(float), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Integer:
+                                _value = Array.CreateInstance(typeof(int), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Long:
+                                _value = Array.CreateInstance(typeof(long), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.Short:
+                                _value = Array.CreateInstance(typeof(short), elem.ChildNodes.Count);
+                                break;
+                            case VariableTypes.String:
+                                _value = Array.CreateInstance(typeof(string), elem.ChildNodes.Count);
+                                break;
+                        }
+                        for(int x = 0; x < elem.ChildNodes.Count; x++)
+                        {
+                            string text = elem.ChildNodes[x].InnerText;
+                            if (elem.ChildNodes[x].ChildNodes[0].NodeType == XmlNodeType.CDATA)
+                                text = ((XmlCDataSection)elem.ChildNodes[x].ChildNodes[0]).InnerText;
+                            ((Array)_value).SetValue(Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text), x);
+                        }
+                    }
+                    else
+                    {
+                        string text = elem.InnerText;
+                        if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
+                            text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
+                        _value = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text);
+                    }
                 }
                 else
                     _value = null;
