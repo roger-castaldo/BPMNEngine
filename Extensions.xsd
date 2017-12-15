@@ -104,6 +104,7 @@
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="lessThanOrEqualCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="isNull"/>
+          <xs:element minOccurs="0" maxOccurs="unbounded" ref="containsCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="andCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="orCondition"/>
           <xs:element minOccurs="0" maxOccurs="unbounded" ref="Javascript"/>
@@ -126,6 +127,7 @@
           <xs:element minOccurs="0" maxOccurs="1" ref="greaterThanOrEqualCondition"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="lessThanCondition"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="lessThanOrEqualCondition"/>
+          <xs:element minOccurs="0" maxOccurs="1" ref="containsCondition"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="isNull"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="andCondition"/>
           <xs:element minOccurs="0" maxOccurs="1" ref="orCondition"/>

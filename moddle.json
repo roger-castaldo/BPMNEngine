@@ -428,6 +428,11 @@
           "isMany": true
         },
         {
+          "name": "containsCondition",
+          "type": "containsCondition",
+          "isMany": true
+        },
+        {
           "name": "isNull",
           "type": "isNull",
           "isMany": true
@@ -501,6 +506,11 @@
           "isMany": true
         },
         {
+          "name": "containsCondition",
+          "type": "containsCondition",
+          "isMany": true
+        },
+        {
           "name": "isNull",
           "type": "isNull",
           "isMany": true
@@ -562,6 +572,11 @@
         {
           "name": "lessThanOrEqualCondition",
           "type": "lessThanOrEqualCondition"
+        },
+        {
+          "name": "containsCondition",
+          "type": "containsCondition",
+          "isMany": true
         },
         {
           "name": "isNull",
