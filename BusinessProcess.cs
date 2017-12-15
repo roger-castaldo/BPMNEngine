@@ -125,6 +125,10 @@ namespace Org.Reddragonit.BpmEngine
         private static BusinessProcess _current;
         public static BusinessProcess Current { get { return _current; } }
 
+        [ThreadStatic()]
+        private static ElementTypeCache _elementMapCache;
+        internal static ElementTypeCache ElementMapCache { get { return _elementMapCache; } }
+
         #region delegates
         #region Ons
         private OnEventStarted _onEventStarted;
@@ -307,22 +311,37 @@ namespace Org.Reddragonit.BpmEngine
         public BusinessProcess(XmlDocument doc)
             :this(doc,LogLevels.None) { }
 
+        public BusinessProcess(XmlDocument doc,LogLine logLine)
+            : this(doc, LogLevels.None,logLine) { }
+
         public BusinessProcess(XmlDocument doc,sProcessRuntimeConstant[] constants)
             : this(doc, LogLevels.None,constants) { }
 
-        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel)
-            : this(doc, LogLevels.None, null) { }
+        public BusinessProcess(XmlDocument doc, sProcessRuntimeConstant[] constants,LogLine logLine)
+            : this(doc, LogLevels.None, constants,logLine) { }
 
-        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,sProcessRuntimeConstant[] constants)
+        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel)
+            : this(doc, LogLevels.None, null,null) { }
+
+        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,LogLine logLine)
+            : this(doc, LogLevels.None, null,logLine) { }
+
+        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel, sProcessRuntimeConstant[] constants)
+            : this(doc, stateLogLevel, constants, null) { }
+
+        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,sProcessRuntimeConstant[] constants,LogLine logLine)
         {
             _stateLogLevel = stateLogLevel;
             _constants = constants;
+            _logLine = logLine;
             List<Exception> exceptions = new List<Exception>();
             _processLock = new ManualResetEvent(false);
             _mreSuspend = new ManualResetEvent(false);
             _doc = doc;
-            _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete),new ProcessStepError(_ProcessStepError));
             _current = this;
+            _elementMapCache = new BpmEngine.ElementTypeCache();
+            _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
+            DateTime start = DateTime.Now;
             WriteLogLine(LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
             XmlPrefixMap map = new XmlPrefixMap();
@@ -364,6 +383,7 @@ namespace Org.Reddragonit.BpmEngine
                 WriteLogException(new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
+            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
         }
 
         private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
@@ -1030,7 +1050,7 @@ namespace Org.Reddragonit.BpmEngine
         #region Logging
         internal void WriteLogLine(LogLevels level,StackFrame sf,DateTime timestamp, string message)
         {
-            if ((int)level <= (int)_stateLogLevel)
+            if ((int)level <= (int)_stateLogLevel && _state!=null)
                 _state.LogLine(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
             if (_logLine != null)
                 _logLine.Invoke(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);

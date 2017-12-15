@@ -50,6 +50,7 @@
     <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
     <Compile Include="Elements\Processes\Conditions\ANegatableCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ANegatableConditionSet.cs" />
+    <Compile Include="Elements\Processes\Conditions\ContainsCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\GreaterThanOrEqualCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\IsNull.cs" />
     <Compile Include="Elements\Processes\Conditions\LessThanOrEqualCondition.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Elements\Processes\Tasks\UserTask.cs" />
     <Compile Include="Elements\Processes\Tasks\ReceiveTask.cs" />
     <Compile Include="Elements\Processes\Tasks\SendTask.cs" />
+    <Compile Include="ElementTypeCache.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Elements\Diagrams\ADiagramElement.cs" />

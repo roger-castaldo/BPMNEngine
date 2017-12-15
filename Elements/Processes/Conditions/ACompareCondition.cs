@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -16,12 +17,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 _map = map;
         }
 
-        protected int _Compare(ProcessVariablesContainer variables)
+        protected object _GetLeft(ProcessVariablesContainer variables)
         {
-            int ret = -1;
             object left = null;
             if (this["leftVariable"] != null)
-                left = variables[this["leftVariable"]];
+                left = _extractVariable(variables, this["leftVariable"]);
             else
             {
                 if (SubNodes != null)
@@ -30,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     {
                         if (n.NodeType == XmlNodeType.Element)
                         {
-                            if (_map.isMatch("exts","left",n.Name) || n.Name=="left")
+                            if (_map.isMatch("exts", "left", n.Name) || n.Name == "left")
                             {
                                 left = n.InnerText;
                                 break;
@@ -39,9 +39,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     }
                 }
             }
+            return left;
+        }
+
+        protected object _GetRight(ProcessVariablesContainer variables)
+        {
             object right = null;
             if (this["rightVariable"] != null)
-                right = variables[this["rightVariable"]];
+                right = _extractVariable(variables, this["rightVariable"]);
             else
             {
                 if (SubNodes != null)
@@ -59,14 +64,26 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     }
                 }
             }
+            return right;
+        }
+
+        protected int _Compare(ProcessVariablesContainer variables)
+        {
+            object left = _GetLeft(variables);
+            object right = _GetRight(variables);
+            return _Compare(left, right);
+        }
+
+        protected int _Compare(object left, object right)
+        {
             if (left == null && right != null)
-                ret = -1;
+                return -1;
             else if (left != null && right == null)
                 return 1;
             else
             {
                 if (left is string && right is string)
-                    ret = ((string)left).CompareTo(right);
+                    return ((string)left).CompareTo(right);
                 else
                 {
                     if (left is string && !(right is string))
@@ -76,6 +93,40 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     else
                         return left.ToString().CompareTo(right.ToString());
                     return ((IComparable)left).CompareTo(right);
+                }
+            }
+        }
+
+        private object _extractVariable(object source, string name)
+        {
+            object ret = null;
+            if (source is ProcessVariablesContainer)
+            {
+                if (!name.Contains("."))
+                    ret = ((ProcessVariablesContainer)source)[name];
+                else if (((ProcessVariablesContainer)source)[name.Substring(0, name.IndexOf("."))] != null)
+                    ret = _extractVariable(((ProcessVariablesContainer)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+            } else if (source is Hashtable)
+            {
+                if (!name.Contains("."))
+                {
+                    if (((Hashtable)source).ContainsKey(name))
+                        ret = ((Hashtable)source)[name];
+                } else
+                {
+                    if (((Hashtable)source).ContainsKey(name.Substring(0, name.IndexOf("."))))
+                        ret = _extractVariable(((Hashtable)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+                }
+            }else if (source is Array)
+            {
+                ArrayList al = new ArrayList();
+                foreach (object o in (IEnumerable)source)
+                    al.Add(_extractVariable(o, name));
+                if (al.Count > 0)
+                {
+                    ret = Array.CreateInstance(al[0].GetType(), al.Count);
+                    for (int x = 0; x < al.Count; x++)
+                        ((Array)ret).SetValue(al[x], x);
                 }
             }
             return ret;

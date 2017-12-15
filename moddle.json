@@ -332,6 +332,38 @@
       ]
     },
     {
+      "name": "containsCondition",
+      "superClass": [
+        "Element"
+      ],
+      "properties": [
+        {
+          "name": "id",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "negated",
+          "isAttr": true,
+          "type": "Boolean"
+        },
+        {
+          "name": "leftVariable",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "rightVariable",
+          "isAttr": true,
+          "type": "String"
+        },
+        {
+          "name": "right",
+          "type": "String"
+        }
+      ]
+    },
+    {
       "name": "isNull",
       "superClass": [
         "Element"

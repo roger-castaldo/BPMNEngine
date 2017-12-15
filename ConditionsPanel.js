@@ -15,6 +15,15 @@
                 $(ret.find('[name="negated"]')).prop('checked', val.negated);
                 return ret;
             },
+            containsCondition:function(val){
+                ret.append('Variable: <input type="text" name="leftVariable"/><br/>');
+                ret.append('Contains: <input type="text" name="right"/><br/>');
+                ret.append('Negated: <input type="checkbox" name="negated"/><br/>');
+                $(ret.find('[name="leftVariable"]')).val(val.leftVariable);
+                $(ret.find('[name="right"]')).val((val.rightVariable == undefined ? val.right : '${' + val.rightVariable + '}'));
+                $(ret.find('[name="negated"]')).prop('checked', val.negated);
+                return ret;
+            },
             isnull: function (val) {
                 var ret = $('<div></div>');
                 ret.append('Variable: <input type="text" name="variable"/><br/>');
@@ -71,6 +80,15 @@
                     case 'lessThanOrEqualCondition':
                         $(elem.find('[name="comparison"]')[0]).html('<=');
                         break;
+                }
+            },
+            containsCondition:function(frm,elem){
+                $(elem.find('[name="leftVariable"]')[0]).html($(frm.find('[name="leftVariable"]')).val());
+                $(elem.find('[name="right"]')[0]).html($(frm.find('[name="right"]')).val());
+                if (frm.find('input[name="negated"]:checked').length == 0) {
+                    $(elem.find('[name="negated"]')).show();
+                } else {
+                    $(elem.find('[name="negated"]')).hide();
                 }
             },
             isnull: function (frm,elem) {
@@ -141,6 +159,18 @@
                     }
                 });
                 return ret;
+            },
+            containsCondition:function(elem,parentId,index){
+                var tmp = this._base(parentId, index);
+                tmp.negated = elem.find('[name="negated"]:visible').length > 0;
+                tmp.leftVariable = $(elem.find('[name="leftVariable"]:first')[0]).text();
+                var val = $(elem.find('[name="right"]:first')[0]).text();
+                if (val.indexOf('${')>=0){
+                    tmp.rightVariable = val.substring(2,val.length-1);
+                }else{
+                    tmp.right = val;
+                }
+                return moddle.create('exts:containsCondition', tmp);
             },
             isnull : function(elem,parentId,index){
                 var tmp = this._base(parentId, index);
@@ -245,7 +275,7 @@
                     var cont = $($(event.target).parents('[name="condition_container"]')[0]);
                     cont.hide();
                     var frm = $('<div></div>');
-                    frm.html('<select><option value="compareCondition">Comparison</option><option value="isnull">Does not have value</value><option value="script">Script</option><option value="groupCondition">AND/OR</option></select><div></div>');
+                    frm.html('<select><option value="compareCondition">Comparison</option><option value="containsCondition">Contains</option><option value="isnull">Does not have value</value><option value="script">Script</option><option value="groupCondition">AND/OR</option></select><div></div>');
                     var subfrm = $(frm.find('div')[0]);
                     subfrm.append(formGenerator.compareCondition({
                         '$type': 'exts:NA',
@@ -278,6 +308,11 @@
                                     rightVariable: ''
                                 },true));
                                 break;
+                            case 'containsCondition':
+                                li.append(renderer.containsCondition({
+                                    leftVariable: '',
+                                    right:''
+                                },true));
                             case 'isnull':
                                 li.append(renderer.isNull({ variable: '' }, true));
                                 break;
@@ -333,6 +368,17 @@
             lessThanOrEqualCondition : function(val,readonly){
                 var ret = this.isEqualCondition(val,readonly);
                 $(ret.find('[name="comparison"]')[0]).html('<=');
+                return ret;
+            },
+            containsCondition:function(val,readonly){
+                var ret = this._base(val);
+                ret.attr('name', 'containsCondition');
+                ret.append('<span name="negated">NOT (</span><span name="leftVariable">' + val.leftVariable + '</span> contains <span name="right">'+(val.rightVariable==undefined ? val.right : '${'+val.rightVariable+'}')+'</span><span name="negated">(</span>');
+                if (!val.negated) { $(ret.find('[name="negated"]')).hide(); }
+                if (!readonly) {
+                    ret.append(this._createDelete());
+                    ret.append(this._createEdit());
+                }
                 return ret;
             },
             isNull : function(val,readonly){
@@ -500,7 +546,7 @@
                                                 if (contentParser[frm.attr('name')]!=undefined){
                                                     tmp = contentParser[frm.attr('name')](frm,businessObject.id,0);
                                                 }
-                                                ['isEqualCondition', 'greaterThanCondition', 'greaterThanOrEqualCondition', 'lessThanCondition', 'lessThanOrEqualCondition', 'isNull', 'cSharpScript', 'Javascript', 'VBScript', 'orCondition', 'andCondition'].forEach(function (prop) {
+                                                ['isEqualCondition', 'greaterThanCondition', 'greaterThanOrEqualCondition', 'lessThanCondition', 'lessThanOrEqualCondition', 'isNull', 'cSharpScript', 'Javascript', 'VBScript', 'orCondition', 'andCondition','containsCondition'].forEach(function (prop) {
                                                     if (businessObject.extensionElements.values[x].get(prop) != undefined) {
                                                         businessObject.extensionElements.values[x].set(prop, undefined);
                                                     }

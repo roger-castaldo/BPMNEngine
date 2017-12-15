@@ -59,11 +59,31 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="containsConditionBase">
+    <xs:complexContent mixed="true">
+      <xs:extension base="negatableElement">
+        <xs:sequence>
+          <xs:element name="right" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:element name="isEqualCondition" type="compareCondition"/>
   <xs:element name="greaterThanCondition" type="compareCondition"/>
   <xs:element name="greaterThanOrEqualCondition" type="compareCondition"/>
   <xs:element name="lessThanCondition" type="compareCondition"/>
   <xs:element name="lessThanOrEqualCondition" type="compareCondition"/>
+  <xs:element name="containsCondition">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="containsConditionBase">
+          <xs:attribute name="leftVariable" type="xs:string" use="required"/>
+          <xs:attribute name="rightVariable" type="xs:string" use="optional"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="isNull">
     <xs:complexType>
       <xs:complexContent>

@@ -98,7 +98,18 @@ namespace Org.Reddragonit.BpmEngine
         internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map,AElement parent)
         {
             Log.Debug("Attempting to construct Element from XML element {0}", new object[] { element.Name });
-            Type t = Utility.LocateElementType(element.Name, map);
+            Type t = null;
+            if (BusinessProcess.ElementMapCache != null)
+            {
+                if (BusinessProcess.ElementMapCache.IsCached(element.Name))
+                    t = BusinessProcess.ElementMapCache[element.Name];
+                else
+                {
+                    t = Utility.LocateElementType(element.Name, map);
+                    BusinessProcess.ElementMapCache[element.Name] = t;
+                }
+            }else
+                t = Utility.LocateElementType(element.Name, map);
             if (t != null)
             {
                 Log.Info("Constructing IElement from XML tag {0} of type {1}", new object[] { element.Name, t.FullName });
