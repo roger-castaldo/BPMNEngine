@@ -30,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 {
                     foreach (object ol in (Array)left)
                     {
-                        if (_Compare(ol, right) == 0)
+                        if (_Compare(ol, right,variables) == 0)
                             return true;
                     }
                 }
@@ -38,12 +38,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 {
                     foreach (object ol in ((Hashtable)left).Keys)
                     {
-                        if (_Compare(ol, right) == 0)
+                        if (_Compare(ol, right,variables) == 0)
                             return true;
                     }
                     foreach (object ol in ((Hashtable)left).Values)
                     {
-                        if (_Compare(ol, right) == 0)
+                        if (_Compare(ol, right,variables) == 0)
                             return true;
                     }
                 }

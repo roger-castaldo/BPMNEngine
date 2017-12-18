@@ -71,10 +71,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         {
             object left = _GetLeft(variables);
             object right = _GetRight(variables);
-            return _Compare(left, right);
+            return _Compare(left, right,variables);
         }
 
-        protected int _Compare(object left, object right)
+        protected int _Compare(object left, object right,ProcessVariablesContainer variables)
         {
             if (left == null && right != null)
                 return -1;
@@ -87,9 +87,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 else
                 {
                     if (left is string && !(right is string))
-                        left = _ConvertToType((string)left, right.GetType());
+                        left = _ConvertToType((string)left, right.GetType(),variables);
                     else if (!(left is string) && right is string)
-                        right = _ConvertToType((string)right, left.GetType());
+                        right = _ConvertToType((string)right, left.GetType(),variables);
                     else
                         return left.ToString().CompareTo(right.ToString());
                     return ((IComparable)left).CompareTo(right);
@@ -132,7 +132,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return ret;
         }
 
-        private object _ConvertToType(string value, Type type)
+        private object _ConvertToType(string value, Type type,ProcessVariablesContainer variables)
         {
             object ret = value;
             switch (type.FullName)
@@ -147,7 +147,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                     ret = value[0];
                     break;
                 case "System.DateTime":
-                    ret = DateTime.Parse(value);
+                    ret = new DateString(value).GetTime(variables);
                     break;
                 case "System.Decimal":
                     ret = decimal.Parse(value);
