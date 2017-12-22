@@ -13,55 +13,45 @@ namespace Org.Reddragonit.BpmEngine
 {
     internal static class Utility
     {
-        //Called to locate all child classes of a given parent type
-        public static List<Type> LocateTypeInstances(Type parent)
+
+        private static Type[] _xmlElements;
+        private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
+
+        static Utility()
         {
-            List<Type> ret = new List<Type>();
-            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
+            List<Type> tmp = new List<Type>();
+            foreach (Type t in Assembly.GetAssembly(typeof(Utility)).GetTypes())
             {
-                try
+                if (new List<Type>(t.GetInterfaces()).Contains(typeof(IElement)))
                 {
-                    if (ass.GetName().Name != "mscorlib" && !ass.GetName().Name.StartsWith("System.") && ass.GetName().Name != "System" && !ass.GetName().Name.StartsWith("Microsoft"))
+                    if (t.GetCustomAttributes(typeof(XMLTag), false).Length > 0)
                     {
-                        foreach (Type t in ass.GetTypes())
-                        {
-                            if (t.IsSubclassOf(parent) || (parent.IsInterface && new List<Type>(t.GetInterfaces()).Contains(parent)))
-                                ret.Add(t);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    if (e.Message != "The invoked member is not supported in a dynamic assembly."
-                        && e.Message != "Unable to load one or more of the requested types. Retrieve the LoaderExceptions property for more information.")
-                    {
-                        throw e;
+                        tmp.Add(t);
+                        _xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
                     }
                 }
             }
-            return ret;
+            _xmlElements = tmp.ToArray();
         }
 
         public static Type LocateElementType(string tagName,XmlPrefixMap map)
         {
             Log.Debug("Attempting to locate ElementType for XML tag {0}", new object[] { tagName });
             Type ret = null;
-            foreach (Type t in LocateTypeInstances(typeof(IElement)))
+            foreach (Type t in _xmlElements)
             {
-                if (t.GetCustomAttributes(typeof(XMLTag), false).Length > 0)
+                foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
                 {
-                    foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
+                    if (xt.Matches(map, tagName))
                     {
-                        if (xt.Matches(map,tagName))
-                        {
-                            Log.Debug("Located type {0} for XML tag {1}", new object[] { t.FullName, tagName });
-                            ret = t;
-                            break;
-                        }
-                    }
-                    if (ret != null)
+                        Log.Debug("Located type {0} for XML tag {1}", new object[] { t.FullName, tagName });
+                        ret = t;
                         break;
+                    }
                 }
+                if (ret != null)
+                    break;
             }
             return ret;
         }
@@ -113,7 +103,7 @@ namespace Org.Reddragonit.BpmEngine
             if (t != null)
             {
                 Log.Info("Constructing IElement from XML tag {0} of type {1}", new object[] { element.Name, t.FullName });
-                return (IElement)t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }).Invoke(new object[] { element, map, parent });
+                return (IElement)_xmlConstructors[t].Invoke(new object[] { element, map, parent });
             }
             return null;
         }
