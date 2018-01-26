@@ -116,8 +116,13 @@ namespace Org.Reddragonit.BpmEngine
                         node = ((XmlAttribute)node).OwnerElement;
                         break;
                     case XmlNodeType.Element:
-                        int index = FindElementIndex((XmlElement)node);
-                        builder.Insert(0, "/" + node.Name + "[" + index + "]");
+                        if (node.Attributes["id"] == null)
+                        {
+                            int index = FindElementIndex((XmlElement)node);
+                            builder.Insert(0, "/" + node.Name + "[" + index + "]");
+                        }
+                        else
+                            builder.Insert(0, string.Format("/{0}[@id='{1}']", node.Name, node.Attributes["id"].Value));
                         node = node.ParentNode;
                         break;
                     case XmlNodeType.Document:

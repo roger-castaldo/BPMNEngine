@@ -832,22 +832,6 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
             }
-            if (_isEventStartValid != null && !success && def != null)
-            {
-                foreach (IElement elem in _FullElements)
-                {
-                    if (elem is IntermediateCatchEvent)
-                    {
-                        if (_isEventStartValid((IStepElement)elem, new ProcessVariablesContainer(step.id, _state, this)))
-                        {
-                            WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", elem.id));
-                            success = true;
-                            _ProcessElement(step.id, elem);
-                            break;
-                        }
-                    }
-                }
-            }
             if (!success)
             {
                 if (_onProcessError!=null)

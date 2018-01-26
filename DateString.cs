@@ -32,6 +32,11 @@ namespace Org.Reddragonit.BpmEngine
                 switch (c)
                 {
                     case ' ':
+                        if (_variableRegex.IsMatch(buffer))
+                        {
+                            m = _variableRegex.Match(buffer);
+                            buffer = buffer.Replace("${" + m.Groups[1].Value + "}", string.Format("{0}", variables[m.Groups[1].Value]));
+                        }
                         if (isFirst)
                         {
                             switch (buffer.ToLower()) {
@@ -52,11 +57,6 @@ namespace Org.Reddragonit.BpmEngine
                                     isFirst = false;
                                     break;
                             }
-                        }
-                        else if (_variableRegex.IsMatch(buffer))
-                        {
-                            m = _variableRegex.Match(buffer);
-                            buffer = buffer.Replace("${" + m.Groups[1].Value + "}", string.Format("{0}",variables[m.Groups[1].Value]));
                         }
                         if (buffer != "")
                         {
@@ -108,18 +108,25 @@ namespace Org.Reddragonit.BpmEngine
             switch (unit.ToLower())
             {
                 case "year":
+                case "years":
                     return dateTime.AddYears(value);
                 case "month":
+                case "months":
                     return dateTime.AddMonths(value);
                 case "week":
+                case "weeks":
                     return dateTime.AddDays(value * 7);
                 case "day":
+                case "days":
                     return dateTime.AddDays(value);
                 case "hour":
+                case "hours":
                     return dateTime.AddHours(value);
                 case "minute":
+                case "minutes":
                     return dateTime.AddMinutes(value);
                 case "second":
+                case "seconds":
                     return dateTime.AddSeconds(value);
                 default:
                     throw Log._Exception(new Exception("Internal error: Unhandled relative date/time case."));
