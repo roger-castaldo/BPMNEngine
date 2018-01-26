@@ -105,7 +105,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private DateTime _AddOffset(string unit, int value, DateTime dateTime)
         {
-            switch (unit)
+            switch (unit.ToLower())
             {
                 case "year":
                     return dateTime.AddYears(value);

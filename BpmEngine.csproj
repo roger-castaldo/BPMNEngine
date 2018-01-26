@@ -61,9 +61,13 @@
     <Compile Include="Elements\Processes\Conditions\AndCondition.cs" />
     <Compile Include="Elements\Processes\Conditions\ConditionSet.cs" />
     <Compile Include="Elements\Processes\Conditions\ScriptCondition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\Extensions\ErrorDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\Extensions\MessageDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\Extensions\SignalDefinition.cs" />
     <Compile Include="Elements\Processes\Events\Definitions\LinkEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\Definitions\CompensationEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\Definitions\EscalationEventDefinition.cs" />
+    <Compile Include="Elements\Processes\Events\Definitions\ErrorEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\Definitions\SignalEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\Definitions\ConditionalEventDefinition.cs" />
     <Compile Include="Elements\Processes\Events\Definitions\TimerDefinition\XDateString.cs" />

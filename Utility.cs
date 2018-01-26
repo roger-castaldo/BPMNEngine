@@ -37,7 +37,6 @@ namespace Org.Reddragonit.BpmEngine
 
         public static Type LocateElementType(string tagName,XmlPrefixMap map)
         {
-            Log.Debug("Attempting to locate ElementType for XML tag {0}", new object[] { tagName });
             Type ret = null;
             foreach (Type t in _xmlElements)
             {
@@ -45,7 +44,6 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     if (xt.Matches(map, tagName))
                     {
-                        Log.Debug("Located type {0} for XML tag {1}", new object[] { t.FullName, tagName });
                         ret = t;
                         break;
                     }
@@ -87,7 +85,6 @@ namespace Org.Reddragonit.BpmEngine
 
         internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map,AElement parent)
         {
-            Log.Debug("Attempting to construct Element from XML element {0}", new object[] { element.Name });
             Type t = null;
             if (BusinessProcess.ElementMapCache != null)
             {
@@ -102,7 +99,6 @@ namespace Org.Reddragonit.BpmEngine
                 t = Utility.LocateElementType(element.Name, map);
             if (t != null)
             {
-                Log.Info("Constructing IElement from XML tag {0} of type {1}", new object[] { element.Name, t.FullName });
                 return (IElement)_xmlConstructors[t].Invoke(new object[] { element, map, parent });
             }
             return null;

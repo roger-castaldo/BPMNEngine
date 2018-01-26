@@ -8,23 +8,25 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "signalEventDefinition")]
-    internal class SignalEventDefinition : AParentElement
+    [XMLTag("bpmn", "errorEventDefinition")]
+    internal class ErrorEventDefinition : AParentElement
     {
-        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
+        public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {
         }
 
-        public string[] SignalTypes
+        
+
+        public string[] ErrorTypes
         {
             get
             {
                 List<string> ret = new List<string>();
                 foreach (IElement elem in Children)
                 {
-                    if (elem is SignalDefinition)
+                    if (elem is ErrorDefinition)
                     {
-                        ret.Add((((SignalDefinition)elem).Type == null ? "*" : ((SignalDefinition)elem).Type));
+                        ret.Add((((ErrorDefinition)elem).Type==null ? "*" : ((ErrorDefinition)elem).Type));
                     }
                 }
                 return ret.ToArray();
@@ -33,22 +35,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 
         public override bool IsValid(out string[] err)
         {
-            if (SignalTypes.Length != 0)
+            if (ErrorTypes.Length != 0)
             {
                 List<string> errors = new List<string>();
                 IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
-                    if (SignalTypes.Length > 1)
+                    if (ErrorTypes.Length > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
                     bool found = false;
                     foreach (IntermediateCatchEvent catcher in elems)
                     {
                         foreach (IElement child in catcher.Children)
                         {
-                            if (child is SignalEventDefinition)
+                            if (child is ErrorEventDefinition)
                             {
-                                if (new List<string>(((SignalEventDefinition)child).SignalTypes).Contains(SignalTypes[0]))
+                                if (new List<string>(((ErrorEventDefinition)child).ErrorTypes).Contains(ErrorTypes[0]))
                                 {
                                     found = true;
                                     break;
@@ -64,9 +66,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
                         {
                             foreach (IElement child in catcher.Children)
                             {
-                                if (child is SignalEventDefinition)
+                                if (child is ErrorEventDefinition)
                                 {
-                                    if (new List<string>(((SignalEventDefinition)child).SignalTypes).Contains("*"))
+                                    if (new List<string>(((ErrorEventDefinition)child).ErrorTypes).Contains("*"))
                                     {
                                         found = true;
                                         break;
@@ -78,7 +80,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
                         }
                     }
                     if (!found)
-                        errors.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");
+                        errors.Add("A defined error message type needs to have a Catch Event with a corresponding type or all");
                 }
                 if (errors.Count > 0)
                 {

@@ -73,6 +73,26 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return ret;
         }
 
+        public IElement[] LocateElementsOfType(Type type)
+        {
+            return _RecurLocateElementsOfType(this,type);
+        }
+
+        private IElement[] _RecurLocateElementsOfType(IElement elem, Type type)
+        {
+            List<IElement> ret = new List<Interfaces.IElement>();
+            if (type.Equals(elem.GetType()))
+                ret.Add(elem);
+            if (elem is IParentElement)
+            {
+                foreach (IElement selem in ((IParentElement)elem).Children)
+                {
+                    ret.AddRange(_RecurLocateElementsOfType(selem, type));
+                }
+            }
+            return ret.ToArray();
+        }
+
         public override bool IsValid(out string[] err)
         {
             if (Children.Length == 0)

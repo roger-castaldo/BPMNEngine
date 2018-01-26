@@ -5,6 +5,60 @@
 	"prefix": "exts",
   "types": [
     {
+      "name": "SignalDefinition",
+      "superClass": [
+        "Element"
+      ],
+      "properties": [
+        {
+          "name": "type",
+          "type": "String",
+          "isAttr": true,
+          "serialize": "String"
+        }
+      ]
+    },
+    {
+      "name": "ErrorDefinition",
+      "superClass": [
+        "Element"
+      ],
+      "properties": [
+        {
+          "name": "type",
+          "type": "String",
+          "isAttr": true,
+          "serialize": "String"
+        },
+        {
+          "name": "Message",
+          "type": "String",
+          "isBody": false,
+          "serialize": "String"
+        }
+      ]
+    },
+    {
+      "name": "MessageDefinition",
+      "superClass": [
+        "Element"
+      ],
+      "properties": [
+        {
+          "name": "name",
+          "type": "String",
+          "isAttr": true,
+          "serialize": "String"
+        },
+        {
+          "name": "Content",
+          "type": "String",
+          "isBody": false,
+          "serialize": "String"
+        }
+      ]
+    },
+    {
       "name": "DefinitionFile",
       "superClass": [
         "Element"
@@ -83,11 +137,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "code",
           "type": "String",
           "isBody": true,
@@ -112,11 +161,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "code",
           "type": "String",
           "isBody": true
@@ -140,11 +184,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "code",
           "type": "String",
           "isBody": true
@@ -157,11 +196,6 @@
         "Element"
       ],
       "properties": [
-        {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
         {
           "name": "negated",
           "isAttr": true,
@@ -194,11 +228,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "negated",
           "isAttr": true,
           "type": "Boolean"
@@ -229,11 +258,6 @@
         "Element"
       ],
       "properties": [
-        {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
         {
           "name": "negated",
           "isAttr": true,
@@ -266,11 +290,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "negated",
           "isAttr": true,
           "type": "Boolean"
@@ -301,11 +320,6 @@
         "Element"
       ],
       "properties": [
-        {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
         {
           "name": "negated",
           "isAttr": true,
@@ -338,11 +352,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "negated",
           "isAttr": true,
           "type": "Boolean"
@@ -370,11 +379,6 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "negated",
           "isAttr": true,
           "type": "Boolean"
@@ -393,73 +397,13 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "negated",
           "isAttr": true,
           "type": "Boolean"
         },
         {
-          "name": "isEqualCondition",
-          "type": "isEqualCondition",
-          "isMany": true
-        },
-        {
-          "name": "greaterThanCondition",
-          "type": "greaterThanCondition",
-          "isMany": true
-        },
-        {
-          "name": "greaterThanOrEqualCondition",
-          "type": "greaterThanOrEqualCondition",
-          "isMany": true
-        },
-        {
-          "name": "lessThanCondition",
-          "type": "lessThanCondition",
-          "isMany": true
-        },
-        {
-          "name": "lessThanOrEqualCondition",
-          "type": "lessThanOrEqualCondition",
-          "isMany": true
-        },
-        {
-          "name": "containsCondition",
-          "type": "containsCondition",
-          "isMany": true
-        },
-        {
-          "name": "isNull",
-          "type": "isNull",
-          "isMany": true
-        },
-        {
-          "name": "andCondition",
-          "type": "andCondition",
-          "isMany": true
-        },
-        {
-          "name": "orCondition",
-          "type": "orCondition",
-          "isMany": true
-        },
-        {
-          "name": "Javascript",
-          "type": "Javascript",
-          "isMany": true
-        },
-        {
-          "name": "VBScript",
-          "type": "VBScript",
-          "isMany": true
-        },
-        {
-          "name": "cSharpScript",
-          "type": "CSharpScript",
+          "name": "Conditions",
+          "type": "Element",
           "isMany": true
         }
       ]
@@ -471,73 +415,13 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
           "name": "negated",
           "isAttr": true,
           "type": "Boolean"
         },
         {
-          "name": "isEqualCondition",
-          "type": "isEqualCondition",
-          "isMany": true
-        },
-        {
-          "name": "greaterThanCondition",
-          "type": "greaterThanCondition",
-          "isMany": true
-        },
-        {
-          "name": "greaterThanOrEqualCondition",
-          "type": "greaterThanOrEqualCondition",
-          "isMany": true
-        },
-        {
-          "name": "lessThanCondition",
-          "type": "lessThanCondition",
-          "isMany": true
-        },
-        {
-          "name": "lessThanOrEqualCondition",
-          "type": "lessThanOrEqualCondition",
-          "isMany": true
-        },
-        {
-          "name": "containsCondition",
-          "type": "containsCondition",
-          "isMany": true
-        },
-        {
-          "name": "isNull",
-          "type": "isNull",
-          "isMany": true
-        },
-        {
-          "name": "andCondition",
-          "type": "andCondition",
-          "isMany": true
-        },
-        {
-          "name": "orCondition",
-          "type": "orCondition",
-          "isMany": true
-        },
-        {
-          "name": "Javascript",
-          "type": "Javascript",
-          "isMany": true
-        },
-        {
-          "name": "VBScript",
-          "type": "VBScript",
-          "isMany": true
-        },
-        {
-          "name": "cSharpScript",
-          "type": "CSharpScript",
+          "name": "Conditions",
+          "type": "Element",
           "isMany": true
         }
       ]
@@ -549,58 +433,9 @@
       ],
       "properties": [
         {
-          "name": "id",
-          "isAttr": true,
-          "type": "String"
-        },
-        {
-          "name": "isEqualCondition",
-          "type": "isEqualCondition"
-        },
-        {
-          "name": "greaterThanCondition",
-          "type": "greaterThanCondition"
-        },
-        {
-          "name": "greaterThanOrEqualCondition",
-          "type": "greaterThanOrEqualCondition"
-        },
-        {
-          "name": "lessThanCondition",
-          "type": "lessThanCondition"
-        },
-        {
-          "name": "lessThanOrEqualCondition",
-          "type": "lessThanOrEqualCondition"
-        },
-        {
-          "name": "containsCondition",
-          "type": "containsCondition",
-          "isMany": true
-        },
-        {
-          "name": "isNull",
-          "type": "isNull"
-        },
-        {
-          "name": "andCondition",
-          "type": "andCondition"
-        },
-        {
-          "name": "orCondition",
-          "type": "orCondition"
-        },
-        {
-          "name": "Javascript",
-          "type": "Javascript"
-        },
-        {
-          "name": "VBScript",
-          "type": "VBScript"
-        },
-        {
-          "name": "cSharpScript",
-          "type": "CSharpScript"
+          "name": "Value",
+          "type": "Element",
+          "isMany": false
         }
       ]
     }

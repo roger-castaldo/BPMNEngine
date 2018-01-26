@@ -216,11 +216,21 @@ namespace Org.Reddragonit.BpmEngine
                         break;
                     }
                 }
-                if (Event.Outgoing==null)
+                string[] outgoing = (Event is IntermediateThrowEvent ? ((IntermediateThrowEvent)Event).Outgoing : Event.Outgoing);
+                if (outgoing == null)
+                {
                     _addPathEntry(new sPathEntry(Event.id, StepStatuses.Succeeded, start, incoming, DateTime.Now), true);
+                    _complete.BeginInvoke(Event.id, null, new AsyncCallback(_AsyncCallback), null);
+                }
                 else
-                    _addPathEntry(new sPathEntry(Event.id, StepStatuses.Succeeded, start, incoming, Event.Outgoing[0], DateTime.Now), true);
-                _complete.BeginInvoke(Event.id,(Event.Outgoing==null ? null : Event.Outgoing[0]), new AsyncCallback(_AsyncCallback), null);
+                {
+                    foreach (string id in outgoing)
+                    {
+                        _addPathEntry(new sPathEntry(Event.id, StepStatuses.Succeeded, start, incoming, id, DateTime.Now), true);
+                        _complete.BeginInvoke(Event.id,id, new AsyncCallback(_AsyncCallback), null);
+                    }
+                }
+                
             }
         }
 

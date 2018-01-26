@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using Org.Reddragonit.BpmEngine.Interfaces;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
@@ -27,6 +28,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                         return tmp;
                     return null;
                 }
+            }
+        }
+
+        public bool IsProcessEnd
+        {
+            get
+            {
+                foreach(IElement child in Children)
+                {
+                    if (child is CompensationEventDefinition || child is ConditionalEventDefinition || child is ErrorEventDefinition || child is EscalationEventDefinition || child is LinkEventDefinition || child is SignalEventDefinition || child is MessageEventDefinition || child is TimerEventDefinition)
+                        return false;
+                }
+                return true;
             }
         }
 

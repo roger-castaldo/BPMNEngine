@@ -28,9 +28,28 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private XmlElement _element;
         internal XmlElement Element { get { return _element; } }
 
+        private string _cachedID=null;
+
         public string id
         {
-            get { return (this["id"]==null ? Utility.FindXPath(_element) : this["id"]); }
+            get {
+                string ret = null; ;
+                if (_cachedID == null)
+                {
+                    ret = this["id"];
+                    if (ret == null)
+                    {
+                        if (_cachedID == null)
+                            _cachedID = Utility.FindXPath(_element);
+                        ret = _cachedID;
+                    }
+                    else
+                        _cachedID = ret;
+                }
+                else
+                    ret = _cachedID;
+                return ret;
+            }
         }
 
         public XmlNode[] SubNodes

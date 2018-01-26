@@ -340,7 +340,6 @@ namespace Org.Reddragonit.BpmEngine
             _doc = doc;
             _current = this;
             _elementMapCache = new BpmEngine.ElementTypeCache();
-            _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
             DateTime start = DateTime.Now;
             WriteLogLine(LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
@@ -384,6 +383,7 @@ namespace Org.Reddragonit.BpmEngine
                 throw ex;
             }
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
+            _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
         }
 
         private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
@@ -774,7 +774,7 @@ namespace Org.Reddragonit.BpmEngine
             if (step is ATask)
             {
                 ATask atsk = (ATask)step;
-                string destID = atsk.CatchEventPath;
+                string destID = atsk.CatchEventPath(ex);
                 if (destID != null)
                 {
                     WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", destID));
@@ -782,9 +782,9 @@ namespace Org.Reddragonit.BpmEngine
                     _ProcessElement(step.id, atsk.Definition.LocateElement(destID));
                 }
             }
-            if (_isEventStartValid != null && !success)
+            Definition def = null;
+            if (!success)
             {
-                Definition def = null;
                 foreach (IElement elem in _Elements)
                 {
                     if (elem is Definition)
@@ -798,17 +798,52 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (def != null)
                 {
-                    foreach (IElement elem in _FullElements)
+                    IElement[] catchers = def.LocateElementsOfType(typeof(IntermediateCatchEvent));
+                    foreach (IntermediateCatchEvent catcher in catchers)
                     {
-                        if (elem is IntermediateCatchEvent)
+                        string[] tmp = catcher.ErrorTypes;
+                        if (tmp != null)
                         {
-                            if (_isEventStartValid((IStepElement)elem, new ProcessVariablesContainer(step.id, _state,this)))
+                            if (new List<string>(tmp).Contains(ex.Message) || new List<string>(tmp).Contains(ex.GetType().Name))
                             {
-                                WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", elem.id));
+                                WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
                                 success = true;
-                                _ProcessElement(step.id, elem);
+                                _ProcessElement(step.id, catcher);
                                 break;
                             }
+                        }
+                    }
+                    if (!success)
+                    {
+                        foreach (IntermediateCatchEvent catcher in catchers)
+                        {
+                            string[] tmp = catcher.ErrorTypes;
+                            if (tmp != null)
+                            {
+                                if (new List<string>(tmp).Contains("*"))
+                                {
+                                    WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
+                                    success = true;
+                                    _ProcessElement(step.id, catcher);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (_isEventStartValid != null && !success && def != null)
+            {
+                foreach (IElement elem in _FullElements)
+                {
+                    if (elem is IntermediateCatchEvent)
+                    {
+                        if (_isEventStartValid((IStepElement)elem, new ProcessVariablesContainer(step.id, _state, this)))
+                        {
+                            WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", elem.id));
+                            success = true;
+                            _ProcessElement(step.id, elem);
+                            break;
                         }
                     }
                 }
@@ -902,19 +937,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (_onEventStarted != null)
                         _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
                     bool success = true;
-                    if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
-                    {
-                        try
-                        {
-                            success = _isEventStartValid(evnt, new ProcessVariablesContainer(evnt.id, _state,this));
-                        }
-                        catch (Exception e)
-                        {
-                            WriteLogException(new StackFrame(1, true), DateTime.Now, e);
-                            success = false;
-                        }
-                    }
-                    else if (evnt is IntermediateThrowEvent)
+                    if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
                     {
                         TimeSpan? ts = evnt.GetTimeout(new ProcessVariablesContainer(evnt.id, _state,this));
                         if (ts.HasValue)
@@ -926,6 +949,17 @@ namespace Org.Reddragonit.BpmEngine
                             if (ts.Value.TotalMilliseconds > 0)
                                 Thread.Sleep(ts.Value);
                             success = true;
+                        }
+                    }else if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
+                    {
+                        try
+                        {
+                            success = _isEventStartValid(evnt, new ProcessVariablesContainer(evnt.id, _state, this));
+                        }
+                        catch (Exception e)
+                        {
+                            WriteLogException(new StackFrame(1, true), DateTime.Now, e);
+                            success = false;
                         }
                     }
                     if (!success)
@@ -941,9 +975,12 @@ namespace Org.Reddragonit.BpmEngine
                             _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
                         if (evnt is EndEvent)
                         {
-                            if (_onProcessCompleted != null)
-                                _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
-                            _processLock.Set();
+                            if (((EndEvent)evnt).IsProcessEnd)
+                            {
+                                if (_onProcessCompleted != null)
+                                    _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
+                                _processLock.Set();
+                            }
                         }
                     }
                 }
