@@ -6,7 +6,8 @@ namespace Org.Reddragonit.BpmEngine
 {
     public sealed class ProcessVariablesContainer
     {
-        private List<sVariableEntry> _variables;
+        private List<string> _nulls;
+        private Dictionary<string, object> _variables;
         private int _stepIndex;
 
         private BusinessProcess _process = null;
@@ -14,7 +15,8 @@ namespace Org.Reddragonit.BpmEngine
 
         public ProcessVariablesContainer()
         {
-            _variables = new List<sVariableEntry>();
+            _nulls = new List<string>();
+            _variables = new Dictionary<string, object>();
             _stepIndex = -1;
         }
 
@@ -22,12 +24,13 @@ namespace Org.Reddragonit.BpmEngine
         {
             Log.Debug("Producing Process Variables Container for element[{0}]", new object[] { elementID });
             _stepIndex = state.Path.CurrentStepIndex(elementID);
-            _variables = new List<sVariableEntry>();
+            _nulls = new List<string>();
+            _variables = new Dictionary<string, object>();
             _process = process;
             foreach (string str in state[elementID])
             {
                 Log.Debug("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID });
-                _variables.Add(new sVariableEntry(str, _stepIndex, state[elementID, str]));
+                _variables.Add(str,state[elementID, str]);
             }
         }
 
@@ -39,14 +42,10 @@ namespace Org.Reddragonit.BpmEngine
                 bool found = false;
                 lock (_variables)
                 {
-                    foreach (sVariableEntry sve in _variables)
+                    if (_variables.ContainsKey(name))
                     {
-                        if (sve.Name == name)
-                        {
-                            found = true;
-                            ret = sve.Value;
-                            break;
-                        }
+                        found = true;
+                        ret = _variables[name];
                     }
                 }
                 if (!found && _process != null)
@@ -59,15 +58,14 @@ namespace Org.Reddragonit.BpmEngine
             {
                 lock (_variables)
                 {
-                    for (int x = 0; x < _variables.Count; x++)
+                    _variables.Remove(name);
+                    if (value == null && !_nulls.Contains(name))
+                        _nulls.Add(name);
+                    else if (value != null)
                     {
-                        if (_variables[x].Name == name)
-                        {
-                            _variables.RemoveAt(x);
-                            break;
-                        }
+                        _variables.Add(name, value);
+                        _nulls.Remove(name);
                     }
-                    _variables.Add(new sVariableEntry(name, _stepIndex, value));
                 }
             }
         }
@@ -76,16 +74,13 @@ namespace Org.Reddragonit.BpmEngine
         {
             get
             {
-                List<string> ret = new List<string>();
+                string[] ret = new string[0];
                 lock (_variables)
                 {
-                    foreach (sVariableEntry sve in _variables)
-                    {
-                        if (!ret.Contains(sve.Name))
-                            ret.Add(sve.Name);
-                    }
+                    ret = new string[_variables.Count];
+                    _variables.Keys.CopyTo(ret, 0);
                 }
-                return ret.ToArray();
+                return ret;
             }
         }
     }

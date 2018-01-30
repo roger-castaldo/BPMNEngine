@@ -1,6 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Interfaces;
+using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -220,133 +221,124 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        internal static void EncodeVariableValue(object value,XmlWriter writer)
+        internal static void EncodeVariableValue(object value,XmlElement variableContainer,XmlDocument doc)
         {
+            variableContainer.Attributes.Append(doc.CreateAttribute("type"));
             if (value == null)
-                writer.WriteAttributeString("type", VariableTypes.Null.ToString());
+                variableContainer.Attributes["type"].Value = VariableTypes.Null.ToString();
             else
             {
-                if (value.GetType().IsArray && value.GetType().FullName!="System.Byte[]")
+                if (value.GetType().IsArray && value.GetType().FullName != "System.Byte[]")
                 {
-                    writer.WriteAttributeString("isArray", "true");
+                    variableContainer.Attributes.Append(doc.CreateAttribute("isArray"));
+                    variableContainer.Attributes["isArray"].Value = true.ToString();
                     if (value.GetType().GetElementType().FullName == typeof(sFile).FullName)
                     {
+                        variableContainer.Attributes["type"].Value = VariableTypes.File.ToString();
                         foreach (sFile sf in (IEnumerable)value)
                         {
-                            writer.WriteStartElement("Value");
-                            sf.Append(writer);
-                            writer.WriteEndElement();
+                            variableContainer.AppendChild(doc.CreateElement("Value"));
+                            variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(sf.ToElement(doc));
                         }
-                    }else
+                    }
+                    else
                     {
                         switch (value.GetType().GetElementType().FullName)
                         {
                             case "System.Boolean":
-                                writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Boolean.ToString();
                                 foreach (bool b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Byte[]":
-                                writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Byte.ToString();
                                 foreach (byte[] b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    Convert.ToBase64String(b);
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(Convert.ToBase64String(b)));
                                 }
                                 break;
                             case "System.Char":
-                                writer.WriteAttributeString("type", VariableTypes.Char.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Char.ToString();
                                 foreach (char b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.DateTime":
-                                writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.DateTime.ToString();
                                 foreach (DateTime b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Decimal":
-                                writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Decimal.ToString();
                                 foreach (Decimal b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Double":
-                                writer.WriteAttributeString("type", VariableTypes.Double.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Double.ToString();
                                 foreach (double b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Single":
-                                writer.WriteAttributeString("type", VariableTypes.Float.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Float.ToString();
                                 foreach (Single b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Int32":
-                                writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Integer.ToString();
                                 foreach (int b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Int64":
-                                writer.WriteAttributeString("type", VariableTypes.Long.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Long.ToString();
                                 foreach (long b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Int16":
-                                writer.WriteAttributeString("type", VariableTypes.Short.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Short.ToString();
                                 foreach (short b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.String":
-                                writer.WriteAttributeString("type", VariableTypes.String.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.String.ToString();
                                 foreach (string b in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(b.ToString());
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
                             case "System.Collections.Hashtable":
-                                writer.WriteAttributeString("type", VariableTypes.Hashtable.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Hashtable.ToString();
                                 foreach (Hashtable ht in (IEnumerable)value)
                                 {
-                                    writer.WriteStartElement("Value");
-                                    writer.WriteCData(_EncodeHashtable(ht));
-                                    writer.WriteEndElement();
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(_EncodeHashtable(ht)));
                                 }
                                 break;
                         }
@@ -354,54 +346,55 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 else
                 {
-                    writer.WriteAttributeString("isArray", "false");
+                    variableContainer.Attributes.Append(doc.CreateAttribute("isArray"));
+                    variableContainer.Attributes["isArray"].Value = true.ToString();
                     if (value is sFile)
-                        ((sFile)value).Append(writer);
+                        variableContainer.AppendChild(((sFile)value).ToElement(doc));
                     else
                     {
                         string text = value.ToString();
                         switch (value.GetType().FullName)
                         {
                             case "System.Boolean":
-                                writer.WriteAttributeString("type", VariableTypes.Boolean.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Boolean.ToString();
                                 break;
                             case "System.Byte[]":
-                                writer.WriteAttributeString("type", VariableTypes.Byte.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Byte.ToString();
                                 text = Convert.ToBase64String((byte[])value);
                                 break;
                             case "System.Char":
-                                writer.WriteAttributeString("type", VariableTypes.Char.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Char.ToString();
                                 break;
                             case "System.DateTime":
-                                writer.WriteAttributeString("type", VariableTypes.DateTime.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.DateTime.ToString();
                                 break;
                             case "System.Decimal":
-                                writer.WriteAttributeString("type", VariableTypes.Decimal.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Decimal.ToString();
                                 break;
                             case "System.Double":
-                                writer.WriteAttributeString("type", VariableTypes.Double.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Double.ToString();
                                 break;
                             case "System.Single":
-                                writer.WriteAttributeString("type", VariableTypes.Float.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Float.ToString();
                                 break;
                             case "System.Int32":
-                                writer.WriteAttributeString("type", VariableTypes.Integer.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Integer.ToString();
                                 break;
                             case "System.Int64":
-                                writer.WriteAttributeString("type", VariableTypes.Long.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Long.ToString();
                                 break;
                             case "System.Int16":
-                                writer.WriteAttributeString("type", VariableTypes.Short.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Short.ToString();
                                 break;
                             case "System.String":
-                                writer.WriteAttributeString("type", VariableTypes.String.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.String.ToString();
                                 break;
                             case "System.Collections.Hashtable":
-                                writer.WriteAttributeString("type", VariableTypes.Hashtable.ToString());
+                                variableContainer.Attributes["type"].Value = VariableTypes.Hashtable.ToString();
                                 text = _EncodeHashtable((Hashtable)value);
                                 break;
                         }
-                        writer.WriteCData(text);
+                        variableContainer.AppendChild(doc.CreateCDataSection(text));
                     }
                 }
             }

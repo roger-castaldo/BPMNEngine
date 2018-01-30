@@ -135,11 +135,15 @@
     <Compile Include="Interfaces\IStepElement.cs" />
     <Compile Include="Interfaces\IParentElement.cs" />
     <Compile Include="Log.cs" />
-    <Compile Include="ProcessPath.cs" />
+    <Compile Include="State\AStateContainer.cs" />
+    <Compile Include="State\ProcessPath.cs" />
     <Compile Include="ProcessState.cs" />
     <Compile Include="ProcessVariablesContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadOnlyProcessVariablesContainer.cs" />
+    <Compile Include="State\StateVariableContainer.cs" />
+    <Compile Include="State\Structures.cs" />
+    <Compile Include="State\SuspendedStepContainer.cs" />
     <Compile Include="Structures.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="XmlPrefixMap.cs" />

@@ -1,61 +1,71 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.State;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
     public sealed class ProcessState
     {
-        private object _lock;
-        private object _docLock;
+        private const string _BASE_STATE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ProcessState isSuspended=\"False\"></ProcessState>";
 
+        private const string _PROCESS_STATE_ELEMENT = "ProcessState";
+        private const string _PROCESS_LOG_ELEMENT = "ProcessLog";
+
+        private AutoResetEvent _evnt;
+        private XmlDocument _doc;
+        private XmlElement _stateElement;
+        private XmlElement _log;
+        private SuspendedStepContainer _suspensions;
+        private StateVariableContainer _variables;
         private ProcessPath _path;
         internal ProcessPath Path { get { return _path; } }
 
-        private StringBuilder _sbLog;
-
-        private List<sStepSuspension> _suspensions;
-        internal void SuspendStep(string elementID,TimeSpan span)
+        internal void SuspendStep(string elementID, TimeSpan span)
         {
             Log.Debug("Suspending Step[{0}] for {1}", new object[] { elementID, span });
-            lock (_suspensions)
-            {
-                _suspensions.Add(new BpmEngine.sStepSuspension(elementID, _path.CurrentStepIndex(elementID), span));
-                _stateChanged();
-            }
+            _suspensions.SuspendStep(elementID, _path.CurrentStepIndex(elementID), span);
+            _stateChanged();
         }
 
         internal sStepSuspension[] SuspendedSteps
         {
             get
             {
+                _evnt.WaitOne();
                 List<sStepSuspension> ret = new List<sStepSuspension>();
-                foreach (sStepSuspension ss in _suspensions)
+                foreach (sStepSuspension ss in _suspensions.Steps)
                 {
                     if (_path.IsStepWaiting(ss.id, ss.StepIndex))
                         ret.Add(ss);
                 }
+                _evnt.Set();
                 return ret.ToArray();
             }
         }
 
-        private bool _isSuspended = false;
-        internal bool IsSuspended { get { return _isSuspended; } }
+        internal bool IsSuspended { get { return (_stateElement.Attributes["isSuspended"]==null ? false : bool.Parse(_stateElement.Attributes["isSuspended"].Value)); }
+            private set
+            {
+                if (_stateElement.Attributes["isSuspended"] != null)
+                    _stateElement.Attributes.Append(_doc.CreateAttribute("isSuspended"));
+                _stateElement.Attributes["isSuspended"].Value = value.ToString();
+            }
+        }
 
         internal sSuspendedStep[] ResumeSteps {
             get
             {
-                if (!_isSuspended)
+                if (!IsSuspended)
                     return null;
                 return _path.ResumeSteps;
             }
         }
-
-        private List<sVariableEntry> _variables;
-
+        
         internal object this[string elementID, string variableName]
         {
             get
@@ -65,30 +75,14 @@ namespace Org.Reddragonit.BpmEngine
                 if (elementID == null)
                     stepIndex = _path.LastStep;
                 else
-                {
-                    lock (_path)
-                    {
-                        stepIndex = _path.CurrentStepIndex(elementID);
-                    }
-                }
-                lock (_variables)
-                {
-                    foreach (sVariableEntry sve in _variables)
-                    {
-                        if (sve.Name == variableName && sve.PathStepIndex <= stepIndex)
-                            ret = sve.Value;
-                    }
-                }
+                    stepIndex = _path.CurrentStepIndex(elementID);
+                ret = _variables[variableName, stepIndex];
                 return ret;
             }
             set
             {
-                lock (_variables)
-                {
-                    _variables.Add(new sVariableEntry(variableName, _path.CurrentStepIndex(elementID), value));
-                    _variables.Sort();
-                    _stateChanged();
-                }
+                _variables[variableName, _path.CurrentStepIndex(elementID)] = value;
+                _stateChanged();
             }
         }
 
@@ -101,26 +95,8 @@ namespace Org.Reddragonit.BpmEngine
                 if (elementID == null)
                     stepIndex = _path.LastStep;
                 else
-                {
-                    lock (_path)
-                    {
-                        stepIndex = _path.CurrentStepIndex(elementID);
-                    }
-                }
-                lock (_variables)
-                {
-                    foreach (sVariableEntry sve in _variables)
-                    {
-                        if (sve.PathStepIndex <= stepIndex)
-                        {
-                            if (sve.Value == null)
-                                ret.Remove(sve.Name);
-                            else if (!ret.Contains(sve.Name))
-                                ret.Add(sve.Name);
-                        }
-                    }
-                }
-                return ret.ToArray();
+                    stepIndex = _path.CurrentStepIndex(elementID);
+                return _variables[stepIndex];
             }
         }
 
@@ -129,78 +105,28 @@ namespace Org.Reddragonit.BpmEngine
 
         internal ProcessState(ProcessStepComplete complete, ProcessStepError error)
         {
-            _lock = new object();
-            _docLock = new object();
-            _path = new ProcessPath(complete,error,new processStateChanged(_stateChanged));
-            _variables = new List<sVariableEntry>();
-            _suspensions = new List<BpmEngine.sStepSuspension>();
-            _sbLog = new StringBuilder();
+            _evnt = new AutoResetEvent(true);
+            _doc = new XmlDocument();
+            _doc.LoadXml(_BASE_STATE);
+            _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
+            _log = (XmlElement)_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
+            _variables = new StateVariableContainer(this);
+            _suspensions = new SuspendedStepContainer(this);
+            _path = new ProcessPath(complete, error, new processStateChanged(_stateChanged),this);
         }
 
         internal bool Load(XmlDocument doc)
         {
-            Log.Debug("Loading Process State");
-            try
-            {
-                foreach (XmlNode n in doc.ChildNodes)
-                {
-                    if (n.NodeType == XmlNodeType.Element)
-                    {
-                        switch (n.Name)
-                        {
-                            case "ProcessState":
-                                if (n.Attributes["isSuspended"] != null)
-                                    _isSuspended = bool.Parse(n.Attributes["isSuspended"].Value);
-                                foreach (XmlNode nd in n.ChildNodes)
-                                {
-                                    if (nd.NodeType == XmlNodeType.Element)
-                                    {
-                                        switch (nd.Name)
-                                        {
-                                            case "ProcessPath":
-                                                Log.Debug("Loading Process Path...");
-                                                _path.Load((XmlElement)nd);
-                                                break;
-                                            case "ProcessVariables":
-                                                Log.Debug("Loading Process Variables...");
-                                                foreach (XmlNode pnd in nd.ChildNodes)
-                                                {
-                                                    if (pnd.NodeType == XmlNodeType.Element)
-                                                        _variables.Add(new sVariableEntry((XmlElement)pnd));
-                                                }
-                                                _variables.Sort();
-                                                break;
-                                            case "SuspendedSteps":
-                                                Log.Debug("Loading Suspended Steps...");
-                                                foreach (XmlNode ssnd in nd.ChildNodes)
-                                                {
-                                                    if (ssnd.NodeType == XmlNodeType.Element)
-                                                        _suspensions.Add(new BpmEngine.sStepSuspension((XmlElement)ssnd));
-                                                }
-                                                break;
-                                            case "ProcessLog":
-                                                Log.Debug("Loading Process Log...");
-                                                lock (_sbLog)
-                                                {
-                                                    if (_sbLog.Length > 0)
-                                                        _sbLog = new StringBuilder(((XmlCDataSection)nd.ChildNodes[0]).InnerText+_sbLog.ToString());
-                                                    else
-                                                        _sbLog = new StringBuilder(((XmlCDataSection)nd.ChildNodes[0]).InnerText);
-                                                }
-                                                break;
-                                        }
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Exception(e);
+            if (doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT).Count == 0)
                 return false;
-            }
+            _evnt.WaitOne();
+            _doc.LoadXml(doc.OuterXml);
+            _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
+            if (_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT).Count > 0)
+                _log = (XmlElement)_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
+            else
+                _log = null;
+            _evnt.Set();
             return true;
         }
 
@@ -209,88 +135,42 @@ namespace Org.Reddragonit.BpmEngine
             get
             {
                 XmlDocument ret = new XmlDocument();
-                lock (_docLock)
-                {
-                    try
-                    {
-                        MemoryStream ms = new MemoryStream();
-                        XmlWriterSettings settings = new XmlWriterSettings();
-                        settings.Indent = true;
-                        settings.Encoding = Encoding.UTF8;
-                        XmlWriter writer = XmlWriter.Create(ms, settings);
-                        writer.WriteStartDocument();
-                        writer.WriteStartElement("ProcessState");
-                        writer.WriteAttributeString("isSuspended", _isSuspended.ToString());
-                        lock (_path)
-                        {
-                            _path.Append(writer);
-                        }
-                        writer.WriteStartElement("ProcessVariables");
-                        sVariableEntry[] vars = new sVariableEntry[0];
-                        lock (_variables) {
-                            vars = _variables.ToArray();
-                        }
-                        foreach (sVariableEntry sve in vars)
-                            sve.Append(writer);
-                        writer.WriteEndElement();
-                        writer.WriteStartElement("SuspendedSteps");
-                        sStepSuspension[] ssteps = new sStepSuspension[0];
-                        lock (_suspensions)
-                        {
-                            ssteps = _suspensions.ToArray();
-                        }
-                        foreach (sStepSuspension ss in ssteps)
-                            ss.Append(writer);
-                        writer.WriteEndElement();
-                        if (_sbLog.Length > 0)
-                        {
-                            writer.WriteStartElement("ProcessLog");
-                            lock (_lock)
-                            {
-                                writer.WriteCData(_sbLog.ToString());
-                            }
-                            writer.WriteEndElement();
-                        }
-                        writer.WriteEndElement();
-                        writer.Flush();
-                        ms.Position = 0;
-                        ret.Load(ms);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Exception(e);
-                    }
-                }
+                _evnt.WaitOne();
+                ret.LoadXml(_doc.OuterXml);
+                _evnt.Set();
                 return ret;
             }
         }
 
         private void _stateChanged()
         {
-            lock (_lock)
-            {
-                if (_onStateChange!=null)
-                { try { _onStateChange(this.Document); } catch (Exception ex) { } }
-            }
+            if (_onStateChange != null)
+            { try { _onStateChange(this.Document); } catch (Exception ex) { } }
         }
 
         internal void Suspend()
         {
             Log.Debug("Suspending Process State");
-            _isSuspended = true;
+            IsSuspended = true;
         }
 
         internal void Resume()
         {
             Log.Debug("Resuming Process State");
-            _isSuspended = false;
+            IsSuspended = false;
         }
 
         internal void LogLine(AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
         {
-            lock (_lock)
+            _evnt.WaitOne();
+            if (_log == null)
             {
-                _sbLog.AppendLine(string.Format("{0}|{1}|{2}|{3}[{4}]|{5}", new object[]
+                _stateElement.AppendChild(_doc.CreateElement(_PROCESS_LOG_ELEMENT));
+                _log = (XmlElement)_stateElement.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
+            }
+            if (_log.ChildNodes.Count == 0)
+                _log.AppendChild(_doc.CreateCDataSection(""));
+            ((XmlCDataSection)_log.ChildNodes[0]).Value += string.Format("{0}|{1}|{2}|{3}[{4}]|{5}\r\n", new object[]
                 {
                     timestamp.ToString(Constants.DATETIME_FORMAT),
                     level,
@@ -298,8 +178,8 @@ namespace Org.Reddragonit.BpmEngine
                     fileName,
                     lineNumber,
                     message
-                }));
-            }
+                });
+            _evnt.Set();
         }
 
         internal void LogException(AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
@@ -342,5 +222,74 @@ STACKTRACE:{1}", new object[]
             }
             LogLine(assembly, fileName, lineNumber, LogLevels.Error, timestamp, sb.ToString());   
         }
+
+        #region StateContainerDelegates
+        private XmlElement _FindContainer(string containerName)
+        {
+            foreach (XmlNode n in _doc.ChildNodes)
+            {
+                XmlElement tmp = _FindContainer(containerName, n);
+                if (tmp != null)
+                    return tmp;
+            }
+            XmlElement ret = _doc.CreateElement(containerName);
+            _stateElement.AppendChild(ret);
+            return ret;
+        }
+        private XmlElement _FindContainer(string containerName,XmlNode parent)
+        {
+            if (parent.NodeType == XmlNodeType.Element)
+            {
+                if (parent.Name == containerName)
+                    return (XmlElement)parent;
+            }
+            foreach (XmlNode n in parent.ChildNodes)
+            {
+                XmlElement tmp = _FindContainer(containerName, n);
+                if (tmp != null)
+                    return tmp;
+            }
+            return null;
+        }
+        internal XmlElement[] GetChildNodes(string containerName)
+        {
+            List<XmlElement> ret = new List<XmlElement>();
+            _evnt.WaitOne();
+            XmlElement cont = _FindContainer(containerName);
+            foreach (XmlNode n in cont.ChildNodes)
+            {
+                if (n.NodeType == XmlNodeType.Element)
+                    ret.Add((XmlElement)n);
+            }
+            _evnt.Set();
+            return ret.ToArray();
+        }
+        internal void InsertBefore(string containerName, XmlElement element,XmlElement child)
+        {
+            _evnt.WaitOne();
+            _FindContainer(containerName).InsertBefore(element, child);
+            _evnt.Set();
+        }
+        internal void SetAttribute(XmlElement elem, string name, string value)
+        {
+            XmlAttribute att = _doc.CreateAttribute(name);
+            att.Value = value;
+            elem.Attributes.Append(att);
+        }
+        internal void AppendElement(string ContainerName, XmlElement element)
+        {
+            _evnt.WaitOne();
+            _FindContainer(ContainerName).AppendChild(element);
+            _evnt.Set();
+        }
+        internal XmlElement CreateElement(string elementName)
+        {
+            return _doc.CreateElement(elementName);
+        }
+        internal void EncodeVariableValue(object value, XmlElement elem)
+        {
+            Utility.EncodeVariableValue(value, elem, _doc);
+        }
+        #endregion
     }
 }

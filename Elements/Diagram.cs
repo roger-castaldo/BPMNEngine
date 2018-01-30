@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Interfaces;
+using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

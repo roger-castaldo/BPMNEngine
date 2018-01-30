@@ -6,6 +6,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
+using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,7 +31,15 @@ namespace Org.Reddragonit.BpmEngine
         private bool _isSuspended = false;
         private ManualResetEvent _mreSuspend;
         private List<object> _components;
-        private List<IElement> _Elements
+        private Dictionary<string, IElement> _elements;
+
+        private IElement _GetElement(string id)
+        {
+            if (_elements.ContainsKey(id))
+                return _elements[id];
+            return null;
+        }
+        private IElement[] _Elements
         {
             get
             {
@@ -40,28 +49,17 @@ namespace Org.Reddragonit.BpmEngine
                     if (new List<Type>(obj.GetType().GetInterfaces()).Contains(typeof(IElement)))
                         ret.Add((IElement)obj);
                 }
-                return ret;
-            }
-        }
-        private List<IElement> _FullElements
-        {
-            get
-            {
-                List<IElement> ret = new List<IElement>();
-                foreach (IElement elem in _Elements){
-                    _RecurAddChildren(elem, ref ret);
-                }
-                return ret;
+                return ret.ToArray();
             }
         }
 
-        private void _RecurAddChildren(IElement parent, ref List<IElement> elems)
+        private void _RecurAddChildren(IElement parent)
         {
-            elems.Add(parent);
+            _elements.Add(parent.id,parent);
             if (parent is IParentElement)
             {
                 foreach (IElement elem in ((IParentElement)parent).Children)
-                    _RecurAddChildren(elem, ref elems);
+                    _RecurAddChildren(elem);
             }
         }
 
@@ -221,14 +219,11 @@ namespace Org.Reddragonit.BpmEngine
         private void _CompleteExternalTask(string taskID, ProcessVariablesContainer variables)
         {
             bool success = false;
-            foreach (IElement elem in _FullElements)
+            IElement elem = _GetElement(taskID);
+            if (elem != null && elem is ATask)
             {
-                if (elem.id == taskID && elem is ATask)
-                {
-                    _MergeVariables((ATask)elem, variables);
-                    success = true;
-                    break;
-                }
+                _MergeVariables((ATask)elem, variables);
+                success = true;
             }
             if (!success)
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
@@ -237,14 +232,11 @@ namespace Org.Reddragonit.BpmEngine
         private void _CompleteUserTask(string taskID, ProcessVariablesContainer variables,string completedByID)
         {
             bool success = false;
-            foreach (IElement elem in _FullElements)
+            IElement elem = _GetElement(taskID);
+            if (elem != null && elem is ATask)
             {
-                if (elem.id == taskID && elem is ATask)
-                {
-                    _MergeVariables((UserTask)elem, variables,completedByID);
-                    success = true;
-                    break;
-                }
+                _MergeVariables((UserTask)elem, variables, completedByID);
+                success = true;
             }
             if (!success)
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
@@ -253,18 +245,16 @@ namespace Org.Reddragonit.BpmEngine
         private void _ErrorExternalTask(string taskID, Exception ex)
         {
             bool success = false;
-            foreach (IElement elem in _FullElements)
+            IElement elem = _GetElement(taskID);
+            if (elem != null && elem is ATask)
             {
-                if (elem.id == taskID && elem is ATask)
+                if (_onTaskError != null)
+                    _onTaskError((ATask)elem, new ReadOnlyProcessVariablesContainer(elem.id, _state, this, ex));
+                lock (_state)
                 {
-                    if (_onTaskError != null)
-                        _onTaskError((ATask)elem, new ReadOnlyProcessVariablesContainer(elem.id, _state,this,ex));
-                    lock (_state)
-                    {
-                        _state.Path.FailTask((ATask)elem,ex);
-                    }
-                    break;
+                    _state.Path.FailTask((ATask)elem, ex);
                 }
+                success = true;
             }
             if (!success)
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
@@ -343,6 +333,7 @@ namespace Org.Reddragonit.BpmEngine
             DateTime start = DateTime.Now;
             WriteLogLine(LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
+            _elements = new Dictionary<string, Interfaces.IElement>();
             XmlPrefixMap map = new XmlPrefixMap();
             foreach (XmlNode n in doc.ChildNodes)
             {
@@ -351,14 +342,17 @@ namespace Org.Reddragonit.BpmEngine
                     map.Load((XmlElement)n);
                     IElement elem = Utility.ConstructElementType((XmlElement)n, map,null);
                     if (elem != null)
+                    {
                         _components.Add(elem);
+                        _RecurAddChildren(elem);
+                    }
                     else
                         _components.Add(n);
                 }
                 else
                     _components.Add(n);
             }
-            if (_Elements.Count == 0)
+            if (_Elements.Length== 0)
                 exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
             {
@@ -468,16 +462,13 @@ namespace Org.Reddragonit.BpmEngine
             TimeSpan ts = release.Subtract(DateTime.Now);
             if (ts.TotalMilliseconds > 0)
                 Thread.Sleep(ts);
-            foreach(IElement ie in _FullElements)
+            IElement elem = _GetElement(id);
+            if (elem != null)
             {
-                if (ie.id == id)
-                {
-                    AEvent evnt = (AEvent)ie;
-                    lock (_state) { _state.Path.SucceedEvent(evnt); }
-                    if (_onEventCompleted != null)
-                        _onEventCompleted(evnt,new ReadOnlyProcessVariablesContainer(ie.id,_state,this));
-                    break;
-                }
+                AEvent evnt = (AEvent)elem;
+                lock (_state) { _state.Path.SucceedEvent(evnt); }
+                if (_onEventCompleted != null)
+                    _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
             }
         }
 
@@ -640,6 +631,7 @@ namespace Org.Reddragonit.BpmEngine
             ret._doc = _doc;
             ret._components = new List<object>(_components.ToArray());
             ret._constants = _constants;
+            ret._elements = _elements;
             if (includeState)
                 ret._state = _state;
             else
@@ -680,7 +672,7 @@ namespace Org.Reddragonit.BpmEngine
             variables.SetProcess(this);
             WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             bool ret = false;
-            foreach (IElement elem in _FullElements)
+            foreach (IElement elem in _elements.Values)
             {
                 if (elem is Elements.Process)
                 {
@@ -759,11 +751,9 @@ namespace Org.Reddragonit.BpmEngine
             WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
             if (outgoingID != null)
             {
-                foreach (IElement elem in _FullElements)
-                {
-                    if (elem.id == outgoingID)
-                        _ProcessElement(sourceID,elem);
-                }
+                IElement elem = _GetElement(outgoingID);
+                if (elem != null)
+                    _ProcessElement(sourceID, elem);
             }
         }
 
