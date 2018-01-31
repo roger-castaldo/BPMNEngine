@@ -1,7 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections;
 using System.Collections.Generic;
