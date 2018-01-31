@@ -10,6 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmn","definitions")]
     [RequiredAttribute("id")]
+    [ValidParent(null)]
     internal class Definition : AParentElement
     {
         public Definition(XmlElement elem, XmlPrefixMap map, AElement parent)

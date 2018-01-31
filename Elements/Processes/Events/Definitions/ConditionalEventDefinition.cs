@@ -7,6 +7,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "conditionalEventDefinition")]
+    [ValidParent(typeof(AEvent))]
     internal class ConditionalEventDefinition : AElement
     {
         public ConditionalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

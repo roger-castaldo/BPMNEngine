@@ -8,6 +8,8 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNLabel")]
+    [ValidParent(typeof(Edge))]
+    [ValidParent(typeof(Shape))]
     internal class Label : AParentElement
     {
         public Bounds Bounds {

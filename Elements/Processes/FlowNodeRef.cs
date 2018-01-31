@@ -7,6 +7,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn", "flowNodeRef")]
+    [ValidParent(typeof(Lane))]
     internal class FlowNodeRef : AElement
     {
 

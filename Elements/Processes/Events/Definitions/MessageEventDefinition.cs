@@ -9,6 +9,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "messageEventDefinition")]
+    [ValidParent(typeof(AEvent))]
     internal class MessageEventDefinition : AParentElement
     {
         public MessageEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

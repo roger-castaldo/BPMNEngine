@@ -12,6 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [AttributeRegex("x", "^-?\\d+(\\.\\d+)?$")]
     [RequiredAttribute("y")]
     [AttributeRegex("y", "^-?\\d+(\\.\\d+)?$")]
+    [ValidParent(typeof(Edge))]
     internal class Waypoint : AElement
     {
         public Point Point

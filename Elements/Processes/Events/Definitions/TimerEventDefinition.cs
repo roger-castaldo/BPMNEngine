@@ -10,6 +10,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "timerEventDefinition")]
+    [ValidParent(typeof(AEvent))]
     internal class TimerEventDefinition : AParentElement
     {
         public TimerEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

@@ -7,6 +7,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
 {
     [XMLTag("bpmn", "text")]
+    [ValidParent(typeof(TextAnnotation))]
     internal class Text : AElement
     {
 

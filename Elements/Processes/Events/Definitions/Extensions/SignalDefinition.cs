@@ -8,6 +8,8 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions
 {
     [XMLTag("exts", "SignalDefinition")]
+    [ValidParent(typeof(ExtensionElements))]
+    [ValidParent(typeof(SignalEventDefinition))]
     internal class SignalDefinition : AElement
     {
         public SignalDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

@@ -14,6 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNEdge")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Plane))]
     internal class Edge : ADiagramElement
     {
 

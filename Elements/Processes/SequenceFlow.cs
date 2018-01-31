@@ -10,6 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","sequenceFlow")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Process))]
     internal class SequenceFlow : AElement
     {
         public string name { get { return this["Name"]; } }

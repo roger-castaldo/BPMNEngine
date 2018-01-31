@@ -36,14 +36,12 @@ namespace Org.Reddragonit.BpmEngine
         {
             get
             {
-                _evnt.WaitOne();
                 List<sStepSuspension> ret = new List<sStepSuspension>();
                 foreach (sStepSuspension ss in _suspensions.Steps)
                 {
                     if (_path.IsStepWaiting(ss.id, ss.StepIndex))
                         ret.Add(ss);
                 }
-                _evnt.Set();
                 return ret.ToArray();
             }
         }
@@ -120,13 +118,21 @@ namespace Org.Reddragonit.BpmEngine
             if (doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT).Count == 0)
                 return false;
             _evnt.WaitOne();
-            _doc.LoadXml(doc.OuterXml);
-            _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
-            if (_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT).Count > 0)
-                _log = (XmlElement)_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
-            else
-                _log = null;
+            try
+            {
+                _doc.LoadXml(doc.OuterXml);
+                _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
+                if (_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT).Count > 0)
+                    _log = (XmlElement)_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
+                else
+                    _log = null;
+            }catch(Exception e)
+            {
+                _evnt.Set();
+                return false;
+            }
             _evnt.Set();
+            _stateChanged();
             return true;
         }
 

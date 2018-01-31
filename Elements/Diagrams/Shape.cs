@@ -13,6 +13,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNShape")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Plane))]
     internal class Shape : ADiagramElement
     {
         public RectangleF Rectangle

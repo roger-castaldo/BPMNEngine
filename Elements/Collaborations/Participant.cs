@@ -9,6 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [XMLTag("bpmn", "participant")]
     [RequiredAttribute("processRef")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Collaboration))]
     internal class Participant : AElement
     {
         public string Name { get { return this["name"]; } }

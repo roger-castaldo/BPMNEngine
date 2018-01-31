@@ -7,6 +7,8 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions
 {
     [XMLTag("exts", "ErrorDefinition")]
+    [ValidParent(typeof(ExtensionElements))]
+    [ValidParent(typeof(ErrorEventDefinition))]
     internal class ErrorDefinition : AElement
     {
         public ErrorDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

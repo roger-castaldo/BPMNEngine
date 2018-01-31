@@ -1032,22 +1032,10 @@ namespace Org.Reddragonit.BpmEngine
             {
                 foreach (string str in variables.Keys)
                 {
-                    if (variables[str] == null && _state[task.id, str] != null)
-                        _state[task.id, str] = null;
-                    else if (_state[task.id, str] == null && variables[str] != null)
-                        _state[task.id, str] = variables[str];
-                    else if (_state[task.id, str] != null && variables[str] != null)
-                    {
-                        try
-                        {
-                            if (!variables[str].Equals(_state[task.id, str]))
-                                _state[task.id, str] = variables[str];
-                        }
-                        catch (Exception e)
-                        {
-                            _state[task.id, str] = variables[str];
-                        }
-                    }
+                    object left = variables[str];
+                    object right = _state[task.id, str];
+                    if (!_IsVariablesEqual(left,right))
+                        _state[task.id, str] = left;
                 }
                 if (_onTaskCompleted != null)
                     _onTaskCompleted(task, new ReadOnlyProcessVariablesContainer(task.id, _state,this));
@@ -1055,6 +1043,67 @@ namespace Org.Reddragonit.BpmEngine
                     _state.Path.SucceedTask((UserTask)task,completedByID);
                 else
                     _state.Path.SucceedTask(task);
+            }
+        }
+
+        private bool _IsVariablesEqual(object left, object right)
+        {
+            if (left == null && right != null)
+                return false;
+            else if (left != null && right == null)
+                return false;
+            else if (left == null && right == null)
+                return true;
+            else 
+            {
+                if (left is Array)
+                {
+                    if (!(right is Array))
+                        return false;
+                    else
+                    {
+                        Array aleft = (Array)left;
+                        Array aright = (Array)right;
+                        if (aleft.Length != aright.Length)
+                            return false;
+                        for (int x = 0; x < aleft.Length; x++)
+                        {
+                            if (!_IsVariablesEqual(aleft.GetValue(x), aright.GetValue(x)))
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+                else if (left is Hashtable)
+                {
+                    if (!(right is Hashtable))
+                        return false;
+                    else
+                    {
+                        Hashtable hleft = (Hashtable)left;
+                        Hashtable hright = (Hashtable)right;
+                        if (hleft.Count != hright.Count)
+                            return false;
+                        foreach (object key in hleft.Keys)
+                        {
+                            if (!hright.ContainsKey(key))
+                                return false;
+                            else if (!_IsVariablesEqual(hleft[key], hright[key]))
+                                return false;
+                        }
+                        foreach (object key in hright.Keys)
+                        {
+                            if (!hleft.ContainsKey(key))
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+                else
+                {
+                    try { return left.Equals(right); }
+                    catch (Exception e) { return false; }
+                }
             }
         }
 

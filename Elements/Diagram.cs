@@ -14,6 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmndi","BPMNDiagram")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Definition))]
     internal class Diagram : AParentElement
     {
         public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)

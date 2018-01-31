@@ -8,6 +8,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     [XMLTag("exts", "ConditionSet")]
+    [ValidParent(typeof(ExtensionElements))]
     internal class ConditionSet : AConditionSet
     {
         public ConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)

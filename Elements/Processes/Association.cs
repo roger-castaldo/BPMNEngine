@@ -9,6 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","association")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Process))]
     internal class Association : AElement
     {
         public Association(XmlElement elem, XmlPrefixMap map,AElement parent)

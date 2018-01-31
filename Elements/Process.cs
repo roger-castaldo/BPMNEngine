@@ -12,6 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmn","process")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Definition))]
     internal class Process : AParentElement
     {
         public bool isExecutable { get { return (this["isExecutable"] == null ? false : bool.Parse(this["isExecutable"])); } }

@@ -9,6 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","lane")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(LaneSet))]
     internal class Lane : AParentElement
     {
         public string[] Nodes

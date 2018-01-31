@@ -14,7 +14,8 @@ namespace Org.Reddragonit.BpmEngine
     internal static class Utility
     {
 
-        private static Type[] _xmlElements;
+        private static Dictionary<Type, List<Type>> _xmlChildren;
+        private static Type[] _globalXMLChildren;
         private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
 
         static Utility()
@@ -32,13 +33,84 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
             }
-            _xmlElements = tmp.ToArray();
+            _xmlChildren = new Dictionary<Type, List<Type>>();
+            List<Type> globalChildren = new List<Type>();
+            for(int x = 0; x < tmp.Count; x++)
+            {
+                Type t = tmp[x];
+                List<ValidParentAttribute> atts = new List<Attributes.ValidParentAttribute>();
+                if (t.GetCustomAttributes(typeof(ValidParentAttribute), false).Length == 0)
+                {
+                    Type bt = t.BaseType;
+                    while (bt != null)
+                    {
+                        if (bt.GetCustomAttributes(typeof(ValidParentAttribute), false).Length > 0)
+                        {
+                            atts.AddRange((ValidParentAttribute[])bt.GetCustomAttributes(typeof(ValidParentAttribute), false));
+                            break;
+                        }
+                        else
+                            bt = bt.BaseType;
+                    }
+                }
+                else
+                    atts.AddRange((ValidParentAttribute[])t.GetCustomAttributes(typeof(ValidParentAttribute), false));
+                foreach (ValidParentAttribute vpa in atts)
+                {
+                    if (vpa.Parent == null)
+                        globalChildren.Add(t);
+                    else if (!vpa.Parent.IsAbstract)
+                    {
+                        if (!_xmlChildren.ContainsKey(vpa.Parent))
+                            _xmlChildren.Add(vpa.Parent, new List<Type>());
+                        List<Type> types = _xmlChildren[vpa.Parent];
+                        _xmlChildren.Remove(vpa.Parent);
+                        types.Add(t);
+                        _xmlChildren.Add(vpa.Parent, types);
+                    }
+                    else
+                    {
+                        foreach (Type c in tmp)
+                        {
+                            if (c.IsSubclassOf(vpa.Parent))
+                            {
+                                if (!_xmlChildren.ContainsKey(c))
+                                    _xmlChildren.Add(c, new List<Type>());
+                                List<Type> types = _xmlChildren[c];
+                                _xmlChildren.Remove(c);
+                                types.Add(t);
+                                _xmlChildren.Add(c, types);
+                            }
+                        }
+                    }
+                }
+            }
+            _globalXMLChildren = globalChildren.ToArray();
         }
 
-        public static Type LocateElementType(string tagName,XmlPrefixMap map)
+        public static Type LocateElementType(Type parent,string tagName,XmlPrefixMap map)
         {
             Type ret = null;
-            foreach (Type t in _xmlElements)
+            if (parent != null)
+            {
+                if (_xmlChildren.ContainsKey(parent))
+                {
+                    foreach (Type t in _xmlChildren[parent])
+                    {
+                        foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
+                        {
+                            if (xt.Matches(map, tagName))
+                            {
+                                ret = t;
+                                break;
+                            }
+                        }
+                        if (ret != null)
+                            break;
+                    }
+                }
+            }
+            foreach (Type t in _globalXMLChildren)
             {
                 foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
                 {
@@ -92,15 +164,13 @@ namespace Org.Reddragonit.BpmEngine
                     t = BusinessProcess.ElementMapCache[element.Name];
                 else
                 {
-                    t = Utility.LocateElementType(element.Name, map);
+                    t = Utility.LocateElementType((parent==null ? null : parent.GetType()),element.Name, map);
                     BusinessProcess.ElementMapCache[element.Name] = t;
                 }
             }else
-                t = Utility.LocateElementType(element.Name, map);
+                t = Utility.LocateElementType((parent == null ? null : parent.GetType()), element.Name, map);
             if (t != null)
-            {
                 return (IElement)_xmlConstructors[t].Invoke(new object[] { element, map, parent });
-            }
             return null;
         }
 

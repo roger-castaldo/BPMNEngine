@@ -8,6 +8,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
+    [ValidParent(typeof(Process))]
     internal abstract class AEvent : AFlowNode
     {
         public EventSubTypes? SubType

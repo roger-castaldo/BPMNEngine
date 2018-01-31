@@ -7,6 +7,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn", "outgoing")]
+    [ValidParent(typeof(AFlowNode))]
     internal class OutgoingFlow : AElement
     {
         public string Value { get { return this.Element.InnerText; } }

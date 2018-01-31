@@ -8,6 +8,8 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
+    [ValidParent(typeof(ExtensionElements))]
+    [ValidParent(typeof(AConditionSet))]
     internal abstract class AScript : AElement
     {
         private XmlPrefixMap _map;

@@ -8,6 +8,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn", "extensionElements")]
+    [ValidParent(null)]
     internal class ExtensionElements : AParentElement
     {
         public ExtensionElements(XmlElement elem, XmlPrefixMap map, AElement parent)

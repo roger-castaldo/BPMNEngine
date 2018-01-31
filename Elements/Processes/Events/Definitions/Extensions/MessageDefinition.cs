@@ -7,6 +7,8 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions
 {
     [XMLTag("exts", "MessageDefinition")]
+    [ValidParent(typeof(ExtensionElements))]
+    [ValidParent(typeof(MessageEventDefinition))]
     internal class MessageDefinition : AElement
     {
         public MessageDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Attributes\AttributeRegex.cs" />
     <Compile Include="Attributes\RequiredAttribute.cs" />
+    <Compile Include="Attributes\ValidParentAttribute.cs" />
     <Compile Include="DateString.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="Drawing\GifEncoder.cs" />

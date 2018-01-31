@@ -10,6 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [RequiredAttribute("sourceRef")]
     [RequiredAttribute("targetRef")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Collaboration))]
     internal class MessageFlow : AElement
     {
         public string sourceRef { get { return this["sourceRef"]; } }

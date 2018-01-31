@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements.Processes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [XMLTag("exts", "DefinitionVariable")]
     [Required("Name")]
     [Required("Type")]
+    [ValidParent(typeof(ExtensionElements))]
     internal class DefinitionVariable : AElement
     {
         private string _name;

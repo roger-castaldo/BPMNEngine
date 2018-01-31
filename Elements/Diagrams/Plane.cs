@@ -8,6 +8,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNPlane")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Diagram))]
     internal class Plane : ADiagramElement
     {
         public Plane(XmlElement elem, XmlPrefixMap map, AElement parent)

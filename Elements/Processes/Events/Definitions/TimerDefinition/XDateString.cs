@@ -7,6 +7,8 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.TimerDefinition
 {
     [XMLTag("exts", "DateString")]
+    [ValidParent(typeof(TimerEventDefinition))]
+    [ValidParent(typeof(ExtensionElements))]
     internal class XDateString : AElement
     {
         protected string _Code

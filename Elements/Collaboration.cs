@@ -9,6 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 {
     [XMLTag("bpmn","collaboration")]
     [RequiredAttribute("id")]
+    [ValidParent(typeof(Definition))]
     internal class Collaboration : AParentElement
     {
         public Collaboration(XmlElement elem, XmlPrefixMap map, AElement parent)

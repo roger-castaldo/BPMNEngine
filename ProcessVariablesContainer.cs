@@ -46,6 +46,10 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         found = true;
                         ret = _variables[name];
+                    }else if (_nulls.Contains(name))
+                    {
+                        found = true;
+                        ret = null;
                     }
                 }
                 if (!found && _process != null)
@@ -74,13 +78,13 @@ namespace Org.Reddragonit.BpmEngine
         {
             get
             {
-                string[] ret = new string[0];
+                List<string> ret = new List<string>();
                 lock (_variables)
                 {
-                    ret = new string[_variables.Count];
-                    _variables.Keys.CopyTo(ret, 0);
+                    ret.AddRange(_variables.Keys);
+                    ret.AddRange(_nulls);
                 }
-                return ret;
+                return ret.ToArray();
             }
         }
     }

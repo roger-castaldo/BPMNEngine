@@ -8,6 +8,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
 {
+    [ValidParent(typeof(Process))]
     internal abstract class AGateway : AFlowNode
     {
         public AGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
