@@ -138,17 +138,13 @@ namespace Org.Reddragonit.BpmEngine.State
                         }
                         for (int x = 0; x < elem.ChildNodes.Count; x++)
                         {
-                            string text = elem.ChildNodes[x].InnerText;
-                            if (elem.ChildNodes[x].ChildNodes[0].NodeType == XmlNodeType.CDATA)
-                                text = ((XmlCDataSection)elem.ChildNodes[x].ChildNodes[0]).InnerText;
+                            string text = ((XmlCDataSection)elem.ChildNodes[x].ChildNodes[0]).InnerText;
                             ((Array)ret).SetValue(Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text), x);
                         }
                     }
                     else
                     {
-                        string text = elem.InnerText;
-                        if (elem.ChildNodes[0].NodeType == XmlNodeType.CDATA)
-                            text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
+                        string text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
                         ret = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value), text);
                     }
                 }

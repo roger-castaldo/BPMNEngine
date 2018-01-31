@@ -227,7 +227,7 @@ namespace Org.Reddragonit.BpmEngine
                 variableContainer.Attributes["type"].Value = VariableTypes.Null.ToString();
             else
             {
-                if (value.GetType().IsArray && value.GetType().FullName != "System.Byte[]")
+                if (value.GetType().IsArray && value.GetType().FullName != "System.Byte[]" && value.GetType().FullName!="System.String")
                 {
                     variableContainer.Attributes.Append(doc.CreateAttribute("isArray"));
                     variableContainer.Attributes["isArray"].Value = true.ToString();
@@ -346,7 +346,7 @@ namespace Org.Reddragonit.BpmEngine
                 else
                 {
                     variableContainer.Attributes.Append(doc.CreateAttribute("isArray"));
-                    variableContainer.Attributes["isArray"].Value = true.ToString();
+                    variableContainer.Attributes["isArray"].Value = false.ToString();
                     if (value is sFile)
                         variableContainer.AppendChild(((sFile)value).ToElement(doc));
                     else
