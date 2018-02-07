@@ -331,6 +331,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 {
                     StepStatuses status = path.GetStatus(edge.bpmnElement);
                     gp.DrawLines(edge.ConstructPen(_GetBrush(status), definition), edge.Points);
+                    edge.AppendEnds(gp, _GetBrush(status), definition);
                     if (edge.Label != null)
                     {
                         IElement elem = definition.LocateElement(edge.bpmnElement);

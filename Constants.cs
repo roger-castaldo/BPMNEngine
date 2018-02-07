@@ -7,7 +7,7 @@ namespace Org.Reddragonit.BpmEngine
 {
     internal static class Constants
     {
-        public const float PEN_WIDTH = 3.5F;
+        public const float PEN_WIDTH = 3F;
         public static readonly float[] DASH_PATTERN = new float[] { 3.0f, 3.0f };
         public const float FONT_SIZE = 9.2F;
         public static readonly Font FONT = new Font(FontFamily.GenericSerif, FONT_SIZE,FontStyle.Regular,GraphicsUnit.Point);

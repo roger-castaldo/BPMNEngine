@@ -23,7 +23,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             get
             {
                 GraphicsPath gp = new GraphicsPath();
-                gp.AddLine(new PointF(-1.5f,-3.5f),new PointF(1.5f,-1.5f));
+                gp.AddLine(new PointF(1.5f,-3.5f),new PointF(1.5f,-1.5f));
                 return new CustomLineCap(null, gp);
             }
         }
@@ -64,16 +64,26 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             IElement elem = _GetLinkedElement(definition);
             if (elem != null)
             {
-                if (elem is Association)
+                if (elem is Association || elem is MessageFlow)
                     ret.DashPattern = Constants.DASH_PATTERN;
-                else if (elem is MessageFlow)
+            }
+            return ret;
+        }
+
+        internal void AppendEnds(Graphics gp, Brush brush, Definition definition)
+        {
+            Pen p = ConstructPen(brush, definition);
+            IElement elem = _GetLinkedElement(definition);
+            if (elem != null)
+            {
+                Point[] points = Points;
+                if (elem is MessageFlow)
                 {
-                    ret.DashPattern = Constants.DASH_PATTERN;
-                    ret.StartCap = System.Drawing.Drawing2D.LineCap.RoundAnchor;
-                    ret.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                    gp.FillEllipse(brush, new RectangleF(new PointF((float)points[0].X - 0.5f, (float)points[0].Y - 0.5f), new SizeF(1.5f, 1.5f)));
+                    _GenerateTriangle(gp, brush, points[points.Length - 1],points[points.Length-2]);
                 }
                 else
-                    ret.EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                    _GenerateTriangle(gp, brush, points[points.Length - 1], points[points.Length - 2]);
                 if (elem is SequenceFlow || elem is MessageFlow)
                 {
                     string sourceRef = (elem is SequenceFlow ? ((SequenceFlow)elem).sourceRef : ((MessageFlow)elem).sourceRef);
@@ -83,12 +93,36 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                         if (gelem is AGateway)
                         {
                             if ((((AGateway)gelem).Default == null ? "" : ((AGateway)gelem).Default) == elem.id)
-                                ret.CustomStartCap = _defaultFlowCap;
+                            {
+                                PointF centre = new PointF(
+                                    ((0.5f*(float)points[0].X)+(0.5f*(float)points[1].X)),
+                                    ((0.5f * (float)points[0].Y) + (0.5f * (float)points[1].Y))
+                                );
+                                gp.DrawLine(p,new PointF(centre.X-3f,centre.Y-3f),new PointF(centre.X+3f,centre.Y+3f));
+                            }
                         }
                     }
                 }
             }
-            return ret;
+        }
+
+        private static readonly float _baseTLength = Constants.PEN_WIDTH*1.5f;
+
+        private void _GenerateTriangle(Graphics gp, Brush brush, Point end,Point start)
+        {
+            float d = (float)Math.Sqrt(Math.Pow((double)end.X - (double)start.X, 2) + Math.Pow((double)end.Y - (double)start.Y, 2));
+            float t = _baseTLength / d;
+            PointF pc = new PointF(((1f - t) * (float)end.X) + (t * (float)start.X), ((1f - t) * (float)end.Y) + (t * (float)start.Y));
+            PointF fend = new PointF((float)end.X, (float)end.Y);
+            PointF p1 = new PointF(pc.X-(fend.Y-pc.Y),(fend.X-pc.X)+pc.Y);
+            PointF p2 = new PointF(fend.Y-pc.Y+pc.X,pc.Y-(fend.X-pc.X));
+            t = _baseTLength / d;
+            gp.DrawLine(new Pen(Brushes.White,Constants.PEN_WIDTH), fend, pc);
+            gp.FillPolygon(brush, new PointF[] {
+                fend,
+                p1,
+                p2
+            });
         }
 
         public override bool IsValid(out string[] err)
