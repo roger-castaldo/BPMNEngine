@@ -27,6 +27,8 @@ namespace Org.Reddragonit.BpmEngine
 
         public string[] Keys { get { return _variables.Keys; } }
 
+        public string[] FullKeys { get { return _variables.FullKeys; } }
+
         public Exception Error { get { return _error; } }
     }
 }

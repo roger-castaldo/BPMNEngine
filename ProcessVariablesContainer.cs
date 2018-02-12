@@ -87,5 +87,29 @@ namespace Org.Reddragonit.BpmEngine
                 return ret.ToArray();
             }
         }
+
+        public string[] FullKeys
+        {
+            get
+            {
+                List<string> ret = new List<string>(Keys);
+                if (_process!=null)
+                {
+                    foreach (string key in _process.Keys)
+                    {
+                        if (!ret.Contains(key))
+                            ret.Add(key);
+                    }
+                }else if (BusinessProcess.Current != null)
+                {
+                    foreach (string key in BusinessProcess.Current.Keys)
+                    {
+                        if (!ret.Contains(key))
+                            ret.Add(key);
+                    }
+                }
+                return ret.ToArray();
+            }
+        }
     }
 }

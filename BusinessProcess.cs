@@ -119,6 +119,54 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        internal string[] Keys
+        {
+            get
+            {
+                List<string> ret = new List<string>();
+                if (_constants != null)
+                {
+                    foreach (sProcessRuntimeConstant sprc in _constants)
+                    {
+                        if (!ret.Contains(sprc.Name))
+                            ret.Add(sprc.Name);
+                    }
+                }
+                if (_Elements != null)
+                {
+                    foreach (IElement elem in _Elements)
+                    {
+                        if (elem is Definition)
+                        {
+                            Definition def = (Definition)elem;
+                            if (def.ExtensionElement != null)
+                            {
+                                foreach (IElement e in ((ExtensionElements)def.ExtensionElement).Children)
+                                {
+                                    if (e is DefinitionVariable)
+                                    {
+                                        DefinitionVariable dv = (DefinitionVariable)e;
+                                        if (!ret.Contains(dv.Name))
+                                            ret.Add(dv.Name);
+                                    }
+                                    else if (e is DefinitionFile)
+                                    {
+                                        DefinitionFile df = (DefinitionFile)e;
+                                        if (!ret.Contains(string.Format("{0}.{1}", df.Name, df.Extension)))
+                                            ret.Add(string.Format("{0}.{1}", df.Name, df.Extension));
+                                        if (!ret.Contains(df.Name))
+                                            ret.Add(df.Name);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                return ret.ToArray();
+            }
+        }
+
         [ThreadStatic()]
         private static BusinessProcess _current;
         public static BusinessProcess Current { get { return _current; } }
