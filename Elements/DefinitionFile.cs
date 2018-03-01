@@ -24,7 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             _content = new byte[0];
             if (elem.ChildNodes.Count > 0)
-                _content = Convert.FromBase64String(((XmlCDataSection)elem.ChildNodes[0]).InnerText);
+                _content = Convert.FromBase64String((elem.ChildNodes[0] is XmlCDataSection ? ((XmlCDataSection)elem.ChildNodes[0]).InnerText : elem.InnerText));
         }
     }
 }

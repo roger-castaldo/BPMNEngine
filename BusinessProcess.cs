@@ -509,7 +509,7 @@ namespace Org.Reddragonit.BpmEngine
             DateTime release = (DateTime)((object[])parameters)[1];
             TimeSpan ts = release.Subtract(DateTime.Now);
             if (ts.TotalMilliseconds > 0)
-                Thread.Sleep(ts);
+                Utility.Sleep(ts);
             IElement elem = _GetElement(id);
             if (elem != null)
             {
@@ -969,7 +969,7 @@ namespace Org.Reddragonit.BpmEngine
                                 _state.SuspendStep(evnt.id, ts.Value);
                             }
                             if (ts.Value.TotalMilliseconds > 0)
-                                Thread.Sleep(ts.Value);
+                                Utility.Sleep(ts.Value);
                             success = true;
                         }
                     }else if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))

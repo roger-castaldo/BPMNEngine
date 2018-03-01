@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
@@ -475,6 +476,18 @@ namespace Org.Reddragonit.BpmEngine
             System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
             bf.Serialize(ms, hash);
             return Convert.ToBase64String(ms.ToArray());
+        }
+
+        private static readonly TimeSpan _maxSpan = new TimeSpan(int.MaxValue);
+
+        internal static void Sleep(TimeSpan value)
+        {
+            while (value > _maxSpan)
+            {
+                Thread.Sleep(_maxSpan);
+                value -= _maxSpan;
+            }
+            Thread.Sleep(value);
         }
     }
 }
