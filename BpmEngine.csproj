@@ -1,174 +1,68 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{63DAB4C5-004F-4687-8E84-A0D3427CEE76}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>netstandard2.0;net452;net20</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
-    <AssemblyName>BpmEngine</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <PackageId>Org.Reddragonit.BpmEngine</PackageId>
+    <Version>1.9.3</Version>
+    <Authors>Roger Castaldo</Authors>
+    <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
+    <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
+    <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
+    <PackageTags>BPMN</PackageTags>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>NETSTANDARD20</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <DefineConstants>NET452</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
+    <DefineConstants>NET20</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Attributes\AttributeRegex.cs" />
-    <Compile Include="Attributes\RequiredAttribute.cs" />
-    <Compile Include="Attributes\ValidParentAttribute.cs" />
-    <Compile Include="DateString.cs" />
-    <Compile Include="Delegates.cs" />
-    <Compile Include="Drawing\GifEncoder.cs" />
-    <Compile Include="Elements\Collaborations\Text.cs" />
-    <Compile Include="Elements\DefinitionFile.cs" />
-    <Compile Include="Elements\DefinitionVariable.cs" />
-    <Compile Include="Elements\Processes\Conditions\ACompareCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\ACondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\AConditionSet.cs" />
-    <Compile Include="Elements\Processes\Conditions\ANegatableCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\ANegatableConditionSet.cs" />
-    <Compile Include="Elements\Processes\Conditions\ContainsCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\GreaterThanOrEqualCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\IsNull.cs" />
-    <Compile Include="Elements\Processes\Conditions\LessThanOrEqualCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\LessThanCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\GreaterThanCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\IsEqualCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\OrCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\AndCondition.cs" />
-    <Compile Include="Elements\Processes\Conditions\ConditionSet.cs" />
-    <Compile Include="Elements\Processes\Conditions\ScriptCondition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\Extensions\ErrorDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\Extensions\MessageDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\Extensions\SignalDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\LinkEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\CompensationEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\EscalationEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\ErrorEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\SignalEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\ConditionalEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\TimerDefinition\XDateString.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\TimerEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\Definitions\MessageEventDefinition.cs" />
-    <Compile Include="Elements\Processes\Events\IntermediateCatchEvent.cs" />
-    <Compile Include="Elements\Processes\ExtensionElements.cs" />
-    <Compile Include="Elements\Processes\FlowNodeRef.cs" />
-    <Compile Include="Elements\Processes\Gateways\EventBasedGateway.cs" />
-    <Compile Include="Elements\Processes\Gateways\ComplexGateway.cs" />
-    <Compile Include="Elements\Processes\Gateways\InclusiveGateway.cs" />
-    <Compile Include="Elements\Processes\IncomingFlow.cs" />
-    <Compile Include="Elements\Processes\OutgoingFlow.cs" />
-    <Compile Include="Elements\Processes\Scripts\Javascript.cs" />
-    <Compile Include="Elements\Processes\Tasks\BusinessRuleTask.cs" />
-    <Compile Include="Elements\Processes\Scripts\ACompiledScript.cs" />
-    <Compile Include="Elements\Processes\Scripts\AScript.cs" />
-    <Compile Include="Elements\Processes\Scripts\VBScript.cs" />
-    <Compile Include="Elements\Processes\Scripts\CSharpScript.cs" />
-    <Compile Include="Elements\Processes\Tasks\ScriptTask.cs" />
-    <Compile Include="Elements\Processes\Tasks\ServiceTask.cs" />
-    <Compile Include="Elements\Processes\Tasks\ManualTask.cs" />
-    <Compile Include="Elements\Processes\Tasks\UserTask.cs" />
-    <Compile Include="Elements\Processes\Tasks\ReceiveTask.cs" />
-    <Compile Include="Elements\Processes\Tasks\SendTask.cs" />
-    <Compile Include="ElementTypeCache.cs" />
-    <Compile Include="Enums.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="Elements\Diagrams\ADiagramElement.cs" />
-    <Compile Include="Elements\AElement.cs" />
-    <Compile Include="Elements\AParentElement.cs" />
-    <Compile Include="Attributes\XMLTag.cs" />
-    <Compile Include="BusinessProcess.cs" />
-    <Compile Include="Elements\Collaboration.cs" />
-    <Compile Include="Elements\Collaborations\MessageFlow.cs" />
-    <Compile Include="Elements\Collaborations\Participant.cs" />
-    <Compile Include="Elements\Collaborations\TextAnnotation.cs" />
-    <Compile Include="Elements\Definition.cs" />
-    <Compile Include="Elements\Diagram.cs" />
-    <Compile Include="Elements\Diagrams\Bounds.cs" />
-    <Compile Include="Elements\Diagrams\Edge.cs" />
-    <Compile Include="Elements\Diagrams\Enums.cs" />
-    <Compile Include="Elements\Diagrams\Label.cs" />
-    <Compile Include="Elements\Diagrams\Plane.cs" />
-    <Compile Include="Elements\Diagrams\Shape.cs" />
-    <Compile Include="Elements\Diagrams\Waypoint.cs" />
-    <Compile Include="Elements\Process.cs" />
-    <Compile Include="Elements\Processes\AFlowNode.cs" />
-    <Compile Include="Elements\Processes\Association.cs" />
-    <Compile Include="Elements\Processes\Events\AEvent.cs" />
-    <Compile Include="Elements\Processes\Events\Enums.cs" />
-    <Compile Include="Elements\Processes\Events\StartEvent.cs" />
-    <Compile Include="Elements\Processes\Events\EndEvent.cs" />
-    <Compile Include="Elements\Processes\Events\IntermediateThrowEvent.cs" />
-    <Compile Include="Elements\Processes\Gateways\AGateway.cs" />
-    <Compile Include="Elements\Processes\Gateways\ExclusiveGateway.cs" />
-    <Compile Include="Elements\Processes\Gateways\ParallelGateway.cs" />
-    <Compile Include="Elements\Processes\Lane.cs" />
-    <Compile Include="Elements\Processes\LaneSet.cs" />
-    <Compile Include="Elements\Processes\SequenceFlow.cs" />
-    <Compile Include="Elements\Processes\Tasks\ATask.cs" />
-    <Compile Include="Elements\Processes\Tasks\Task.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="Interfaces\IElement.cs" />
-    <Compile Include="Interfaces\IStepElement.cs" />
-    <Compile Include="Interfaces\IParentElement.cs" />
-    <Compile Include="Log.cs" />
-    <Compile Include="State\AStateContainer.cs" />
-    <Compile Include="State\ProcessPath.cs" />
-    <Compile Include="ProcessState.cs" />
-    <Compile Include="ProcessVariablesContainer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadOnlyProcessVariablesContainer.cs" />
-    <Compile Include="State\StateVariableContainer.cs" />
-    <Compile Include="State\Structures.cs" />
-    <Compile Include="State\SuspendedStepContainer.cs" />
-    <Compile Include="Structures.cs" />
-    <Compile Include="Utility.cs" />
-    <Compile Include="XmlPrefixMap.cs" />
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="CoreCompat.System.Drawing" Version="1.0.0-beta006" />
+    <PackageReference Include="System.CodeDom">
+      <Version>4.4.0</Version>
+    </PackageReference>
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers">
+      <Version>2.7.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
   <ItemGroup>
+    <None Remove="symbols.Black.png" />
+    <None Remove="symbols.Blue.png" />
+    <None Remove="symbols.Green.png" />
+    <None Remove="symbols.Red.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="symbols.Black.png" />
     <EmbeddedResource Include="symbols.Blue.png" />
     <EmbeddedResource Include="symbols.Green.png" />
     <EmbeddedResource Include="symbols.Red.png" />
-    <EmbeddedResource Include="symbols.Black.png" />
-    <Content Include="ConditionsPanel.js" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Extensions.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="moddle.json" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  
 </Project>

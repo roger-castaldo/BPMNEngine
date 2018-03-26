@@ -1,6 +1,13 @@
 ﻿using System;
+#if NETSTANDARD20
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
+#endif
+#if NET452||NET20
 using System.CodeDom.Compiler;
+#endif
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
@@ -86,6 +93,64 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
+#if NETSTANDARD20
+        protected abstract EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms);
+        
+        private bool _CompileAssembly(out string errors)
+        {
+            errors = null;
+            lock (this)
+            {
+                if (_assembly == null)
+                {
+                    MemoryStream ms = new MemoryStream();
+                    List<MetadataReference> references = new List<MetadataReference>();
+                    foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        try
+                        {
+                            if (ass.Location != null && ass.Location != "")
+                                references.Add(MetadataReference.CreateFromFile(ass.Location));
+                        }
+                        catch (System.NotSupportedException nse) { }
+                        catch(Exception e)
+                        {
+                            throw e;
+                        }
+                    }
+                    foreach (string str in _Dlls)
+                    {
+                        try
+                        {
+                            references.Add(MetadataReference.CreateFromFile(str));
+                        }
+                        catch(Exception e)
+                        {
+                            errors = "Unable to load assembly: " + str;
+                            break;
+                        }
+                    }
+                    if (errors == null)
+                    {
+                        EmitResult res = _Compile(_NextName(), references, _Imports, _Code, ref ms);
+                        if (!res.Success)
+                        {
+                            StringBuilder error = new StringBuilder();
+                            foreach (Diagnostic diag in res.Diagnostics)
+                                error.AppendLine(diag.ToString());
+                            errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
+                            _assembly = null;
+                        }
+                        else
+                            _assembly = Assembly.Load(ms.ToArray());
+                    }
+                }
+            }
+            return errors == null;
+        }
+#endif
+
+#if NET452||NET20
         protected abstract string _GenerateCode(string[] imports,string code);
         protected abstract CodeDomProvider _CodeProvider { get; }
         
@@ -117,6 +182,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
             return errors == null;
         }
+#endif
 
         protected sealed override object _Invoke(ProcessVariablesContainer variables)
         {
