@@ -169,8 +169,6 @@ namespace Org.Reddragonit.BpmEngine.State
             return ret;
         }
 
-        private void _AsyncCallback(IAsyncResult result) { }
-
         internal void StartAnimation()
         {
             _lastStep = -1;
@@ -265,6 +263,30 @@ namespace Org.Reddragonit.BpmEngine.State
             _addPathEntry(Event.id,incoming,StepStatuses.Waiting, DateTime.Now);
         }
 
+#if NET20
+        private void _AsyncCallback(IAsyncResult result) { }
+
+        private void _Complete(string incoming,string outgoing)
+        {
+            _complete.BeginInvoke(incoming,outgoing, new AsyncCallback(_AsyncCallback), null);
+        }
+
+        private void _Error(IElement step,Exception ex)
+        {
+            _error.BeginInvoke(step,ex, new AsyncCallback(_AsyncCallback), null);
+        }
+#else
+        private async System.Threading.Tasks.Task _Complete(string incoming, string outgoing)
+        {
+            await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
+        }
+
+        private async System.Threading.Tasks.Task _Error(IElement step, Exception ex)
+        {
+            await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
+        }
+#endif
+
         internal void SucceedEvent(AEvent Event)
         {
             Log.Debug("Succeeding Event {0} in Process Path", new object[] { Event.id });
@@ -275,13 +297,13 @@ namespace Org.Reddragonit.BpmEngine.State
             if (outgoing == null)
             {
                 _addPathEntry(Event.id,incoming,StepStatuses.Succeeded, start, DateTime.Now);
-                _complete.BeginInvoke(Event.id, null, new AsyncCallback(_AsyncCallback), null);
+                _Complete(Event.id, null);
             }
             else
             {
                 _addPathEntry(Event.id, incoming, outgoing, StepStatuses.Succeeded, start, DateTime.Now);
                 foreach (string id in outgoing)
-                    _complete.BeginInvoke(Event.id, id, new AsyncCallback(_AsyncCallback), null);
+                    _Complete(Event.id, id);
             }
         }
 
@@ -292,21 +314,21 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(Event.id, out start, out incoming);
             _addPathEntry(Event.id,incoming,StepStatuses.Failed, start, DateTime.Now);
-            _error.BeginInvoke(Event, null, new AsyncCallback(_AsyncCallback), null);
+            _Error(Event, null);
         }
 
         internal void ProcessMessageFlow(MessageFlow flow)
         {
             Log.Debug("Processing Message Flow {0} in Process Path", new object[] { flow.id });
             _addPathEntry(flow.id, flow.sourceRef, flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
-            _complete.BeginInvoke(flow.id, flow.targetRef, new AsyncCallback(_AsyncCallback), null);
+            _Complete(flow.id, flow.targetRef);
         }
 
         internal void ProcessSequenceFlow(SequenceFlow flow)
         {
             Log.Debug("Processing Sequence Flow {0} in Process Path", new object[] { flow.id });
             _addPathEntry(flow.id, flow.sourceRef,  flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
-            _complete.BeginInvoke(flow.id, flow.targetRef, new AsyncCallback(_AsyncCallback), null);
+            _Complete(flow.id, flow.targetRef);
         }
 
         internal void StartTask(ATask task, string incoming)
@@ -322,7 +344,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(task.id, out start, out incoming);
             _addPathEntry(task.id,incoming,StepStatuses.Failed, start, DateTime.Now);
-            _error.BeginInvoke(task, ex, new AsyncCallback(_AsyncCallback), null);
+            _Error(task, ex);
         }
 
         internal void SucceedTask(UserTask task,string completedByID)
@@ -343,7 +365,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(task.id, out start, out incoming);
             _addPathEntry(task.id, incoming, task.Outgoing, StepStatuses.Succeeded, start, DateTime.Now, (task is UserTask ? completedByID : null));
-            _complete.BeginInvoke(task.id, (task.Outgoing == null ? null : task.Outgoing[0]), new AsyncCallback(_AsyncCallback), null);
+            _Complete(task.id, (task.Outgoing == null ? null : task.Outgoing[0]));
         }
 
         internal void StartGateway(AGateway gateway, string incoming)
@@ -359,7 +381,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
             _addPathEntry(gateway.id, incoming, StepStatuses.Failed, start, DateTime.Now);
-            _error.BeginInvoke(gateway,null, new AsyncCallback(_AsyncCallback), null);
+            _Error(gateway,null);
         }
 
         internal void SuccessGateway(AGateway gateway, string[] chosenExits)
@@ -370,7 +392,7 @@ namespace Org.Reddragonit.BpmEngine.State
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
             _addPathEntry(gateway.id, incoming, chosenExits, StepStatuses.Succeeded, start, DateTime.Now);
             foreach (string outgoing in chosenExits)
-                _complete.BeginInvoke(gateway.id, outgoing, new AsyncCallback(_AsyncCallback), null);
+                _Complete(gateway.id, outgoing);
         }
 
         internal void SuspendElement(string sourceID, IElement elem)

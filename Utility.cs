@@ -482,12 +482,25 @@ namespace Org.Reddragonit.BpmEngine
 
         internal static void Sleep(TimeSpan value)
         {
+#if NET20
             while (value > _maxSpan)
             {
                 Thread.Sleep(_maxSpan);
                 value -= _maxSpan;
             }
             Thread.Sleep(value);
+#else
+            System.Threading.Tasks.Task tsk;
+            while (value > _maxSpan)
+            {
+                tsk = System.Threading.Tasks.Task.Delay(_maxSpan);
+                tsk.Wait();
+                value -= _maxSpan;
+            }
+            tsk = System.Threading.Tasks.Task.Delay(value);
+            tsk.Wait();
+#endif
+
         }
     }
 }
