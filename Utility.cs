@@ -18,19 +18,31 @@ namespace Org.Reddragonit.BpmEngine
         private static Dictionary<Type, List<Type>> _xmlChildren;
         private static Type[] _globalXMLChildren;
         private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
+        private static Dictionary<string, Dictionary<string, Type>> _idealMap;
+        public static Dictionary<string,Dictionary<string,Type>> IdealMap { get { return _idealMap; } }
 
         static Utility()
         {
             _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
+            _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
             foreach (Type t in Assembly.GetAssembly(typeof(Utility)).GetTypes())
             {
                 if (new List<Type>(t.GetInterfaces()).Contains(typeof(IElement)))
                 {
-                    if (t.GetCustomAttributes(typeof(XMLTag), false).Length > 0)
+                    XMLTag[] tags = (XMLTag[])t.GetCustomAttributes(typeof(XMLTag), false);
+                    if (tags.Length > 0)
                     {
                         tmp.Add(t);
+                        Dictionary<string, Type> tmpTypes = new Dictionary<string, Type>();
+                        if (_idealMap.ContainsKey(tags[0].Prefix.ToLower()))
+                        {
+                            tmpTypes = _idealMap[tags[0].Prefix.ToLower()];
+                            _idealMap.Remove(tags[0].Prefix.ToLower());
+                        }
                         _xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
+                        tmpTypes.Add(tags[0].Name.ToLower(), t);
+                        _idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
                     }
                 }
             }
@@ -60,16 +72,7 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     if (vpa.Parent == null)
                         globalChildren.Add(t);
-                    else if (!vpa.Parent.IsAbstract)
-                    {
-                        if (!_xmlChildren.ContainsKey(vpa.Parent))
-                            _xmlChildren.Add(vpa.Parent, new List<Type>());
-                        List<Type> types = _xmlChildren[vpa.Parent];
-                        _xmlChildren.Remove(vpa.Parent);
-                        types.Add(t);
-                        _xmlChildren.Add(vpa.Parent, types);
-                    }
-                    else
+                    else if (vpa.Parent.IsAbstract)
                     {
                         foreach (Type c in tmp)
                         {
@@ -84,6 +87,30 @@ namespace Org.Reddragonit.BpmEngine
                             }
                         }
                     }
+                    else if (vpa.Parent.IsInterface)
+                    {
+                        foreach (Type c in tmp)
+                        {
+                            if (new List<Type>(c.GetInterfaces()).Contains(vpa.Parent))
+                            {
+                                if (!_xmlChildren.ContainsKey(c))
+                                    _xmlChildren.Add(c, new List<Type>());
+                                List<Type> types = _xmlChildren[c];
+                                _xmlChildren.Remove(c);
+                                types.Add(t);
+                                _xmlChildren.Add(c, types);
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        if (!_xmlChildren.ContainsKey(vpa.Parent))
+                            _xmlChildren.Add(vpa.Parent, new List<Type>());
+                        List<Type> types = _xmlChildren[vpa.Parent];
+                        _xmlChildren.Remove(vpa.Parent);
+                        types.Add(t);
+                        _xmlChildren.Add(vpa.Parent, types);
+                    }
                 }
             }
             _globalXMLChildren = globalChildren.ToArray();
@@ -91,6 +118,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public static Type LocateElementType(Type parent,string tagName,XmlPrefixMap map)
         {
+            DateTime start = DateTime.Now;
             Type ret = null;
             if (parent != null)
             {
@@ -124,6 +152,7 @@ namespace Org.Reddragonit.BpmEngine
                 if (ret != null)
                     break;
             }
+            Console.WriteLine("Time to translate [{0}] to [{1}] is {2}ms", new object[] { tagName, (ret == null ? null : ret.FullName), DateTime.Now.Subtract(start).TotalMilliseconds });
             return ret;
         }
 
@@ -163,11 +192,6 @@ namespace Org.Reddragonit.BpmEngine
             {
                 if (BusinessProcess.ElementMapCache.IsCached(element.Name))
                     t = BusinessProcess.ElementMapCache[element.Name];
-                else
-                {
-                    t = Utility.LocateElementType((parent==null ? null : parent.GetType()),element.Name, map);
-                    BusinessProcess.ElementMapCache[element.Name] = t;
-                }
             }else
                 t = Utility.LocateElementType((parent == null ? null : parent.GetType()), element.Name, map);
             if (t != null)

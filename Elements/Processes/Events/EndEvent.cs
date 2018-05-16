@@ -14,23 +14,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         public EndEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public IElement Process {
-            get
-            {
-                if (Parent == null)
-                    return null;
-                else
-                {
-                    AElement tmp = Parent;
-                    while (!(tmp is Process))
-                        tmp = tmp.Parent;
-                    if (tmp is Process)
-                        return tmp;
-                    return null;
-                }
-            }
-        }
-
         public bool IsProcessEnd
         {
             get

@@ -22,8 +22,9 @@ namespace Org.Reddragonit.BpmEngine
             _prefixMaps = new Dictionary<string, List<string>>();
         }
 
-        public void Load(XmlElement element)
+        public bool Load(XmlElement element)
         {
+            bool changed = false;
             foreach (XmlAttribute att in element.Attributes)
             {
                 if (att.Name.StartsWith("xmlns:"))
@@ -43,6 +44,7 @@ namespace Org.Reddragonit.BpmEngine
                         prefix = "exts";
                     if (prefix != null)
                     {
+                        changed = true;
                         Log.Debug("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) });
                         if (!_prefixMaps.ContainsKey(prefix))
                             _prefixMaps.Add(prefix, new List<string>());
@@ -53,9 +55,10 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
             }
+            return changed;
         }
 
-        private List<string> _Translate(string prefix)
+        public List<string> Translate(string prefix)
         {
             Log.Debug("Attempting to translate xml prefix {0}", new object[] { prefix });
             List<string> ret = new List<string>();
@@ -75,7 +78,7 @@ namespace Org.Reddragonit.BpmEngine
             Log.Debug("Checking if prefix {0} matches {1}:{2}",new object[] { nodeName,prefix,tag });
             if (string.Format("{0}:{1}", prefix, tag).ToLower() == nodeName.ToLower())
                 return true;
-            foreach (string str in _Translate(prefix))
+            foreach (string str in Translate(prefix))
             {
                 Log.Debug("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName,str,tag});
                 if (string.Format("{0}:{1}", str, tag).ToLower() == nodeName.ToLower())

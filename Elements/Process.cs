@@ -13,7 +13,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [XMLTag("bpmn","process")]
     [RequiredAttribute("id")]
     [ValidParent(typeof(Definition))]
-    internal class Process : AParentElement
+    internal class Process : AParentElement,IProcess
     {
         public bool isExecutable { get { return (this["isExecutable"] == null ? false : bool.Parse(this["isExecutable"])); } }
 
@@ -34,7 +34,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        internal bool IsProcessStartvalid(ProcessVariablesContainer variables, IsProcessStartValid isProcessStartValid)
+        public bool IsStartValid(ProcessVariablesContainer variables, IsProcessStartValid isProcessStartValid)
         {
             if (ExtensionElement != null)
             {

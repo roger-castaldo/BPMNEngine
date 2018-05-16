@@ -22,6 +22,9 @@ namespace Org.Reddragonit.BpmEngine
     public delegate void OnGatewayStarted(IStepElement gateway, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnGatewayCompleted(IStepElement gateway, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnGatewayError(IStepElement gateway, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnSubProcessStarted(IStepElement SubProcess, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnSubProcessCompleted(IStepElement SubProcess, ReadOnlyProcessVariablesContainer variables);
+    public delegate void OnSubProcessError(IStepElement SubProcess, ReadOnlyProcessVariablesContainer variables);
     public delegate void OnStateChange(XmlDocument stateDocument);
     internal delegate void processStateChanged();
     #endregion

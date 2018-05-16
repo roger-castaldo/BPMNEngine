@@ -9,7 +9,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
 {
-    [ValidParent(typeof(Process))]
+    [ValidParent(typeof(IProcess))]
     internal abstract class ATask : AFlowNode
     {
         public ATask(XmlElement elem, XmlPrefixMap map, AElement parent)

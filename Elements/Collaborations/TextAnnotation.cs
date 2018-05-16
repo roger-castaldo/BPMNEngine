@@ -10,7 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [XMLTag("bpmn","textAnnotation")]
     [RequiredAttribute("id")]
     [ValidParent(typeof(Collaboration))]
-    [ValidParent(typeof(Process))]
+    [ValidParent(typeof(IProcess))]
     internal class TextAnnotation : AParentElement
     {
         public string Content

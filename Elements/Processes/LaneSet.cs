@@ -8,7 +8,7 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
 {
     [XMLTag("bpmn","laneSet")]
-    [ValidParent(typeof(Process))]
+    [ValidParent(typeof(IProcess))]
     internal class LaneSet : AParentElement
     {
         public LaneSet(XmlElement elem, XmlPrefixMap map, AElement parent)

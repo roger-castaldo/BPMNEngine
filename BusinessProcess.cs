@@ -219,6 +219,15 @@ namespace Org.Reddragonit.BpmEngine
         private OnGatewayError _onGatewayError;
         public OnGatewayError OnGatewayError { get { return _onGatewayError; } set { _onGatewayError = value; } }
 
+        private OnSubProcessStarted _onSubProcessStarted;
+        public OnSubProcessStarted OnSubProcessStarted { get { return _onSubProcessStarted; } set { _onSubProcessStarted = value; } }
+
+        private OnSubProcessCompleted _onSubProcessCompleted;
+        public OnSubProcessCompleted OnSubProcessCompleted { get { return _onSubProcessCompleted; } set { _onSubProcessCompleted = value; } }
+
+        private OnSubProcessError _onSubProcessError;
+        public OnSubProcessError OnSubProcessError { get { return _onSubProcessError; } set { _onSubProcessError = value; } }
+
         public OnStateChange OnStateChange { set { _state.OnStateChange = value; } }
         #endregion
 
@@ -387,7 +396,8 @@ namespace Org.Reddragonit.BpmEngine
             {
                 if (n.NodeType == XmlNodeType.Element)
                 {
-                    map.Load((XmlElement)n);
+                    if (map.Load((XmlElement)n))
+                        _elementMapCache.MapIdeals(map);
                     IElement elem = Utility.ConstructElementType((XmlElement)n, map,null);
                     if (elem != null)
                     {
@@ -695,6 +705,9 @@ namespace Org.Reddragonit.BpmEngine
                 ret.OnProcessStarted = OnProcessStarted;
                 ret.OnProcessCompleted = OnProcessCompleted;
                 ret.OnProcessError = OnProcessError;
+                ret.OnSubProcessStarted = OnSubProcessStarted;
+                ret.OnSubProcessCompleted = OnSubProcessCompleted;
+                ret.OnSubProcessError = OnSubProcessError;
                 ret.OnSequenceFlowCompleted = OnSequenceFlowCompleted;
                 ret.OnMessageFlowCompleted = OnMessageFlowCompleted;
                 ret.IsEventStartValid = IsEventStartValid;
@@ -724,7 +737,7 @@ namespace Org.Reddragonit.BpmEngine
             {
                 if (elem is Elements.Process)
                 {
-                    if (((Elements.Process)elem).IsProcessStartvalid(variables, _isProcessStartValid))
+                    if (((Elements.Process)elem).IsStartValid(variables, _isProcessStartValid))
                     {
                         Elements.Process p = (Elements.Process)elem;
                         foreach (StartEvent se in p.StartEvents)
@@ -952,6 +965,12 @@ namespace Org.Reddragonit.BpmEngine
                 else if (elem is AEvent)
                 {
                     AEvent evnt = (AEvent)elem;
+                    if (evnt is IntermediateCatchEvent)
+                    {
+                        SubProcess sp = evnt.SubProcess;
+                        if (sp != null)
+                            _state.Path.StartSubProcess(sp, sourceID);
+                    }
                     lock (_state)
                     {
                         _state.Path.StartEvent(evnt, sourceID);
@@ -999,9 +1018,19 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             if (((EndEvent)evnt).IsProcessEnd)
                             {
-                                if (_onProcessCompleted != null)
-                                    _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                                _processLock.Set();
+                                SubProcess sp = ((EndEvent)evnt).SubProcess;
+                                if (sp != null)
+                                {
+                                    lock (_state) { _state.Path.SucceedSubProcess(sp); }
+                                    if (_onSubProcessCompleted != null)
+                                        _onSubProcessCompleted(sp, new ReadOnlyProcessVariablesContainer(sp.id, _state, this));            
+                                }
+                                else
+                                {
+                                    if (_onProcessCompleted != null)
+                                        _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
+                                    _processLock.Set();
+                                }
                             }
                         }
                     }
@@ -1058,6 +1087,29 @@ namespace Org.Reddragonit.BpmEngine
                         if (_onTaskError != null)
                             _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state,this,e));
                         lock (_state) { _state.Path.FailTask(tsk,e); }
+                    }
+                }else if (elem is SubProcess)
+                {
+                    SubProcess esp = (SubProcess)elem;
+                    ProcessVariablesContainer variables = new ProcessVariablesContainer(elem.id, _state, this);
+                    if (esp.IsStartValid(variables, _isProcessStartValid))
+                    {
+                        foreach (StartEvent se in esp.StartEvents)
+                        {
+                            if (se.IsEventStartValid(variables, _isEventStartValid))
+                            {
+                                WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
+                                lock (_state) { _state.Path.StartSubProcess(esp, sourceID); }
+                                if (_onSubProcessStarted!= null)
+                                    _onSubProcessStarted(esp, new ReadOnlyProcessVariablesContainer(variables));
+                                if (_onEventStarted != null)
+                                    _onEventStarted(se, new ReadOnlyProcessVariablesContainer(variables));
+                                _state.Path.StartEvent(se, null);
+                                _state.Path.SucceedEvent(se);
+                                if (_onEventCompleted != null)
+                                    _onEventCompleted(se, new ReadOnlyProcessVariablesContainer(se.id, _state, this));
+                            }
+                        }
                     }
                 }
             }

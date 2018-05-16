@@ -7,6 +7,7 @@ using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Text;
 using System.Xml;
 
@@ -17,6 +18,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [ValidParent(typeof(Definition))]
     internal class Diagram : AParentElement
     {
+        private const float _SUB_PROCESS_CORNER_RADIUS = 10f;
+
         public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
@@ -294,6 +297,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
                         });
                         else if (elem is Lane || elem is Participant)
                             gp.DrawRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), Rectangle.Round(shape.Rectangle));
+                        else if (elem is SubProcess)
+                            gp.DrawPath(new Pen(_GetBrush(status), Constants.PEN_WIDTH), _GenerateRoundedRectangle(shape.Rectangle.X, shape.Rectangle.Y, shape.Rectangle.Width, shape.Rectangle.Height));
                         if (elem.ToString() != "")
                         {
                             if (shape.Label != null)
@@ -344,6 +349,21 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 }
             }
             return bmp;
+        }
+
+        private GraphicsPath _GenerateRoundedRectangle(float XPosition, float YPosition, float Width, float Height)
+        {
+            GraphicsPath ret = new GraphicsPath();
+            ret.AddLine(XPosition + _SUB_PROCESS_CORNER_RADIUS, YPosition, XPosition + Width - (_SUB_PROCESS_CORNER_RADIUS * 2), YPosition);
+            ret.AddArc(XPosition + Width - (_SUB_PROCESS_CORNER_RADIUS * 2), YPosition, _SUB_PROCESS_CORNER_RADIUS * 2, _SUB_PROCESS_CORNER_RADIUS * 2, 270, 90);
+            ret.AddLine(XPosition + Width, YPosition + _SUB_PROCESS_CORNER_RADIUS, XPosition + Width, YPosition + Height - (_SUB_PROCESS_CORNER_RADIUS * 2));
+            ret.AddArc(XPosition + Width - (_SUB_PROCESS_CORNER_RADIUS * 2), YPosition + Height - (_SUB_PROCESS_CORNER_RADIUS * 2), _SUB_PROCESS_CORNER_RADIUS * 2, _SUB_PROCESS_CORNER_RADIUS * 2, 0, 90);
+            ret.AddLine(XPosition + Width - (_SUB_PROCESS_CORNER_RADIUS * 2), YPosition + Height, XPosition + _SUB_PROCESS_CORNER_RADIUS, YPosition + Height);
+            ret.AddArc(XPosition, YPosition + Height - (_SUB_PROCESS_CORNER_RADIUS * 2), _SUB_PROCESS_CORNER_RADIUS * 2, _SUB_PROCESS_CORNER_RADIUS * 2, 90, 90);
+            ret.AddLine(XPosition, YPosition + Height - (_SUB_PROCESS_CORNER_RADIUS * 2), XPosition, YPosition + _SUB_PROCESS_CORNER_RADIUS);
+            ret.AddArc(XPosition, YPosition, _SUB_PROCESS_CORNER_RADIUS * 2, _SUB_PROCESS_CORNER_RADIUS * 2, 180, 90);
+            ret.CloseFigure();
+            return ret;
         }
 
         private Brush _GetBrush(StepStatuses status)

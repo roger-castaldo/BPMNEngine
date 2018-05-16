@@ -11,6 +11,7 @@ using System.Xml;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System.Threading;
 using System.Globalization;
+using Org.Reddragonit.BpmEngine.Elements;
 
 namespace Org.Reddragonit.BpmEngine.State
 {
@@ -315,6 +316,42 @@ namespace Org.Reddragonit.BpmEngine.State
             _GetIncomingIDAndStart(Event.id, out start, out incoming);
             _addPathEntry(Event.id,incoming,StepStatuses.Failed, start, DateTime.Now);
             _Error(Event, null);
+        }
+
+        internal void StartSubProcess(SubProcess SubProcess, string incoming)
+        {
+            Log.Debug("Starting SubProcess {0} in Process Path", new object[] { SubProcess.id });
+            _addPathEntry(SubProcess.id, incoming, StepStatuses.Waiting, DateTime.Now);
+        }
+
+        internal void SucceedSubProcess(SubProcess SubProcess)
+        {
+            Log.Debug("Succeeding SubProcess {0} in Process Path", new object[] { SubProcess.id });
+            string incoming;
+            DateTime start;
+            _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
+            string[] outgoing = SubProcess.Outgoing;
+            if (outgoing == null)
+            {
+                _addPathEntry(SubProcess.id, incoming, StepStatuses.Succeeded, start, DateTime.Now);
+                _Complete(SubProcess.id, null);
+            }
+            else
+            {
+                _addPathEntry(SubProcess.id, incoming, outgoing, StepStatuses.Succeeded, start, DateTime.Now);
+                foreach (string id in outgoing)
+                    _Complete(SubProcess.id, id);
+            }
+        }
+
+        internal void FailSubProcess(SubProcess SubProcess)
+        {
+            Log.Debug("Failing SubProcess {0} in Process Path", new object[] { SubProcess.id });
+            string incoming;
+            DateTime start;
+            _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
+            _addPathEntry(SubProcess.id, incoming, StepStatuses.Failed, start, DateTime.Now);
+            _Error(SubProcess, null);
         }
 
         internal void ProcessMessageFlow(MessageFlow flow)
