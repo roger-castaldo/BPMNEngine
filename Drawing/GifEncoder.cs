@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
     /// Disposing the encoder will complete the file. <br />
     /// Uses default .net GIF encoding and adds animation headers.
     /// </summary>
-    public class GifEncoder : IDisposable
+    internal class GifEncoder : IDisposable
     {
         private struct sGif
         {

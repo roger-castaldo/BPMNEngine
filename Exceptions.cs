@@ -6,9 +6,15 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
+    /// <summary>
+    /// This Exception gets thrown on the loading of a Process Definition inside a BusinessProcess class when the definition is found to be invalid.
+    /// </summary>
     public class InvalidProcessDefinitionException : Exception
     {
         private Exception[] _processExceptions;
+        /// <summary>
+        /// The Exception(s) thrown during the validation process.
+        /// </summary>
         public Exception[] ProcessExceptions { get { return _processExceptions; } }
 
         internal InvalidProcessDefinitionException(List<Exception> children)
@@ -18,6 +24,9 @@ namespace Org.Reddragonit.BpmEngine
         }
     }
 
+    /// <summary>
+    /// This Exception is thrown when a required attribute is missing from an Element found within the definition
+    /// </summary>
     public class MissingAttributeException : Exception
     {
         internal MissingAttributeException(XmlNode n, RequiredAttribute att)
@@ -25,6 +34,9 @@ namespace Org.Reddragonit.BpmEngine
 
     }
 
+    /// <summary>
+    /// This Exception is thrown when an attribute value is not valid on an Element found within the definition
+    /// </summary>
     public class InvalidAttributeValueException : Exception
     {
         internal InvalidAttributeValueException(XmlNode n, AttributeRegex ar)
@@ -34,12 +46,18 @@ namespace Org.Reddragonit.BpmEngine
             })) { }
     }
 
+    /// <summary>
+    /// This Exception is thrown when an Element found within the definition is not valid
+    /// </summary>
     public class InvalidElementException : Exception
     {
         internal InvalidElementException(XmlNode n, string[] err)
             : base(string.Format("The element at {0} has the following error(s):\n{1}", Utility.FindXPath(n), String.Join("\n\t",err))) { }
     }
 
+    /// <summary>
+    /// This Exception is thrown when a Business Process is told to Resume but is not Suspended
+    /// </summary>
     public class NotSuspendedException : Exception
     {
         internal NotSuspendedException()

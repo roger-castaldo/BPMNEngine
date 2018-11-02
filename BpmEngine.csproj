@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net452;net20</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>1.9.5</Version>
+    <Version>1.9.6</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
@@ -12,8 +12,9 @@
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
     <PackageReleaseNotes>migrated begininvoke calls to await task calls for .netstandard and 452</PackageReleaseNotes>
-    <AssemblyVersion>1.9.5.0</AssemblyVersion>
-    <FileVersion>1.9.5.0</FileVersion>
+    <AssemblyVersion>1.9.6.0</AssemblyVersion>
+    <FileVersion>1.9.6.0</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
@@ -30,6 +31,10 @@
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
     <DefineConstants>NET20</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\BpmEngine.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
@@ -66,6 +71,5 @@
     <EmbeddedResource Include="symbols.Blue.png" />
     <EmbeddedResource Include="symbols.Green.png" />
     <EmbeddedResource Include="symbols.Red.png" />
-  </ItemGroup>
-  
+  </ItemGroup> 
 </Project>

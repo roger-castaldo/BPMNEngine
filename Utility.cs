@@ -443,7 +443,10 @@ namespace Org.Reddragonit.BpmEngine
                     variableContainer.Attributes.Append(doc.CreateAttribute("isArray"));
                     variableContainer.Attributes["isArray"].Value = false.ToString();
                     if (value is sFile)
+                    {
+                        variableContainer.Attributes["type"].Value = VariableTypes.File.ToString();
                         variableContainer.AppendChild(((sFile)value).ToElement(doc));
+                    }
                     else
                     {
                         string text = value.ToString();

@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
 {
+    /// <summary>
+    /// This implements a container to house the process variables and allows for editing of those variables.
+    /// </summary>
     public sealed class ProcessVariablesContainer
     {
         private List<string> _nulls;
@@ -13,6 +16,9 @@ namespace Org.Reddragonit.BpmEngine
         private BusinessProcess _process = null;
         internal void SetProcess(BusinessProcess process) { _process = process; }
 
+        /// <summary>
+        /// Creates a new empty instance of container to house variables
+        /// </summary>
         public ProcessVariablesContainer()
         {
             _nulls = new List<string>();
@@ -34,6 +40,11 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        /// <summary>
+        /// Called to get or set the value of a process variable
+        /// </summary>
+        /// <param name="name">The name of the process variable</param>
+        /// <returns>The value of the process variable or null if not found</returns>
         public object this[string name]
         {
             get
@@ -74,6 +85,9 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        /// <summary>
+        /// Called to get a list of all process variable names available
+        /// </summary>
         public string[] Keys
         {
             get
@@ -88,6 +102,9 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        /// <summary>
+        /// Called to get a list of all process variable names available, including process definition constants and runtime constants
+        /// </summary>
         public string[] FullKeys
         {
             get

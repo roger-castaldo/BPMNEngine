@@ -20,6 +20,12 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
+    /// <summary>
+    /// This class is the primary class for the library.  It implements a Business Process by constructing the object using a BPMN 2.0 compliant definition.
+    /// This is followed by assigning delegates for handling the specific process events and then starting the process.  A process can also be suspended and 
+    /// the suspended state loaded and resumed.  It can also be cloned, including the current state and delegates in order to have more than once instance 
+    /// of the given process executing.
+    /// </summary>
     public sealed class BusinessProcess
     {
         private static readonly TimeSpan _ANIMATION_DELAY = new TimeSpan(0,0,1);
@@ -64,17 +70,31 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         private XmlDocument _doc;
+        /// <summary>
+        /// The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
+        /// </summary>
         public XmlDocument Document { get { return _doc; } }
 
         private ProcessState _state;
+        /// <summary>
+        /// The Process State of the current process
+        /// </summary>
         public ProcessState State { get { return _state; } }
 
         private LogLevels _stateLogLevel = LogLevels.None;
+        /// <summary>
+        /// The log level to use inside the state document for logging
+        /// </summary>
         public LogLevels StateLogLevel { get { return _stateLogLevel; } set { _stateLogLevel = value; } }
 
         private ManualResetEvent _processLock;
 
         private sProcessRuntimeConstant[] _constants;
+        /// <summary>
+        /// This is used to access the values of the process runtime and definition constants
+        /// </summary>
+        /// <param name="name">The name of the variable</param>
+        /// <returns>The value of the variable</returns>
         public object this[string name]
         {
             get
@@ -119,6 +139,9 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        /// <summary>
+        /// Called to obtain the names of all process runtime and definition constants
+        /// </summary>
         internal string[] Keys
         {
             get
@@ -169,6 +192,9 @@ namespace Org.Reddragonit.BpmEngine
 
         [ThreadStatic()]
         private static BusinessProcess _current;
+        /// <summary>
+        /// The current Business Process inside the current thread
+        /// </summary>
         public static BusinessProcess Current { get { return _current; } }
 
         [ThreadStatic()]
@@ -178,98 +204,185 @@ namespace Org.Reddragonit.BpmEngine
         #region delegates
         #region Ons
         private OnEventStarted _onEventStarted;
+        /// <summary>
+        /// Used to define the Event Started delegate
+        /// </summary>
         public OnEventStarted OnEventStarted { get { return _onEventStarted; } set { _onEventStarted = value; } }
 
         private OnEventCompleted _onEventCompleted;
+        /// <summary>
+        /// Used to define the Event Completed delegate
+        /// </summary>
         public OnEventCompleted OnEventCompleted{get{return _onEventCompleted;}set{_onEventCompleted = value;}}
 
         private OnEventError _onEventError;
+        /// <summary>
+        /// Used to define the Event Error delegate
+        /// </summary>
         public OnEventError OnEventError{get{return _onEventError;}set{_onEventError=value;}}
 
         private OnTaskStarted _onTaskStarted;
+        /// <summary>
+        /// Used to define the Task Started delegate
+        /// </summary>
         public OnTaskStarted OnTaskStarted{get{return _onTaskStarted;}set{_onTaskStarted=value;}}
 
         private OnTaskCompleted _onTaskCompleted;
+        /// <summary>
+        /// Used to define the Task Completed delegate
+        /// </summary>
         public OnTaskCompleted OnTaskCompleted{get{return _onTaskCompleted;}set{_onTaskCompleted=value;}}
         
         private OnTaskError _onTaskError;
+        /// <summary>
+        /// Used to define the Task Error delegate
+        /// </summary>
         public OnTaskError OnTaskError{get{return _onTaskError;}set{_onTaskError = value;}}
 
         private OnProcessStarted _onProcessStarted;
+        /// <summary>
+        /// Used to define the Process Started delegate
+        /// </summary>
         public OnProcessStarted OnProcessStarted{get{return _onProcessStarted;}set{_onProcessStarted=value;}}
         
         private OnProcessCompleted _onProcessCompleted;
+        /// <summary>
+        /// Used to define the Process Completed delegate
+        /// </summary>
         public OnProcessCompleted OnProcessCompleted{get{return _onProcessCompleted;}set{_onProcessCompleted = value;}}
 
         private OnProcessError _onProcessError;
+        /// <summary>
+        /// Used to define the Process Error delegate
+        /// </summary>
         public OnProcessError OnProcessError { get { return _onProcessError; } set { _onProcessError = value; } }
 
         private OnSequenceFlowCompleted _onSequenceFlowCompleted;
+        /// <summary>
+        /// Used to define the Sequence Flow Complete delegate
+        /// </summary>
         public OnSequenceFlowCompleted OnSequenceFlowCompleted { get { return _onSequenceFlowCompleted; } set { _onSequenceFlowCompleted = value; } }
 
         private OnMessageFlowCompleted _onMessageFlowCompleted;
+        /// <summary>
+        /// Used to define the Message Flow Complete delegate
+        /// </summary>
         public OnMessageFlowCompleted OnMessageFlowCompleted { get { return _onMessageFlowCompleted; } set { _onMessageFlowCompleted = value; } }
 
         private OnGatewayStarted _onGatewayStarted;
+        /// <summary>
+        /// Used to define the Gateway Started delegate
+        /// </summary>
         public OnGatewayStarted OnGatewayStarted { get { return _onGatewayStarted; } set { _onGatewayStarted = value; } }
 
         private OnGatewayCompleted _onGatewayCompleted;
+        /// <summary>
+        /// Used to define the Gateway Completed delegate
+        /// </summary>
         public OnGatewayCompleted OnGatewayCompleted { get { return _onGatewayCompleted; } set { _onGatewayCompleted = value; } }
 
         private OnGatewayError _onGatewayError;
+        /// <summary>
+        /// Used to define the Gateway Error delegate
+        /// </summary>
         public OnGatewayError OnGatewayError { get { return _onGatewayError; } set { _onGatewayError = value; } }
 
         private OnSubProcessStarted _onSubProcessStarted;
+        /// <summary>
+        /// Used to define the Sub Process Started delegate
+        /// </summary>
         public OnSubProcessStarted OnSubProcessStarted { get { return _onSubProcessStarted; } set { _onSubProcessStarted = value; } }
 
         private OnSubProcessCompleted _onSubProcessCompleted;
+        /// <summary>
+        /// Used to define the Sub Process Completed delegate
+        /// </summary>
         public OnSubProcessCompleted OnSubProcessCompleted { get { return _onSubProcessCompleted; } set { _onSubProcessCompleted = value; } }
 
         private OnSubProcessError _onSubProcessError;
+        /// <summary>
+        /// Used to define the Sub Process Error delegate
+        /// </summary>
         public OnSubProcessError OnSubProcessError { get { return _onSubProcessError; } set { _onSubProcessError = value; } }
 
+        /// <summary>
+        /// Used to define the State Change delegate
+        /// </summary>
         public OnStateChange OnStateChange { set { _state.OnStateChange = value; } }
         #endregion
 
         #region Validations
         private static bool _DefaultEventStartValid(IElement Event, ProcessVariablesContainer variables){return true;}
         private IsEventStartValid _isEventStartValid = new IsEventStartValid(_DefaultEventStartValid);
+        /// <summary>
+        /// Used to define the Is Event Start Valid delegate
+        /// </summary>
         public IsEventStartValid IsEventStartValid { get { return _isEventStartValid; } set { _isEventStartValid = value; } }
 
         private static bool _DefaultProcessStartValid(IElement Event, ProcessVariablesContainer variables){return true;}
         private IsProcessStartValid _isProcessStartValid = new IsProcessStartValid(_DefaultProcessStartValid);
+        /// <summary>
+        /// Used to define the Is Process Start Valid delegate
+        /// </summary>
         public IsProcessStartValid IsProcessStartValid { get { return _isProcessStartValid; } set { _isProcessStartValid = value; } }
         #endregion
 
         #region Conditions
         private static bool _DefaultFlowValid(IElement flow, ProcessVariablesContainer variables) { return true; }
         private IsFlowValid _isFlowValid = new IsFlowValid(_DefaultFlowValid);
+        /// <summary>
+        /// Used to define the Is Flow Valid delegate
+        /// </summary>
         public IsFlowValid IsFlowValid { get { return _isFlowValid; } set { _isFlowValid = value; } }
         #endregion
 
         #region Tasks
         private ProcessBusinessRuleTask _processBusinessRuleTask;
+        /// <summary>
+        /// Used to define the Process Business Rule Task delegate
+        /// </summary>
         public ProcessBusinessRuleTask ProcessBusinessRuleTask { get { return _processBusinessRuleTask; } set { _processBusinessRuleTask = value; } }
 
         private BeginManualTask _beginManualTask;
+        /// <summary>
+        /// Used to define the Begin Manual Task delegate
+        /// </summary>
         public BeginManualTask BeginManualTask { get { return _beginManualTask; } set { _beginManualTask = value; } }
 
         private ProcessRecieveTask _processRecieveTask;
+        /// <summary>
+        /// Used to define the Process Recieve Task delegate
+        /// </summary>
         public ProcessRecieveTask ProcessRecieveTask { get { return _processRecieveTask; } set { _processRecieveTask = value; } }
 
         private ProcessScriptTask _processScriptTask;
+        /// <summary>
+        /// Used to define the Process Script Task delegate
+        /// </summary>
         public ProcessScriptTask ProcessScriptTask { get { return _processScriptTask; } set { _processScriptTask=value; } }
 
         private ProcessSendTask _processSendTask;
+        /// <summary>
+        /// Used to define the Process Send Task delegate
+        /// </summary>
         public ProcessSendTask ProcessSendTask { get { return _processSendTask; } set { _processSendTask = value; } }
 
         private ProcessServiceTask _processServiceTask;
+        /// <summary>
+        /// Used to define the Process Service Task delegate
+        /// </summary>
         public ProcessServiceTask ProcessServiceTask { get { return _processServiceTask; } set { _processServiceTask = value; } }
 
         private ProcessTask _processTask;
+        /// <summary>
+        /// Used to define the Process Task delegate
+        /// </summary>
         public ProcessTask ProcessTask { get { return _processTask; } set { _processTask = value; } }
 
         private BeginUserTask _beginUserTask;
+        /// <summary>
+        /// Used to define the Begin User Task delegate
+        /// </summary>
         public BeginUserTask BeginUserTask { get { return _beginUserTask; } set { _beginUserTask = value; } }
 
         #region TaskCallBacks
@@ -342,9 +455,15 @@ namespace Org.Reddragonit.BpmEngine
 
         #region Logging
         private LogLine _logLine;
+        /// <summary>
+        /// Used to define the Log Line delegate
+        /// </summary>
         public LogLine LogLine { get { return _logLine; }set { _logLine = value; } }
 
         private LogException _logException;
+        /// <summary>
+        /// Used to define the Log Exception delegate
+        /// </summary>
         public LogException LogException { get { return _logException; }set { _logException = value; } }
         #endregion
 
@@ -355,27 +474,71 @@ namespace Org.Reddragonit.BpmEngine
             _mreSuspend = new ManualResetEvent(false);
         }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition only
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
         public BusinessProcess(XmlDocument doc)
             :this(doc,LogLevels.None) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition and LogLine delegate
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="logLine">The LogLine delegate</param>
         public BusinessProcess(XmlDocument doc,LogLine logLine)
             : this(doc, LogLevels.None,logLine) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition and runtime constants
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
         public BusinessProcess(XmlDocument doc,sProcessRuntimeConstant[] constants)
             : this(doc, LogLevels.None,constants) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition, runtime constants and the LogLine delegate
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
+        /// <param name="logLine">The LogLine delegate</param>
         public BusinessProcess(XmlDocument doc, sProcessRuntimeConstant[] constants,LogLine logLine)
             : this(doc, LogLevels.None, constants,logLine) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition and StateLogLevel
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel)
             : this(doc, LogLevels.None, null,null) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition, the StateLogLevel and the LogLine delegate
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
+        /// <param name="logLine">The LogLine delegate</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,LogLine logLine)
             : this(doc, LogLevels.None, null,logLine) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition, the StateLogLevel and runtime constants
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
+        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel, sProcessRuntimeConstant[] constants)
             : this(doc, stateLogLevel, constants, null) { }
 
+        /// <summary>
+        /// Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
+        /// </summary>
+        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
+        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
+        /// <param name="logLine">The LogLine delegate</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,sProcessRuntimeConstant[] constants,LogLine logLine)
         {
             _stateLogLevel = stateLogLevel;
@@ -463,11 +626,22 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        /// <summary>
+        /// Called to load the process state from an XmlDocument
+        /// </summary>
+        /// <param name="doc">The process state document</param>
+        /// <returns>true if succeeded or false if failed</returns>
         public bool LoadState(XmlDocument doc)
         {
             return LoadState(doc, false);
         }
 
+        /// <summary>
+        /// Called to load the process state from an XmlDocument
+        /// </summary>
+        /// <param name="doc">The process state document</param>
+        /// <param name="autoResume">set true if the process was suspended and needs to resume once loaded</param>
+        /// <returns>true if successed or false if failed</returns>
         public bool LoadState(XmlDocument doc,bool autoResume)
         {
             _current = this;
@@ -483,6 +657,9 @@ namespace Org.Reddragonit.BpmEngine
             return false;
         }
 
+        /// <summary>
+        /// Called to Resume a suspended process.  Will fail if the process is not currently suspended.
+        /// </summary>
         public void Resume()
         {
             _current = this;
@@ -530,6 +707,11 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        /// <summary>
+        /// Called to render a PNG image of the process at its current state
+        /// </summary>
+        /// <param name="outputVariables">Set true to include outputting variables into the image</param>
+        /// <returns>A Bitmap containing a rendered image of the process at its current state</returns>
         public Bitmap Diagram(bool outputVariables)
         {
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}",new object[] { (outputVariables ? " with variables" : " without variables") }));
@@ -638,6 +820,11 @@ namespace Org.Reddragonit.BpmEngine
             return tret;
         }
 
+        /// <summary>
+        /// Called to render an animated version of the process (output in GIF format).  This will animate each step of the process using the current state.
+        /// </summary>
+        /// <param name="outputVariables">Set true to output the variables into the diagram</param>
+        /// <returns>a binary array of data containing the animated GIF</returns>
         public byte[] Animate(bool outputVariables)
         {
             _current = this;
@@ -679,6 +866,12 @@ namespace Org.Reddragonit.BpmEngine
             return ms.ToArray();
         }
 
+        /// <summary>
+        /// Called to clone a new instance of the process.  This would be used for efficincy when executing multiple instances since this will have already read and loaded the definition.
+        /// </summary>
+        /// <param name="includeState">Set true to include the current process state</param>
+        /// <param name="includeDelegates">Set true to include all the delegates</param>
+        /// <returns>A new instance of the current BusinessProcess with the process defintion already loaded</returns>
         public BusinessProcess Clone(bool includeState,bool includeDelegates)
         {
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Cloning Business Process {0} {1}",new object[] {
@@ -727,6 +920,11 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
+        /// <summary>
+        /// Called to start this instance of the defined BusinessProcess
+        /// </summary>
+        /// <param name="variables">The variables to start the process with</param>
+        /// <returns>true if the process was successfully started</returns>
         public bool BeginProcess(ProcessVariablesContainer variables)
         {
             _current = this;
@@ -768,6 +966,9 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
+        /// <summary>
+        /// Called to suspend a running process
+        /// </summary>
         public void Suspend()
         {
             WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
@@ -779,27 +980,52 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         #region ProcessLock
-
+        /// <summary>
+        /// Used to lock a Thread into waiting for the process to complete
+        /// </summary>
+        /// <returns>the result of calling WaitOne on the Process Complete manual reset event</returns>
         public bool WaitForCompletion()
         {
             return _processLock.WaitOne();
         }
 
+        /// <summary>
+        /// Used to lock a Thread into waiting for the process to complete including a timeout
+        /// </summary>
+        /// <param name="millisecondsTimeout">The timeout for the process to complete</param>
+        /// <returns>the result of calling WaitOne(millisecondsTimeout) on the Process Complete manual reset event</returns>
         public bool WaitForCompletion(int millisecondsTimeout)
         {
             return _processLock.WaitOne(millisecondsTimeout);
         }
 
+        /// <summary>
+        /// Used to lock a Thread into waiting for the process to complete including a timeout
+        /// </summary>
+        /// <param name="timeout">The timeout for the process to complete</param>
+        /// <returns>the result of calling WaitOne(timeout) on the Process Complete manual reset event</returns>
         public bool WaitForCompletion(TimeSpan timeout)
         {
             return _processLock.WaitOne(timeout);
         }
 
+        /// <summary>
+        /// Used to lock a Thread into waiting for the process to complete including a timeout and exit context
+        /// </summary>
+        /// <param name="millisecondsTimeout">The timeout for the process to complete</param>
+        /// <param name="exitContext">The exitContext variable</param>
+        /// <returns>the result of calling WaitOne(millisecondsTimeout,exitContext) on the Process Complete manual reset event</returns>
         public bool WaitForCompletion(int millisecondsTimeout,bool exitContext)
         {
             return _processLock.WaitOne(millisecondsTimeout,exitContext);
         }
 
+        /// <summary>
+        /// Used to lock a Thread into waiting for the process to complete including a timeout and exit context
+        /// </summary>
+        /// <param name="timeout">The timeout for the process to complete</param>
+        /// <param name="exitContext">The exitContext variable</param>
+        /// <returns>the result of calling WaitOne(timeout,exitContext) on the Process Complete manual reset event</returns>
         public bool WaitForCompletion(TimeSpan timeout,bool exitContext)
         {
             return _processLock.WaitOne(timeout,exitContext);
