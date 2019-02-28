@@ -32,7 +32,9 @@ namespace Org.Reddragonit.BpmEngine.Attributes
         {
             if (tagName.ToLower() == ToString().ToLower())
                 return true;
-            else if (_prefix!=null)
+            else if (tagName.ToLower() == _name.ToLower())
+                return true;
+            else if (_prefix != null)
                 return map.isMatch(_prefix, _name, tagName);
             return false;
         }

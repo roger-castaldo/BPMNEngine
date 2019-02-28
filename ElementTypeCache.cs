@@ -46,6 +46,14 @@ namespace Org.Reddragonit.BpmEngine
                         }
                     }
                 }
+                else
+                {
+                    foreach (String tag in ideals[prefix].Keys)
+                    {
+                        _cachedMaps.Add(string.Format("{0}:{1}", prefix, tag), ideals[prefix][tag]);
+                        _cachedMaps.Add(tag, ideals[prefix][tag]);
+                    }
+                }
             }
         }
     }
