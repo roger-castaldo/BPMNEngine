@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
@@ -15,14 +16,26 @@ namespace Org.Reddragonit.BpmEngine
     internal static class Utility
     {
 
+        private const int GUID_ID_LENGTH = 16;
+
         private static Dictionary<Type, List<Type>> _xmlChildren;
         private static Type[] _globalXMLChildren;
         private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
         private static Dictionary<string, Dictionary<string, Type>> _idealMap;
         public static Dictionary<string,Dictionary<string,Type>> IdealMap { get { return _idealMap; } }
+        private static Thread _backgroundSuspendThread;
+        private static List<sProcessSuspendEvent> _suspendedEvents;
+        private static ManualResetEvent _backgroundMREEvent;
+        private static MT19937 _rand;
 
         static Utility()
         {
+            _rand = new MT19937(DateTime.Now.Ticks);
+            _backgroundMREEvent = new ManualResetEvent(true);
+            _suspendedEvents = new List<sProcessSuspendEvent>();
+            _backgroundSuspendThread = new Thread(new ThreadStart(_BackgroundSuspendStart));
+            _backgroundSuspendThread.IsBackground = true;
+            _backgroundSuspendThread.Start();
             _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
             _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
@@ -114,6 +127,26 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             _globalXMLChildren = globalChildren.ToArray();
+        }
+
+        public static void NextRandomBytes(byte[] buffer)
+        {
+            lock (_rand)
+            {
+                _rand.NextBytes(buffer);
+            }
+        }
+
+        public static byte[] NextRandomBytes(int length)
+        {
+            byte[] ret = new byte[length];
+            NextRandomBytes(ret);
+            return ret;
+        }
+
+        public static Guid NextRandomGuid()
+        {
+            return new Guid(NextRandomBytes(GUID_ID_LENGTH));
         }
 
         public static Type LocateElementType(Type parent,string tagName,XmlPrefixMap map)
@@ -507,27 +540,76 @@ namespace Org.Reddragonit.BpmEngine
 
         private static readonly TimeSpan _maxSpan = new TimeSpan(int.MaxValue);
 
-        internal static void Sleep(TimeSpan value)
+        internal static void Sleep(TimeSpan value,BusinessProcess process,AEvent evnt)
         {
-#if NET20
-            while (value > _maxSpan)
+            lock (_suspendedEvents)
             {
-                Thread.Sleep(_maxSpan);
-                value -= _maxSpan;
+                _suspendedEvents.Add(new sProcessSuspendEvent(process, evnt, value));
             }
-            Thread.Sleep(value);
-#else
-            System.Threading.Tasks.Task tsk;
-            while (value > _maxSpan)
-            {
-                tsk = System.Threading.Tasks.Task.Delay(_maxSpan);
-                tsk.Wait();
-                value -= _maxSpan;
-            }
-            tsk = System.Threading.Tasks.Task.Delay(value);
-            tsk.Wait();
-#endif
+            _backgroundMREEvent.Set();
+        }
 
+        internal static void UnloadProcess(BusinessProcess process)
+        {
+            lock (_suspendedEvents) {
+                for(int x = 0; x < _suspendedEvents.Count; x++)
+                {
+                    if (_suspendedEvents[x].Process.Equals(process))
+                    {
+                        _suspendedEvents.RemoveAt(x);
+                        _backgroundMREEvent.Set();
+                        break;
+                    }
+                }
+            }
+        }
+
+        internal static void _BackgroundSuspendStart()
+        {
+            while (true)
+            {
+                int sleep = -1;
+                lock (_suspendedEvents)
+                {
+                    foreach(sProcessSuspendEvent pse in _suspendedEvents)
+                    {
+                        if (pse.EndTime.Ticks < DateTime.Now.Ticks)
+                        {
+                            sleep = 0;
+                            break;
+                        }
+                        else if (sleep == -1)
+                            sleep = (int)Math.Min(pse.EndTime.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue);
+                        else
+                            sleep = Math.Min(sleep, (int)Math.Min(pse.EndTime.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue));
+                    }
+                }
+                if (sleep != 0)
+                {
+                    if (sleep != -1)
+                        _backgroundMREEvent.WaitOne(sleep);
+                    else
+                        _backgroundMREEvent.WaitOne();
+                }
+                _backgroundMREEvent.Reset();
+                lock (_suspendedEvents)
+                {
+                    for(int x = 0; x < _suspendedEvents.Count; x++)
+                    {
+                        sProcessSuspendEvent spe = _suspendedEvents[x];
+                        if (spe.EndTime.Ticks < DateTime.Now.Ticks)
+                        {
+                            try
+                            {
+                                spe.Process.CompleteTimedEvent(spe.Event);
+                                _suspendedEvents.RemoveAt(x);
+                                x--;
+                            }
+                            catch (Exception e) { }
+                        }
+                    }
+                }
+            }
         }
     }
 }

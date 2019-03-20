@@ -26,7 +26,7 @@ namespace Org.Reddragonit.BpmEngine
     /// the suspended state loaded and resumed.  It can also be cloned, including the current state and delegates in order to have more than once instance 
     /// of the given process executing.
     /// </summary>
-    public sealed class BusinessProcess
+    public sealed class BusinessProcess : IDisposable
     {
         private static readonly TimeSpan _ANIMATION_DELAY = new TimeSpan(0,0,1);
         private const int _DEFAULT_PADDING = 100;
@@ -34,6 +34,7 @@ namespace Org.Reddragonit.BpmEngine
         private const int _VARIABLE_VALUE_WIDTH = 300;
         private const int _VARIABLE_IMAGE_WIDTH = _VARIABLE_NAME_WIDTH+_VARIABLE_VALUE_WIDTH;
 
+        private Guid _id;
         private bool _isSuspended = false;
         private ManualResetEvent _mreSuspend;
         private List<object> _components;
@@ -470,6 +471,7 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         private BusinessProcess() {
+            _id = Utility.NextRandomGuid();
             _processLock = new ManualResetEvent(false);
             _mreSuspend = new ManualResetEvent(false);
         }
@@ -541,6 +543,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="logLine">The LogLine delegate</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,sProcessRuntimeConstant[] constants,LogLine logLine)
         {
+            _id = Utility.NextRandomGuid();
             _stateLogLevel = stateLogLevel;
             _constants = constants;
             _logLine = logLine;
@@ -676,8 +679,10 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 foreach (sStepSuspension ss in _state.SuspendedSteps)
                 {
-                    Thread th = new Thread(new ParameterizedThreadStart(_suspendEvent));
-                    th.Start((object)(new object[] { ss.id, ss.EndTime }));
+                    if (DateTime.Now.Ticks < ss.EndTime.Ticks)
+                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), this, (AEvent)_GetElement(ss.id));
+                    else
+                        CompleteTimedEvent((AEvent)_GetElement(ss.id));
                 }
                 WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
             }
@@ -686,24 +691,6 @@ namespace Org.Reddragonit.BpmEngine
                 Exception ex = new NotSuspendedException();
                 WriteLogException(new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
-            }
-        }
-
-        private void _suspendEvent(object parameters)
-        {
-            _current = this;
-            string id = (string)((object[])parameters)[0];
-            DateTime release = (DateTime)((object[])parameters)[1];
-            TimeSpan ts = release.Subtract(DateTime.Now);
-            if (ts.TotalMilliseconds > 0)
-                Utility.Sleep(ts);
-            IElement elem = _GetElement(id);
-            if (elem != null)
-            {
-                AEvent evnt = (AEvent)elem;
-                lock (_state) { _state.Path.SucceedEvent(evnt); }
-                if (_onEventCompleted != null)
-                    _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
             }
         }
 
@@ -1214,8 +1201,11 @@ namespace Org.Reddragonit.BpmEngine
                                 _state.SuspendStep(evnt.id, ts.Value);
                             }
                             if (ts.Value.TotalMilliseconds > 0)
-                                Utility.Sleep(ts.Value);
-                            success = true;
+                            {
+                                Utility.Sleep(ts.Value, this, evnt);
+                                return;
+                            }else
+                                success = true;
                         }
                     }else if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
                     {
@@ -1341,6 +1331,13 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
+        internal void CompleteTimedEvent(AEvent evnt)
+        {
+            lock (_state) { _state.Path.SucceedEvent(evnt); }
+            if (_onEventCompleted != null)
+                _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+        }
+
         private void _MergeVariables(UserTask task, ProcessVariablesContainer variables, string completedByID)
         {
             _MergeVariables((ATask)task, variables, completedByID);
@@ -1450,5 +1447,17 @@ namespace Org.Reddragonit.BpmEngine
                 _logException.Invoke(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
         }
         #endregion
+
+        public void Dispose()
+        {
+            Utility.UnloadProcess(this);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is BusinessProcess)
+                return ((BusinessProcess)obj)._id == _id;
+            return false;
+        }
     }
 }

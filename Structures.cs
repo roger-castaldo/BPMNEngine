@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -77,6 +78,27 @@ namespace Org.Reddragonit.BpmEngine
         {
             _name = name;
             _value = value;
+        }
+    }
+
+    internal struct sProcessSuspendEvent : IComparable
+    {
+        private BusinessProcess _process;
+        public BusinessProcess Process { get { return _process; } }
+        private AEvent _event;
+        public AEvent Event { get { return _event; } }
+        private DateTime _endTime;
+        public DateTime EndTime { get { return _endTime; } }
+
+        public sProcessSuspendEvent(BusinessProcess process,AEvent evnt,TimeSpan time){
+            _process = process;
+            _event = evnt;
+            _endTime = DateTime.Now.Add(time);
+        }
+
+        public int CompareTo(object obj)
+        {
+            return _endTime.CompareTo(((sProcessSuspendEvent)obj)._endTime);
         }
     }
 }
