@@ -1149,30 +1149,38 @@ namespace Org.Reddragonit.BpmEngine
                             }
                         }
                     }
+                    bool gatewayComplete = false;
                     lock (_state)
                     {
-                        _state.Path.StartGateway(gw, sourceID);
+                        if (gw.IsIncomingFlowComplete(sourceID, _state.Path))
+                        {
+                            gatewayComplete = true;
+                            _state.Path.StartGateway(gw, sourceID);
+                        }
                     }
-                    if (_onGatewayStarted != null)
-                        _onGatewayStarted(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
-                    string[] outgoings = null;
-                    try
+                    if (gatewayComplete)
                     {
-                        outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ProcessVariablesContainer(elem.id, _state,this));
-                    }
-                    catch (Exception e)
-                    {
-                        WriteLogException(new StackFrame(1, true), DateTime.Now, e);
-                        if (_onGatewayError != null)
-                            _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
-                        outgoings = null;
-                    }
-                    lock (_state)
-                    {
-                        if (outgoings == null)
-                            _state.Path.FailGateway(gw);
-                        else
-                            _state.Path.SuccessGateway(gw, outgoings);
+                        if (_onGatewayStarted != null)
+                            _onGatewayStarted(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
+                        string[] outgoings = null;
+                        try
+                        {
+                            outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ProcessVariablesContainer(elem.id, _state, this));
+                        }
+                        catch (Exception e)
+                        {
+                            WriteLogException(new StackFrame(1, true), DateTime.Now, e);
+                            if (_onGatewayError != null)
+                                _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
+                            outgoings = null;
+                        }
+                        lock (_state)
+                        {
+                            if (outgoings == null)
+                                _state.Path.FailGateway(gw);
+                            else
+                                _state.Path.SuccessGateway(gw, outgoings);
+                        }
                     }
                 }
                 else if (elem is AEvent)

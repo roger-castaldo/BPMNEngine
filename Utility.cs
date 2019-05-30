@@ -34,6 +34,7 @@ namespace Org.Reddragonit.BpmEngine
             _backgroundMREEvent = new ManualResetEvent(true);
             _suspendedEvents = new List<sProcessSuspendEvent>();
             _backgroundSuspendThread = new Thread(new ThreadStart(_BackgroundSuspendStart));
+            _backgroundSuspendThread.Name = "Background Suspend Thread";
             _backgroundSuspendThread.IsBackground = true;
             _backgroundSuspendThread.Start();
             _xmlConstructors = new Dictionary<Type, ConstructorInfo>();

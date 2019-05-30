@@ -4,16 +4,16 @@
     <TargetFrameworks>netstandard2.0;net452;net20</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>1.9.9</Version>
+    <Version>1.9.10</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
-    <PackageReleaseNotes>updated package to use a single control thread for the time delays in all business processes instead of multiple threads per process</PackageReleaseNotes>
-    <AssemblyVersion>1.9.9.0</AssemblyVersion>
-    <FileVersion>1.9.9.0</FileVersion>
+    <PackageReleaseNotes>updated to correct bug wrt not dealing with gateways properly for the incoming paths.</PackageReleaseNotes>
+    <AssemblyVersion>1.9.10.0</AssemblyVersion>
+    <FileVersion>1.9.10.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
