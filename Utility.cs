@@ -338,6 +338,15 @@ namespace Org.Reddragonit.BpmEngine
                 case VariableTypes.Short:
                     ret = short.Parse(text);
                     break;
+                case VariableTypes.UnsignedInteger:
+                    ret = uint.Parse(text);
+                    break;
+                case VariableTypes.UnsignedLong:
+                    ret = ulong.Parse(text);
+                    break;
+                case VariableTypes.UnsignedShort:
+                    ret = ushort.Parse(text);
+                    break;
                 case VariableTypes.String:
                     ret = text;
                     break;
@@ -453,6 +462,30 @@ namespace Org.Reddragonit.BpmEngine
                                     variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
+                            case "System.UInt32":
+                                variableContainer.Attributes["type"].Value = VariableTypes.UnsignedInteger.ToString();
+                                foreach (uint b in (IEnumerable)value)
+                                {
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
+                                }
+                                break;
+                            case "System.UInt64":
+                                variableContainer.Attributes["type"].Value = VariableTypes.UnsignedLong.ToString();
+                                foreach (ulong b in (IEnumerable)value)
+                                {
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
+                                }
+                                break;
+                            case "System.UInt16":
+                                variableContainer.Attributes["type"].Value = VariableTypes.UnsignedShort.ToString();
+                                foreach (ushort b in (IEnumerable)value)
+                                {
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
+                                }
+                                break;
                             case "System.String":
                                 variableContainer.Attributes["type"].Value = VariableTypes.String.ToString();
                                 foreach (string b in (IEnumerable)value)
@@ -516,6 +549,15 @@ namespace Org.Reddragonit.BpmEngine
                                 break;
                             case "System.Int16":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Short.ToString();
+                                break;
+                            case "System.UInt32":
+                                variableContainer.Attributes["type"].Value = VariableTypes.UnsignedInteger.ToString();
+                                break;
+                            case "System.UInt64":
+                                variableContainer.Attributes["type"].Value = VariableTypes.UnsignedLong.ToString();
+                                break;
+                            case "System.UInt16":
+                                variableContainer.Attributes["type"].Value = VariableTypes.UnsignedShort.ToString();
                                 break;
                             case "System.String":
                                 variableContainer.Attributes["type"].Value = VariableTypes.String.ToString();
