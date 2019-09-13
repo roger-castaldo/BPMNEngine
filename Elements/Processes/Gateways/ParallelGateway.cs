@@ -21,6 +21,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
 
         public override bool IsIncomingFlowComplete(string incomingID, ProcessPath path)
         {
+            if (!IsWaiting(path) && Incoming.Length > 1)
+                return false;
             bool ret = true;
             foreach (string str in Incoming)
             {

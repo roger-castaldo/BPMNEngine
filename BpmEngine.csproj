@@ -4,16 +4,16 @@
     <TargetFrameworks>netstandard2.0;net452;net20</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>1.9.11</Version>
+    <Version>1.9.12</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
-    <PackageReleaseNotes>updated to support unsigned short, integer and long as variable values</PackageReleaseNotes>
-    <AssemblyVersion>1.9.11.0</AssemblyVersion>
-    <FileVersion>1.9.11.0</FileVersion>
+    <PackageReleaseNotes>updated race condition issue where a parallel gateway can get called multiple times for incoming and run more than once if all the incoming paths complete around the same time.</PackageReleaseNotes>
+    <AssemblyVersion>1.9.12.0</AssemblyVersion>
+    <FileVersion>1.9.12.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
