@@ -258,7 +258,6 @@ namespace Org.Reddragonit.BpmEngine
                         return builder.ToString();
                     default:
                         throw Log._Exception(new ArgumentException("Only elements and attributes are supported"));
-                        break;
                 }
             }
             throw Log._Exception(new ArgumentException("Node was not in a document"));
@@ -648,7 +647,7 @@ namespace Org.Reddragonit.BpmEngine
                                 _suspendedEvents.RemoveAt(x);
                                 x--;
                             }
-                            catch (Exception e) { }
+                            catch (Exception e) { Log.Exception(e); }
                         }
                     }
                 }

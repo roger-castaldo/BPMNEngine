@@ -26,6 +26,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 _jintAssembly = Assembly.Load("Jint");
             }catch(Exception e)
             {
+                Log.Exception(e);
                 _jintAssembly = null;
             }
             if (_jintAssembly == null)
@@ -36,6 +37,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 }
                 catch (Exception e)
                 {
+                    Log.Exception(e);
                     _jintAssembly = null;
                 }
             }

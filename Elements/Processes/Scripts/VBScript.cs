@@ -7,7 +7,7 @@ using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 using Org.Reddragonit.BpmEngine.Attributes;
 using System;
-#if NET452||NET20
+#if NET461||NET20
 using System.CodeDom.Compiler;
 #endif
 using System.Collections.Generic;
@@ -78,7 +78,7 @@ End Class";
         }
 #endif
 
-#if NET452||NET20
+#if NET461||NET20
         protected override string _GenerateCode(string[] imports, string code)
         {
             Log.Info("Generating VB Code for script compilation for script element {0}", new object[] { id });

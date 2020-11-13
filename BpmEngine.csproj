@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net452;net20</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net20</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
     <Version>1.9.12</Version>
@@ -25,8 +25,8 @@
     <DefineConstants>NETSTANDARD20</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-    <DefineConstants>NET452</DefineConstants>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net461'">
+    <DefineConstants>NET461</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
@@ -37,7 +37,7 @@
     <DocumentationFile>bin\Debug\netstandard2.0\BpmEngine.xml</DocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net461'">
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
@@ -47,9 +47,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="CoreCompat.System.Drawing" Version="[1.0.0-beta006,)" />
     <PackageReference Include="System.CodeDom" Version="[4.4.0,)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="[2.7.0,)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="3.8.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,5 +63,17 @@
     <EmbeddedResource Include="symbols.Blue.png" />
     <EmbeddedResource Include="symbols.Green.png" />
     <EmbeddedResource Include="symbols.Red.png" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Drawing.Common">
+      <Version>5.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="System.Drawing.Common">
+      <Version>5.0.0</Version>
+    </PackageReference>
   </ItemGroup> 
 </Project>

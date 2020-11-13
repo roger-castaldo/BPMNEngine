@@ -13,7 +13,6 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [ValidParent(typeof(ExtensionElements))]
     internal class DefinitionVariable : AElement
     {
-        private string _name;
         public string Name { get { return this["Name"]; } }
 
         private object _value;

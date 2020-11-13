@@ -277,12 +277,12 @@ namespace Org.Reddragonit.BpmEngine.State
             _error.BeginInvoke(step,ex, new AsyncCallback(_AsyncCallback), null);
         }
 #else
-        private async System.Threading.Tasks.Task _Complete(string incoming, string outgoing)
+        private async void _Complete(string incoming, string outgoing)
         {
             await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
         }
 
-        private async System.Threading.Tasks.Task _Error(IElement step, Exception ex)
+        private async void _Error(IElement step, Exception ex)
         {
             await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
         }

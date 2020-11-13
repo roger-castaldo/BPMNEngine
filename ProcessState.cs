@@ -9,10 +9,7 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
-    /// <summary>
-    /// This class houses the State of a Business Process.  The State itself is held within an XML Document.
-    /// </summary>
-    public sealed class ProcessState
+    internal sealed class ProcessState
     {
         private const string _BASE_STATE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ProcessState isSuspended=\"False\"></ProcessState>";
 
@@ -131,6 +128,7 @@ namespace Org.Reddragonit.BpmEngine
                     _log = null;
             }catch(Exception e)
             {
+                Log.Exception(e);
                 _evnt.Set();
                 return false;
             }
@@ -139,9 +137,6 @@ namespace Org.Reddragonit.BpmEngine
             return true;
         }
 
-        /// <summary>
-        /// The XML Document that contains the Process State data
-        /// </summary>
         public XmlDocument Document
         {
             get
@@ -157,7 +152,7 @@ namespace Org.Reddragonit.BpmEngine
         private void _stateChanged()
         {
             if (_onStateChange != null)
-            { try { _onStateChange(this.Document); } catch (Exception ex) { } }
+            { try { _onStateChange(this.Document); } catch (Exception ex) { Log.Exception(ex); } }
         }
 
         internal void Suspend()

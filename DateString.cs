@@ -130,7 +130,6 @@ namespace Org.Reddragonit.BpmEngine
                     return dateTime.AddSeconds(value);
                 default:
                     throw Log._Exception(new Exception("Internal error: Unhandled relative date/time case."));
-                    break;
             }
         }
     }

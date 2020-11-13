@@ -144,8 +144,6 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         /// Uses default .net GIF encoding and adds animation headers.
         /// </summary>
         /// <param name="stream">The stream that will be written to.</param>
-        /// <param name="width">Sets the width for this gif or null to use the first frame's width.</param>
-        /// <param name="height">Sets the height for this gif or null to use the first frame's height.</param>
         public GifEncoder(Stream stream)
         {
             _stream = stream;
@@ -155,8 +153,6 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         /// Adds a frame to this animation.
         /// </summary>
         /// <param name="img">The image to add</param>
-        /// <param name="x">The positioning x offset this image should be displayed at.</param>
-        /// <param name="y">The positioning y offset this image should be displayed at.</param>
         public void AddFrame(Image img)
         {
             using (var gifStream = new MemoryStream())

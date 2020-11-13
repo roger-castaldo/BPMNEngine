@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal ReadOnlyProcessVariablesContainer(string elementID, ProcessState state, BusinessProcess process,Exception error)
         {
-            _variables = new BpmEngine.ProcessVariablesContainer(elementID, state, process);
+            _variables = new ProcessVariablesContainer(elementID, state, process);
             _error = error;
         }
 

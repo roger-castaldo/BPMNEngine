@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
 {
-    public static class Log
+    internal static class Log
     {
         public static void Debug(string message,object[] args)
         {

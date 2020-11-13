@@ -80,7 +80,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <summary>
         /// The Process State of the current process
         /// </summary>
-        public ProcessState State { get { return _state; } }
+        public XmlDocument State { get { return _state.Document; } }
 
         private AutoResetEvent _stateEvent=new AutoResetEvent(true);
 
@@ -432,21 +432,42 @@ namespace Org.Reddragonit.BpmEngine
                 throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
         }
 
+        /// <summary>
+        /// This function is used to indicate the completion of a User Task within the given process instance.
+        /// </summary>
+        /// <param name="taskID">The ID of the User Task element completed.</param>
+        /// <param name="variables">The variables associated with the completion of the task.  Supplying values here will update the given process variables for the next step, or it can remain empty if there are no changes to be made.</param>
+        /// <param name="completedByID">Optional to specify a User ID that will show up in the state for indicating the user that completed the task.</param>
         public void CompleteUserTask(string taskID, ProcessVariablesContainer variables,string completedByID)
         {
             _CompleteUserTask(taskID, variables,completedByID);
         }
 
+        /// <summary>
+        /// This function is used to indicate an error occured completing a User Task within the given process instance.
+        /// </summary>
+        /// <param name="taskID">The ID of the User Task element that had the error.</param>
+        /// <param name="ex">The error that occured on the User Task.</param>
         public void ErrorUserTask(string taskID, Exception ex)
         {
             _ErrorExternalTask(taskID, ex);
         }
 
+        /// <summary>
+        /// This function is used to indicate the completion of a Manual Task within the given process instance.
+        /// </summary>
+        /// <param name="taskID">The ID of the Manual Task element completed.</param>
+        /// <param name="variables">The variables associated with the completion of the task.  Supplying values here will update the given process variables for the next step, or it can remain empty if there are no changes to be made.</param>
         public void CompleteManualTask(string taskID, ProcessVariablesContainer variables)
         {
             _CompleteExternalTask(taskID, variables);
         }
 
+        /// <summary>
+        /// This function is used to indicate an error occured completing a Manual Task within the given process instance.
+        /// </summary>
+        /// <param name="taskID">The ID of the Manual Task element that had the error.</param>
+        /// <param name="ex">The error that occured on the Manual Task.</param>
         public void ErrorManualTask(string taskID, Exception ex)
         {
             _ErrorExternalTask(taskID, ex);
@@ -1434,7 +1455,7 @@ namespace Org.Reddragonit.BpmEngine
                 else
                 {
                     try { return left.Equals(right); }
-                    catch (Exception e) { return false; }
+                    catch (Exception e) { Log.Exception(e); return false; }
                 }
             }
         }
@@ -1457,16 +1478,32 @@ namespace Org.Reddragonit.BpmEngine
         }
         #endregion
 
+        /// <summary>
+        /// Called to Dispose of the given process instance.
+        /// </summary>
         public void Dispose()
         {
             Utility.UnloadProcess(this);
         }
-
+        /// <summary>
+        /// Compares a given process instance to this instance to see if they are the same.
+        /// </summary>
+        /// <param name="obj">The Business Process instance to compare this one to.</param>
+        /// <returns>true if they are the same, false if they are not.</returns>
         public override bool Equals(object obj)
         {
             if (obj is BusinessProcess)
                 return ((BusinessProcess)obj)._id == _id;
             return false;
+        }
+
+        /// <summary>
+        /// Returns the HashCode of the Business Process instance.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return _id.GetHashCode();
         }
     }
 }
