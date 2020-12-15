@@ -4,16 +4,16 @@
     <TargetFrameworks>netstandard2.0;net461;net20</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>1.9.12</Version>
+    <Version>1.9.14</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
-    <PackageReleaseNotes>updated race condition issue where a parallel gateway can get called multiple times for incoming and run more than once if all the incoming paths complete around the same time.</PackageReleaseNotes>
-    <AssemblyVersion>1.9.12.0</AssemblyVersion>
-    <FileVersion>1.9.12.0</FileVersion>
+    <PackageReleaseNotes>reverting Log accessability to allow for Logging to be called by external process components</PackageReleaseNotes>
+    <AssemblyVersion>1.9.14.0</AssemblyVersion>
+    <FileVersion>1.9.14.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
@@ -34,7 +34,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard2.0\BpmEngine.xml</DocumentationFile>
+    <DocumentationFile>..\BPMEngine.Wiki\BpmEngine.xml</DocumentationFile>
+    <DocumentationMarkdown>..\BPMEngine.Wiki\BpmEngine.md</DocumentationMarkdown>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net461'">
@@ -75,5 +76,12 @@
     <PackageReference Include="System.Drawing.Common">
       <Version>5.0.0</Version>
     </PackageReference>
-  </ItemGroup> 
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Vsxmd" Version="1.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
