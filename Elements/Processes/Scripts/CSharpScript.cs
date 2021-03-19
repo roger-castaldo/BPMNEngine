@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CSharp;
 using Org.Reddragonit.BpmEngine.Attributes;
 using System;
-#if NET461||NET20
+#if NET461
 using System.CodeDom.Compiler;
 #endif
 using System.Collections.Generic;
@@ -68,7 +68,7 @@ public class {1} {{
         }
 #endif
 
-#if NET461||NET20
+#if NET461
         protected override string _GenerateCode(string[] imports,string code)
         {
             Log.Info("Generating C# Code for script compilation for script element {0}",new object[] { id });

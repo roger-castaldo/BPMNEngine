@@ -3,7 +3,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 #endif
-#if NET461||NET20
+#if NET461
 using System.CodeDom.Compiler;
 #endif
 using System.Collections.Generic;
@@ -151,7 +151,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         }
 #endif
 
-#if NET461||NET20
+#if NET461
         protected abstract string _GenerateCode(string[] imports,string code);
         protected abstract CodeDomProvider _CodeProvider { get; }
         

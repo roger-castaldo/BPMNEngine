@@ -263,20 +263,6 @@ namespace Org.Reddragonit.BpmEngine.State
             Log.Debug("Starting Event {0} in Process Path", new object[] { Event.id });
             _addPathEntry(Event.id,incoming,StepStatuses.Waiting, DateTime.Now);
         }
-
-#if NET20
-        private void _AsyncCallback(IAsyncResult result) { }
-
-        private void _Complete(string incoming,string outgoing)
-        {
-            _complete.BeginInvoke(incoming,outgoing, new AsyncCallback(_AsyncCallback), null);
-        }
-
-        private void _Error(IElement step,Exception ex)
-        {
-            _error.BeginInvoke(step,ex, new AsyncCallback(_AsyncCallback), null);
-        }
-#else
         private async void _Complete(string incoming, string outgoing)
         {
             await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
@@ -286,7 +272,6 @@ namespace Org.Reddragonit.BpmEngine.State
         {
             await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
         }
-#endif
 
         internal void SucceedEvent(AEvent Event)
         {
