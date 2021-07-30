@@ -46,7 +46,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), true))
+                    foreach (XMLTag xt in Utility.GetTagAttributes(t))
                     {
                         if (xt.Matches(_map, n.Name))
                         {
@@ -67,7 +67,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), true))
+                    foreach (XMLTag xt in Utility.GetTagAttributes(t))
                     {
                         if (xt.Matches(_map, n.Name))
                         {

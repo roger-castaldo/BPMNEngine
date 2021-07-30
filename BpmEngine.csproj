@@ -1,19 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>1.9.15</Version>
+    <Version>1.9.16</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
-    <PackageReleaseNotes>Removing support for .net2.0</PackageReleaseNotes>
-    <AssemblyVersion>1.9.15.0</AssemblyVersion>
-    <FileVersion>1.9.15.0</FileVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>improved definition loading performance by caching xmltag attributes and only loading child elements when first being accessed.  Approximately a 50% improvement on speed.</PackageReleaseNotes>
+    <AssemblyVersion>1.9.16.0</AssemblyVersion>
+    <FileVersion>1.9.16.0</FileVersion>
+	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG;</DefineConstants>
@@ -29,24 +31,25 @@
     <DocumentationMarkdown>..\BPMEngine.Wiki\BpmEngine.md</DocumentationMarkdown>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="symbols.Black.png"/>
-    <None Remove="symbols.Blue.png"/>
-    <None Remove="symbols.Green.png"/>
-    <None Remove="symbols.Red.png"/>
+    <None Remove="symbols.Black.png" />
+    <None Remove="symbols.Blue.png" />
+    <None Remove="symbols.Green.png" />
+    <None Remove="symbols.Red.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="symbols.Black.png"/>
-    <EmbeddedResource Include="symbols.Blue.png"/>
-    <EmbeddedResource Include="symbols.Green.png"/>
-    <EmbeddedResource Include="symbols.Red.png"/>
+    <EmbeddedResource Include="symbols.Black.png" />
+    <EmbeddedResource Include="symbols.Blue.png" />
+    <EmbeddedResource Include="symbols.Green.png" />
+    <EmbeddedResource Include="symbols.Red.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Vsxmd" Version="1.4.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Drawing.Common" Version="5.0.2"/>
-    <PackageReference Include="System.CodeDom" Version="5.0.0"/>
-    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="3.9.0"/>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="System.CodeDom" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="3.9.0" />
+	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 </Project>

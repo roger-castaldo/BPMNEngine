@@ -94,7 +94,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 {
                     if (n.NodeType == XmlNodeType.Element)
                     {
-                        foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
+                        foreach (XMLTag xt in Utility.GetTagAttributes(t))
                         {
                             if (xt.Matches(map, n.Name))
                             {

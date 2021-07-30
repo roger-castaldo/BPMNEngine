@@ -19,6 +19,7 @@ namespace Org.Reddragonit.BpmEngine
         private const int GUID_ID_LENGTH = 16;
 
         private static Dictionary<Type, List<Type>> _xmlChildren;
+        private static Dictionary<Type, XMLTag[]> _tagAttributes;
         private static Type[] _globalXMLChildren;
         private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
         private static Dictionary<string, Dictionary<string, Type>> _idealMap;
@@ -40,6 +41,7 @@ namespace Org.Reddragonit.BpmEngine
             _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
             _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
+            _tagAttributes = new Dictionary<Type, XMLTag[]>();
             foreach (Type t in Assembly.GetAssembly(typeof(Utility)).GetTypes())
             {
                 if (new List<Type>(t.GetInterfaces()).Contains(typeof(IElement)))
@@ -48,6 +50,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (tags.Length > 0)
                     {
                         tmp.Add(t);
+                        _tagAttributes.Add(t, tags);
                         Dictionary<string, Type> tmpTypes = new Dictionary<string, Type>();
                         if (_idealMap.ContainsKey(tags[0].Prefix.ToLower()))
                         {
@@ -62,7 +65,7 @@ namespace Org.Reddragonit.BpmEngine
             }
             _xmlChildren = new Dictionary<Type, List<Type>>();
             List<Type> globalChildren = new List<Type>();
-            for(int x = 0; x < tmp.Count; x++)
+            for (int x = 0; x < tmp.Count; x++)
             {
                 Type t = tmp[x];
                 List<ValidParentAttribute> atts = new List<Attributes.ValidParentAttribute>();
@@ -130,6 +133,11 @@ namespace Org.Reddragonit.BpmEngine
             _globalXMLChildren = globalChildren.ToArray();
         }
 
+        internal static XMLTag[] GetTagAttributes(Type t)
+        {
+            return (_tagAttributes.ContainsKey(t) ? _tagAttributes[t] : null);
+        }
+
         public static void NextRandomBytes(byte[] buffer)
         {
             lock (_rand)
@@ -160,7 +168,7 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     foreach (Type t in _xmlChildren[parent])
                     {
-                        foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
+                        foreach (XMLTag xt in _tagAttributes[t])
                         {
                             if (xt.Matches(map, tagName))
                             {
@@ -175,7 +183,7 @@ namespace Org.Reddragonit.BpmEngine
             }
             foreach (Type t in _globalXMLChildren)
             {
-                foreach (XMLTag xt in t.GetCustomAttributes(typeof(XMLTag), false))
+                foreach (XMLTag xt in _tagAttributes[t])
                 {
                     if (xt.Matches(map, tagName))
                     {
