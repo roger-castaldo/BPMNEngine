@@ -1,6 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -14,20 +15,20 @@ namespace Org.Reddragonit.BpmEngine
         private const string _BASE_STATE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ProcessState isSuspended=\"False\"></ProcessState>";
 
         private const string _PROCESS_STATE_ELEMENT = "ProcessState";
-        private const string _PROCESS_LOG_ELEMENT = "ProcessLog";
 
         private AutoResetEvent _evnt;
         private XmlDocument _doc;
         private XmlElement _stateElement;
-        private XmlElement _log;
+        private LogContainer _log;
         private SuspendedStepContainer _suspensions;
         private StateVariableContainer _variables;
+
         private ProcessPath _path;
         internal ProcessPath Path { get { return _path; } }
 
         internal void SuspendStep(string elementID, TimeSpan span)
         {
-            Log.Debug("Suspending Step[{0}] for {1}", new object[] { elementID, span });
+            _process.WriteLogLine(elementID, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
             _suspensions.SuspendStep(elementID, _path.CurrentStepIndex(elementID), span);
             _stateChanged();
         }
@@ -101,13 +102,17 @@ namespace Org.Reddragonit.BpmEngine
         private OnStateChange _onStateChange;
         internal OnStateChange OnStateChange { set { _onStateChange = value; } get { return _onStateChange; } }
 
-        internal ProcessState(ProcessStepComplete complete, ProcessStepError error)
+        private BusinessProcess _process;
+        internal BusinessProcess Process { get { return _process; } }
+
+        internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error)
         {
+            _process = process;
             _evnt = new AutoResetEvent(true);
             _doc = new XmlDocument();
             _doc.LoadXml(_BASE_STATE);
             _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
-            _log = (XmlElement)_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
+            _log = new LogContainer(this);
             _variables = new StateVariableContainer(this);
             _suspensions = new SuspendedStepContainer(this);
             _path = new ProcessPath(complete, error, new processStateChanged(_stateChanged),this);
@@ -122,13 +127,9 @@ namespace Org.Reddragonit.BpmEngine
             {
                 _doc.LoadXml(doc.OuterXml);
                 _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
-                if (_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT).Count > 0)
-                    _log = (XmlElement)_doc.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
-                else
-                    _log = null;
             }catch(Exception e)
             {
-                Log.Exception(e);
+                _process.WriteLogException((string)null,new StackFrame(1,true),DateTime.Now,e);
                 _evnt.Set();
                 return false;
             }
@@ -152,82 +153,29 @@ namespace Org.Reddragonit.BpmEngine
         private void _stateChanged()
         {
             if (_onStateChange != null)
-            { try { _onStateChange(this.Document); } catch (Exception ex) { Log.Exception(ex); } }
+            { try { _onStateChange(this.Document); } catch (Exception ex) { _process.WriteLogException((string)null,new StackFrame(1,true),DateTime.Now,ex); } }
         }
 
         internal void Suspend()
         {
-            Log.Debug("Suspending Process State");
+            _process.WriteLogLine((string)null,LogLevels.Debug,new StackFrame(1,true),DateTime.Now,"Suspending Process State");
             IsSuspended = true;
         }
 
         internal void Resume()
         {
-            Log.Debug("Resuming Process State");
+            _process.WriteLogLine((string)null, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
             IsSuspended = false;
         }
 
-        internal void LogLine(AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
+        internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
         {
-            _evnt.WaitOne();
-            if (_log == null)
-            {
-                _stateElement.AppendChild(_doc.CreateElement(_PROCESS_LOG_ELEMENT));
-                _log = (XmlElement)_stateElement.GetElementsByTagName(_PROCESS_LOG_ELEMENT)[0];
-            }
-            if (_log.ChildNodes.Count == 0)
-                _log.AppendChild(_doc.CreateCDataSection(""));
-            ((XmlCDataSection)_log.ChildNodes[0]).Value += string.Format("{0}|{1}|{2}|{3}[{4}]|{5}\r\n", new object[]
-                {
-                    timestamp.ToString(Constants.DATETIME_FORMAT),
-                    level,
-                    assembly.Name,
-                    fileName,
-                    lineNumber,
-                    message
-                });
-            _evnt.Set();
+            _log.LogLine(elementID, assembly, fileName, lineNumber, level, timestamp, message);
         }
 
-        internal void LogException(AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
+        internal void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
         {
-            StringBuilder sb = new StringBuilder();
-            if (exception is InvalidProcessDefinitionException)
-            {
-                sb.AppendLine(string.Format(@"MESSAGE:{0}
-STACKTRACE:{1}", new object[]
-                {
-                exception.Message,
-                exception.StackTrace
-                }));
-                foreach (Exception e in ((InvalidProcessDefinitionException)exception).ProcessExceptions)
-                {
-                    sb.AppendLine(string.Format(@"MESSAGE:{0}
-STACKTRACE:{1}", new object[]
-                {
-                e.Message,
-                e.StackTrace
-                }));
-                }
-            }
-            else
-            {
-                Exception ex = exception;
-                bool isInner = false;
-                while (ex != null)
-                {
-                    sb.AppendLine(string.Format(@"{2}MESSAGE:{0}
-STACKTRACE:{1}", new object[]
-                {
-                ex.Message,
-                ex.StackTrace,
-                (isInner ? "INNER_EXCEPTION:" : "")
-                }));
-                    isInner = true;
-                    ex = ex.InnerException;
-                }
-            }
-            LogLine(assembly, fileName, lineNumber, LogLevels.Error, timestamp, sb.ToString());   
+            _log.LogException(elementID, assembly, fileName, lineNumber, timestamp, exception);
         }
 
         #region StateContainerDelegates
@@ -297,6 +245,21 @@ STACKTRACE:{1}", new object[]
         {
             Utility.EncodeVariableValue(value, elem, _doc);
         }
+        internal void AppendValue(string containerName, string value)
+        {
+            _evnt.WaitOne();
+            XmlElement elem = _FindContainer(containerName);
+            if (elem.ChildNodes.Count > 0)
+            {
+                value = ((XmlCDataSection)elem.ChildNodes[0]).Data + value;
+                elem.RemoveChild(elem.ChildNodes[0]);
+            }
+            
+            XmlCDataSection cda = _doc.CreateCDataSection(value);
+            elem.AppendChild(cda);
+            _evnt.Set();
+        }
+
         #endregion
     }
 }

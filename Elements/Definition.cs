@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Xml;
 
@@ -102,6 +103,60 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 return false;
             }
             return base.IsValid(out err);
+        }
+
+        private BusinessProcess _owningProcess;
+        internal BusinessProcess OwningProcess
+        {
+            set { _owningProcess = value; }
+        }
+
+        internal void Debug(IElement element,string message)
+        {
+            if (_owningProcess != null) 
+                _owningProcess.WriteLogLine(element, LogLevels.Debug, new StackFrame(2, true), DateTime.Now, message);
+        }
+
+        internal void Debug(IElement element, string message, object[] pars)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Debug, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
+        }
+        internal void Info(IElement element,string message)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Info, new StackFrame(2, true), DateTime.Now, message);
+        }
+        internal void Info(IElement element, string message, object[] pars)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Info, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
+        }
+        internal void Error(IElement element, string message)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Error, new StackFrame(2, true), DateTime.Now, message);
+        }
+        internal void Error(IElement element, string message, object[] pars)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Error, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
+        }
+        internal void Fatal(IElement element, string message)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Fatal, new StackFrame(2, true), DateTime.Now, message);
+        }
+        internal void Fatal(IElement element, string message, object[] pars)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogLine(element, LogLevels.Fatal, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
+        }
+        internal Exception Exception(IElement element, Exception exception)
+        {
+            if (_owningProcess != null)
+                _owningProcess.WriteLogException(element, new StackFrame(2, true), DateTime.Now, exception);
+            return exception;
         }
     }
 }

@@ -605,22 +605,24 @@ namespace Org.Reddragonit.BpmEngine
     /// <summary>
     /// This delegate is implemented to be called when a Log Line Entry is made by a process.  This can be used to log items externally, to a file, database, or logging engine implemented outside of the library.
     /// </summary>
+    /// <param name="callingElement">The Process Element Calling the Log Line (may be null)</param>
     /// <param name="assembly">The AssemblyName for the source of the line</param>
     /// <param name="fileName">The source file name for the log entry</param>
     /// <param name="lineNumber">The source line number for the log entry</param>
     /// <param name="level">The log level for the entry</param>
     /// <param name="timestamp">The timestamp of when the log entry occured</param>
     /// <param name="message">The log entry</param>
-    public delegate void LogLine(AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message);
+    public delegate void LogLine(IElement callingElement,AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message);
 
     /// <summary>
     /// This delegate is implemented to be called when a Log Exception is made by a process.  This can be used to log exceptions externally, to a file, database, or logging engine implemented outside of the library.
     /// </summary>
+    /// <param name="callingElement">The Process Element Calling the Log Exception (may be null)</param>
     /// <param name="assembly">The AssemblyName for the source of the exception</param>
     /// <param name="fileName">The source file name for the exception</param>
     /// <param name="lineNumber">The source line number for the exception</param>
     /// <param name="timestamp">The timestamp of when the exception occured</param>
     /// <param name="exception">The exception that occured</param>
-    public delegate void LogException(AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception);
+    public delegate void LogException(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception);
     #endregion
 }

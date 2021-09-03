@@ -85,6 +85,7 @@ namespace Org.Reddragonit.BpmEngine
         private AutoResetEvent _stateEvent=new AutoResetEvent(true);
 
         private LogLevels _stateLogLevel = LogLevels.None;
+
         /// <summary>
         /// The log level to use inside the state document for logging
         /// </summary>
@@ -536,7 +537,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
         /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel)
-            : this(doc, LogLevels.None, null,null) { }
+            : this(doc, stateLogLevel, null,null) { }
 
         /// <summary>
         /// Creates a new instance of the BusinessProcess passing it the definition, the StateLogLevel and the LogLine delegate
@@ -545,7 +546,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
         /// <param name="logLine">The LogLine delegate</param>
         public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,LogLine logLine)
-            : this(doc, LogLevels.None, null,logLine) { }
+            : this(doc, stateLogLevel, null,logLine) { }
 
         /// <summary>
         /// Creates a new instance of the BusinessProcess passing it the definition, the StateLogLevel and runtime constants
@@ -576,10 +577,10 @@ namespace Org.Reddragonit.BpmEngine
             _current = this;
             _elementMapCache = new BpmEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
-            WriteLogLine(LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
+            WriteLogLine((IElement)null,LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
             _elements = new Dictionary<string, Interfaces.IElement>();
-            XmlPrefixMap map = new XmlPrefixMap();
+            XmlPrefixMap map = new XmlPrefixMap(this);
             foreach (XmlNode n in doc.ChildNodes)
             {
                 if (n.NodeType == XmlNodeType.Element)
@@ -619,29 +620,44 @@ namespace Org.Reddragonit.BpmEngine
             if (exceptions.Count != 0)
             {
                 Exception ex = new InvalidProcessDefinitionException(exceptions);
-                WriteLogException(new StackFrame(1, true), DateTime.Now, ex);
+                WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
-            _state = new ProcessState(new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
+            _state = new ProcessState(this,new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
+            _InitDefinition();
+        }
+
+        private void _InitDefinition()
+        {
+            for (int x = 0; x < _components.Count; x++)
+            {
+                if (_components[x] is Definition)
+                {
+                    Definition def = (Definition)_components[x];
+                    _components.RemoveAt(x);
+                    def.OwningProcess = this;
+                    _components.Insert(x, def);
+                }
+            }
         }
 
         private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
         {
-            WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.id }));
+            WriteLogLine(elem,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.id }));
             foreach (RequiredAttribute ra in Utility.GetCustomAttributesForClass(elem.GetType(),typeof(RequiredAttribute)))
             {
                if (elem[ra.Name]==null)
-                    exceptions.Add(new MissingAttributeException(elem.Element,ra));
+                    exceptions.Add(new MissingAttributeException(elem.Definition,elem.Element,ra));
             }
             foreach (AttributeRegex ar in Utility.GetCustomAttributesForClass(elem.GetType(), typeof(AttributeRegex)))
             {
                 if (!ar.IsValid(elem))
-                    exceptions.Add(new InvalidAttributeValueException(elem.Element, ar));
+                    exceptions.Add(new InvalidAttributeValueException(elem.Definition,elem.Element, ar));
             }
             string[] err;
             if (!elem.IsValid(out err))
-                exceptions.Add(new InvalidElementException(elem.Element, err));
+                exceptions.Add(new InvalidElementException(elem.Definition,elem.Element, err));
             if (elem.ExtensionElement != null)
                 _ValidateElement((ExtensionElements)elem.ExtensionElement, ref exceptions);
             if (elem is AParentElement)
@@ -672,7 +688,7 @@ namespace Org.Reddragonit.BpmEngine
             _current = this;
             if (_state.Load(doc))
             {
-                WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
+                WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
                 _isSuspended = _state.IsSuspended;
                 if (autoResume&&_isSuspended)
                     Resume();
@@ -687,7 +703,7 @@ namespace Org.Reddragonit.BpmEngine
         public void Resume()
         {
             _current = this;
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
             if (_isSuspended)
             {
                 _isSuspended = false;
@@ -705,12 +721,12 @@ namespace Org.Reddragonit.BpmEngine
                     else
                         CompleteTimedEvent((AEvent)_GetElement(ss.id));
                 }
-                WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
+                WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
             }
             else
             {
                 Exception ex = new NotSuspendedException();
-                WriteLogException(new StackFrame(1, true), DateTime.Now, ex);
+                WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
         }
@@ -722,7 +738,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <returns>A Bitmap containing a rendered image of the process at its current state</returns>
         public Bitmap Diagram(bool outputVariables)
         {
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}",new object[] { (outputVariables ? " with variables" : " without variables") }));
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}",new object[] { (outputVariables ? " with variables" : " without variables") }));
             int width = 0;
             int height = 0;
             foreach (IElement elem in _Elements)
@@ -836,7 +852,7 @@ namespace Org.Reddragonit.BpmEngine
         public byte[] Animate(bool outputVariables)
         {
             _current = this;
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             MemoryStream ms = new MemoryStream();
             using (Drawing.GifEncoder enc = new Drawing.GifEncoder(ms))
             {
@@ -882,19 +898,21 @@ namespace Org.Reddragonit.BpmEngine
         /// <returns>A new instance of the current BusinessProcess with the process defintion already loaded</returns>
         public BusinessProcess Clone(bool includeState,bool includeDelegates)
         {
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Cloning Business Process {0} {1}",new object[] {
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Cloning Business Process {0} {1}",new object[] {
                 (includeState ? "including state":"without state"),
                 (includeDelegates ? "including delegates" : "without delegates")
             }));
             BusinessProcess ret = new BusinessProcess();
             ret._doc = _doc;
             ret._components = new List<object>(_components.ToArray());
+            ret._InitDefinition();
             ret._constants = _constants;
             ret._elements = _elements;
+            ret._stateLogLevel = _stateLogLevel;
             if (includeState)
                 ret._state = _state;
             else
-                ret._state = new ProcessState(new ProcessStepComplete(ret._ProcessStepComplete), new ProcessStepError(ret._ProcessStepError));
+                ret._state = new ProcessState(ret,new ProcessStepComplete(ret._ProcessStepComplete), new ProcessStepError(ret._ProcessStepError));
             if (includeDelegates)
             {
                 ret.OnEventStarted = OnEventStarted;
@@ -937,7 +955,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             _current = this;
             variables.SetProcess(this);
-            WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
+            WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             bool ret = false;
             foreach (IElement elem in _elements.Values)
             {
@@ -950,7 +968,7 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             if (se.IsEventStartValid(variables, _isEventStartValid))
                             {
-                                WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
+                                WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
                                 if (_onProcessStarted != null)
                                     _onProcessStarted(p, new ReadOnlyProcessVariablesContainer(variables));
                                 if (_onEventStarted!=null)
@@ -970,7 +988,7 @@ namespace Org.Reddragonit.BpmEngine
                     break;
             }
             if (!ret)
-                WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
+                WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
             return ret;
         }
 
@@ -979,7 +997,7 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         public void Suspend()
         {
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
             _isSuspended = true;
             _state.Suspend();
             _mreSuspend.WaitOne(5000);
@@ -1043,7 +1061,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessStepComplete(string sourceID,string outgoingID) {
             _current = this;
-            WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
+            WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
             if (outgoingID != null)
             {
                 IElement elem = _GetElement(outgoingID);
@@ -1054,7 +1072,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessStepError(IElement step,Exception ex) {
             _current = this;
-            WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
+            WriteLogLine(step,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
             bool success = false;
             if (step is ATask)
             {
@@ -1062,7 +1080,7 @@ namespace Org.Reddragonit.BpmEngine
                 string destID = atsk.CatchEventPath(ex);
                 if (destID != null)
                 {
-                    WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", destID));
+                    WriteLogLine(step,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", destID));
                     success = true;
                     _ProcessElement(step.id, atsk.Definition.LocateElement(destID));
                 }
@@ -1091,7 +1109,7 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             if (new List<string>(tmp).Contains(ex.Message) || new List<string>(tmp).Contains(ex.GetType().Name))
                             {
-                                WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
+                                WriteLogLine(step,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
                                 success = true;
                                 _ProcessElement(step.id, catcher);
                                 break;
@@ -1107,7 +1125,7 @@ namespace Org.Reddragonit.BpmEngine
                             {
                                 if (new List<string>(tmp).Contains("*"))
                                 {
-                                    WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
+                                    WriteLogLine(step,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
                                     success = true;
                                     _ProcessElement(step.id, catcher);
                                     break;
@@ -1133,7 +1151,7 @@ namespace Org.Reddragonit.BpmEngine
             }
             else
             {
-                WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
+                WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
                 _current = this;
                 if (elem is SequenceFlow)
                 {
@@ -1185,7 +1203,7 @@ namespace Org.Reddragonit.BpmEngine
                         }
                         catch (Exception e)
                         {
-                            WriteLogException(new StackFrame(1, true), DateTime.Now, e);
+                            WriteLogException(elem,new StackFrame(1, true), DateTime.Now, e);
                             if (_onGatewayError != null)
                                 _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
                             outgoings = null;
@@ -1235,7 +1253,7 @@ namespace Org.Reddragonit.BpmEngine
                         }
                         catch (Exception e)
                         {
-                            WriteLogException(new StackFrame(1, true), DateTime.Now, e);
+                            WriteLogException(evnt,new StackFrame(1, true), DateTime.Now, e);
                             success = false;
                         }
                     }
@@ -1324,7 +1342,7 @@ namespace Org.Reddragonit.BpmEngine
                     }
                     catch (Exception e)
                     {
-                        WriteLogException(new StackFrame(1, true), DateTime.Now, e);
+                        WriteLogException(tsk,new StackFrame(1, true), DateTime.Now, e);
                         if (_onTaskError != null)
                             _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state,this,e));
                         _stateEvent.WaitOne();
@@ -1341,7 +1359,7 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             if (se.IsEventStartValid(variables, _isEventStartValid))
                             {
-                                WriteLogLine(LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
+                                WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
                                 _stateEvent.WaitOne();
                                 _state.Path.StartSubProcess(esp, sourceID);
                                 _stateEvent.Set();
@@ -1381,7 +1399,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _MergeVariables(ATask task, ProcessVariablesContainer variables,string completedByID)
         {
-            WriteLogLine(LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, completedByID }));
+            WriteLogLine(task,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, completedByID }));
             _stateEvent.WaitOne();
             foreach (string str in variables.Keys)
                 {
@@ -1455,26 +1473,36 @@ namespace Org.Reddragonit.BpmEngine
                 else
                 {
                     try { return left.Equals(right); }
-                    catch (Exception e) { Log.Exception(e); return false; }
+                    catch (Exception e) { WriteLogException((string)null,new StackFrame(2,true),DateTime.Now,e); return false; }
                 }
             }
         }
 
         #region Logging
-        internal void WriteLogLine(LogLevels level,StackFrame sf,DateTime timestamp, string message)
+        internal void WriteLogLine(string elementID,LogLevels level,StackFrame sf,DateTime timestamp, string message)
+        {
+            WriteLogLine((IElement)(elementID == null ? null : _GetElement(elementID)), level, sf, timestamp, message);
+        }
+        internal void WriteLogLine(IElement element, LogLevels level, StackFrame sf, DateTime timestamp, string message)
         {
             if ((int)level <= (int)_stateLogLevel && _state!=null)
-                _state.LogLine(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
+                _state.LogLine((element==null ? null : element.id),sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
             if (_logLine != null)
-                _logLine.Invoke(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
+                _logLine.Invoke(element,sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
 
-        internal void WriteLogException(StackFrame sf, DateTime timestamp, Exception exception)
+        internal Exception WriteLogException(string elementID,StackFrame sf, DateTime timestamp, Exception exception)
+        {
+            return WriteLogException((IElement)(elementID == null ? null : _GetElement(elementID)), sf, timestamp, exception);
+        }
+        
+        internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
             if ((int)LogLevels.Error <= (int)_stateLogLevel)
-                _state.LogException(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+                _state.LogException((element==null ? null : element.id),sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             if (_logException != null)
-                _logException.Invoke(sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+                _logException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+            return exception;
         }
         #endregion
 

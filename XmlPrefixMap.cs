@@ -16,9 +16,11 @@ namespace Org.Reddragonit.BpmEngine
         private static readonly Regex _regEXTSRef = new Regex(".+raw\\.githubusercontent\\.com/roger-castaldo/BPMEngine/.+/Extensions", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
 
         private Dictionary<string, List<string>> _prefixMaps;
+        private BusinessProcess _process;
 
-        public XmlPrefixMap()
+        public XmlPrefixMap(BusinessProcess process)
         {
+            _process = process;
             _prefixMaps = new Dictionary<string, List<string>>();
         }
 
@@ -45,7 +47,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (prefix != null)
                     {
                         changed = true;
-                        Log.Debug("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) });
+                        _process.WriteLogLine((string)null,LogLevels.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
                         if (!_prefixMaps.ContainsKey(prefix))
                             _prefixMaps.Add(prefix, new List<string>());
                         List<string> tmp = _prefixMaps[prefix];
@@ -60,13 +62,13 @@ namespace Org.Reddragonit.BpmEngine
 
         public List<string> Translate(string prefix)
         {
-            Log.Debug("Attempting to translate xml prefix {0}", new object[] { prefix });
+            _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Attempting to translate xml prefix {0}", new object[] { prefix }));
             List<string> ret = new List<string>();
             lock (_prefixMaps)
             {
                 if (_prefixMaps.ContainsKey(prefix))
                 {
-                    Log.Debug("Translation for XML Prefix {0} located", new object[] { prefix });
+                    _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Translation for XML Prefix {0} located", new object[] { prefix }));
                     ret.AddRange(_prefixMaps[prefix].ToArray());
                 }
             }
@@ -75,12 +77,12 @@ namespace Org.Reddragonit.BpmEngine
 
         internal bool isMatch(string prefix, string tag, string nodeName)
         {
-            Log.Debug("Checking if prefix {0} matches {1}:{2}",new object[] { nodeName,prefix,tag });
+            _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}",new object[] { nodeName,prefix,tag }));
             if (string.Format("{0}:{1}", prefix, tag).ToLower() == nodeName.ToLower())
                 return true;
             foreach (string str in Translate(prefix))
             {
-                Log.Debug("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName,str,tag});
+                _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName,str,tag}));
                 if (string.Format("{0}:{1}", str, tag).ToLower() == nodeName.ToLower())
                     return true;
             }

@@ -26,7 +26,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 _jintAssembly = Assembly.Load("Jint");
             }catch(Exception e)
             {
-                Log.Exception(e);
                 _jintAssembly = null;
             }
             if (_jintAssembly == null)
@@ -37,7 +36,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 }
                 catch (Exception e)
                 {
-                    Log.Exception(e);
                     _jintAssembly = null;
                 }
             }
@@ -56,13 +54,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 
         protected override object _Invoke(ProcessVariablesContainer variables)
         {
-            Log.Info("Attempting to invoke Javascript script {0}", new object[] { id });
+            Info("Attempting to invoke Javascript script {0}", new object[] { id });
             if (_engineType == null)
                 throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
-            Log.Debug("Creating new Javascript Engine for script element {0}", new object[] { id });
+            Debug("Creating new Javascript Engine for script element {0}", new object[] { id });
             object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
             object[] pars = new object[] { "variables", variables };
-            Log.Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
+            Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
             _setValue.Invoke(engine, pars);
             object ret = null;
             if (_Code.Contains("return "))

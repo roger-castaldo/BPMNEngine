@@ -112,7 +112,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                             if (ass.Location != null && ass.Location != "")
                                 references.Add(MetadataReference.CreateFromFile(ass.Location));
                         }
-                        catch (System.NotSupportedException nse) { Log.Exception(nse); }
+                        catch (System.NotSupportedException nse) { Exception(nse); }
                         catch(Exception e)
                         {
                             throw e;
@@ -126,7 +126,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                         }
                         catch(Exception e)
                         {
-                            Log.Exception(e);
+                            Exception(e);
                             errors = "Unable to load assembly: " + str;
                             break;
                         }
@@ -187,20 +187,20 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 
         protected sealed override object _Invoke(ProcessVariablesContainer variables)
         {
-            Log.Debug("Attempting to compile script to execute for script element {0}",new object[] { id });
+            Debug("Attempting to compile script to execute for script element {0}",new object[] { id });
             string errors;
             if (!_CompileAssembly(out errors))
                 throw new Exception(errors);
-            Log.Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
             object o = _assembly.CreateInstance(_className);
-            Log.Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
             MethodInfo mi = o.GetType().GetMethod(_functionName);
             object[] args = new object[] { variables };
-            Log.Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
             object ret = mi.Invoke(o, args);
             if (mi.ReturnType == typeof(void))
             {
-                Log.Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { id });
+                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { id });
                 ret = args[0];
             }
             return ret;

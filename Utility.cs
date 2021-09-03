@@ -5,6 +5,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -241,7 +242,7 @@ namespace Org.Reddragonit.BpmEngine
             return null;
         }
 
-        public static string FindXPath(XmlNode node)
+        public static string FindXPath(Definition definition, XmlNode node)
         {
             StringBuilder builder = new StringBuilder();
             while (node != null)
@@ -255,7 +256,7 @@ namespace Org.Reddragonit.BpmEngine
                     case XmlNodeType.Element:
                         if (node.Attributes["id"] == null)
                         {
-                            int index = FindElementIndex((XmlElement)node);
+                            int index = FindElementIndex(definition,(XmlElement)node);
                             builder.Insert(0, "/" + node.Name + "[" + index + "]");
                         }
                         else
@@ -265,15 +266,16 @@ namespace Org.Reddragonit.BpmEngine
                     case XmlNodeType.Document:
                         return builder.ToString();
                     default:
-                        throw Log._Exception(new ArgumentException("Only elements and attributes are supported"));
+                        throw (definition == null ? new ArgumentException("Only elements and attributes are supported") : definition.Exception(new ArgumentException("Only elements and attributes are supported")));
                 }
             }
-            throw Log._Exception(new ArgumentException("Node was not in a document"));
+            throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(new ArgumentException("Node was not in a document")));
         }
 
-        public static int FindElementIndex(XmlElement element)
+        public static int FindElementIndex(Definition definition,XmlElement element)
         {
-            Log.Debug("Locating Element Index for element {0}", new object[] { element.Name });
+            if (definition!=null)
+                definition.Debug("Locating Element Index for element {0}", new object[] { element.Name });
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
             {
@@ -290,7 +292,7 @@ namespace Org.Reddragonit.BpmEngine
                     index++;
                 }
             }
-            throw Log._Exception(new ArgumentException("Couldn't find element within parent"));
+            throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(new ArgumentException("Couldn't find element within parent")));
         }
 
         internal static object[] GetCustomAttributesForClass(Type clazz,Type attributeType)
@@ -655,7 +657,7 @@ namespace Org.Reddragonit.BpmEngine
                                 _suspendedEvents.RemoveAt(x);
                                 x--;
                             }
-                            catch (Exception e) { Log.Exception(e); }
+                            catch (Exception e) { spe.Process.WriteLogException(spe.Event,new StackFrame(1,true),DateTime.Now,e); }
                         }
                     }
                 }

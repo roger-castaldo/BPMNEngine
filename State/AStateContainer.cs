@@ -27,6 +27,11 @@ namespace Org.Reddragonit.BpmEngine.State
             return _state.CreateElement(name);
         }
 
+        protected void AppendValue(string content)
+        {
+            _state.AppendValue(_ContainerName, content);
+        }
+
         protected void _SetAttribute(XmlElement element,string name,string value)
         {
             _state.SetAttribute(element, name, value);
@@ -43,6 +48,16 @@ namespace Org.Reddragonit.BpmEngine.State
         protected void _EncodeVariableValue(object value,XmlElement elem)
         {
             _state.EncodeVariableValue(value, elem);
+        }
+
+        protected void _WriteLogLine(string elementID,LogLevels level,string message)
+        {
+            _state.Process.WriteLogLine(elementID, level, new System.Diagnostics.StackFrame(2, true), DateTime.Now, message);
+        }
+
+        protected void _WriteException(string elementID,Exception exception)
+        {
+            _state.Process.WriteLogException(elementID, new System.Diagnostics.StackFrame(2, true), DateTime.Now, exception);
         }
     }
 }

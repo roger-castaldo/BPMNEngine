@@ -260,7 +260,7 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void StartEvent(AEvent Event, string incoming)
         {
-            Log.Debug("Starting Event {0} in Process Path", new object[] { Event.id });
+            _WriteLogLine(Event.id,LogLevels.Debug,"Starting Event in Process Path");
             _addPathEntry(Event.id,incoming,StepStatuses.Waiting, DateTime.Now);
         }
         private async void _Complete(string incoming, string outgoing)
@@ -275,7 +275,7 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void SucceedEvent(AEvent Event)
         {
-            Log.Debug("Succeeding Event {0} in Process Path", new object[] { Event.id });
+            _WriteLogLine(Event.id,LogLevels.Debug,"Succeeding Event in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(Event.id, out start, out incoming);
@@ -295,7 +295,7 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void FailEvent(AEvent Event)
         {
-            Log.Debug("Failing Event {0} in Process Path", new object[] { Event.id });
+            _WriteLogLine(Event.id, LogLevels.Debug, "Failing Event in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(Event.id, out start, out incoming);
@@ -305,13 +305,13 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void StartSubProcess(SubProcess SubProcess, string incoming)
         {
-            Log.Debug("Starting SubProcess {0} in Process Path", new object[] { SubProcess.id });
+            _WriteLogLine(SubProcess.id, LogLevels.Debug, "Starting SubProcess in Process Path");
             _addPathEntry(SubProcess.id, incoming, StepStatuses.Waiting, DateTime.Now);
         }
 
         internal void SucceedSubProcess(SubProcess SubProcess)
         {
-            Log.Debug("Succeeding SubProcess {0} in Process Path", new object[] { SubProcess.id });
+            _WriteLogLine(SubProcess.id, LogLevels.Debug, "Succeeding SubProcess in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
@@ -331,7 +331,7 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void FailSubProcess(SubProcess SubProcess)
         {
-            Log.Debug("Failing SubProcess {0} in Process Path", new object[] { SubProcess.id });
+            _WriteLogLine(SubProcess.id, LogLevels.Debug, "Failing SubProcess in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
@@ -341,27 +341,27 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void ProcessMessageFlow(MessageFlow flow)
         {
-            Log.Debug("Processing Message Flow {0} in Process Path", new object[] { flow.id });
+            _WriteLogLine(flow.id, LogLevels.Debug, "Processing Message Flow in Process Path");
             _addPathEntry(flow.id, flow.sourceRef, flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
             _Complete(flow.id, flow.targetRef);
         }
 
         internal void ProcessSequenceFlow(SequenceFlow flow)
         {
-            Log.Debug("Processing Sequence Flow {0} in Process Path", new object[] { flow.id });
+            _WriteLogLine(flow.id, LogLevels.Debug, "Processing Sequence Flow in Process Path");
             _addPathEntry(flow.id, flow.sourceRef,  flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
             _Complete(flow.id, flow.targetRef);
         }
 
         internal void StartTask(ATask task, string incoming)
         {
-            Log.Debug("Starting Task {0} in Process Path", new object[] { task.id });
+            _WriteLogLine(task.id, LogLevels.Debug, "Starting Task in Process Path");
             _addPathEntry(task.id,incoming, StepStatuses.Waiting, DateTime.Now);
         }
 
         internal void FailTask(ATask task, Exception ex)
         {
-            Log.Debug("Failing Task {0} in Process Path", new object[] { task.id });
+            _WriteLogLine(task.id, LogLevels.Debug, "Failing Task in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(task.id, out start, out incoming);
@@ -371,13 +371,13 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void SucceedTask(UserTask task,string completedByID)
         {
-            Log.Debug("Succeeding Task {0} in Process Path with Completed By ID {1}", new object[] { task.id,completedByID });
+            _WriteLogLine(task.id, LogLevels.Debug, string.Format("Succeeding Task in Process Path with Completed By ID {0}", new object[] { completedByID }));
             _SucceedTask(task, completedByID);
         }
 
         internal void SucceedTask(ATask task)
         {
-            Log.Debug("Succeeding Task {0} in Process Path", new object[] { task.id });
+            _WriteLogLine(task.id, LogLevels.Debug, "Succeeding Task in Process Path");
             _SucceedTask(task, null);
         }
 
@@ -392,13 +392,13 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void StartGateway(AGateway gateway, string incoming)
         {
-            Log.Debug("Starting Gateway {0} in Process Path", new object[] { gateway.id });
+            _WriteLogLine(gateway.id, LogLevels.Debug, "Starting Gateway in Process Path");
             _addPathEntry(gateway.id,incoming,StepStatuses.Waiting, DateTime.Now);
         }
 
         internal void FailGateway(AGateway gateway)
         {
-            Log.Debug("Failing Gateway {0} in Process Path", new object[] { gateway.id });
+            _WriteLogLine(gateway.id, LogLevels.Debug, "Failing Gateway in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
@@ -408,7 +408,7 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void SuccessGateway(AGateway gateway, string[] chosenExits)
         {
-            Log.Debug("Succeeding Gateway {0} in Process Path", new object[] { gateway.id });
+            _WriteLogLine(gateway.id, LogLevels.Debug, "Succeeding Gateway in Process Path");
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
@@ -419,7 +419,7 @@ namespace Org.Reddragonit.BpmEngine.State
 
         internal void SuspendElement(string sourceID, IElement elem)
         {
-            Log.Debug("Suspending Element {0} in Process Path", new object[] { elem.id });
+            _WriteLogLine(elem.id, LogLevels.Debug, "Suspending Element in Process Path");
             _addPathEntry(elem.id,sourceID,StepStatuses.Suspended, DateTime.Now);
         }
     }

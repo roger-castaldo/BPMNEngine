@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
@@ -12,6 +13,7 @@ namespace Org.Reddragonit.BpmEngine
         private List<string> _nulls;
         private Dictionary<string, object> _variables;
         private int _stepIndex;
+        private string _elementID;
 
         private BusinessProcess _process = null;
         internal void SetProcess(BusinessProcess process) { _process = process; }
@@ -28,16 +30,23 @@ namespace Org.Reddragonit.BpmEngine
 
         internal ProcessVariablesContainer(string elementID, ProcessState state,BusinessProcess process)
         {
-            Log.Debug("Producing Process Variables Container for element[{0}]", new object[] { elementID });
+            _process = process;
+            _process.WriteLogLine(elementID,LogLevels.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
+            _elementID = elementID;
             _stepIndex = state.Path.CurrentStepIndex(elementID);
             _nulls = new List<string>();
             _variables = new Dictionary<string, object>();
-            _process = process;
             foreach (string str in state[elementID])
             {
-                Log.Debug("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID });
+                _process.WriteLogLine(elementID, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID }));
                 _variables.Add(str,state[elementID, str]);
             }
+        }
+
+        internal void WriteLogLine(LogLevels level,string message)
+        {
+            if (_process != null)
+                _process.WriteLogLine(_elementID, level, new StackFrame(2, true), DateTime.Now, message);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,8 +30,8 @@ namespace Org.Reddragonit.BpmEngine
     /// </summary>
     public class MissingAttributeException : Exception
     {
-        internal MissingAttributeException(XmlNode n, RequiredAttribute att)
-            : base(string.Format("The element at {0} is missing a value for the attribute {1}", Utility.FindXPath(n), att.Name)) { }
+        internal MissingAttributeException(Definition definition,XmlNode n, RequiredAttribute att)
+            : base(string.Format("The element at {0} is missing a value for the attribute {1}", Utility.FindXPath(definition,n), att.Name)) { }
 
     }
 
@@ -39,9 +40,9 @@ namespace Org.Reddragonit.BpmEngine
     /// </summary>
     public class InvalidAttributeValueException : Exception
     {
-        internal InvalidAttributeValueException(XmlNode n, AttributeRegex ar)
+        internal InvalidAttributeValueException(Definition definition,XmlNode n, AttributeRegex ar)
             : base(string.Format("The element at {0} has an invalid value for the attribute {1}, expected {2}", new string[]{
-                Utility.FindXPath(n), 
+                Utility.FindXPath(definition,n), 
                 ar.Name,ar.Reg.ToString()
             })) { }
     }
@@ -51,8 +52,8 @@ namespace Org.Reddragonit.BpmEngine
     /// </summary>
     public class InvalidElementException : Exception
     {
-        internal InvalidElementException(XmlNode n, string[] err)
-            : base(string.Format("The element at {0} has the following error(s):\n{1}", Utility.FindXPath(n), String.Join("\n\t",err))) { }
+        internal InvalidElementException(Definition definition,XmlNode n, string[] err)
+            : base(string.Format("The element at {0} has the following error(s):\n{1}", Utility.FindXPath(definition,n), String.Join("\n\t",err))) { }
     }
 
     /// <summary>

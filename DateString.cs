@@ -22,7 +22,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public DateTime GetTime(ProcessVariablesContainer variables)
         {
-            Log.Info("Attempting to parse DateString [{0}]", new object[] { _value });
+            variables.WriteLogLine(LogLevels.Info,string.Format("Attempting to parse DateString [{0}]", new object[] { _value }));
             DateTime ret = DateTime.Now;
             bool isFirst = true;
             string buffer = "";
@@ -63,19 +63,19 @@ namespace Org.Reddragonit.BpmEngine
                             if (_basicRelativeRegex.IsMatch(buffer))
                             {
                                 m = _basicRelativeRegex.Match(buffer);
-                                ret = _AddOffset(m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
+                                ret = _AddOffset(variables,m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
                                 buffer = "";
                             }
                             else if (_simpleRelativeRegex.IsMatch(buffer))
                             {
                                 m = _simpleRelativeRegex.Match(buffer);
-                                ret = _AddOffset(m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
+                                ret = _AddOffset(variables,m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
                                 buffer = "";
                             }
                             else if (_completeRelativeRegex.IsMatch(buffer))
                             {
                                 m = _completeRelativeRegex.Match(buffer);
-                                ret = _AddOffset(m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
+                                ret = _AddOffset(variables,m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
                                 buffer = "";
                             }
                             else if (isFirst)
@@ -99,11 +99,14 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             if (buffer != "")
-                throw Log._Exception(new Exception(string.Format("Invalid Date String Specified [{0}]", buffer)));
+            {
+                variables.WriteLogLine(LogLevels.Error, string.Format("Invalid Date String Specified [{0}]", buffer));
+                throw new Exception(string.Format("Invalid Date String Specified [{0}]", buffer));
+            }
             return ret;
         }
 
-        private DateTime _AddOffset(string unit, int value, DateTime dateTime)
+        private DateTime _AddOffset(ProcessVariablesContainer variables,string unit, int value, DateTime dateTime)
         {
             switch (unit.ToLower())
             {
@@ -129,7 +132,8 @@ namespace Org.Reddragonit.BpmEngine
                 case "seconds":
                     return dateTime.AddSeconds(value);
                 default:
-                    throw Log._Exception(new Exception("Internal error: Unhandled relative date/time case."));
+                    variables.WriteLogLine(LogLevels.Error, "Internal error: Unhandled relative date/time case.");
+                    throw new Exception("Internal error: Unhandled relative date/time case.");
             }
         }
     }

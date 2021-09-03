@@ -51,7 +51,7 @@ public class {1} {{
 #if NETSTANDARD20
         protected override EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms)
         {
-            Log.Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
+            Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
             StringBuilder sbUsing = new StringBuilder();
             foreach (string str in imports)
                 sbUsing.AppendFormat("using {0};\n", str);
@@ -71,7 +71,7 @@ public class {1} {{
 #if NET461
         protected override string _GenerateCode(string[] imports,string code)
         {
-            Log.Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
+            Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
             StringBuilder sbUsing = new StringBuilder();
             foreach (string str in imports)
                 sbUsing.AppendFormat("using {0};\n", str);

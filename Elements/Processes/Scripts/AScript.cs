@@ -85,13 +85,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 
         public object Invoke(ProcessVariablesContainer variables)
         {
-            Log.Info("Attempting to process script {0}", new object[] { id });
+            Info("Attempting to process script {0}", new object[] { id });
             try
             {
                 return _Invoke(variables);
             }
             catch (Exception e) {
-                Log.Exception(e);
+                Exception(e);
                 throw e;
             }
         }
