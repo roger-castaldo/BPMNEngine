@@ -1,5 +1,5 @@
 ﻿define([
-    "//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"
+    "https://code.jquery.com/jquery-3.6.0.min.js"
 ], function () {
     return function (eventBus, canvas, moddle, options) {
         var formGenerator = {
