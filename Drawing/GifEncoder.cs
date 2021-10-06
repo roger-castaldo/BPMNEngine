@@ -16,6 +16,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing
     /// </summary>
     internal class GifEncoder : IDisposable
     {
+        private static readonly Color _TransparentColor = Color.White;
+
         private struct sGif
         {
             private short _canvasWidth;
@@ -32,13 +34,25 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             private int _colorTableByteLength;
             public int ColorTableByteLength { get { return _colorTableByteLength; } }
 
-            public sGif(Image img)
+            private int _transparentColorIndex;
+            public int TransparentColorIndex { get { return _transparentColorIndex; } }
+
+            public sGif(Image img,bool isFirstFrame)
             {
                 int len;
                 _canvasWidth = (short)img.Width;
                 _canvasHeight = (short)img.Height;
                 MemoryStream ms = new MemoryStream();
-                img.Save(ms, ImageFormat.Gif);
+                if (!isFirstFrame)
+                {
+                    Bitmap bmp = new Bitmap(img.Width, img.Height);
+                    Graphics g = Graphics.FromImage(bmp);
+                    g.FillRectangle(new SolidBrush(_TransparentColor), 0, 0, bmp.Width, bmp.Height);
+                    g.DrawImage(img, 0, 0);
+                    g.Flush();
+                    bmp.Save(ms, ImageFormat.Gif);
+                }else
+                    img.Save(ms, ImageFormat.Gif);
                 ms.Position = 0;
                 BinaryReader br = new BinaryReader(ms);
                 br.ReadBytes(4); //skip gif8
@@ -59,7 +73,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                     colorTableLength = (int)Math.Pow(2, _colorTableByteLength + 1);
                     _packedField = (byte)(0x80 | (_colorTableByteLength<<4) | (((int)_packedField & 0x10) >> 1) | _colorTableByteLength);
                 }
+                _transparentColorIndex = 0;
                 _colorTable = br.ReadBytes(colorTableLength * 3);
+                for(int x = 0; x < _colorTable.Length; x+=3)
+                {
+                    if (_colorTable[x]==_TransparentColor.R
+                        && _colorTable[x+1]==_TransparentColor.G
+                        && _colorTable[x+2] == _TransparentColor.B)
+                    {
+                        _transparentColorIndex = x / 3;
+                        break;
+                    }
+                }
                 if (!gif87a)
                 {
                     while (br.ReadByte() == 0x21)
@@ -117,6 +142,29 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             }
         }
 
+        public struct sFramePart
+        {
+            private Image _image;
+            public Image Image { get { return _image; } }
+
+            private int _x;
+            public int X { get { return _x; } }
+
+            private int _y;
+            public int Y { get { return _y; } }
+
+            public sFramePart(Image image)
+                : this(image, 0, 0)
+            { }
+
+            public sFramePart(Image image,int x,int y)
+            {
+                _image = image;
+                _x = x;
+                _y = y;
+            }
+        }
+
         #region Header Constants
         private const string FileType = "GIF";
         private const string FileVersion = "89a";
@@ -153,17 +201,25 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         /// Adds a frame to this animation.
         /// </summary>
         /// <param name="img">The image to add</param>
-        public void AddFrame(Image img)
+        public void AddFrame(sFramePart[] parts)
+        {
+            for(int x = 0; x < parts.Length; x++)
+            {
+                _AddFramePart(parts[x], x == 0);
+            }
+        }
+
+        private void _AddFramePart(sFramePart part, bool firstPart)
         {
             using (var gifStream = new MemoryStream())
             {
-                sGif gif = new sGif(img);
+                sGif gif = new sGif(part.Image,_isFirstImage);
                 if (_isFirstImage) // Steal the global color table info
                 {
                     InitHeader(gif);
                 }
-                WriteGraphicControlBlock(gif, FrameDelay);
-                WriteImageBlock(gif, !_isFirstImage, 0, 0);
+                WriteGraphicControlBlock(gif, (firstPart ? FrameDelay : TimeSpan.FromSeconds(0)));
+                WriteImageBlock(gif, !_isFirstImage, part.X,part.Y);
             }
             _isFirstImage = false;
         }
@@ -194,9 +250,9 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         {
             WriteShort(GraphicControlExtensionBlockIdentifier); // Identifier
             WriteByte(GraphicControlExtensionBlockSize); // Block Size
-            WriteByte(0x00);
+            WriteByte((_isFirstImage ? 0x00 : 0x01));
             WriteShort(Convert.ToInt32(frameDelay.TotalMilliseconds / 10)); // Setting frame delay
-            WriteByte(0); // Transparent color index
+            WriteByte(gif.TransparentColorIndex); // Transparent color index
             WriteByte(0); // Terminator
         }
 

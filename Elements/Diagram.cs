@@ -126,30 +126,82 @@ namespace Org.Reddragonit.BpmEngine.Elements
             foreach (Shape shape in _Shapes)
             {
                 if (shape.bpmnElement == (elemid == null ? shape.bpmnElement : elemid))
+                    gp.DrawImage(_RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement)), shape.Rectangle);
+            }
+            foreach (Edge edge in _Edges)
+            {
+                if (edge.bpmnElement == (elemid == null ? edge.bpmnElement : elemid))
+                    gp.DrawImage(_RenderEdge(edge, path.GetStatus(edge.bpmnElement), definition), edge.Rectangle);
+            }
+            return bmp;
+        }
+
+        internal Image RenderElement(ProcessPath path, Definition definition, string elementID,out RectangleF? rectangle)
+        {
+            foreach (Shape shape in _Shapes)
+            {
+                if (shape.bpmnElement == elementID)
                 {
-                    StepStatuses status = path.GetStatus(shape.bpmnElement);
-                    BPMIcons? icon = shape.GetIcon(definition);
-                    IElement elem = definition.LocateElement(shape.bpmnElement);
-                    if (icon.HasValue)
-                    {
-                        Image img = Bitmap.FromStream(Utility.LocateEmbededResource(_GetImageStreamName(status)));
-                        Rectangle rect = new Rectangle(0, 0, 0, 0);
-                        switch (icon.Value)
-                        {
-                            case BPMIcons.Task:
-                            case BPMIcons.SendTask:
-                            case BPMIcons.ReceiveTask:
-                            case BPMIcons.UserTask:
-                            case BPMIcons.ManualTask:
-                            case BPMIcons.ServiceTask:
-                            case BPMIcons.ScriptTask:
-                            case BPMIcons.BusinessRuleTask:
-                                Pen p = new Pen(_GetBrush(status), Constants.PEN_WIDTH);
-                                gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X, shape.Rectangle.Y, 11, 11));
-                                gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 11, 11, 11));
-                                gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X + shape.Rectangle.Width - 11, shape.Rectangle.Y, 11, 11));
-                                gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X + shape.Rectangle.Width - 11, shape.Rectangle.Y + shape.Rectangle.Height - 11, 11, 11));
-                                gp.FillPolygon(Brushes.White, new PointF[]{
+                    rectangle = shape.Rectangle;
+                    return _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement));
+                }
+            }
+            foreach(Edge edge in _Edges)
+            {
+                if (edge.bpmnElement == elementID)
+                {
+                    rectangle = edge.Rectangle;
+                    return _RenderEdge(edge, path.GetStatus(edge.bpmnElement), definition);
+                }
+            }
+            rectangle = null;
+            return null;
+        }
+
+        private Image _RenderEdge(Edge edge, StepStatuses status, Definition definition)
+        {
+            Bitmap ret = new Bitmap((int)edge.Rectangle.Width, (int)edge.Rectangle.Height);
+            Graphics gp = Graphics.FromImage(ret);
+            gp.TranslateTransform(0 - edge.Rectangle.X, 0 - edge.Rectangle.Y);
+            gp.DrawLines(edge.ConstructPen(_GetBrush(status), definition), edge.Points);
+            edge.AppendEnds(gp, _GetBrush(status), definition);
+            if (edge.Label != null)
+            {
+                IElement elem = definition.LocateElement(edge.bpmnElement);
+                if (elem != null)
+                {
+                    SizeF sf = gp.MeasureString(elem.ToString(), Constants.FONT, new SizeF(edge.Label.Bounds.Rectangle.Width, edge.Label.Bounds.Rectangle.Height), Constants.STRING_FORMAT);
+                    gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(edge.Label.Bounds.Rectangle.X, edge.Label.Bounds.Rectangle.Y, Math.Max(edge.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(edge.Label.Bounds.Rectangle.Height, sf.Height)), Constants.STRING_FORMAT);
+                }
+            }
+            return ret;
+        }
+
+        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem)
+        {
+            Bitmap ret = new Bitmap((int)Math.Ceiling(shape.Rectangle.Width), (int)Math.Ceiling(shape.Rectangle.Height));
+            Graphics gp = Graphics.FromImage(ret);
+            gp.TranslateTransform(0 - shape.Rectangle.X, 0 - shape.Rectangle.Y);
+            if (icon.HasValue)
+            {
+                Image img = Bitmap.FromStream(Utility.LocateEmbededResource(_GetImageStreamName(status)));
+                Rectangle rect = new Rectangle(0, 0, 0, 0);
+                switch (icon.Value)
+                {
+                    case BPMIcons.Task:
+                    case BPMIcons.SendTask:
+                    case BPMIcons.ReceiveTask:
+                    case BPMIcons.UserTask:
+                    case BPMIcons.ManualTask:
+                    case BPMIcons.ServiceTask:
+                    case BPMIcons.ScriptTask:
+                    case BPMIcons.BusinessRuleTask:
+                        Pen p = new Pen(_GetBrush(status), Constants.PEN_WIDTH);
+                        gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X, shape.Rectangle.Y, 11, 11));
+                        gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 11, 11, 11));
+                        gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X + shape.Rectangle.Width - 11, shape.Rectangle.Y, 11, 11));
+                        gp.DrawEllipse(p, new RectangleF(shape.Rectangle.X + shape.Rectangle.Width - 11, shape.Rectangle.Y + shape.Rectangle.Height - 11, 11, 11));
+                        gp.FillPolygon(Brushes.White, new PointF[]{
                                 new PointF(shape.Rectangle.X,shape.Rectangle.Y+5),
                                 new PointF(shape.Rectangle.X+5,shape.Rectangle.Y+5),
                                 new PointF(shape.Rectangle.X+5,shape.Rectangle.Y),
@@ -164,191 +216,171 @@ namespace Org.Reddragonit.BpmEngine.Elements
                                 new PointF(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height-5),
                                 new PointF(shape.Rectangle.X,shape.Rectangle.Y+5)
                             });
-                                gp.DrawLine(p, new PointF(shape.Rectangle.X + 5, shape.Rectangle.Y), new PointF(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y));
-                                gp.DrawLine(p, new PointF(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + 5), new PointF(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + shape.Rectangle.Height - 5));
-                                gp.DrawLine(p, new PointF(shape.Rectangle.X + 5, shape.Rectangle.Y + shape.Rectangle.Height), new PointF(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y + shape.Rectangle.Height));
-                                gp.DrawLine(p, new PointF(shape.Rectangle.X, shape.Rectangle.Y + 5), new PointF(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 5));
-                                switch (icon.Value)
-                                {
-                                    case BPMIcons.Task:
-                                        rect = new Rectangle(0, 0, 1, 1);
-                                        break;
-                                    case BPMIcons.SendTask:
-                                        rect = new Rectangle(278, 10, 46, 30);
-                                        break;
-                                    case BPMIcons.ReceiveTask:
-                                        rect = new Rectangle(330, 10, 46, 30);
-                                        break;
-                                    case BPMIcons.UserTask:
-                                        rect = new Rectangle(274, 52, 40, 47);
-                                        break;
-                                    case BPMIcons.ManualTask:
-                                        rect = new Rectangle(327, 53, 55, 36);
-                                        break;
-                                    case BPMIcons.ServiceTask:
-                                        rect = new Rectangle(335, 100, 48, 45);
-                                        break;
-                                    case BPMIcons.ScriptTask:
-                                        rect = new Rectangle(385, 8, 33, 37);
-                                        break;
-                                    case BPMIcons.BusinessRuleTask:
-                                        rect = new Rectangle(272, 111, 49, 30);
-                                        break;
-                                }
-                                gp.DrawImage(img, new RectangleF(shape.Rectangle.X + 5, shape.Rectangle.Y + 5, 15, 15), rect, GraphicsUnit.Pixel);
+                        gp.DrawLine(p, new PointF(shape.Rectangle.X + 5, shape.Rectangle.Y), new PointF(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y));
+                        gp.DrawLine(p, new PointF(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + 5), new PointF(shape.Rectangle.X + shape.Rectangle.Width, shape.Rectangle.Y + shape.Rectangle.Height - 5));
+                        gp.DrawLine(p, new PointF(shape.Rectangle.X + 5, shape.Rectangle.Y + shape.Rectangle.Height), new PointF(shape.Rectangle.X + shape.Rectangle.Width - 5, shape.Rectangle.Y + shape.Rectangle.Height));
+                        gp.DrawLine(p, new PointF(shape.Rectangle.X, shape.Rectangle.Y + 5), new PointF(shape.Rectangle.X, shape.Rectangle.Y + shape.Rectangle.Height - 5));
+                        switch (icon.Value)
+                        {
+                            case BPMIcons.Task:
+                                rect = new Rectangle(0, 0, 1, 1);
                                 break;
-                            default:
-                                switch (icon.Value)
-                                {
-                                    case BPMIcons.StartEvent:
-                                        rect = new Rectangle(7, 5, 46, 46);
-                                        break;
-                                    case BPMIcons.MessageStartEvent:
-                                        rect = new Rectangle(62, 5, 46, 46);
-                                        break;
-                                    case BPMIcons.TimerStartEvent:
-                                        rect = new Rectangle(115, 5, 46, 46);
-                                        break;
-                                    case BPMIcons.ConditionalStartEvent:
-                                        rect = new Rectangle(168, 5, 46, 46);
-                                        break;
-                                    case BPMIcons.SignalStartEvent:
-                                        rect = new Rectangle(220, 5, 46, 46);
-                                        break;
-                                    case BPMIcons.MessageIntermediateThrowEvent:
-                                        rect = new Rectangle(8, 56, 46, 46);
-                                        break;
-                                    case BPMIcons.EscalationIntermediateThrowEvent:
-                                        rect = new Rectangle(62, 56, 46, 46);
-                                        break;
-                                    case BPMIcons.LinkIntermediateThrowEvent:
-                                        rect = new Rectangle(116, 56, 46, 46);
-                                        break;
-                                    case BPMIcons.CompensationIntermediateThrowEvent:
-                                        rect = new Rectangle(169, 56, 46, 46);
-                                        break;
-                                    case BPMIcons.SignalIntermediateThrowEvent:
-                                        rect = new Rectangle(221, 56, 46, 46);
-                                        break;
-                                    case BPMIcons.MessageIntermediateCatchEvent:
-                                        rect = new Rectangle(8, 107, 46, 46);
-                                        break;
-                                    case BPMIcons.TimerIntermediateCatchEvent:
-                                        rect = new Rectangle(62, 107, 46, 46);
-                                        break;
-                                    case BPMIcons.ConditionalIntermediateCatchEvent:
-                                        rect = new Rectangle(116, 107, 46, 46);
-                                        break;
-                                    case BPMIcons.LinkIntermediateCatchEvent:
-                                        rect = new Rectangle(169, 107, 46, 46);
-                                        break;
-                                    case BPMIcons.SignalIntermediateCatchEvent:
-                                        rect = new Rectangle(221, 107, 46, 46);
-                                        break;
-                                    case BPMIcons.EndEvent:
-                                        rect = new Rectangle(6, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.MessageEndEvent:
-                                        rect = new Rectangle(61, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.EscalationEndEvent:
-                                        rect = new Rectangle(114, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.ErrorEndEvent:
-                                        rect = new Rectangle(167, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.CompensationEndEvent:
-                                        rect = new Rectangle(220, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.SignalEndEvent:
-                                        rect = new Rectangle(274, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.TerminateEndEvent:
-                                        rect = new Rectangle(332, 160, 48, 48);
-                                        break;
-                                    case BPMIcons.ExclusiveGateway:
-                                        rect = new Rectangle(8, 214, 63, 63);
-                                        break;
-                                    case BPMIcons.ParallelGateway:
-                                        rect = new Rectangle(77, 214, 63, 63);
-                                        break;
-                                    case BPMIcons.InclusiveGateway:
-                                        rect = new Rectangle(149, 214, 63, 63);
-                                        break;
-                                    case BPMIcons.ComplexGateway:
-                                        rect = new Rectangle(222, 214, 63, 63);
-                                        break;
-                                    case BPMIcons.EventBasedGateway:
-                                        rect = new Rectangle(292, 214, 63, 63);
-                                        break;
-                                }
-                                gp.DrawImage(img, shape.Rectangle, rect, GraphicsUnit.Pixel);
+                            case BPMIcons.SendTask:
+                                rect = new Rectangle(278, 10, 46, 30);
+                                break;
+                            case BPMIcons.ReceiveTask:
+                                rect = new Rectangle(330, 10, 46, 30);
+                                break;
+                            case BPMIcons.UserTask:
+                                rect = new Rectangle(274, 52, 40, 47);
+                                break;
+                            case BPMIcons.ManualTask:
+                                rect = new Rectangle(327, 53, 55, 36);
+                                break;
+                            case BPMIcons.ServiceTask:
+                                rect = new Rectangle(335, 100, 48, 45);
+                                break;
+                            case BPMIcons.ScriptTask:
+                                rect = new Rectangle(385, 8, 33, 37);
+                                break;
+                            case BPMIcons.BusinessRuleTask:
+                                rect = new Rectangle(272, 111, 49, 30);
                                 break;
                         }
-                    }
-                    if (elem != null)
-                    {
-                        if (elem is TextAnnotation)
-                            gp.DrawLines(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new PointF[]{
+                        gp.DrawImage(img, new RectangleF(shape.Rectangle.X + 5, shape.Rectangle.Y + 5, 15, 15), rect, GraphicsUnit.Pixel);
+                        break;
+                    default:
+                        switch (icon.Value)
+                        {
+                            case BPMIcons.StartEvent:
+                                rect = new Rectangle(7, 5, 46, 46);
+                                break;
+                            case BPMIcons.MessageStartEvent:
+                                rect = new Rectangle(62, 5, 46, 46);
+                                break;
+                            case BPMIcons.TimerStartEvent:
+                                rect = new Rectangle(115, 5, 46, 46);
+                                break;
+                            case BPMIcons.ConditionalStartEvent:
+                                rect = new Rectangle(168, 5, 46, 46);
+                                break;
+                            case BPMIcons.SignalStartEvent:
+                                rect = new Rectangle(220, 5, 46, 46);
+                                break;
+                            case BPMIcons.MessageIntermediateThrowEvent:
+                                rect = new Rectangle(8, 56, 46, 46);
+                                break;
+                            case BPMIcons.EscalationIntermediateThrowEvent:
+                                rect = new Rectangle(62, 56, 46, 46);
+                                break;
+                            case BPMIcons.LinkIntermediateThrowEvent:
+                                rect = new Rectangle(116, 56, 46, 46);
+                                break;
+                            case BPMIcons.CompensationIntermediateThrowEvent:
+                                rect = new Rectangle(169, 56, 46, 46);
+                                break;
+                            case BPMIcons.SignalIntermediateThrowEvent:
+                                rect = new Rectangle(221, 56, 46, 46);
+                                break;
+                            case BPMIcons.MessageIntermediateCatchEvent:
+                                rect = new Rectangle(8, 107, 46, 46);
+                                break;
+                            case BPMIcons.TimerIntermediateCatchEvent:
+                                rect = new Rectangle(62, 107, 46, 46);
+                                break;
+                            case BPMIcons.ConditionalIntermediateCatchEvent:
+                                rect = new Rectangle(116, 107, 46, 46);
+                                break;
+                            case BPMIcons.LinkIntermediateCatchEvent:
+                                rect = new Rectangle(169, 107, 46, 46);
+                                break;
+                            case BPMIcons.SignalIntermediateCatchEvent:
+                                rect = new Rectangle(221, 107, 46, 46);
+                                break;
+                            case BPMIcons.EndEvent:
+                                rect = new Rectangle(6, 160, 48, 48);
+                                break;
+                            case BPMIcons.MessageEndEvent:
+                                rect = new Rectangle(61, 160, 48, 48);
+                                break;
+                            case BPMIcons.EscalationEndEvent:
+                                rect = new Rectangle(114, 160, 48, 48);
+                                break;
+                            case BPMIcons.ErrorEndEvent:
+                                rect = new Rectangle(167, 160, 48, 48);
+                                break;
+                            case BPMIcons.CompensationEndEvent:
+                                rect = new Rectangle(220, 160, 48, 48);
+                                break;
+                            case BPMIcons.SignalEndEvent:
+                                rect = new Rectangle(274, 160, 48, 48);
+                                break;
+                            case BPMIcons.TerminateEndEvent:
+                                rect = new Rectangle(332, 160, 48, 48);
+                                break;
+                            case BPMIcons.ExclusiveGateway:
+                                rect = new Rectangle(8, 214, 63, 63);
+                                break;
+                            case BPMIcons.ParallelGateway:
+                                rect = new Rectangle(77, 214, 63, 63);
+                                break;
+                            case BPMIcons.InclusiveGateway:
+                                rect = new Rectangle(149, 214, 63, 63);
+                                break;
+                            case BPMIcons.ComplexGateway:
+                                rect = new Rectangle(222, 214, 63, 63);
+                                break;
+                            case BPMIcons.EventBasedGateway:
+                                rect = new Rectangle(292, 214, 63, 63);
+                                break;
+                        }
+                        gp.DrawImage(img, shape.Rectangle, rect, GraphicsUnit.Pixel);
+                        break;
+                }
+            }
+            if (elem != null)
+            {
+                if (elem is TextAnnotation)
+                    gp.DrawLines(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new PointF[]{
                             new PointF(shape.Rectangle.X+20,shape.Rectangle.Y),
                             new PointF(shape.Rectangle.X,shape.Rectangle.Y),
                             new PointF(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height),
                             new PointF(shape.Rectangle.X+20,shape.Rectangle.Y+shape.Rectangle.Height)
                         });
-                        else if (elem is Lane || elem is Participant)
-                            gp.DrawRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), Rectangle.Round(shape.Rectangle));
-                        else if (elem is SubProcess)
-                            gp.DrawPath(new Pen(_GetBrush(status), Constants.PEN_WIDTH), _GenerateRoundedRectangle(shape.Rectangle.X, shape.Rectangle.Y, shape.Rectangle.Width, shape.Rectangle.Height));
-                        if (elem.ToString() != "")
+                else if (elem is Lane || elem is Participant)
+                    gp.DrawRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), Rectangle.Round(shape.Rectangle));
+                else if (elem is SubProcess)
+                    gp.DrawPath(new Pen(_GetBrush(status), Constants.PEN_WIDTH), _GenerateRoundedRectangle(shape.Rectangle.X, shape.Rectangle.Y, shape.Rectangle.Width, shape.Rectangle.Height));
+                if (elem.ToString() != "")
+                {
+                    if (shape.Label != null)
+                    {
+                        SizeF sf = gp.MeasureString(elem.ToString(), Constants.FONT, new SizeF(shape.Label.Bounds.Rectangle.Width, float.MaxValue), Constants.STRING_FORMAT);
+                        gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Label.Bounds.Rectangle.X, shape.Label.Bounds.Rectangle.Y, Math.Max(shape.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(shape.Label.Bounds.Rectangle.Height, sf.Height)), Constants.STRING_FORMAT);
+                    }
+                    else
+                    {
+                        SizeF size = gp.MeasureString(elem.ToString(), Constants.FONT);
+                        if (size.Height != 0 || size.Width != 0)
                         {
-                            if (shape.Label != null)
+                            if (elem is Lane || elem is LaneSet || elem is Participant)
                             {
-                                SizeF sf = gp.MeasureString(elem.ToString(), Constants.FONT, new SizeF(shape.Label.Bounds.Rectangle.Width, float.MaxValue), Constants.STRING_FORMAT);
-                                gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Label.Bounds.Rectangle.X, shape.Label.Bounds.Rectangle.Y, Math.Max(shape.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(shape.Label.Bounds.Rectangle.Height, sf.Height)), Constants.STRING_FORMAT);
+                                Bitmap tbmp = new Bitmap((int)size.Height * 2, (int)size.Width);
+                                Graphics g = Graphics.FromImage(tbmp);
+                                g.TranslateTransform(tbmp.Width / 2, tbmp.Height);
+                                g.RotateTransform(-90);
+                                g.TranslateTransform(0, 0);
+                                g.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), 0, 0);
+                                g.Save();
+                                gp.DrawImage(tbmp, new PointF(shape.Rectangle.X - 7, shape.Rectangle.Y + ((shape.Rectangle.Height - tbmp.Height) / 2)));
                             }
                             else
-                            {
-                                SizeF size = gp.MeasureString(elem.ToString(), Constants.FONT);
-                                if (size.Height != 0 || size.Width != 0)
-                                {
-                                    if (elem is Lane || elem is LaneSet || elem is Participant)
-                                    {
-                                        Bitmap tbmp = new Bitmap((int)size.Height * 2, (int)size.Width);
-                                        Graphics g = Graphics.FromImage(tbmp);
-                                        g.TranslateTransform(tbmp.Width / 2, tbmp.Height);
-                                        g.RotateTransform(-90);
-                                        g.TranslateTransform(0, 0);
-                                        g.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), 0, 0);
-                                        g.Save();
-                                        gp.DrawImage(tbmp, new PointF(shape.Rectangle.X - 7, shape.Rectangle.Y + ((shape.Rectangle.Height - tbmp.Height) / 2)));
-                                    }
-                                    else
-                                        gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f), Constants.STRING_FORMAT);
-                                }
-                            }
+                                gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f), Constants.STRING_FORMAT);
                         }
                     }
                 }
             }
-            foreach (Edge edge in _Edges)
-            {
-                if (edge.bpmnElement == (elemid == null ? edge.bpmnElement : elemid))
-                {
-                    StepStatuses status = path.GetStatus(edge.bpmnElement);
-                    gp.DrawLines(edge.ConstructPen(_GetBrush(status), definition), edge.Points);
-                    edge.AppendEnds(gp, _GetBrush(status), definition);
-                    if (edge.Label != null)
-                    {
-                        IElement elem = definition.LocateElement(edge.bpmnElement);
-                        if (elem != null)
-                        {
-                            SizeF sf = gp.MeasureString(elem.ToString(), Constants.FONT, new SizeF(edge.Label.Bounds.Rectangle.Width, edge.Label.Bounds.Rectangle.Height), Constants.STRING_FORMAT);
-                            gp.DrawString(elem.ToString(), Constants.FONT, _GetBrush(status), new RectangleF(edge.Label.Bounds.Rectangle.X, edge.Label.Bounds.Rectangle.Y, Math.Max(edge.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(edge.Label.Bounds.Rectangle.Height, sf.Height)), Constants.STRING_FORMAT);
-                        }
-                    }
-                }
-            }
-            return bmp;
+            return ret;
         }
 
         private GraphicsPath _GenerateRoundedRectangle(float XPosition, float YPosition, float Width, float Height)

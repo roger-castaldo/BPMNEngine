@@ -773,7 +773,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        private Bitmap _AppendVariables(Bitmap ret, Graphics gp)
+        private Bitmap _ProduceVariablesImage(Graphics gp)
         {
             SizeF sz = gp.MeasureString("Variables", Constants.FONT);
             int varHeight = (int)sz.Height + 2;
@@ -810,12 +810,13 @@ namespace Org.Reddragonit.BpmEngine
                         foreach (object o in (IEnumerable)_state[null, keys[x]])
                             val += string.Format("{0},", o);
                         val = val.Substring(0, val.Length - 1);
-                    }else if (_state[null,keys[x]] is Hashtable)
+                    }
+                    else if (_state[null, keys[x]] is Hashtable)
                     {
                         val = "{";
                         foreach (string key in ((Hashtable)_state[null, keys[x]]).Keys)
                             val += string.Format("{{\"{0}\":\"{1}\"}},", key, ((Hashtable)_state[null, keys[x]])[key]);
-                        val = val.Substring(0, val.Length - 1)+"}";
+                        val = val.Substring(0, val.Length - 1) + "}";
                     }
                     else
                         val = _state[null, keys[x]].ToString();
@@ -835,6 +836,12 @@ namespace Org.Reddragonit.BpmEngine
                 gp.DrawLine(p, new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
             }
             gp.Flush();
+            return vmap;
+        }
+
+        private Bitmap _AppendVariables(Bitmap ret, Graphics gp)
+        {
+            Bitmap vmap = _ProduceVariablesImage(gp);
             Bitmap tret = new Bitmap(ret.Width + _DEFAULT_PADDING + vmap.Width, Math.Max(ret.Height, vmap.Height + _DEFAULT_PADDING));
             gp = Graphics.FromImage(tret);
             gp.FillRectangle(Brushes.White, new Rectangle(0, 0, tret.Width, tret.Height));
@@ -860,12 +867,14 @@ namespace Org.Reddragonit.BpmEngine
                 _state.Path.StartAnimation();
                 Bitmap bd = Diagram(false);
                 Graphics gp = Graphics.FromImage(bd);
-                enc.AddFrame((outputVariables ? _AppendVariables(bd, gp) : bd));
+                enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd, gp) : bd)) });
                 while (_state.Path.HasNext())
                 {
                     string nxtStep = _state.Path.MoveToNextStep();
                     if (nxtStep != null)
                     {
+                        List<Drawing.GifEncoder.sFramePart> frames = new List<Drawing.GifEncoder.sFramePart>();
+                        RectangleF? rect;
                         int padding = _DEFAULT_PADDING / 2;
                         foreach (IElement elem in _Elements)
                         {
@@ -875,14 +884,21 @@ namespace Org.Reddragonit.BpmEngine
                                 {
                                     if (d.RendersElement(nxtStep))
                                     {
-                                        gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
-                                        break;
+                                        Image img = d.RenderElement(_state.Path, (Definition)elem, nxtStep, out rect);
+                                        if (rect.HasValue)
+                                        {
+                                            frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.Value.X, padding+(int)rect.Value.Y));
+                                            //gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
+                                            break;
+                                        }
                                     }
                                     padding += d.Size.Height + _DEFAULT_PADDING;
                                 }
                             }
                         }
-                        enc.AddFrame((outputVariables ? _AppendVariables(bd, gp) : bd));
+                        if (outputVariables)
+                            frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(gp), bd.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
+                        enc.AddFrame(frames.ToArray());
                     }
                 }
                 _state.Path.FinishAnimation();

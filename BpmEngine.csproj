@@ -3,16 +3,16 @@
     <TargetFrameworks>netstandard2.0;net461;</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>1.10</Version>
+    <Version>1.11</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <PackageLicenseUrl>https://www.gnu.org/licenses/gpl-3.0.en.html</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
-    <PackageReleaseNotes>modified the logging concepts to allow for logging to be tagged by the element itself as well.  This removed the public Log and now exposes it through the IElement interface which is passed to every delegate and is done through calls such as IElement.Debug,IElement.Information.</PackageReleaseNotes>
-    <AssemblyVersion>1.10.0.0</AssemblyVersion>
-    <FileVersion>1.10.0.0</FileVersion>
+    <PackageReleaseNotes>modified the animation and image rendering concepts to both reduce the size and the time taken for generating a gif.  Sample testing shows approximately a 75% reduction in file size and a 75% reduction in the time required to generate the animation.</PackageReleaseNotes>
+    <AssemblyVersion>1.11.0.0</AssemblyVersion>
+    <FileVersion>1.11.0.0</FileVersion>
 	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
 	  <IncludeSymbols>true</IncludeSymbols>
 	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>

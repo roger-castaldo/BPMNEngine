@@ -42,6 +42,37 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
         }
 
+        private RectangleF? _rectangle = null;
+        public RectangleF Rectangle{
+            get
+            {
+                if (_rectangle == null)
+                {
+                    int minX = int.MaxValue;
+                    int maxX = int.MinValue;
+                    int minY = int.MaxValue;
+                    int maxY = int.MinValue;
+                    foreach (Point p in Points)
+                    {
+                        minX = Math.Min(minX, p.X);
+                        minY = Math.Min(minY, p.Y);
+                        maxX = Math.Max(maxX, p.X);
+                        maxY = Math.Max(maxY, p.Y);
+                    }
+                    Label l = Label;
+                    if (l != null)
+                    {
+                        minX = Math.Min(minX, (int)Math.Floor(l.Bounds.Rectangle.X));
+                        minY = Math.Min(minY, (int)Math.Floor(l.Bounds.Rectangle.Y));
+                        maxX = Math.Max(maxX, (int)Math.Floor(l.Bounds.Rectangle.X+l.Bounds.Rectangle.Width));
+                        maxY = Math.Max(maxY, (int)Math.Floor(l.Bounds.Rectangle.Y+l.Bounds.Rectangle.Height));
+                    }
+                    _rectangle = new RectangleF(minX-3, minY-3, maxX - minX+6,  maxY - minY+6);
+                }
+                return _rectangle.Value;
+            }
+        }
+
         public Label Label
         {
             get
