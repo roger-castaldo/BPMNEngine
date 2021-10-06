@@ -109,18 +109,60 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public Image Render(ProcessPath path, Definition definition)
         {
             return _Render(path, definition, null);
+        }     
+
+        private RectangleF? _ShiftRectangle(RectangleF? rectangle)
+        {
+            if (rectangle.HasValue) {
+                int minX;
+                int minY;
+                int maxX;
+                int maxY;
+                _CalculateDimensions(out minX,out maxX,out minY,out maxY);
+                return new RectangleF(Math.Abs(minX) + rectangle.Value.X, Math.Abs(minY) + rectangle.Value.Y, rectangle.Value.Width, rectangle.Value.Height);
+            }
+            return rectangle;
+        }
+
+        private int? _minX = null;
+        private int? _minY = null;
+        private int? _maxX = null;
+        private int? _maxY = null;
+
+        private void _CalculateDimensions(out int minX,out int maxX,out int minY,out int maxY)
+        {
+            if (!_minX.HasValue)
+            {
+                minX = 0;
+                maxX = 0;
+                minY = 0;
+                maxY = 0;
+                foreach (IElement elem in Children)
+                    _RecurGetDimensions(elem, ref minX, ref maxX, ref minY, ref maxY);
+                _minX = minX;
+                _minY = minY;
+                _maxX = maxX;
+                _maxY = maxY;
+            }
+            else
+            {
+                minX = _minX.Value;
+                minY = _minY.Value;
+                maxX = _maxX.Value;
+                maxY = _maxY.Value;
+            }
+
         }
 
         private Image _Render(ProcessPath path, Definition definition, string elemid)
         {
             Size sz = Size;
             Bitmap bmp = new Bitmap(sz.Width, sz.Height);
-            int minX = 0;
-            int maxX = 0;
-            int minY = 0;
-            int maxY = 0;
-            foreach (IElement elem in Children)
-                _RecurGetDimensions(elem, ref minX, ref maxX, ref minY, ref maxY);
+            int minX;
+            int minY;
+            int maxX;
+            int maxY;
+            _CalculateDimensions(out minX, out maxX, out minY, out maxY);
             Graphics gp = Graphics.FromImage(bmp);
             gp.TranslateTransform(Math.Abs(minX), Math.Abs(minY));
             foreach (Shape shape in _Shapes)
@@ -142,7 +184,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             {
                 if (shape.bpmnElement == elementID)
                 {
-                    rectangle = shape.Rectangle;
+                    rectangle = _ShiftRectangle(shape.Rectangle);
                     return _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement));
                 }
             }
@@ -150,7 +192,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             {
                 if (edge.bpmnElement == elementID)
                 {
-                    rectangle = edge.Rectangle;
+                    rectangle = _ShiftRectangle(edge.Rectangle);
                     return _RenderEdge(edge, path.GetStatus(edge.bpmnElement), definition);
                 }
             }

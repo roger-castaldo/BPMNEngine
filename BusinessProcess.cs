@@ -573,7 +573,8 @@ namespace Org.Reddragonit.BpmEngine
             List<Exception> exceptions = new List<Exception>();
             _processLock = new ManualResetEvent(false);
             _mreSuspend = new ManualResetEvent(false);
-            _doc = doc;
+            _doc = new XmlDocument();
+            _doc.LoadXml(doc.OuterXml);
             _current = this;
             _elementMapCache = new BpmEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
