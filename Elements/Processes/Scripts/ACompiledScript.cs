@@ -1,5 +1,5 @@
 ﻿using System;
-#if NETSTANDARD20
+#if NETCOREAPP3_1
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 #endif
@@ -93,7 +93,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
-#if NETSTANDARD20
+#if NETCOREAPP3_1
         protected abstract EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms);
         
         private bool _CompileAssembly(out string errors)

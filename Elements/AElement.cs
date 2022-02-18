@@ -113,7 +113,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             if (this.GetType().Name == "TextAnnotation")
                 return (string)this.GetType().GetProperty("Content").GetValue(this, new object[] { });
-            return this["name"];
+            return (this["name"]==null ? "" : this["name"]);
         }
 
         public virtual bool IsValid(out string[] err)
