@@ -195,7 +195,7 @@ namespace Org.Reddragonit.BpmEngine
                 if (ret != null)
                     break;
             }
-            Console.WriteLine("Time to translate [{0}] to [{1}] is {2}ms", new object[] { tagName, (ret == null ? null : ret.FullName), DateTime.Now.Subtract(start).TotalMilliseconds });
+            //Console.WriteLine("Time to translate [{0}] to [{1}] is {2}ms", new object[] { tagName, (ret == null ? null : ret.FullName), DateTime.Now.Subtract(start).TotalMilliseconds });
             return ret;
         }
 
@@ -228,14 +228,15 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        internal static IElement ConstructElementType(XmlElement element, XmlPrefixMap map,AElement parent)
+        internal static IElement ConstructElementType(XmlElement element, ref XmlPrefixMap map, ref ElementTypeCache cache,AElement parent)
         {
             Type t = null;
-            if (BusinessProcess.ElementMapCache != null)
+            if (cache != null)
             {
-                if (BusinessProcess.ElementMapCache.IsCached(element.Name))
-                    t = BusinessProcess.ElementMapCache[element.Name];
-            }else
+                if (cache.IsCached(element.Name))
+                    t = cache[element.Name];
+            }
+            else
                 t = Utility.LocateElementType((parent == null ? null : parent.GetType()), element.Name, map);
             if (t != null)
                 return (IElement)_xmlConstructors[t].Invoke(new object[] { element, map, parent });

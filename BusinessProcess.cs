@@ -9,6 +9,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -62,7 +63,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _RecurAddChildren(IElement parent)
         {
-            _elements.Add(parent.id,parent);
+            _elements.Add(parent.id, parent);
             if (parent is IParentElement)
             {
                 foreach (IElement elem in ((IParentElement)parent).Children)
@@ -200,10 +201,6 @@ namespace Org.Reddragonit.BpmEngine
         /// The current Business Process inside the current thread
         /// </summary>
         public static BusinessProcess Current { get { return _current; } }
-
-        [ThreadStatic()]
-        private static ElementTypeCache _elementMapCache;
-        internal static ElementTypeCache ElementMapCache { get { return _elementMapCache; } }
 
         #region delegates
         #region Ons
@@ -576,29 +573,39 @@ namespace Org.Reddragonit.BpmEngine
             _doc = new XmlDocument();
             _doc.LoadXml(doc.OuterXml);
             _current = this;
-            _elementMapCache = new BpmEngine.ElementTypeCache();
+            BpmEngine.ElementTypeCache elementMapCache = new BpmEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
             WriteLogLine((IElement)null,LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
             _elements = new Dictionary<string, Interfaces.IElement>();
             XmlPrefixMap map = new XmlPrefixMap(this);
+            ConcurrentQueue<System.Threading.Tasks.Task> loadTasks = new ConcurrentQueue<System.Threading.Tasks.Task>();
             foreach (XmlNode n in doc.ChildNodes)
             {
                 if (n.NodeType == XmlNodeType.Element)
                 {
                     if (map.Load((XmlElement)n))
-                        _elementMapCache.MapIdeals(map);
-                    IElement elem = Utility.ConstructElementType((XmlElement)n, map,null);
+                        elementMapCache.MapIdeals(map);
+                    IElement elem = Utility.ConstructElementType((XmlElement)n, ref map,ref elementMapCache,null);
                     if (elem != null)
                     {
                         _components.Add(elem);
-                        _RecurAddChildren(elem);
+                        if (elem is AParentElement)
+                            ((AParentElement)elem).LoadChildren(ref map, ref elementMapCache,ref loadTasks);
                     }
                     else
                         _components.Add(n);
                 }
                 else
                     _components.Add(n);
+            }
+            System.Threading.Tasks.Task tsk;
+            while(loadTasks.TryDequeue(out tsk))
+                tsk.Wait();
+            foreach (object obj in _components)
+            {
+                if (obj is IElement)
+                    _RecurAddChildren((IElement)obj);
             }
             if (_Elements.Length== 0)
                 exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));

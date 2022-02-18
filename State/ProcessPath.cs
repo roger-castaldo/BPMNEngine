@@ -237,7 +237,7 @@ namespace Org.Reddragonit.BpmEngine.State
                     }
                 }
             }
-            Console.WriteLine(string.Format("Adding Path Entry for {0}-{1}", elementID,status));
+            //Console.WriteLine(string.Format("Adding Path Entry for {0}-{1}", elementID,status));
             _AppendElement(elem);
             _stateChanged();
         }
