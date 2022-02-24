@@ -1,11 +1,11 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using System.Xml;
 
@@ -16,7 +16,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Plane))]
     internal class Shape : ADiagramElement
     {
-        public RectangleF Rectangle
+        public Rectangle Rectangle
         {
             get
             {

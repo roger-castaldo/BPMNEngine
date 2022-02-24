@@ -1,8 +1,8 @@
 ﻿using Org.Reddragonit.BpmEngine.Drawing.Icons;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Reflection;
 using System.Text;
 
@@ -28,7 +28,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             }
         }
 
-        public static void AppendIcon(RectangleF destination,BPMIcons icon,Graphics gp,Color color)
+        public static void AppendIcon(Rectangle destination,BPMIcons icon,Image gp,Color color)
         {
             lock (_icons)
             {

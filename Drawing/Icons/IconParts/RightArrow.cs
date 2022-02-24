@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class RightArrow : IIconPart
     {
-        private static readonly PointF[] _POINTS = new PointF[] {
-            new PointF(11F,18f),
-            new PointF(26F,18f),
-            new PointF(26F,11f),
-            new PointF(39F,23f),
-            new PointF(26F,35f),
-            new PointF(26F,29f),
-            new PointF(11F,29f),
-            new PointF(11F,18f)
+        private static readonly Point[] _POINTS = new Point[] {
+            new Point(11F,18f),
+            new Point(26F,18f),
+            new Point(26F,11f),
+            new Point(39F,23f),
+            new Point(26F,35f),
+            new Point(26F,29f),
+            new Point(11F,29f),
+            new Point(11F,18f)
         };
 
         private bool _fill;
@@ -24,7 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             _fill = fill;
         }
 
-        public void Add(Graphics gp, int iconSize, Color color)
+        public void Add(Image gp, int iconSize, Color color)
         {
             if (_fill)
                 gp.FillPolygon(new SolidBrush(color), _POINTS);

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
@@ -41,27 +41,27 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         private static readonly sAngleFactorPair _HOUR_HAND = new sAngleFactorPair(15);
         private static readonly sAngleFactorPair _MINUTE_HAND = new sAngleFactorPair(290);
 
-        public void Add(Graphics gp, int iconSize, Color color)
+        public void Add(Image gp, int iconSize, Color color)
         {
             Pen p = new Pen(color, 1f);
-            RectangleF rect = new RectangleF(8f,8f,30f,30f);
-            PointF c = new PointF(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
+            Rectangle rect = new Rectangle(8f,8f,30f,30f);
+            Point c = new Point(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
             gp.DrawEllipse(p, rect);
             float rad = rect.Width / 2f;
             foreach (sAngleFactorPair angle in _ANGLES)
             {
                 gp.DrawLine(p,
-                    new PointF(c.X + (rad * angle.X), c.Y + (rad * angle.Y)),
-                    new PointF(c.X + ((rad-3) * angle.X), c.Y + ((rad - 3) * angle.Y))
+                    new Point(c.X + (rad * angle.X), c.Y + (rad * angle.Y)),
+                    new Point(c.X + ((rad-3) * angle.X), c.Y + ((rad - 3) * angle.Y))
                 );
             }
             gp.DrawLine(p,
-                new PointF(c.X, c.Y),
-                new PointF(c.X + ((rad - 2) * _MINUTE_HAND.X), c.Y + ((rad - 2) * _MINUTE_HAND.Y))
+                new Point(c.X, c.Y),
+                new Point(c.X + ((rad - 2) * _MINUTE_HAND.X), c.Y + ((rad - 2) * _MINUTE_HAND.Y))
             );
             gp.DrawLine(p,
-                new PointF(c.X, c.Y),
-                new PointF(c.X + ((rad - 5) * _HOUR_HAND.X), c.Y + ((rad - 5) * _HOUR_HAND.Y))
+                new Point(c.X, c.Y),
+                new Point(c.X + ((rad - 5) * _HOUR_HAND.X), c.Y + ((rad - 5) * _HOUR_HAND.Y))
             );
         }
     }

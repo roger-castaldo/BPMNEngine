@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
@@ -16,18 +16,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             _fullSize = fullSize;
         }
 
-        public void Add(Graphics gp, int iconSize, Color color)
+        public void Add(Image gp, int iconSize, Color color)
         {
-            RectangleF rect = (_fullSize ? new RectangleF(0,5,AIcon.IMAGE_SIZE-1,30) : new RectangleF(10f,14f,25f,17f));
+            Rectangle rect = (_fullSize ? new Rectangle(0,5,AIcon.IMAGE_SIZE-1,30) : new Rectangle(10f,14f,25f,17f));
             if (_filled)
                 gp.FillRectangle(new SolidBrush(color), rect);
             else
-                gp.DrawRectangle(new Pen(color, (_fullSize ? 2f : 1f)),rect.X,rect.Y,rect.Width,rect.Height);
-            gp.DrawLines(new Pen((_filled ? Color.White : color), 2f), new PointF[]
+                gp.DrawRectangle(new Pen(color, (_fullSize ? 2f : 1f)),rect);
+            gp.DrawLines(new Pen((_filled ? Color.White : color), 2f), new Point[]
             {
-                new PointF(rect.X, rect.Y),
-                new PointF(rect.X+(rect.Width/2f),rect.Y+(rect.Height/3f)),
-                new PointF(rect.X+rect.Width,rect.Y)
+                new Point(rect.X, rect.Y),
+                new Point(rect.X+(rect.Width/2f),rect.Y+(rect.Height/3f)),
+                new Point(rect.X+rect.Width,rect.Y)
             });
         }
     }

@@ -159,6 +159,39 @@ namespace Org.Reddragonit.BpmEngine
             return new Guid(NextRandomBytes(GUID_ID_LENGTH));
         }
 
+        private static Dictionary<string, Assembly> _cache = new Dictionary<string, Assembly>();
+
+        public static Type GetType(string[] assemblies,string type)
+        {
+            Assembly ass = null;
+            Type ret = null;
+            foreach (string assembly in assemblies)
+            {
+                lock (_cache)
+                {
+                    if (_cache.ContainsKey(assembly))
+                        ass=_cache[assembly];
+                    else
+                    {
+                        try
+                        {
+                            ass = Assembly.Load(assembly);
+                        }
+                        catch (Exception ex)
+                        {
+                            ass=null;
+                        }
+                        _cache.Add(assembly, ass);
+                    }
+                }
+                if (ass!=null)
+                    ret = ass.GetType(type, false);
+                if (ret!=null)
+                    break;
+            }
+            return ret;
+        }
+
         public static Type LocateElementType(Type parent,string tagName,XmlPrefixMap map)
         {
             DateTime start = DateTime.Now;

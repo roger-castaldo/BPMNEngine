@@ -1,4 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Drawing;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using Org.Reddragonit.BpmEngine.Elements;
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
@@ -12,7 +14,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -744,9 +745,16 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         /// <param name="outputVariables">Set true to include outputting variables into the image</param>
         /// <returns>A Bitmap containing a rendered image of the process at its current state</returns>
-        public Bitmap Diagram(bool outputVariables)
+        public byte[] Diagram(bool outputVariables, ImageOuputTypes type)
         {
-            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}",new object[] { (outputVariables ? " with variables" : " without variables") }));
+            return _Diagram(outputVariables).ToFile(type);
+        }
+
+        private Image _Diagram(bool outputVariables)
+        {
+            if (!Image.CanUse)
+                throw new Exception("Unable to produce a Diagram or Animated Diagram as there is no valid Drawing Assembly Loaded, please add either System.Drawing.Common or ImageSharp");
+            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             int width = 0;
             int height = 0;
             foreach (IElement elem in _Elements)
@@ -761,9 +769,8 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
             }
-            Bitmap ret = new Bitmap(width, height);
-            Graphics gp = Graphics.FromImage(ret);
-            gp.FillRectangle(Brushes.White, new Rectangle(0, 0, width, height));
+            Image ret = new Image(width, height);
+            ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, width, height));
             int padding = _DEFAULT_PADDING / 2;
             foreach (IElement elem in _Elements)
             {
@@ -771,43 +778,42 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     foreach (Diagram d in ((Definition)elem).Diagrams)
                     {
-                        gp.DrawImage(d.Render(_state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
+                        ret.DrawImage(d.Render(_state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
                         padding += d.Size.Height + _DEFAULT_PADDING;
                     }
                 }
             }
             if (outputVariables)
-                ret = _AppendVariables(ret, gp);
+                ret = _AppendVariables(ret);
             return ret;
         }
 
-        private Bitmap _ProduceVariablesImage(Graphics gp)
+        private Image _ProduceVariablesImage(Image diagram)
         {
-            SizeF sz = gp.MeasureString("Variables", Constants.FONT);
+            Size sz = diagram.MeasureString("Variables");
             int varHeight = (int)sz.Height + 2;
             string[] keys = _state[null];
             foreach (string str in keys)
-                varHeight += (int)gp.MeasureString(str, Constants.FONT).Height + 2;
-            Bitmap vmap = new Bitmap(_VARIABLE_IMAGE_WIDTH, varHeight);
-            gp = Graphics.FromImage(vmap);
-            gp.FillRectangle(Brushes.White, new Rectangle(0, 0, vmap.Width, vmap.Height));
-            Pen p = new Pen(Brushes.Black, Constants.PEN_WIDTH);
-            gp.DrawRectangle(p, new Rectangle(0, 0, vmap.Width, vmap.Height));
-            gp.DrawLine(p, new Point(0, (int)sz.Height + 2), new Point(_VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
-            gp.DrawLine(p, new Point(_VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(_VARIABLE_NAME_WIDTH, vmap.Height));
-            gp.DrawString("Variables", Constants.FONT, Brushes.Black, new PointF((vmap.Width - sz.Width) / 2, 2));
-            int curY = (int)sz.Height + 2;
+                varHeight += (int)diagram.MeasureString(str,null).Height + 2;
+            Image ret = new Image(_VARIABLE_IMAGE_WIDTH, varHeight);
+            ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, ret.Size.Width, ret.Size.Height));
+            Pen p = new Pen(Color.Black, Constants.PEN_WIDTH);
+            ret.DrawRectangle(p, new Rectangle(0, 0, ret.Size.Width, ret.Size.Height));
+            ret.DrawLine(p, new Point(0, (int)sz.Height + 2), new Point(_VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
+            ret.DrawLine(p, new Point(_VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(_VARIABLE_NAME_WIDTH, ret.Size.Height));
+            ret.DrawString("Variables",new SolidBrush(Color.Black),new Rectangle((ret.Size.Width - sz.Width) / 2, 2,sz.Width,sz.Height));
+            float curY = sz.Height + 2;
             for (int x = 0; x < keys.Length; x++)
             {
                 string label = keys[x];
-                SizeF szLabel = gp.MeasureString(keys[x], Constants.FONT);
+                Size szLabel = ret.MeasureString(keys[x]);
                 while (szLabel.Width > _VARIABLE_NAME_WIDTH)
                 {
                     if (label.EndsWith("..."))
                         label = label.Substring(0, label.Length - 4) + "...";
                     else
                         label = label.Substring(0, label.Length - 1) + "...";
-                    szLabel = gp.MeasureString(label, Constants.FONT);
+                    szLabel = ret.MeasureString(label);
                 }
                 string val = "";
                 if (_state[null, keys[x]] != null)
@@ -829,34 +835,33 @@ namespace Org.Reddragonit.BpmEngine
                     else
                         val = _state[null, keys[x]].ToString();
                 }
-                SizeF szValue = gp.MeasureString(val, Constants.FONT);
+                Size szValue = ret.MeasureString(val);
                 if (szValue.Width > _VARIABLE_VALUE_WIDTH)
                 {
                     if (val.EndsWith("..."))
                         val = val.Substring(0, val.Length - 4) + "...";
                     else
                         val = val.Substring(0, val.Length - 1) + "...";
-                    szValue = gp.MeasureString(val, Constants.FONT);
+                    szValue = ret.MeasureString(val);
                 }
-                gp.DrawString(label, Constants.FONT, Brushes.Black, new Point(2, curY));
-                gp.DrawString(val, Constants.FONT, Brushes.Black, new Point(2 + _VARIABLE_NAME_WIDTH, curY));
+                ret.DrawString(label, Color.Black, new Point(2, curY));
+                ret.DrawString(val, Color.Black, new Point(2 + _VARIABLE_NAME_WIDTH, curY));
                 curY += (int)Math.Max(szLabel.Height, szValue.Height) + 2;
-                gp.DrawLine(p, new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
+                ret.DrawLine(p, new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
             }
-            gp.Flush();
-            return vmap;
+            ret.Flush();
+            return ret;
         }
 
-        private Bitmap _AppendVariables(Bitmap ret, Graphics gp)
+        private Image _AppendVariables(Image diagram)
         {
-            Bitmap vmap = _ProduceVariablesImage(gp);
-            Bitmap tret = new Bitmap(ret.Width + _DEFAULT_PADDING + vmap.Width, Math.Max(ret.Height, vmap.Height + _DEFAULT_PADDING));
-            gp = Graphics.FromImage(tret);
-            gp.FillRectangle(Brushes.White, new Rectangle(0, 0, tret.Width, tret.Height));
-            gp.DrawImage(ret, new Point(0, 0));
-            gp.DrawImage(vmap, new Point(ret.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
-            gp.Flush();
-            return tret;
+            Image vmap = _ProduceVariablesImage(diagram);
+            Image ret = new Image(diagram.Size.Width + _DEFAULT_PADDING + vmap.Size.Width, Math.Max(diagram.Size.Height, vmap.Size.Height + _DEFAULT_PADDING));
+            ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, ret.Size.Width, ret.Size.Height));
+            ret.DrawImage(diagram, new Point(0, 0));
+            ret.DrawImage(vmap, new Point(ret.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
+            ret.Flush();
+            return ret;
         }
 
         /// <summary>
@@ -873,16 +878,15 @@ namespace Org.Reddragonit.BpmEngine
             {
                 enc.FrameDelay = _ANIMATION_DELAY;
                 _state.Path.StartAnimation();
-                Bitmap bd = Diagram(false);
-                Graphics gp = Graphics.FromImage(bd);
-                enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd, gp) : bd)) });
+                Image bd = _Diagram(false);
+                enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd) : bd)) });
                 while (_state.Path.HasNext())
                 {
                     string nxtStep = _state.Path.MoveToNextStep();
                     if (nxtStep != null)
                     {
                         List<Drawing.GifEncoder.sFramePart> frames = new List<Drawing.GifEncoder.sFramePart>();
-                        RectangleF? rect;
+                        Rectangle rect;
                         int padding = _DEFAULT_PADDING / 2;
                         foreach (IElement elem in _Elements)
                         {
@@ -893,9 +897,9 @@ namespace Org.Reddragonit.BpmEngine
                                     if (d.RendersElement(nxtStep))
                                     {
                                         Image img = d.RenderElement(_state.Path, (Definition)elem, nxtStep, out rect);
-                                        if (rect.HasValue)
+                                        if (rect!=null)
                                         {
-                                            frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.Value.X, padding+(int)rect.Value.Y));
+                                            frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.X, padding+(int)rect.Y));
                                             //gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
                                             break;
                                         }
@@ -905,7 +909,7 @@ namespace Org.Reddragonit.BpmEngine
                             }
                         }
                         if (outputVariables)
-                            frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(gp), bd.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
+                            frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(bd), bd.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
                         enc.AddFrame(frames.ToArray());
                     }
                 }

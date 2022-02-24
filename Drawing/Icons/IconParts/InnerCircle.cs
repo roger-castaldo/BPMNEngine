@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class InnerCircle : IIconPart
     {
-        public void Add(Graphics gp, int iconSize, Color color)
+        public void Add(Image gp, int iconSize, Color color)
         {
-            gp.DrawEllipse(new Pen(color, 1f), 4, 4, AIcon.IMAGE_SIZE - 8, AIcon.IMAGE_SIZE- 8);
+            gp.DrawEllipse(new Pen(color, 1f), new Rectangle(4, 4, AIcon.IMAGE_SIZE - 8, AIcon.IMAGE_SIZE- 8));
         }
     }
 }

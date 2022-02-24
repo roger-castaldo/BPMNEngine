@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 
@@ -40,19 +39,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             public sGif(Image img,bool isFirstFrame)
             {
                 int len;
-                _canvasWidth = (short)img.Width;
-                _canvasHeight = (short)img.Height;
+                _canvasWidth = (short)img.Size.Width;
+                _canvasHeight = (short)img.Size.Height;
                 MemoryStream ms = new MemoryStream();
                 if (!isFirstFrame)
                 {
-                    Bitmap bmp = new Bitmap(img.Width, img.Height);
-                    Graphics g = Graphics.FromImage(bmp);
-                    g.FillRectangle(new SolidBrush(_TransparentColor), 0, 0, bmp.Width, bmp.Height);
-                    g.DrawImage(img, 0, 0);
+                    Image g = new Image(img.Size);
+                    g.FillRectangle(new SolidBrush(_TransparentColor), new Rectangle(0,0,img.Size.Width,img.Size.Height));
+                    g.DrawImage(img, new Point(0, 0));
                     g.Flush();
-                    bmp.Save(ms, ImageFormat.Gif);
+                    ms = new MemoryStream(g.ToGif());
                 }else
-                    img.Save(ms, ImageFormat.Gif);
+                    ms = new MemoryStream(img.ToGif());
                 ms.Position = 0;
                 BinaryReader br = new BinaryReader(ms);
                 br.ReadBytes(4); //skip gif8

@@ -1,7 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using System.Xml;
 
@@ -20,8 +20,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             get
             {
                 return new Point(
-                    (int)double.Parse(this["x"]),
-                    (int)double.Parse(this["y"]));
+                    float.Parse(this["x"]),
+                    float.Parse(this["y"]));
             }
         }
 

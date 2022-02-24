@@ -1,7 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
@@ -10,12 +10,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
     {
         public new const int IMAGE_SIZE = 63;
 
-        private static readonly PointF[] _POINTS = new PointF[] {
-            new PointF((float)AGateway.IMAGE_SIZE/2f,0),
-            new PointF((float)AGateway.IMAGE_SIZE-2,(float)AGateway.IMAGE_SIZE/2f),
-            new PointF((float)AGateway.IMAGE_SIZE/2f,(float)AGateway.IMAGE_SIZE-2),
-            new PointF(0,(float)AGateway.IMAGE_SIZE/2f),
-            new PointF((float)AGateway.IMAGE_SIZE/2f,0)
+        private static readonly Point[] _POINTS = new Point[] {
+            new Point((float)AGateway.IMAGE_SIZE/2f,0),
+            new Point((float)AGateway.IMAGE_SIZE-2,(float)AGateway.IMAGE_SIZE/2f),
+            new Point((float)AGateway.IMAGE_SIZE/2f,(float)AGateway.IMAGE_SIZE-2),
+            new Point(0,(float)AGateway.IMAGE_SIZE/2f),
+            new Point((float)AGateway.IMAGE_SIZE/2f,0)
         };
 
         protected override sealed int _ImageSize
@@ -23,7 +23,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
             get { return IMAGE_SIZE; }
         }
 
-        protected override void _Draw(Graphics gp, Color color)
+        protected override void _Draw(Image gp, Color color)
         {
             base._Draw(gp, color);
             gp.DrawLines(new Pen(color, 2f), _POINTS);

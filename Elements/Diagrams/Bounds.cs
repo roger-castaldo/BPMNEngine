@@ -1,7 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using System.Xml;
 
@@ -20,15 +20,15 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal class Bounds : AElement
     {
-        public RectangleF Rectangle
+        public Rectangle Rectangle
         {
             get
             {
-                return new RectangleF(
-                    (int)double.Parse(this["x"]),
-                    (int)double.Parse(this["y"]),
-                    (int)double.Parse(this["width"]),
-                    (int)double.Parse(this["height"]));
+                return new Rectangle(
+                    float.Parse(this["x"]),
+                    float.Parse(this["y"]),
+                    float.Parse(this["width"]),
+                    float.Parse(this["height"]));
             }
         }
 

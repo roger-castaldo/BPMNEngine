@@ -1,7 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons
@@ -16,7 +16,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
 
         protected virtual IIconPart[] _parts { get { return new IIconPart[0]; } }
 
-        protected virtual void _Draw(Graphics gp, Color color)
+        protected virtual void _Draw(Image gp, Color color)
         {
             foreach (IIconPart part in _parts)
             {
@@ -29,17 +29,16 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
             _cache= new Dictionary<Color, Image>();
         }
 
-        public void Draw(RectangleF container, Graphics gp, Color color)
+        public void Draw(Rectangle container, Image gp, Color color)
         {
             lock (_cache)
             {
                 if (!_cache.ContainsKey(color))
                 {
-                    Bitmap bmp = new Bitmap(_ImageSize, _ImageSize);
-                    Graphics g = Graphics.FromImage(bmp);
+                    Image g = new Image(_ImageSize, _ImageSize);
                     _Draw(g, color);
                     g.Flush();
-                    _cache.Add(color, bmp);
+                    _cache.Add(color, g);
                 }
                 gp.DrawImage(_cache[color], container);
             }
