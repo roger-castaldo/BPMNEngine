@@ -8,7 +8,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
     internal class Size : IDrawingObject
     {
         public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Size");
+        public static readonly Type SkiaType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "SkiaSharp.Size");
+        
         private static readonly ConstructorInfo _drawingConstructor = (DrawingType==null ? null : DrawingType.GetConstructor(new Type[] { typeof(int), typeof(int) }));
+        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(new Type[] { typeof(float), typeof(float) }));
 
         private static readonly ConstructorInfo _floatConstructor = (DrawingType==null ? null : Utility.GetType(DrawingImage.ASSEMBLY_NAME,"System.Drawing.SizeF").GetConstructor(new Type[] { typeof(float), typeof(float) }));
 
@@ -44,5 +47,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
                 return (_floatConstructor!=null ? _floatConstructor.Invoke(new object[] { (float)_width, (float)_height }) : null);
             }
         }
+
+        public object SkiaObject { get { return (_skiaConstructor!=null ? _skiaConstructor.Invoke(new object[] { (float)_width, (float)_height }) : null); } }
     }
 }

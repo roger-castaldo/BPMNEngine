@@ -7,5 +7,6 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
     internal interface IDrawingObject
     {
         object DrawingObject { get; }
+        object SkiaObject { get; }
     }
 }

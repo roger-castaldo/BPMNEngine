@@ -8,8 +8,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
     internal class Color : IDrawingObject
     {
         public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Color");
+        public static readonly Type SkiaType = Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKColor");
 
         private static readonly MethodInfo _drawingMethod = (DrawingType == null ? null : DrawingType.GetMethod("FromArgb", new Type[] {typeof(int), typeof(int) , typeof(int) , typeof(int) }));
+        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }));
 
         public static readonly Color White = new Color(255, 255,255,255);
         public static readonly Color Red = new Color(255, 255, 0, 0);
@@ -53,6 +55,15 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
                     (byte)DrawingType.GetProperty("B").GetValue(obj)
                 );
             }
+            if (obj.GetType().FullName==SkiaType.FullName)
+            {
+                return new Color(
+                    (byte)SkiaType.GetProperty("Alpha").GetValue(obj),
+                    (byte)SkiaType.GetProperty("Red").GetValue(obj),
+                    (byte)SkiaType.GetProperty("Green").GetValue(obj),
+                    (byte)SkiaType.GetProperty("Blue").GetValue(obj)
+                );
+            }
             return null;
         }
 
@@ -62,6 +73,29 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             {
                 return (_drawingMethod!=null ? _drawingMethod.Invoke(null,new object[] { _a, _r, _g, _b }) : null);
             }
+        }
+
+        public object SkiaObject
+        {
+            get
+            {
+                return (_skiaConstructor!=null ? _skiaConstructor.Invoke(new object[] { (byte)_r, (byte)_g, (byte)_b, (byte)_a }) : null);
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Color)
+            {
+                Color c = (Color)obj;
+                return c.A==_a && c.R==_r && c.G==_g && c.B==_b;
+            }
+            return false;
+        }
+
+        public int HowClose(Color c)
+        {
+            return Math.Abs(c.R-R)+Math.Abs(c.G-G)+Math.Abs(c.B-B)+Math.Abs(c.A-A);
         }
     }
 }

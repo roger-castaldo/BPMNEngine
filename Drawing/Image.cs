@@ -12,7 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         {
             get
             {
-                return DrawingImage.CanUse;
+                return DrawingImage.CanUse||SkiaImage.CanUse;
             }
         }
 
@@ -24,6 +24,11 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             get { return _surface.DrawingObject; }
         }
 
+        public object SkiaObject
+        {
+            get { return _surface.SkiaObject; }
+        }
+
         public Image(Rectangle rect)
             : this((int)rect.Width, (int)rect.Height) { }
 
@@ -32,12 +37,32 @@ namespace Org.Reddragonit.BpmEngine.Drawing
 
         public Image(Size size)
         {
-            _surface = (DrawingImage.CanUse ? new DrawingImage(size) : null);
+            _surface = (DrawingImage.CanUse ? new DrawingImage(size) : (IDrawingSurface)(SkiaImage.CanUse ? new SkiaImage(size) : null));
+        }
+
+        public static int VerticalTextShift
+        {
+            get { return (DrawingImage.CanUse ? -7 : 5); }
+        }
+
+        public static float EdgeLabelVerticalShift
+        {
+            get { return (DrawingImage.CanUse ? 0 : 6f); }
+        }
+
+        public static float EdgeLabelHorizontalShift
+        {
+            get { return (DrawingImage.CanUse ? 0 : -1.5f); }
         }
 
         private Image(Stream str)
         {
-            _surface = (DrawingImage.CanUse ? new DrawingImage(str) : null);
+            _surface = (DrawingImage.CanUse ? new DrawingImage(str) : (IDrawingSurface)(SkiaImage.CanUse ? new SkiaImage(str) : null));
+        }
+
+        public void Clear(Color color)
+        {
+            _surface.Clear(color);
         }
 
         public void TranslateTransform(float x, float y)
@@ -121,17 +146,17 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         public void DrawString(string content, Color color,Point point)
         {
             Size sf = MeasureString(content);
-            DrawString(content, new SolidBrush(color), new Rectangle(point.X, point.Y, sf.Width, sf.Height));
+            DrawString(content, new SolidBrush(color), new Rectangle(point.X, point.Y, sf.Width, sf.Height),false);
         }
 
-        public void DrawString(string content, SolidBrush brush, Rectangle rect)
+        public void DrawString(string content, SolidBrush brush, Rectangle rect,bool center)
         {
-            _surface.DrawString(content, brush, rect);
+            _surface.DrawString(content, brush, rect,center);
         }
 
-        public void DrawPath(Pen pen, GraphicsPath path)
+        public void DrawRoundRectangle(Pen pen, RoundRectangle rect)
         {
-            _surface.DrawPath(pen, path);
+            _surface.DrawRoundRectangle(pen, rect);
         }
 
         public void Flush()
@@ -159,9 +184,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             return _surface.ToFile(type);
         }
 
-        public byte[] ToGif()
+        public void Dispose()
         {
-            return _surface.ToGif();
+            if (_surface!=null)
+                _surface.Dispose();
         }
     }
 }

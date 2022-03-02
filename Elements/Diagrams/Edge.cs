@@ -17,17 +17,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Plane))]
     internal class Edge : ADiagramElement
     {
-
-        private CustomLineCap _defaultFlowCap
-        {
-            get
-            {
-                GraphicsPath gp = new GraphicsPath();
-                gp.AddLine(new Point(1.5f,-3.5f),new Point(1.5f,-1.5f));
-                return new CustomLineCap(null, gp);
-            }
-        }
-
         public Point[] Points
         {
             get
@@ -48,26 +37,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             {
                 if (_rectangle == null)
                 {
-                    float minX = float.MaxValue;
-                    float maxX = float.MinValue;
-                    float minY = float.MaxValue;
-                    float maxY = float.MinValue;
-                    foreach (Point p in Points)
-                    {
-                        minX = Math.Min(minX, p.X);
-                        minY = Math.Min(minY, p.Y);
-                        maxX = Math.Max(maxX, p.X);
-                        maxY = Math.Max(maxY, p.Y);
-                    }
+                    for(int x = 0; x<Points.Length-1; x++)
+                        _rectangle = new Rectangle(Points[x], Points[x+1]).Merge(_rectangle);
                     Label l = Label;
+                    _rectangle = new Rectangle(_rectangle.X-3.5f, _rectangle.Y-3.5f, _rectangle.Width+6.5f, _rectangle.Height+6.5f);
                     if (l != null)
-                    {
-                        minX = Math.Min(minX, (float)Math.Floor(l.Bounds.Rectangle.X));
-                        minY = Math.Min(minY, (float)Math.Floor(l.Bounds.Rectangle.Y));
-                        maxX = Math.Max(maxX, (float)Math.Floor(l.Bounds.Rectangle.X+l.Bounds.Rectangle.Width));
-                        maxY = Math.Max(maxY, (float)Math.Floor(l.Bounds.Rectangle.Y+l.Bounds.Rectangle.Height));
-                    }
-                    _rectangle = new Rectangle(minX-3, minY-3, maxX - minX+6,  maxY - minY+6);
+                        _rectangle = _rectangle.Merge(l.Bounds.Rectangle);
                 }
                 return _rectangle;
             }
@@ -152,7 +127,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             gp.FillPolygon(brush, new Point[] {
                 fend,
                 p1,
-                p2
+                p2,
+                fend
             });
         }
 

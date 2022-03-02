@@ -1,4 +1,5 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Org.Reddragonit.BpmEngine.Drawing.Gif;
+using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,113 +31,77 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             private byte[] _data;
             public byte[] Data { get { return _data; } }
 
-            private int _colorTableByteLength;
-            public int ColorTableByteLength { get { return _colorTableByteLength; } }
-
             private int _transparentColorIndex;
             public int TransparentColorIndex { get { return _transparentColorIndex; } }
 
             public sGif(Image img,bool isFirstFrame)
             {
-                int len;
+                _packedField=0xF7;
                 _canvasWidth = (short)img.Size.Width;
                 _canvasHeight = (short)img.Size.Height;
-                MemoryStream ms = new MemoryStream();
+                _transparentColorIndex = 0;
+                List<Color> colors = new List<Color>();
+                _data = new byte[img.Size.Width*img.Size.Height];
                 if (!isFirstFrame)
                 {
                     Image g = new Image(img.Size);
-                    g.FillRectangle(new SolidBrush(_TransparentColor), new Rectangle(0,0,img.Size.Width,img.Size.Height));
+                    g.FillRectangle(new SolidBrush(_TransparentColor), new Rectangle(0f, 0f, (float)img.Size.Width, (float)img.Size.Height));
                     g.DrawImage(img, new Point(0, 0));
                     g.Flush();
-                    ms = new MemoryStream(g.ToGif());
-                }else
-                    ms = new MemoryStream(img.ToGif());
-                ms.Position = 0;
-                BinaryReader br = new BinaryReader(ms);
-                br.ReadBytes(4); //skip gif8
-                bool gif87a = !(br.ReadByte() == (byte)0x39);
-                br.ReadBytes(1); //skip remaining header
-                br.ReadBytes(4); //skip dimensions
-                _packedField = (byte)br.ReadByte();
-                br.ReadBytes(2); //skip background color and aspect ratio
-                int colorTableLength = 0;
-                if (!gif87a)
-                {
-                    _colorTableByteLength = (int)((int)_packedField & 0x07);
-                    colorTableLength = (int)Math.Pow(2, _colorTableByteLength + 1);
+                    img=g;
+                    colors.Add(_TransparentColor);
                 }
-                else
-                {
-                    _colorTableByteLength = (int)((int)_packedField & 0x70)>>4;
-                    colorTableLength = (int)Math.Pow(2, _colorTableByteLength + 1);
-                    _packedField = (byte)(0x80 | (_colorTableByteLength<<4) | (((int)_packedField & 0x10) >> 1) | _colorTableByteLength);
-                }
-                _transparentColorIndex = 0;
-                _colorTable = br.ReadBytes(colorTableLength * 3);
-                for(int x = 0; x < _colorTable.Length; x+=3)
-                {
-                    if (_colorTable[x]==_TransparentColor.R
-                        && _colorTable[x+1]==_TransparentColor.G
-                        && _colorTable[x+2] == _TransparentColor.B)
-                    {
-                        _transparentColorIndex = x / 3;
-                        break;
-                    }
-                }
-                if (!gif87a)
-                {
-                    while (br.ReadByte() == 0x21)
-                    {
-                        switch (br.ReadByte())
-                        {
-                            case 0xF9:
-                                len = br.ReadByte();
-                                br.ReadBytes(len); //skip gce content
-                                br.ReadByte(); //skip extension end
-                                break;
-                            case 0xFF:
-                            case 0x01:
-                                len = br.ReadByte();
-                                br.ReadBytes(len); //skip descriptor
-                                len = br.ReadByte(); //read len of next block
-                                while (len != 0)
-                                {
-                                    br.ReadBytes(len); //skip block content
-                                    len = br.ReadByte(); //read len of next block
-                                }
-                                break;
-                        }
-                    }
 
-                }
-                else
-                    br.ReadByte(); //skip image sperator char
-                br.ReadBytes(8); //skip dimensions/image seperator/positions
-                byte tb = br.ReadByte();
-                if (((int)tb & 0x80) == (int)0x80)
+                for(int y = 0; y<img.Size.Height; y++)
                 {
-                    len = (int)Math.Pow(2, ((int)tb & 0x07) + 1);
-                    if (len !=2 )
+                    for(int x = 0; x<img.Size.Width; x++)
                     {
-                        _colorTableByteLength = tb & 0x07;
-                        _colorTable = br.ReadBytes(len * 3);
+                        Color c = img.GetPixel(x, y);
+                        if (!colors.Contains(c))
+                        {
+                            if (colors.Count==256)
+                                c = _FindClosest(colors, c);
+                            else
+                                colors.Add(c);
+                        }
+                        _data[(y*img.Size.Width)+x]=(byte)colors.IndexOf(c);
                     }
                 }
-                MemoryStream msData = new MemoryStream();
-                BinaryWriter bw = new BinaryWriter(msData);
-                bw.Write(br.ReadByte());
-                len = br.ReadByte();
-                while (len != 0)
+
+                _colorTable = new byte[3*256];
+
+                for (int x = 0; x<_colorTable.Length; x++)
+                    _colorTable[x]=0x00;
+
+                int idx = 0;
+                foreach (Color c in colors)
                 {
-                    bw.Write((byte)len);
-                    bw.Write(br.ReadBytes(len));
-                    len = br.ReadByte();
+                    _colorTable[idx]=(byte)c.R;
+                    _colorTable[idx+1]=(byte)c.G;
+                    _colorTable[idx+2]=(byte)c.B;
+                    idx+=3;
                 }
-                bw.Write((byte)0x00);
-                if (br.ReadByte()==0x00)
-                    bw.Write((byte)0x00);
-                bw.Flush();
-                _data = msData.ToArray();
+
+                MemoryStream ms = new MemoryStream();
+                new LZWEncoder(img.Size.Width, img.Size.Height, _data, 8).Encode(ms);
+
+                _data=ms.ToArray();
+            }
+
+            private static Color _FindClosest(List<Color> colors, Color c)
+            {
+                Color ret = null;
+                int cc = int.MaxValue;
+                foreach (Color col in colors)
+                {
+                    int hc = c.HowClose(col);
+                    if (hc<cc)
+                    {
+                        ret=col;
+                        cc=hc;
+                    }
+                }
+                return ret;
             }
         }
 

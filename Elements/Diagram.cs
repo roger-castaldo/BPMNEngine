@@ -19,7 +19,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     internal class Diagram : AParentElement
     {
         private const float _SUB_PROCESS_CORNER_RADIUS = 10f;
-        private const float _TASK_CORNER_RADIUS = 5f;
+        private const float _TASK_CORNER_RADIUS = 7.5f;
         private const float _LANE_CORNER_RADIUS = 3f;
 
         public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)
@@ -159,6 +159,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private Image _Render(ProcessPath path, Definition definition, string elemid)
         {
             Image ret = new Image(Size);
+            if (elemid==null)
+                ret.Clear(Color.White);
             int minX;
             int minY;
             int maxX;
@@ -168,7 +170,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
             foreach (Shape shape in _Shapes)
             {
                 if (shape.bpmnElement == (elemid == null ? shape.bpmnElement : elemid))
-                    ret.DrawImage(_RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement)), shape.Rectangle);
+                {
+                    Rectangle rect;
+                    Image img = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), out rect);
+                    ret.DrawImage(img, rect);
+                }
             }
             foreach (Edge edge in _Edges)
             {
@@ -184,8 +190,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
             {
                 if (shape.bpmnElement == elementID)
                 {
-                    rectangle = _ShiftRectangle(shape.Rectangle);
-                    return _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement));
+                    Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), out rectangle);
+                    rectangle = _ShiftRectangle(rectangle);
+                    return ret;
                 }
             }
             foreach(Edge edge in _Edges)
@@ -212,19 +219,19 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 if (elem != null)
                 {
                     Size sf = ret.MeasureString(elem.ToString(), new Size((int)edge.Label.Bounds.Rectangle.Width, (int)edge.Label.Bounds.Rectangle.Height));
-                    ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(edge.Label.Bounds.Rectangle.X, edge.Label.Bounds.Rectangle.Y, Math.Max(edge.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(edge.Label.Bounds.Rectangle.Height, sf.Height)));
+                    ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(edge.Label.Bounds.Rectangle.X+Image.EdgeLabelHorizontalShift, edge.Label.Bounds.Rectangle.Y+Image.EdgeLabelVerticalShift, Math.Max(edge.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(edge.Label.Bounds.Rectangle.Height, sf.Height)),true);
                 }
             }
             return ret;
         }
 
-        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem)
+        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,out Rectangle rect)
         {
-            Image ret = new Image(shape.Rectangle);
-            ret.TranslateTransform(0 - shape.Rectangle.X, 0 - shape.Rectangle.Y);
+            rect = shape.Rectangle.Merge((shape.Label!=null ? shape.Label.Bounds.Rectangle : null));
+            Image ret = new Image(rect);
+            ret.TranslateTransform(0 - rect.X, 0 - rect.Y);
             if (icon.HasValue)
             {
-                Rectangle rect = new Rectangle(0, 0, 0, 0);
                 switch (icon.Value)
                 {
                     case BPMIcons.Task:
@@ -236,7 +243,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     case BPMIcons.ScriptTask:
                     case BPMIcons.BusinessRuleTask:
                         Pen p = new Pen(_GetBrush(status), Constants.PEN_WIDTH);
-                        ret.DrawPath(p,_GenerateRoundedRectangle(shape.Rectangle.X, shape.Rectangle.Y, shape.Rectangle.Width, shape.Rectangle.Height, _TASK_CORNER_RADIUS));
+                        ret.DrawRoundRectangle(p, new RoundRectangle(shape.Rectangle, _TASK_CORNER_RADIUS));
                         IconGraphic.AppendIcon(new Rectangle(shape.Rectangle.X + 5, shape.Rectangle.Y + 5, 15, 15), icon.Value, ret, _GetColor(status));
                         break;
                     default:
@@ -254,15 +261,15 @@ namespace Org.Reddragonit.BpmEngine.Elements
                             new Point(shape.Rectangle.X+20,shape.Rectangle.Y+shape.Rectangle.Height)
                         });
                 else if (elem is Lane || elem is Participant)
-                    ret.DrawPath(new Pen(_GetBrush(status), Constants.PEN_WIDTH),_GenerateRoundedRectangle(shape.Rectangle.X,shape.Rectangle.Y,shape.Rectangle.Width,shape.Rectangle.Height,_LANE_CORNER_RADIUS));
+                    ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH),new RoundRectangle(shape.Rectangle,_LANE_CORNER_RADIUS));
                 else if (elem is SubProcess)
-                    ret.DrawPath(new Pen(_GetBrush(status), Constants.PEN_WIDTH), _GenerateRoundedRectangle(shape.Rectangle.X, shape.Rectangle.Y, shape.Rectangle.Width, shape.Rectangle.Height,_SUB_PROCESS_CORNER_RADIUS));
+                    ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new RoundRectangle(shape.Rectangle,_SUB_PROCESS_CORNER_RADIUS));
                 if (elem.ToString() != "")
                 {
                     if (shape.Label != null)
                     {
                         Size sf = ret.MeasureString(elem.ToString(), new Size(shape.Label.Bounds.Rectangle.Width, (float)int.MaxValue));
-                        ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(shape.Label.Bounds.Rectangle.X, shape.Label.Bounds.Rectangle.Y, Math.Max(shape.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(shape.Label.Bounds.Rectangle.Height, sf.Height)));
+                        ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(shape.Label.Bounds.Rectangle.X, shape.Label.Bounds.Rectangle.Y, Math.Max(shape.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(shape.Label.Bounds.Rectangle.Height, sf.Height)),true);
                     }
                     else
                     {
@@ -277,29 +284,14 @@ namespace Org.Reddragonit.BpmEngine.Elements
                                 g.TranslateTransform(0, 0);
                                 g.DrawString(elem.ToString(),_GetColor(status), new Point(0, 0));
                                 g.Flush();
-                                ret.DrawImage(g, new Point(shape.Rectangle.X - 7, shape.Rectangle.Y + ((shape.Rectangle.Height - g.Size.Height) / 2)));
+                                ret.DrawImage(g, new Point(shape.Rectangle.X + Image.VerticalTextShift, shape.Rectangle.Y + ((shape.Rectangle.Height - g.Size.Height) / 2)));
                             }
                             else
-                                ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f));
+                                ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f),true);
                         }
                     }
                 }
             }
-            return ret;
-        }
-
-        private GraphicsPath _GenerateRoundedRectangle(float XPosition, float YPosition, float Width, float Height,float radius)
-        {
-            GraphicsPath ret = new GraphicsPath();
-            ret.AddLine(XPosition + radius, YPosition, XPosition + Width - (radius * 2), YPosition);
-            ret.AddArc(XPosition + Width - (radius * 2), YPosition, radius * 2, radius * 2, 270, 90);
-            ret.AddLine(XPosition + Width, YPosition + radius, XPosition + Width, YPosition + Height - (radius * 2));
-            ret.AddArc(XPosition + Width - (radius * 2), YPosition + Height - (radius * 2), radius * 2, radius * 2, 0, 90);
-            ret.AddLine(XPosition + Width - (radius * 2), YPosition + Height, XPosition + radius, YPosition + Height);
-            ret.AddArc(XPosition, YPosition + Height - (radius * 2), radius * 2, radius * 2, 90, 90);
-            ret.AddLine(XPosition, YPosition + Height - (radius * 2), XPosition, YPosition + radius);
-            ret.AddArc(XPosition, YPosition, radius * 2, radius * 2, 180, 90);
-            ret.CloseFigure();
             return ret;
         }
 

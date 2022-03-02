@@ -753,7 +753,7 @@ namespace Org.Reddragonit.BpmEngine
         private Image _Diagram(bool outputVariables)
         {
             if (!Image.CanUse)
-                throw new Exception("Unable to produce a Diagram or Animated Diagram as there is no valid Drawing Assembly Loaded, please add either System.Drawing.Common or ImageSharp");
+                throw new Exception("Unable to produce a Diagram or Animated Diagram as there is no valid Drawing Assembly Loaded, please add either System.Drawing.Common or SkiaSharp");
             WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             int width = 0;
             int height = 0;
@@ -801,7 +801,7 @@ namespace Org.Reddragonit.BpmEngine
             ret.DrawRectangle(p, new Rectangle(0, 0, ret.Size.Width, ret.Size.Height));
             ret.DrawLine(p, new Point(0, (int)sz.Height + 2), new Point(_VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
             ret.DrawLine(p, new Point(_VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(_VARIABLE_NAME_WIDTH, ret.Size.Height));
-            ret.DrawString("Variables",new SolidBrush(Color.Black),new Rectangle((ret.Size.Width - sz.Width) / 2, 2,sz.Width,sz.Height));
+            ret.DrawString("Variables",new SolidBrush(Color.Black),new Rectangle((ret.Size.Width - sz.Width) / 2, 2,sz.Width,sz.Height),true);
             float curY = sz.Height + 2;
             for (int x = 0; x < keys.Length; x++)
             {
@@ -857,7 +857,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             Image vmap = _ProduceVariablesImage(diagram);
             Image ret = new Image(diagram.Size.Width + _DEFAULT_PADDING + vmap.Size.Width, Math.Max(diagram.Size.Height, vmap.Size.Height + _DEFAULT_PADDING));
-            ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, ret.Size.Width, ret.Size.Height));
+            ret.Clear(Color.White);
             ret.DrawImage(diagram, new Point(0, 0));
             ret.DrawImage(vmap, new Point(ret.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
             ret.Flush();

@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             Utility.GetType(ASSEMBLY_NAME,"System.Drawing.Font").GetConstructor(new Type[] { Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontFamily"), typeof(float), Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontStyle"), Utility.GetType(ASSEMBLY_NAME,"System.Drawing.GraphicsUnit") }).Invoke(
                 new object[]
                 {
-                    Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontFamily").GetProperty(Constants.FONT_FAMILY_NAME,BindingFlags.Static|BindingFlags.Public).GetValue(null),
+                    Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontFamily").GetProperty("GenericSerif",BindingFlags.Static|BindingFlags.Public).GetValue(null),
                     Constants.FONT_SIZE,
                     Enum.Parse(Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontStyle"),Constants.FONT_STYLE),
                     Enum.Parse(Utility.GetType(ASSEMBLY_NAME,"System.Drawing.GraphicsUnit"),Constants.FONT_GRAPHICS_UNIT)
@@ -26,7 +26,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             )
         );
 
-        private static object _StringFormat=null;
+        private static object _CenterStringFormat=null;
+        private static object _LeftStringFormat = null;
 
         private static readonly ConstructorInfo _bmpConstructor = (_BitmapType==null ? null : _BitmapType.GetConstructor(new Type[] { typeof(int),typeof(int) }));
 
@@ -39,9 +40,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
                 Type t = Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringFormat");
                 if (t!=null)
                 {
-                    _StringFormat = t.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
-                    t.GetProperty("Alignment").SetValue(_StringFormat, Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringAlignment"), "Center"));
-                    t.GetProperty("LineAlignment").SetValue(_StringFormat, Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringAlignment"), "Center"));
+                    _CenterStringFormat = t.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+                    t.GetProperty("Alignment").SetValue(_CenterStringFormat, Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringAlignment"), "Center"));
+                    t.GetProperty("LineAlignment").SetValue(_CenterStringFormat, Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringAlignment"), "Center"));
+                    _LeftStringFormat = t.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+                    t.GetProperty("Alignment").SetValue(_LeftStringFormat, Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringAlignment"), "Center"));
+                    t.GetProperty("LineAlignment").SetValue(_LeftStringFormat, Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringAlignment"), "Near"));
                 }
                 _methods = new Dictionary<string, MethodInfo>()
                 {
@@ -54,14 +58,17 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
                     {"DrawLine",_GraphicsType.GetMethod("DrawLine", new Type[] { Pen.DrawingType, Point.DrawingType, Point.DrawingType }) },
                     {"DrawEllipse",_GraphicsType.GetMethod("DrawEllipse", new Type[] { Pen.DrawingType, Rectangle.DrawingType }) },
                     {"FillEllipse",_GraphicsType.GetMethod("FillEllipse",new Type[] { Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Brush"),Rectangle.DrawingType}) },
-                    {"MeasureString",_GraphicsType.GetMethod("MeasureString", new Type[] { typeof(string), _FONT.GetType(), Utility.GetType(ASSEMBLY_NAME,"System.Drawing.SizeF"), _StringFormat.GetType() }) },
-                    {"DrawString",_GraphicsType.GetMethod("DrawString", new Type[] { typeof(string), _FONT.GetType(), Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Brush"), Rectangle.DrawingType, _StringFormat.GetType() }) },
-                    {"DrawPath",_GraphicsType.GetMethod("DrawPath", new Type[] { Pen.DrawingType, GraphicsPath.DrawingType }) },
+                    {"MeasureString",_GraphicsType.GetMethod("MeasureString", new Type[] { typeof(string), _FONT.GetType(), Utility.GetType(ASSEMBLY_NAME,"System.Drawing.SizeF"), _CenterStringFormat.GetType() }) },
+                    {"DrawString",_GraphicsType.GetMethod("DrawString", new Type[] { typeof(string), _FONT.GetType(), Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Brush"), Rectangle.DrawingType, _CenterStringFormat.GetType() }) },
+                    {"DrawRoundRectangle",_GraphicsType.GetMethod("DrawPath", new Type[] { Pen.DrawingType, RoundRectangle.DrawingType }) },
                     {"Flush",_GraphicsType.GetMethod("Flush", Type.EmptyTypes) },
                     {"GetPixel",_BitmapType.GetMethod("GetPixel", new Type[] { typeof(int), typeof(int) }) },
                     {"SetPixel",_BitmapType.GetMethod("SetPixel", new Type[] { typeof(int), typeof(int), Color.DrawingType }) },
                     {"FillPolygon",_GraphicsType.GetMethod("FillPolygon", new Type[] { Utility.GetType(ASSEMBLY_NAME,"System.Drawing.Brush"), Utility.GetType(ASSEMBLY_NAME, Point.DrawingType.FullName+"[]") }) },
-                    {"Save",_BitmapType.GetMethod("Save",new Type[] {typeof(Stream), Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Imaging.ImageFormat")}) }
+                    {"Save",_BitmapType.GetMethod("Save",new Type[] {typeof(Stream), Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Imaging.ImageFormat")}) },
+                    {"Clear",_GraphicsType.GetMethod("Clear",new Type[]{Color.DrawingType}) },
+                    {"BMPDispose",_BitmapType.GetMethod("Dispose",Type.EmptyTypes)},
+                    {"GPDispose",_GraphicsType.GetMethod("Dispose",Type.EmptyTypes) }
                 };
             }
         }
@@ -82,6 +89,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             get { return _bmp; }
         }
 
+        public object SkiaObject { get { return null; } }
+
         public DrawingImage(Size size)
         {
             _size = size;
@@ -96,6 +105,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             _gp = _methods["FromImage"].Invoke(null, new object[] { _bmp });
         }
 
+        public void Clear(Color color)
+        {
+            _methods["Clear"].Invoke(_gp, new object[] { color.DrawingObject });
+        }
         public void TranslateTransform(float x, float y)
         {
             _methods["TranslateTransform"].Invoke(_gp, new object[] { x, y });
@@ -136,18 +149,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         public Size MeasureString(string content, Size container)
         {
-            object tmp = _methods["MeasureString"].Invoke(_gp, new object[] { content, _FONT, (container==null ? null : container.FloatDrawingObject), _StringFormat });
+            object tmp = _methods["MeasureString"].Invoke(_gp, new object[] { content, _FONT, (container==null ? null : container.FloatDrawingObject), _CenterStringFormat });
             return new Size((int)Math.Ceiling((float)tmp.GetType().GetProperty("Width").GetValue(tmp)), (int)Math.Ceiling((float)tmp.GetType().GetProperty("Height").GetValue(tmp)));
         }
 
-        public void DrawString(string content, SolidBrush brush, Rectangle rect)
+        public void DrawString(string content, SolidBrush brush, Rectangle rect,bool center)
         {
-            _methods["DrawString"].Invoke(_gp, new object[] { content, _FONT, brush.DrawingObject,rect.DrawingObject,_StringFormat });
+            _methods["DrawString"].Invoke(_gp, new object[] { content, _FONT, brush.DrawingObject,rect.DrawingObject,(center ? _CenterStringFormat : _LeftStringFormat) });
         }
 
-        public void DrawPath(Pen pen, GraphicsPath path)
+        public void DrawRoundRectangle(Pen pen, RoundRectangle rect)
         {
-            _methods["DrawPath"].Invoke(_gp, new object[] { pen.DrawingObject, path.DrawingObject });
+            _methods["DrawRoundRectangle"].Invoke(_gp, new object[] { pen.DrawingObject, rect.DrawingObject });
         }
 
         public void Flush()
@@ -186,16 +199,21 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             return ms.ToArray();
         }
 
-        public byte[] ToGif()
+        public void Dispose()
         {
             try
             {
-                Flush();
+                if (_gp!=null)
+                    _methods["GPDispose"].Invoke(_gp, new object[] { });
             }
             catch (Exception e) { }
-            MemoryStream ms = new MemoryStream();
-            _methods["Save"].Invoke(_bmp, new object[] { ms, _imageFormat.GetProperty("Gif", BindingFlags.Public|BindingFlags.Static).GetValue(null) });
-            return ms.ToArray();
+
+            try
+            {
+                if (_bmp!=null)
+                    _methods["BMPDispose"].Invoke(_gp, new object[] { });
+            }
+            catch (Exception e) { }
         }
     }
 }

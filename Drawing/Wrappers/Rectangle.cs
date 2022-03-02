@@ -8,7 +8,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
     internal class Rectangle :IDrawingObject
     {
         public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.RectangleF");
+        public static readonly Type SkiaType = Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKRect");
+
         private static readonly ConstructorInfo _drawingConstructor = (DrawingType==null ? null : DrawingType.GetConstructor(new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
+        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
 
         private float _x;
         public float X { get { return _x; } }
@@ -27,12 +30,51 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             _height = height;
         }
 
+        public Rectangle(Point p1,Point p2)
+        {
+            _x = Math.Min(p1.X, p2.X);
+            _y = Math.Min(p1.Y, p2.Y);
+            _width = Math.Abs(p1.X-p2.X);
+            _height = Math.Abs(p1.Y-p2.Y);
+        }
+
+        public Rectangle Merge(Rectangle additional)
+        {
+            if (additional==null)
+                return this;
+            float minX = Math.Min(_x, additional.X);
+            float minY = Math.Min(_y, additional.Y);
+            float maxX = Math.Max(_x+_width, additional.X+additional.Width);
+            float maxY = Math.Max(_y+_height, additional.Y+additional.Height);
+            return new Rectangle(minX, minY, Math.Abs(maxX-minX), Math.Abs(maxY-minY));
+        }
+
+        public Rectangle(object drawingObject)
+        {
+            _height = (float)drawingObject.GetType().GetProperty("Height").GetValue(drawingObject, new object[] { });
+            _width = (float)drawingObject.GetType().GetProperty("Width").GetValue(drawingObject, new object[] { });
+            if (drawingObject.GetType().FullName==DrawingType.FullName)
+            {
+                _x = (float)drawingObject.GetType().GetProperty("X").GetValue(drawingObject, new object[] { });
+                _y = (float)drawingObject.GetType().GetProperty("Y").GetValue(drawingObject, new object[] { });
+            }else if (drawingObject.GetType().FullName==SkiaType.FullName)
+            {
+                _x = (float)drawingObject.GetType().GetProperty("Left").GetValue(drawingObject, new object[] { });
+                _y = (float)drawingObject.GetType().GetProperty("Top").GetValue(drawingObject, new object[] { });
+            }
+        }
+
         public object DrawingObject
         {
             get
             {
                 return (_drawingConstructor!=null ? _drawingConstructor.Invoke(new object[] { _x, _y, _width, _height }) : null);
             }
+        }
+
+        public object SkiaObject
+        {
+            get { return (_skiaConstructor!=null ? _skiaConstructor.Invoke(new object[] { _x, _y, _x+_width, _y+_height }) : null); }
         }
     }
 }
