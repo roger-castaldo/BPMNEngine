@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +16,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 _script = script;
         }
 
-        public override bool Evaluate(ProcessVariablesContainer variables)
+        public override bool Evaluate(IReadonlyVariables variables)
         {
             return (bool)_script.Invoke(variables);
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,7 +21,7 @@ namespace Org.Reddragonit.BpmEngine
             _value = value.Trim() + " ";
         }
 
-        public DateTime GetTime(ProcessVariablesContainer variables)
+        public DateTime GetTime(IReadonlyVariables variables)
         {
             variables.WriteLogLine(LogLevels.Info,string.Format("Attempting to parse DateString [{0}]", new object[] { _value }));
             DateTime ret = DateTime.Now;

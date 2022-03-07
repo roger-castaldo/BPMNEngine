@@ -31,6 +31,20 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
+        public BoundaryEvent[] BoundaryEvents
+        {
+            get
+            {
+                List<BoundaryEvent> ret = new List<BoundaryEvent>();
+                foreach (IElement elem in Children)
+                {
+                    if (elem is BoundaryEvent)
+                        ret.Add((BoundaryEvent)elem);
+                }
+                return ret.ToArray();
+            }
+        }
+
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 

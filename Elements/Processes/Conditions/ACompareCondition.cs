@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 _map = map;
         }
 
-        protected object _GetLeft(ProcessVariablesContainer variables)
+        protected object _GetLeft(IReadonlyVariables variables)
         {
             object left = null;
             if (this["leftVariable"] != null)
@@ -42,7 +43,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return left;
         }
 
-        protected object _GetRight(ProcessVariablesContainer variables)
+        protected object _GetRight(IReadonlyVariables variables)
         {
             object right = null;
             if (this["rightVariable"] != null)
@@ -67,14 +68,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return right;
         }
 
-        protected int _Compare(ProcessVariablesContainer variables)
+        protected int _Compare(IReadonlyVariables variables)
         {
             object left = _GetLeft(variables);
             object right = _GetRight(variables);
             return _Compare(left, right,variables);
         }
 
-        protected int _Compare(object left, object right,ProcessVariablesContainer variables)
+        protected int _Compare(object left, object right, IReadonlyVariables variables)
         {
             if (left == null && right != null)
                 return -1;
@@ -132,7 +133,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             return ret;
         }
 
-        private object _ConvertToType(string value, Type type,ProcessVariablesContainer variables)
+        private object _ConvertToType(string value, Type type, IReadonlyVariables variables)
         {
             object ret = value;
             switch (type.FullName)

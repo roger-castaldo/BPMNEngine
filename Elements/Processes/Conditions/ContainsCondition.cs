@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public IEnumerable<object> IEnumarable { get; private set; }
 
-        protected override bool _Evaluate(ProcessVariablesContainer variables)
+        protected override bool _Evaluate(IReadonlyVariables variables)
         {
             object right = _GetRight(variables);
             object left = _GetLeft(variables);

@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         public ConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool Evaluate(ProcessVariablesContainer variables)
+        public override bool Evaluate(IReadonlyVariables variables)
         {
             return _Conditions[0].Evaluate(variables);
         }

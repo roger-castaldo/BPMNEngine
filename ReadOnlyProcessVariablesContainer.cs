@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,9 +9,9 @@ namespace Org.Reddragonit.BpmEngine
     /// This class implements a Read Only version of the process variables container.  These are using in event delegates as the process variables
     /// cannot be changed by events.
     /// </summary>
-    public class ReadOnlyProcessVariablesContainer
+    public class ReadOnlyProcessVariablesContainer : IReadonlyVariables
     {
-        private ProcessVariablesContainer _variables;
+        private IVariables _variables;
         private Exception _error;
 
         internal ReadOnlyProcessVariablesContainer(string elementID, ProcessState state, BusinessProcess process)
@@ -22,7 +23,7 @@ namespace Org.Reddragonit.BpmEngine
             _error = error;
         }
 
-        internal ReadOnlyProcessVariablesContainer(ProcessVariablesContainer variables)
+        internal ReadOnlyProcessVariablesContainer(IVariables variables)
         {
             _variables = variables;
         }

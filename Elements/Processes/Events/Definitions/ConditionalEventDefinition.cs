@@ -1,4 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +14,24 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
     {
         public ConditionalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {
+        }
+
+        public bool IsValid(ReadOnlyProcessVariablesContainer variables)
+        {
+            bool ret = true;
+            if (ExtensionElement != null)
+            {
+                ExtensionElements ee = (ExtensionElements)ExtensionElement;
+                if (ee.Children != null)
+                {
+                    foreach (IElement ie in ee.Children)
+                    {
+                        if (ie is ConditionSet)
+                            ret = ret & ((ConditionSet)ie).Evaluate(variables);
+                    }
+                }
+            }
+            return ret;
         }
     }
 }

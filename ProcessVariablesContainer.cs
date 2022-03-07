@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine
     /// <summary>
     /// This implements a container to house the process variables and allows for editing of those variables.
     /// </summary>
-    public sealed class ProcessVariablesContainer
+    public sealed class ProcessVariablesContainer : IVariables
     {
         private List<string> _nulls;
         private Dictionary<string, object> _variables;
@@ -137,5 +138,7 @@ namespace Org.Reddragonit.BpmEngine
                 return ret.ToArray();
             }
         }
+
+        public Exception Error => throw new NotImplementedException();
     }
 }
