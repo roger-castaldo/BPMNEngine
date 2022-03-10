@@ -1,6 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
@@ -33,7 +34,7 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         /// <param name="name">The name of the process variable</param>
         /// <returns>The value of the variable or null if not found</returns>
-        public object this[string name] { get { return _variables[name]; } }
+        public object this[string name] { get { return _variables[name]; } set { throw new Exception("Unable to change variable values in readonly process variables container."); } }
 
         /// <summary>
         /// Called to get a list of all process variable names available
@@ -49,5 +50,10 @@ namespace Org.Reddragonit.BpmEngine
         /// The error that occured, assuming this was passed to an error event delgate this will have a value
         /// </summary>
         public Exception Error { get { return _error; } }
+
+        public void WriteLogLine(LogLevels level, string message)
+        {
+            ((ProcessVariablesContainer)_variables).WriteLogLine(level, new StackFrame(2, true), DateTime.Now, message);
+        }
     }
 }

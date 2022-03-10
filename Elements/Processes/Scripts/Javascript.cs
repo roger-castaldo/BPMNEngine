@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -52,7 +53,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         public Javascript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected override object _Invoke(ProcessVariablesContainer variables)
+        protected override object _Invoke(IVariables variables)
         {
             Info("Attempting to invoke Javascript script {0}", new object[] { id });
             if (_engineType == null)

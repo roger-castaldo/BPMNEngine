@@ -23,7 +23,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         private const string _CODE_BASE_SCRIPT_TEMPLATE = @"{0}
 
 public class {1} {{
-    public void {2}(ref ProcessVariablesContainer variables){{
+    public void {2}(ref IVariables variables){{
         {3}
     }}
 }}";
@@ -31,7 +31,7 @@ public class {1} {{
         private const string _CODE_BASE_CONDITION_TEMPLATE = @"{0}
 
 public class {1} {{
-    public bool {2}(ProcessVariablesContainer variables){{
+    public bool {2}(IVariables variables){{
         {3}
     }}
 }}";
@@ -39,7 +39,7 @@ public class {1} {{
         private const string _CODE_BASE_TIMER_EVENT_TEMPLATE = @"{0}
 
 public class {1} {{
-    public DateTime {2}(ProcessVariablesContainer variables){{
+    public DateTime {2}(IVariables variables){{
         {3}
     }}
 }}";

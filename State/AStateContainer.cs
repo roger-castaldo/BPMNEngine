@@ -12,6 +12,8 @@ namespace Org.Reddragonit.BpmEngine.State
         protected abstract string _ContainerName { get; }
 
         private ProcessState _state;
+
+        protected ProcessState State { get { return _state; } }
         protected XmlElement[] ChildNodes
         {
             get { return _state.GetChildNodes(_ContainerName); }

@@ -1,6 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -80,10 +81,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
-        protected abstract object _Invoke(ProcessVariablesContainer variables);
+        protected abstract object _Invoke(IVariables variables);
         protected abstract bool _IsValid(out string[] err);
 
-        public object Invoke(ProcessVariablesContainer variables)
+        public object Invoke(IVariables variables)
         {
             Info("Attempting to process script {0}", new object[] { id });
             try

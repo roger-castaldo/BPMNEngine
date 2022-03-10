@@ -1,4 +1,5 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
+using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,7 +46,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.TimerD
             return base.IsValid(out err);
         }
 
-        public DateTime GetTime(ProcessVariablesContainer variables)
+        public DateTime GetTime(IReadonlyVariables variables)
         {
             if (_Code == "")
                 throw new Exception("Invalid Date String Specified");

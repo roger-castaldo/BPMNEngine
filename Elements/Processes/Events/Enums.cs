@@ -12,6 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         Conditional,
         Link,
         Compensation,
-        Signal
+        Signal,
+        Error
     }
 }

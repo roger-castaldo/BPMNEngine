@@ -366,7 +366,7 @@ namespace Org.Reddragonit.BpmEngine
     /// }
     /// 
     /// </example>
-    public delegate bool IsEventStartValid(IStepElement Event, ProcessVariablesContainer variables);
+    public delegate bool IsEventStartValid(IStepElement Event, IReadonlyVariables variables);
 
     /// <summary>
     /// This delegate is implemented to get triggered when determining if a Process is valid to Start
@@ -404,7 +404,7 @@ namespace Org.Reddragonit.BpmEngine
     /// }
     /// 
     /// </example>
-    public delegate bool IsProcessStartValid(IElement process, ProcessVariablesContainer variables);
+    public delegate bool IsProcessStartValid(IElement process, IReadonlyVariables variables);
 
     /// <summary>
     /// This delegate is implemented to get triggered when determining if a Flow is a valid path
@@ -441,7 +441,7 @@ namespace Org.Reddragonit.BpmEngine
     /// }
     /// 
     /// </example>
-    public delegate bool IsFlowValid(IElement flow, ProcessVariablesContainer variables);
+    public delegate bool IsFlowValid(IElement flow, IReadonlyVariables variables);
     #endregion
 
     #region Tasks

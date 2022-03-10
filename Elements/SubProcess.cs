@@ -19,7 +19,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
         }
 
-        public bool IsStartValid(ProcessVariablesContainer variables, IsProcessStartValid isProcessStartValid)
+        public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
         {
             if (ExtensionElement != null)
             {
@@ -69,7 +69,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     else if (elem is IntermediateCatchEvent)
                     {
                         IntermediateCatchEvent ice = (IntermediateCatchEvent)elem;
-                        if (ice.ErrorTypes != null || ice.MessageTypes != null || ice.SignalTypes != null)
+                        if (ice.SubType.HasValue)
                         {
                             hasStart = true;
                             hasIncoming = true;

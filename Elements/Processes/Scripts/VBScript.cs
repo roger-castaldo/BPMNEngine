@@ -27,7 +27,7 @@ Public Class {1}
     Public Sub New()
     End Sub
 
-    Public Sub {2}(ByRef variables As ProcessVariablesContainer)
+    Public Sub {2}(ByRef variables As IVariables)
         {3}
     End Sub
 End Class";
@@ -38,7 +38,7 @@ Public Class {1}
     Public Sub New()
     End Sub
 
-    Public Function {2}(ByRef variables As ProcessVariablesContainer) AS Boolean
+    Public Function {2}(ByRef variables As IVariables) AS Boolean
         {3}
     End Sub
 End Class";
@@ -49,7 +49,7 @@ Public Class {1}
     Public Sub New()
     End Sub
 
-    Public Function {2}(ByRef variables As ProcessVariablesContainer) AS DateTime
+    Public Function {2}(ByRef variables As IVariables) AS DateTime
         {3}
     End Sub
 End Class";

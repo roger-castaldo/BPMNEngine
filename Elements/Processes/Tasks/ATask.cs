@@ -46,57 +46,5 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                 return tmp;
             }
         }
-
-        public string CatchEventPath(Exception e)
-        {
-            if (base.Outgoing != null)
-            {
-                foreach (string str in base.Outgoing)
-                {
-                    IElement afn = this.Definition.LocateElement(str);
-                    string destID = null;
-                    if (afn is MessageFlow)
-                        destID = ((MessageFlow)afn).targetRef;
-                    else if (afn is SequenceFlow)
-                        destID = ((SequenceFlow)afn).targetRef;
-                    if (destID != null)
-                    {
-                        IElement ice = this.Definition.LocateElement(destID);
-                        if (ice is IntermediateCatchEvent)
-                        {
-                            string[] tmp = ((IntermediateCatchEvent)ice).ErrorTypes;
-                            if (tmp != null)
-                            {
-                                if (new List<string>(tmp).Contains(e.Message)||new List<string>(tmp).Contains(e.GetType().Name))
-                                    return afn.id;
-                            }
-                        }
-                    }
-                }
-                foreach (string str in base.Outgoing)
-                {
-                    IElement afn = this.Definition.LocateElement(str);
-                    string destID = null;
-                    if (afn is MessageFlow)
-                        destID = ((MessageFlow)afn).targetRef;
-                    else if (afn is SequenceFlow)
-                        destID = ((SequenceFlow)afn).targetRef;
-                    if (destID != null)
-                    {
-                        IElement ice = this.Definition.LocateElement(destID);
-                        if (ice is IntermediateCatchEvent)
-                        {
-                            string[] tmp = ((IntermediateCatchEvent)ice).ErrorTypes;
-                            if (tmp != null)
-                            {
-                                if (new List<string>(tmp).Contains("*"))
-                                    return afn.id;
-                            }
-                        }
-                    }
-                }
-            }
-            return null;
-        }
     }
 }

@@ -50,6 +50,12 @@ namespace Org.Reddragonit.BpmEngine
                 _process.WriteLogLine(_elementID, level, new StackFrame(2, true), DateTime.Now, message);
         }
 
+        internal void WriteLogLine(LogLevels level,StackFrame stack, DateTime stamp, string message)
+        {
+            if (_process!=null)
+                _process.WriteLogLine(_elementID, level, stack, stamp, message); ;
+        }
+
         /// <summary>
         /// Called to get or set the value of a process variable
         /// </summary>

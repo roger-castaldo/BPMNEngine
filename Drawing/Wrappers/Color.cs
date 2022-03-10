@@ -18,6 +18,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         public static readonly Color Green = new Color(255, 0, 255, 0);
         public static readonly Color Blue = new Color(255, 0, 0, 255);
         public static readonly Color Black = new Color(255, 0, 0, 0);
+        public static readonly Color LightBlue = new Color(255, 173, 216, 230);
+        public static readonly Color Orange = new Color(255, 255, 165, 0);
 
         private int _a;
         public int A { get { return _a; } }

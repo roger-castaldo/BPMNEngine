@@ -11,6 +11,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Org.Reddragonit.BpmEngine.Interfaces;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
@@ -30,7 +31,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         {
             get
             {
-                List<string> ret = new List<string>(new string[] { "Org.Reddragonit.BpmEngine" });
+                List<string> ret = new List<string>(new string[] { "Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces" });
                 if (SubNodes.Length > 1)
                 {
                     foreach (XmlNode n in SubNodes)
@@ -185,7 +186,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         }
 #endif
 
-        protected sealed override object _Invoke(ProcessVariablesContainer variables)
+        protected sealed override object _Invoke(IVariables variables)
         {
             Debug("Attempting to compile script to execute for script element {0}",new object[] { id });
             string errors;

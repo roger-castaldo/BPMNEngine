@@ -17,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         {
         }
 
-        public TimeSpan? GetTimeout(ProcessVariablesContainer variables) {
+        public TimeSpan? GetTimeout(IReadonlyVariables variables) {
             DateTime now = DateTime.Now;
             DateTime? end = null;
             foreach (IElement ie in Children)

@@ -48,7 +48,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public bool IsStartValid(ProcessVariablesContainer variables, IsProcessStartValid isProcessStartValid)
+        public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
         {
             if (ExtensionElement != null)
             {

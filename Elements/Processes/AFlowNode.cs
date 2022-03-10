@@ -29,6 +29,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             }
         }
 
+        public IElement SubProcess
+        {
+            get
+            {
+                IElement elem = Parent;
+                while (elem != null)
+                {
+                    if (elem is SubProcess)
+                        return elem;
+                    else if (elem is AElement)
+                        elem = ((AElement)elem).Parent;
+                }
+                return null;
+            }
+        }
+
         public IElement Lane
         {
             get

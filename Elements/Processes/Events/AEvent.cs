@@ -41,32 +41,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                         case "CompensationEventDefinition":
                             ret = EventSubTypes.Compensation;
                             break;
+                        case "ErrorEventDefinition":
+                            ret = EventSubTypes.Error;
+                            break;
                     }
                 }
                 return ret;
             }
         }
 
-        public SubProcess SubProcess
-        {
-            get
-            {
-                IElement elem = Parent;
-                while (elem != null)
-                {
-                    if (elem is SubProcess)
-                        return (SubProcess)elem;
-                    else if (elem is AElement)
-                        elem = ((AElement)elem).Parent;
-                }
-                return null;
-            }
-        }
-
         public AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public TimeSpan? GetTimeout(ProcessVariablesContainer variables)
+        public TimeSpan? GetTimeout(IReadonlyVariables variables)
         {
             foreach (IElement ie in Children)
             {

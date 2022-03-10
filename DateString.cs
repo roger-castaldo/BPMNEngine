@@ -107,7 +107,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        private DateTime _AddOffset(ProcessVariablesContainer variables,string unit, int value, DateTime dateTime)
+        private DateTime _AddOffset(IReadonlyVariables variables,string unit, int value, DateTime dateTime)
         {
             switch (unit.ToLower())
             {

@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
         public ExclusiveGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override string[] EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, ProcessVariablesContainer variables)
+        public override string[] EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
         {
             string ret = null;
             foreach (string str in Outgoing)

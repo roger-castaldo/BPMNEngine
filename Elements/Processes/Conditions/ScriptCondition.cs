@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public override bool Evaluate(IReadonlyVariables variables)
         {
-            return (bool)_script.Invoke(variables);
+            return (bool)_script.Invoke((IVariables)variables);
         }
     }
 }

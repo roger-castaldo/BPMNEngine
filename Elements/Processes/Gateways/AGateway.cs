@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
         public AGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public abstract string[] EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid,ProcessVariablesContainer variables);
+        public abstract string[] EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid, IReadonlyVariables variables);
         public abstract bool IsIncomingFlowComplete(string incomingID, ProcessPath path);
 
         public bool IsWaiting(ProcessPath path)

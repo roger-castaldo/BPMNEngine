@@ -9,78 +9,13 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn", "intermediateCatchEvent")]
-    internal class IntermediateCatchEvent : AEvent
+    internal class IntermediateCatchEvent : AHandlingEvent
     {
         public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }
 
-        public string[] ErrorTypes
-        {
-            get
-            {
-                foreach (IElement child in Children)
-                {
-                    if (child is ErrorEventDefinition)
-                        return ((ErrorEventDefinition)child).ErrorTypes;
-                }
-                return null;
-            }
-        }
-
-        public string[] MessageTypes
-        {
-            get
-            {
-                foreach (IElement child in Children)
-                {
-                    if (child is MessageEventDefinition)
-                        return ((MessageEventDefinition)child).MessageTypes;
-                }
-                return null;
-            }
-        }
-
-        public string[] SignalTypes
-        {
-            get
-            {
-                foreach (IElement child in Children)
-                {
-                    if (child is SignalEventDefinition)
-                        return ((SignalEventDefinition)child).SignalTypes;
-                }
-                return null;
-            }
-        }
-
         public override bool IsValid(out string[] err)
         {
-            bool checkIncoming = true;
-            foreach (IElement child in Children)
-            {
-                if (child is ErrorEventDefinition)
-                {
-                    checkIncoming = ((ErrorEventDefinition)child).ErrorTypes.Length == 0;
-                    break;
-                }else if (child is SignalEventDefinition)
-                {
-                    checkIncoming = ((SignalEventDefinition)child).SignalTypes.Length == 0;
-                    break;
-                }
-                else if (child is MessageEventDefinition)
-                {
-                    checkIncoming = ((MessageEventDefinition)child).MessageTypes.Length == 0;
-                    break;
-                }
-            }
-            if (checkIncoming)
-            {
-                if ((Incoming == null ? new string[0] : Incoming).Length == 0)
-                {
-                    err = new string[] { "Intermediate Catch Events must have an incoming path." };
-                    return false;
-                }
-            }
             if (Outgoing == null)
             {
                 err = new string[] { "Intermediate Catch Events must have an outgoing path." };
@@ -92,6 +27,63 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             }
             return base.IsValid(out err);
         }
-        
+
+        protected override bool _HandlesEvent(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables, out int cost)
+        {
+            cost=int.MaxValue;
+            bool ret = true;
+            SubProcess sb;
+            if (this.Incoming!=null)
+            {
+                ret=false;
+                if (source.Outgoing!=null)
+                {
+                    List<string> inc = new List<string>(this.Incoming);
+                    foreach (string str in source.Outgoing)
+                    {
+                        if (inc.Contains(str))
+                        {
+                            ret=true;
+                            cost=1;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (source.SubProcess!=null)
+            {
+                sb = (SubProcess)source.SubProcess;
+                cost = 3;
+                string sid = (this.SubProcess==null ? null : this.SubProcess.id);
+                if (sid==null)
+                {
+                    while (sb!=null)
+                    {
+                        sb = (SubProcess)sb.SubProcess;
+                        cost+=2;
+                    }
+                }
+                else
+                {
+                    while (sb!=null&&sid!=sb.id)
+                    {
+                        sb = (SubProcess)sb.SubProcess;
+                        cost+=2;
+                    }
+                    if (sb==null)
+                        ret=false;
+                }
+            }else if (this.SubProcess!=null)
+            {
+                cost=3;
+                sb=(SubProcess)this.SubProcess;
+                while (sb!=null)
+                {
+                    sb = (SubProcess)sb.SubProcess;
+                    cost+=2;
+                }
+            }
+            return ret;
+        }
     }
 }

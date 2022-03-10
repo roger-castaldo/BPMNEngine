@@ -8,6 +8,6 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
     internal interface IProcess : IParentElement
     {
         StartEvent[] StartEvents { get; }
-        bool IsStartValid(ProcessVariablesContainer variables, IsProcessStartValid isProcessStartValid);
+        bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid);
     }
 }

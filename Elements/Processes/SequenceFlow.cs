@@ -20,7 +20,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
         public SequenceFlow(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public bool IsFlowValid(IsFlowValid isFlowValid,ProcessVariablesContainer variables)
+        public bool IsFlowValid(IsFlowValid isFlowValid, IReadonlyVariables variables)
         {
             Debug("Checking if Sequence Flow[{0}] is valid", new object[] { id });
             bool ret = isFlowValid(this, variables);

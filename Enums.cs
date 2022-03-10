@@ -10,7 +10,9 @@ namespace Org.Reddragonit.BpmEngine
         Succeeded,
         NotRun,
         Failed,
-        Suspended
+        Suspended,
+        Aborted,
+        WaitingStart
     }
 
     internal enum VariableTypes

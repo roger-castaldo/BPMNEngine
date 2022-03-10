@@ -16,7 +16,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         {
         }
 
-        public bool IsValid(ReadOnlyProcessVariablesContainer variables)
+        public bool IsValid(IReadonlyVariables variables)
         {
             bool ret = true;
             if (ExtensionElement != null)

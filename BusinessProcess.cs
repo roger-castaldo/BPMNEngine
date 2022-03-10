@@ -41,6 +41,7 @@ namespace Org.Reddragonit.BpmEngine
         private ManualResetEvent _mreSuspend;
         private List<object> _components;
         private Dictionary<string, IElement> _elements;
+        private AHandlingEvent[] _eventHandlers = null;
 
         private IElement _GetElement(string id)
         {
@@ -314,14 +315,14 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         #region Validations
-        private static bool _DefaultEventStartValid(IElement Event, ProcessVariablesContainer variables){return true;}
+        private static bool _DefaultEventStartValid(IElement Event, IReadonlyVariables variables){return true;}
         private IsEventStartValid _isEventStartValid = new IsEventStartValid(_DefaultEventStartValid);
         /// <summary>
         /// Used to define the Is Event Start Valid delegate
         /// </summary>
         public IsEventStartValid IsEventStartValid { get { return _isEventStartValid; } set { _isEventStartValid = value; } }
 
-        private static bool _DefaultProcessStartValid(IElement Event, ProcessVariablesContainer variables){return true;}
+        private static bool _DefaultProcessStartValid(IElement Event, IReadonlyVariables variables){return true;}
         private IsProcessStartValid _isProcessStartValid = new IsProcessStartValid(_DefaultProcessStartValid);
         /// <summary>
         /// Used to define the Is Process Start Valid delegate
@@ -330,7 +331,7 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         #region Conditions
-        private static bool _DefaultFlowValid(IElement flow, ProcessVariablesContainer variables) { return true; }
+        private static bool _DefaultFlowValid(IElement flow, IReadonlyVariables variables) { return true; }
         private IsFlowValid _isFlowValid = new IsFlowValid(_DefaultFlowValid);
         /// <summary>
         /// Used to define the Is Flow Valid delegate
@@ -623,8 +624,14 @@ namespace Org.Reddragonit.BpmEngine
             }
             if (exceptions.Count == 0)
             {
+                List<AHandlingEvent> tmp = new List<AHandlingEvent>();
                 foreach (IElement elem in _Elements)
-                    _ValidateElement((AElement)elem,ref exceptions);
+                {
+                    if (elem is AHandlingEvent)
+                        tmp.Add((AHandlingEvent)elem);
+                    _ValidateElement((AElement)elem, ref exceptions);
+                }
+                _eventHandlers=tmp.ToArray();
             }
             if (exceptions.Count != 0)
             {
@@ -632,6 +639,7 @@ namespace Org.Reddragonit.BpmEngine
                 WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
+            
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
             _state = new ProcessState(this,new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
             _InitDefinition();
@@ -933,6 +941,7 @@ namespace Org.Reddragonit.BpmEngine
             BusinessProcess ret = new BusinessProcess();
             ret._doc = _doc;
             ret._components = new List<object>(_components.ToArray());
+            ret._eventHandlers = new List<AHandlingEvent>(_eventHandlers).ToArray();
             ret._InitDefinition();
             ret._constants = _constants;
             ret._elements = _elements;
@@ -985,16 +994,17 @@ namespace Org.Reddragonit.BpmEngine
             variables.SetProcess(this);
             WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             bool ret = false;
+            ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
             foreach (IElement elem in _elements.Values)
             {
                 if (elem is Elements.Process)
                 {
-                    if (((Elements.Process)elem).IsStartValid(variables, _isProcessStartValid))
+                    if (((Elements.Process)elem).IsStartValid(ropvc, _isProcessStartValid))
                     {
                         Elements.Process p = (Elements.Process)elem;
                         foreach (StartEvent se in p.StartEvents)
                         {
-                            if (se.IsEventStartValid(variables, _isEventStartValid))
+                            if (se.IsEventStartValid(ropvc, _isEventStartValid))
                             {
                                 WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
                                 if (_onProcessStarted != null)
@@ -1087,6 +1097,30 @@ namespace Org.Reddragonit.BpmEngine
 
         #endregion
 
+        private AHandlingEvent[] _GetEventHandlers(EventSubTypes type,object data, AFlowNode source, IReadonlyVariables variables)
+        {
+            List<AHandlingEvent> ret = new List<AHandlingEvent>();
+            int curCost = int.MaxValue;
+
+            int cost;
+            bool abrt;
+
+            foreach (AHandlingEvent handler in _eventHandlers) {
+                if (handler.HandlesEvent(type,data,source,variables,out cost))
+                {
+                    if (cost==curCost)
+                        ret.Add(handler);
+                    else if (cost<curCost)
+                    {
+                        ret = new List<AHandlingEvent>(new AHandlingEvent[] { handler });
+                        curCost=cost;
+                    }
+                }
+            }
+
+            return ret.ToArray();
+        }
+
         private void _ProcessStepComplete(string sourceID,string outgoingID) {
             _current = this;
             WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
@@ -1098,68 +1132,20 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        private void _ProcessStepError(IElement step,Exception ex) {
+        private void _ProcessStepError(IElement step, Exception ex) {
             _current = this;
             WriteLogLine(step,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
             bool success = false;
-            if (step is ATask)
+            if (step is AFlowNode)
             {
-                ATask atsk = (ATask)step;
-                string destID = atsk.CatchEventPath(ex);
-                if (destID != null)
+                AHandlingEvent[] events = _GetEventHandlers(EventSubTypes.Error, ex, (AFlowNode)step, new ReadOnlyProcessVariablesContainer(step.id,_state,this,ex));
+                if (events.Length>0)
                 {
-                    WriteLogLine(step,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", destID));
-                    success = true;
-                    _ProcessElement(step.id, atsk.Definition.LocateElement(destID));
-                }
-            }
-            Definition def = null;
-            if (!success)
-            {
-                foreach (IElement elem in _Elements)
-                {
-                    if (elem is Definition)
+                    success=true;
+                    foreach (AHandlingEvent ahe in events)
                     {
-                        if (((Definition)elem).LocateElement(step.id) != null)
-                        {
-                            def = (Definition)elem;
-                            break;
-                        }
-                    }
-                }
-                if (def != null)
-                {
-                    IElement[] catchers = def.LocateElementsOfType(typeof(IntermediateCatchEvent));
-                    foreach (IntermediateCatchEvent catcher in catchers)
-                    {
-                        string[] tmp = catcher.ErrorTypes;
-                        if (tmp != null)
-                        {
-                            if (new List<string>(tmp).Contains(ex.Message) || new List<string>(tmp).Contains(ex.GetType().Name))
-                            {
-                                WriteLogLine(step,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
-                                success = true;
-                                _ProcessElement(step.id, catcher);
-                                break;
-                            }
-                        }
-                    }
-                    if (!success)
-                    {
-                        foreach (IntermediateCatchEvent catcher in catchers)
-                        {
-                            string[] tmp = catcher.ErrorTypes;
-                            if (tmp != null)
-                            {
-                                if (new List<string>(tmp).Contains("*"))
-                                {
-                                    WriteLogLine(step,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", catcher.id));
-                                    success = true;
-                                    _ProcessElement(step.id, catcher);
-                                    break;
-                                }
-                            }
-                        }
+                        WriteLogLine(step, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.id));
+                        _ProcessElement(step.id, ahe);
                     }
                 }
             }
@@ -1227,7 +1213,7 @@ namespace Org.Reddragonit.BpmEngine
                         string[] outgoings = null;
                         try
                         {
-                            outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ProcessVariablesContainer(elem.id, _state, this));
+                            outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
                         }
                         catch (Exception e)
                         {
@@ -1248,7 +1234,7 @@ namespace Org.Reddragonit.BpmEngine
                     AEvent evnt = (AEvent)elem;
                     if (evnt is IntermediateCatchEvent)
                     {
-                        SubProcess sp = evnt.SubProcess;
+                        SubProcess sp = (SubProcess)evnt.SubProcess;
                         if (sp != null)
                             _state.Path.StartSubProcess(sp, sourceID);
                     }
@@ -1260,7 +1246,7 @@ namespace Org.Reddragonit.BpmEngine
                     bool success = true;
                     if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
                     {
-                        TimeSpan? ts = evnt.GetTimeout(new ProcessVariablesContainer(evnt.id, _state,this));
+                        TimeSpan? ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, _state,this));
                         if (ts.HasValue)
                         {
                             _stateEvent.WaitOne();
@@ -1277,7 +1263,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         try
                         {
-                            success = _isEventStartValid(evnt, new ProcessVariablesContainer(evnt.id, _state, this));
+                            success = _isEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
                         }
                         catch (Exception e)
                         {
@@ -1304,7 +1290,7 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             if (((EndEvent)evnt).IsProcessEnd)
                             {
-                                SubProcess sp = ((EndEvent)evnt).SubProcess;
+                                SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
                                 if (sp != null)
                                 {
                                     _stateEvent.WaitOne();
@@ -1380,7 +1366,7 @@ namespace Org.Reddragonit.BpmEngine
                 }else if (elem is SubProcess)
                 {
                     SubProcess esp = (SubProcess)elem;
-                    ProcessVariablesContainer variables = new ProcessVariablesContainer(elem.id, _state, this);
+                    ReadOnlyProcessVariablesContainer variables = new ReadOnlyProcessVariablesContainer(new ProcessVariablesContainer(elem.id, _state, this));
                     if (esp.IsStartValid(variables, _isProcessStartValid))
                     {
                         foreach (StartEvent se in esp.StartEvents)

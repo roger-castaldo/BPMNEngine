@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         public StartEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }
 
-        internal bool IsEventStartValid(ProcessVariablesContainer variables, IsEventStartValid isEventStartValid)
+        internal bool IsEventStartValid(IReadonlyVariables variables, IsEventStartValid isEventStartValid)
         {
             if (ExtensionElement != null)
             {
