@@ -422,5 +422,12 @@ namespace Org.Reddragonit.BpmEngine.State
             _WriteLogLine(elem.id, LogLevels.Debug, "Suspending Element in Process Path");
             _addPathEntry(elem.id,sourceID,StepStatuses.Suspended, DateTime.Now);
         }
+
+        internal void AbortStep(string sourceID,string attachedToID)
+        {
+            _WriteLogLine(attachedToID, LogLevels.Debug, "Aborting Process Step");
+            _addPathEntry(attachedToID, sourceID, StepStatuses.Aborted, DateTime.Now);
+
+        }
     }
 }

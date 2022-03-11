@@ -145,7 +145,42 @@ namespace Org.Reddragonit.BpmEngine
 
         public int CompareTo(object obj)
         {
-            return _endTime.CompareTo(((sProcessSuspendEvent)obj)._endTime);
+            DateTime compare = DateTime.MaxValue;
+            if (obj is sProcessSuspendEvent)
+                compare = ((sProcessSuspendEvent)obj).EndTime;
+            else if (obj is sProcessDelayedEvent)
+                compare = ((sProcessDelayedEvent)obj).StartTime;
+            return _endTime.CompareTo(compare);
+        }
+    }
+
+    internal struct sProcessDelayedEvent : IComparable
+    {
+        private BusinessProcess _process;
+        public BusinessProcess Process { get { return _process; } }
+        private BoundaryEvent _event;
+        public BoundaryEvent Event { get { return _event; } }
+        private DateTime _startTime;
+        public DateTime StartTime { get { return _startTime; } }
+        private string _sourceID;
+        public string SourceID { get { return _sourceID; } }
+
+        public sProcessDelayedEvent(BusinessProcess process, BoundaryEvent evnt, TimeSpan time,string sourceID)
+        {
+            _process = process;
+            _event = evnt;
+            _startTime = DateTime.Now.Add(time);
+            _sourceID=sourceID;
+        }
+
+        public int CompareTo(object obj)
+        {
+            DateTime compare = DateTime.MaxValue;
+            if (obj is sProcessSuspendEvent)
+                compare = ((sProcessSuspendEvent)obj).EndTime;
+            else if (obj is sProcessDelayedEvent)
+                compare = ((sProcessDelayedEvent)obj).StartTime;
+            return _startTime.CompareTo(compare);
         }
     }
 }

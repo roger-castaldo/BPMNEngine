@@ -1103,7 +1103,6 @@ namespace Org.Reddragonit.BpmEngine
             int curCost = int.MaxValue;
 
             int cost;
-            bool abrt;
 
             foreach (AHandlingEvent handler in _eventHandlers) {
                 if (handler.HandlesEvent(type,data,source,variables,out cost))
@@ -1116,6 +1115,15 @@ namespace Org.Reddragonit.BpmEngine
                         curCost=cost;
                     }
                 }
+            }
+
+            switch (type)
+            {
+                case EventSubTypes.Conditional:
+                case EventSubTypes.Timer:
+                    if (curCost>0)
+                        ret.Clear();
+                    break;
             }
 
             return ret.ToArray();
@@ -1167,229 +1175,305 @@ namespace Org.Reddragonit.BpmEngine
             {
                 WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
                 _current = this;
+                bool abort = false;
+                if (elem is AFlowNode)
+                {
+                    ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(sourceID, _state, this);
+                    AHandlingEvent[] evnts = _GetEventHandlers(EventSubTypes.Conditional, null, ((AFlowNode)elem), ropvc);
+                    foreach (AHandlingEvent ahe in evnts)
+                    {
+                        _ProcessEvent(elem.id, ahe);
+                        abort|=(ahe is BoundaryEvent ? ((BoundaryEvent)ahe).CancelActivity : false);
+                    }
+                    if (!abort)
+                    {
+                        evnts = _GetEventHandlers(EventSubTypes.Timer, null, ((AFlowNode)elem), ropvc);
+                        foreach (AHandlingEvent ahe in evnts)
+                        {
+                            TimeSpan? ts = ahe.GetTimeout(ropvc);
+                            if (ts.HasValue)
+                                Utility.DelayStart(ts.Value, this, (BoundaryEvent)ahe, elem.id);
+                        }
+                    }
+                }
                 if (elem is SequenceFlow)
-                {
-                    SequenceFlow sf = (SequenceFlow)elem;
-                    _stateEvent.WaitOne();
-                    _state.Path.ProcessSequenceFlow(sf);
-                    _stateEvent.Set();
-                    if (_onSequenceFlowCompleted != null)
-                        _onSequenceFlowCompleted(sf,new ReadOnlyProcessVariablesContainer(elem.id,_state,this));
-                }
+                    _ProcessSequenceFlow((SequenceFlow)elem);
                 else if (elem is MessageFlow)
-                {
-                    MessageFlow mf = (MessageFlow)elem;
-                    _stateEvent.WaitOne();
-                    _state.Path.ProcessMessageFlow(mf);
-                    _stateEvent.Set();
-                    if (_onMessageFlowCompleted != null)
-                        _onMessageFlowCompleted(mf, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
-                }
+                    _ProcessMessageFlow((MessageFlow)elem);
                 else if (elem is AGateway)
+                    _ProcessGateway(sourceID, (AGateway)elem);
+                else if (elem is AEvent)
+                    _ProcessEvent(sourceID, (AEvent)elem);
+                else if (elem is ATask)
+                    _ProcessTask(sourceID, (ATask)elem);
+                else if (elem is SubProcess) ;
+                    _ProcessSubProcess(sourceID, (SubProcess)elem);
+            }
+        }
+
+        private void _ProcessSubProcess(string sourceID, SubProcess esp)
+        {
+            ReadOnlyProcessVariablesContainer variables = new ReadOnlyProcessVariablesContainer(new ProcessVariablesContainer(esp.id, _state, this));
+            if (esp.IsStartValid(variables, _isProcessStartValid))
+            {
+                foreach (StartEvent se in esp.StartEvents)
                 {
-                    AGateway gw = (AGateway)elem;
-                    Definition def = null;
-                    foreach (IElement e in _Elements)
+                    if (se.IsEventStartValid(variables, _isEventStartValid))
                     {
-                        if (e is Definition)
-                        {
-                            if (((Definition)e).LocateElement(gw.id) != null)
-                            {
-                                def = (Definition)e;
-                                break;
-                            }
-                        }
+                        WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
+                        _stateEvent.WaitOne();
+                        _state.Path.StartSubProcess(esp, sourceID);
+                        _stateEvent.Set();
+                        if (_onSubProcessStarted!= null)
+                            _onSubProcessStarted(esp, new ReadOnlyProcessVariablesContainer(variables));
+                        if (_onEventStarted != null)
+                            _onEventStarted(se, new ReadOnlyProcessVariablesContainer(variables));
+                        _state.Path.StartEvent(se, null);
+                        _state.Path.SucceedEvent(se);
+                        if (_onEventCompleted != null)
+                            _onEventCompleted(se, new ReadOnlyProcessVariablesContainer(se.id, _state, this));
                     }
+                }
+            }
+        }
+
+        private void _ProcessTask(string sourceID, ATask tsk)
+        {
+            _stateEvent.WaitOne();
+            _state.Path.StartTask(tsk, sourceID);
+            _stateEvent.Set();
+            if (_onTaskStarted != null)
+                _onTaskStarted(tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this));
+            try
+            {
+                ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state, this);
+                switch (tsk.GetType().Name)
+                {
+                    case "BusinessRuleTask":
+                        _processBusinessRuleTask(tsk, ref variables);
+                        _MergeVariables(tsk, variables);
+                        break;
+                    case "ManualTask":
+                        _beginManualTask(tsk, variables, new CompleteManualTask(_CompleteExternalTask), new ErrorManualTask(_ErrorExternalTask));
+                        break;
+                    case "RecieveTask":
+                        _processRecieveTask(tsk, ref variables);
+                        _MergeVariables(tsk, variables);
+                        break;
+                    case "ScriptTask":
+                        ((ScriptTask)tsk).ProcessTask(ref variables, _processScriptTask);
+                        _MergeVariables(tsk, variables);
+                        break;
+                    case "SendTask":
+                        _processSendTask(tsk, ref variables);
+                        _MergeVariables(tsk, variables);
+                        break;
+                    case "ServiceTask":
+                        _processServiceTask(tsk, ref variables);
+                        _MergeVariables(tsk, variables);
+                        break;
+                    case "Task":
+                        _processTask(tsk, ref variables);
+                        _MergeVariables(tsk, variables);
+                        break;
+                    case "UserTask":
+                        _beginUserTask(tsk, variables, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                WriteLogException(tsk, new StackFrame(1, true), DateTime.Now, e);
+                if (_onTaskError != null)
+                    _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this, e));
+                _stateEvent.WaitOne();
+                _state.Path.FailTask(tsk, e);
+                _stateEvent.Set();
+            }
+        }
+
+        private void _ProcessEvent(string sourceID, AEvent evnt)
+        {
+            if (evnt is BoundaryEvent)
+            {
+                if (((BoundaryEvent)evnt).CancelActivity)
+                {
                     _stateEvent.WaitOne();
-                    bool gatewayComplete = false;
-                    if (gw.IsIncomingFlowComplete(sourceID, _state.Path))
-                        gatewayComplete = true;
-                    if (!gw.IsWaiting(_state.Path))
-                        _state.Path.StartGateway(gw, sourceID);
-                    if (gatewayComplete)
-                    {
-                        if (_onGatewayStarted != null)
-                            _onGatewayStarted(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                        string[] outgoings = null;
-                        try
-                        {
-                            outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                        }
-                        catch (Exception e)
-                        {
-                            WriteLogException(elem,new StackFrame(1, true), DateTime.Now, e);
-                            if (_onGatewayError != null)
-                                _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                            outgoings = null;
-                        }
-                        if (outgoings == null)
-                            _state.Path.FailGateway(gw);
-                        else
-                            _state.Path.SuccessGateway(gw, outgoings);
-                    }
+                    _AbortStep(sourceID, _GetElement(((BoundaryEvent)evnt).AttachedToID));
                     _stateEvent.Set();
                 }
-                else if (elem is AEvent)
+            }
+            if (evnt is IntermediateCatchEvent)
+            {
+                SubProcess sp = (SubProcess)evnt.SubProcess;
+                if (sp != null)
+                    _state.Path.StartSubProcess(sp, sourceID);
+            }
+            _stateEvent.WaitOne();
+            _state.Path.StartEvent(evnt, sourceID);
+            _stateEvent.Set();
+            if (_onEventStarted != null)
+                _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+            bool success = true;
+            if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
+            {
+                TimeSpan? ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                if (ts.HasValue)
                 {
-                    AEvent evnt = (AEvent)elem;
-                    if (evnt is IntermediateCatchEvent)
-                    {
-                        SubProcess sp = (SubProcess)evnt.SubProcess;
-                        if (sp != null)
-                            _state.Path.StartSubProcess(sp, sourceID);
-                    }
                     _stateEvent.WaitOne();
-                    _state.Path.StartEvent(evnt, sourceID);
+                    _state.SuspendStep(evnt.id, ts.Value);
                     _stateEvent.Set();
-                    if (_onEventStarted != null)
-                        _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                    bool success = true;
-                    if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
+                    if (ts.Value.TotalMilliseconds > 0)
                     {
-                        TimeSpan? ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, _state,this));
-                        if (ts.HasValue)
-                        {
-                            _stateEvent.WaitOne();
-                            _state.SuspendStep(evnt.id, ts.Value);
-                            _stateEvent.Set();
-                            if (ts.Value.TotalMilliseconds > 0)
-                            {
-                                Utility.Sleep(ts.Value, this, evnt);
-                                return;
-                            }else
-                                success = true;
-                        }
-                    }else if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
-                    {
-                        try
-                        {
-                            success = _isEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
-                        }
-                        catch (Exception e)
-                        {
-                            WriteLogException(evnt,new StackFrame(1, true), DateTime.Now, e);
-                            success = false;
-                        }
-                    }
-                    if (!success)
-                    {
-                        _stateEvent.WaitOne();
-                        _state.Path.FailEvent(evnt);
-                        _stateEvent.Set();
-                        if (_onEventError != null)
-                            _onEventError(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
+                        Utility.Sleep(ts.Value, this, evnt);
+                        return;
                     }
                     else
+                        success = true;
+                }else if (evnt is IntermediateThrowEvent)
+                {
+                    if (evnt.SubType.HasValue)
                     {
-                        _stateEvent.WaitOne();
-                        _state.Path.SucceedEvent(evnt);
-                        _stateEvent.Set();
-                        if (_onEventCompleted != null)
-                            _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(elem.id, _state,this));
-                        if (evnt is EndEvent)
-                        {
-                            if (((EndEvent)evnt).IsProcessEnd)
-                            {
-                                SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
-                                if (sp != null)
-                                {
-                                    _stateEvent.WaitOne();
-                                    _state.Path.SucceedSubProcess(sp);
-                                    _stateEvent.Set();
-                                    if (_onSubProcessCompleted != null)
-                                        _onSubProcessCompleted(sp, new ReadOnlyProcessVariablesContainer(sp.id, _state, this));            
-                                }
-                                else
-                                {
-                                    if (_onProcessCompleted != null)
-                                        _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                                    _processLock.Set();
-                                }
-                            }
-                        }
+                        AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, ((IntermediateThrowEvent)evnt).Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                        foreach (AHandlingEvent tsk in evnts)
+                            _ProcessEvent(evnt.id, tsk);
                     }
                 }
-                else if (elem is ATask)
+            }
+            else if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
+            {
+                try
                 {
-                    ATask tsk = (ATask)elem;
-                    _stateEvent.WaitOne();
-                    _state.Path.StartTask(tsk, sourceID);
-                    _stateEvent.Set();
-                    if (_onTaskStarted != null)
-                        _onTaskStarted(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state, this));
-                    try
+                    success = _isEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                }
+                catch (Exception e)
+                {
+                    WriteLogException(evnt, new StackFrame(1, true), DateTime.Now, e);
+                    success = false;
+                }
+            }
+            if (!success)
+            {
+                _stateEvent.WaitOne();
+                _state.Path.FailEvent(evnt);
+                _stateEvent.Set();
+                if (_onEventError != null)
+                    _onEventError(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+            }
+            else
+            {
+                _stateEvent.WaitOne();
+                _state.Path.SucceedEvent(evnt);
+                _stateEvent.Set();
+                if (_onEventCompleted != null)
+                    _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                if (evnt is EndEvent)
+                {
+                    if (((EndEvent)evnt).IsProcessEnd)
                     {
-                        ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state,this);
-                        switch (elem.GetType().Name)
+                        SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
+                        if (sp != null)
                         {
-                            case "BusinessRuleTask":
-                                _processBusinessRuleTask(tsk, ref variables);
-                                _MergeVariables(tsk, variables);
-                                break;
-                            case "ManualTask":
-                                _beginManualTask(tsk, variables, new CompleteManualTask(_CompleteExternalTask), new ErrorManualTask(_ErrorExternalTask));
-                                break;
-                            case "RecieveTask":
-                                _processRecieveTask(tsk, ref variables);
-                                _MergeVariables(tsk, variables);
-                                break;
-                            case "ScriptTask":
-                                ((ScriptTask)tsk).ProcessTask(ref variables, _processScriptTask);
-                                _MergeVariables(tsk, variables);
-                                break;
-                            case "SendTask":
-                                _processSendTask(tsk, ref variables);
-                                _MergeVariables(tsk, variables);
-                                break;
-                            case "ServiceTask":
-                                _processServiceTask(tsk, ref variables);
-                                _MergeVariables(tsk, variables);
-                                break;
-                            case "Task":
-                                _processTask(tsk, ref variables);
-                                _MergeVariables(tsk, variables);
-                                break;
-                            case "UserTask":
-                               _beginUserTask(tsk, variables, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
-                                break;
+                            _stateEvent.WaitOne();
+                            _state.Path.SucceedSubProcess(sp);
+                            _stateEvent.Set();
+                            if (_onSubProcessCompleted != null)
+                                _onSubProcessCompleted(sp, new ReadOnlyProcessVariablesContainer(sp.id, _state, this));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        WriteLogException(tsk,new StackFrame(1, true), DateTime.Now, e);
-                        if (_onTaskError != null)
-                            _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(elem.id, _state,this,e));
-                        _stateEvent.WaitOne();
-                        _state.Path.FailTask(tsk,e);
-                        _stateEvent.Set();
-                    }
-                }else if (elem is SubProcess)
-                {
-                    SubProcess esp = (SubProcess)elem;
-                    ReadOnlyProcessVariablesContainer variables = new ReadOnlyProcessVariablesContainer(new ProcessVariablesContainer(elem.id, _state, this));
-                    if (esp.IsStartValid(variables, _isProcessStartValid))
-                    {
-                        foreach (StartEvent se in esp.StartEvents)
+                        else
                         {
-                            if (se.IsEventStartValid(variables, _isEventStartValid))
-                            {
-                                WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
-                                _stateEvent.WaitOne();
-                                _state.Path.StartSubProcess(esp, sourceID);
-                                _stateEvent.Set();
-                                if (_onSubProcessStarted!= null)
-                                    _onSubProcessStarted(esp, new ReadOnlyProcessVariablesContainer(variables));
-                                if (_onEventStarted != null)
-                                    _onEventStarted(se, new ReadOnlyProcessVariablesContainer(variables));
-                                _state.Path.StartEvent(se, null);
-                                _state.Path.SucceedEvent(se);
-                                if (_onEventCompleted != null)
-                                    _onEventCompleted(se, new ReadOnlyProcessVariablesContainer(se.id, _state, this));
-                            }
+                            if (_onProcessCompleted != null)
+                                _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                            _processLock.Set();
                         }
                     }
                 }
             }
+        }
+
+        private void _AbortStep(string sourceID,IElement element)
+        {
+            _state.Path.AbortStep(sourceID, element.id);
+            if (element is SubProcess)
+            {
+                foreach (IElement child in ((SubProcess)element).Children)
+                {
+                    bool abort = false;
+                    switch (_state.Path.GetStatus(child.id)) {
+                        case StepStatuses.Suspended:
+                            abort=true;
+                            Utility.AbortSuspendedElement(this, child.id);
+                            break;
+                        case StepStatuses.Waiting:
+                            abort=true;
+                            break;
+                    }
+                    if (abort)
+                        _AbortStep(sourceID, child);
+                }
+            }
+        }
+
+        private void _ProcessGateway(string sourceID,AGateway gw)
+        {
+            Definition def = null;
+            foreach (IElement e in _Elements)
+            {
+                if (e is Definition)
+                {
+                    if (((Definition)e).LocateElement(gw.id) != null)
+                    {
+                        def = (Definition)e;
+                        break;
+                    }
+                }
+            }
+            _stateEvent.WaitOne();
+            bool gatewayComplete = false;
+            if (gw.IsIncomingFlowComplete(sourceID, _state.Path))
+                gatewayComplete = true;
+            if (!gw.IsWaiting(_state.Path))
+                _state.Path.StartGateway(gw, sourceID);
+            if (gatewayComplete)
+            {
+                if (_onGatewayStarted != null)
+                    _onGatewayStarted(gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this));
+                string[] outgoings = null;
+                try
+                {
+                    outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, _state, this));
+                }
+                catch (Exception e)
+                {
+                    WriteLogException(gw, new StackFrame(1, true), DateTime.Now, e);
+                    if (_onGatewayError != null)
+                        _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this));
+                    outgoings = null;
+                }
+                if (outgoings == null)
+                    _state.Path.FailGateway(gw);
+                else
+                    _state.Path.SuccessGateway(gw, outgoings);
+            }
+            _stateEvent.Set();
+        }
+
+        private void _ProcessMessageFlow(MessageFlow mf)
+        {
+            _stateEvent.WaitOne();
+            _state.Path.ProcessMessageFlow(mf);
+            _stateEvent.Set();
+            if (_onMessageFlowCompleted != null)
+                _onMessageFlowCompleted(mf, new ReadOnlyProcessVariablesContainer(mf.id, _state, this));
+        }
+
+        private void _ProcessSequenceFlow(SequenceFlow sf)
+        {
+            _stateEvent.WaitOne();
+            _state.Path.ProcessSequenceFlow(sf);
+            _stateEvent.Set();
+            if (_onSequenceFlowCompleted != null)
+                _onSequenceFlowCompleted(sf, new ReadOnlyProcessVariablesContainer(sf.id, _state, this));
         }
 
         internal void CompleteTimedEvent(AEvent evnt)
@@ -1399,6 +1483,11 @@ namespace Org.Reddragonit.BpmEngine
             _stateEvent.Set();
             if (_onEventCompleted != null)
                 _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+        }
+
+        internal void StartTimedEvent(BoundaryEvent evnt,string sourceID)
+        {
+            _ProcessEvent(sourceID, evnt);
         }
 
         private void _MergeVariables(UserTask task, ProcessVariablesContainer variables, string completedByID)

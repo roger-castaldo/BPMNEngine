@@ -24,21 +24,22 @@ namespace Org.Reddragonit.BpmEngine
         private static Type[] _globalXMLChildren;
         private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
         private static Dictionary<string, Dictionary<string, Type>> _idealMap;
-        public static Dictionary<string,Dictionary<string,Type>> IdealMap { get { return _idealMap; } }
-        private static Thread _backgroundSuspendThread;
-        private static List<sProcessSuspendEvent> _suspendedEvents;
+        public static Dictionary<string, Dictionary<string, Type>> IdealMap { get { return _idealMap; } }
+        private static Thread _backgroundThread;
+        private static List<object> _events;
         private static ManualResetEvent _backgroundMREEvent;
+
         private static MT19937 _rand;
 
         static Utility()
         {
             _rand = new MT19937(DateTime.Now.Ticks);
             _backgroundMREEvent = new ManualResetEvent(true);
-            _suspendedEvents = new List<sProcessSuspendEvent>();
-            _backgroundSuspendThread = new Thread(new ThreadStart(_BackgroundSuspendStart));
-            _backgroundSuspendThread.Name = "Background Suspend Thread";
-            _backgroundSuspendThread.IsBackground = true;
-            _backgroundSuspendThread.Start();
+            _events = new List<object>();
+            _backgroundThread = new Thread(new ThreadStart(_BackgroundStart));
+            _backgroundThread.Name = "Background Suspend/Delay Thread";
+            _backgroundThread.IsBackground = true;
+            _backgroundThread.Start();
             _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
             _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
@@ -120,7 +121,7 @@ namespace Org.Reddragonit.BpmEngine
                             }
                         }
                     }
-                    else 
+                    else
                     {
                         if (!_xmlChildren.ContainsKey(vpa.Parent))
                             _xmlChildren.Add(vpa.Parent, new List<Type>());
@@ -161,7 +162,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private static Dictionary<string, Assembly> _cache = new Dictionary<string, Assembly>();
 
-        public static Type GetType(string[] assemblies,string type)
+        public static Type GetType(string[] assemblies, string type)
         {
             Assembly ass = null;
             Type ret = null;
@@ -192,7 +193,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        public static Type LocateElementType(Type parent,string tagName,XmlPrefixMap map)
+        public static Type LocateElementType(Type parent, string tagName, XmlPrefixMap map)
         {
             DateTime start = DateTime.Now;
             Type ret = null;
@@ -261,7 +262,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        internal static IElement ConstructElementType(XmlElement element, ref XmlPrefixMap map, ref ElementTypeCache cache,AElement parent)
+        internal static IElement ConstructElementType(XmlElement element, ref XmlPrefixMap map, ref ElementTypeCache cache, AElement parent)
         {
             Type t = null;
             if (cache != null)
@@ -290,7 +291,7 @@ namespace Org.Reddragonit.BpmEngine
                     case XmlNodeType.Element:
                         if (node.Attributes["id"] == null)
                         {
-                            int index = FindElementIndex(definition,(XmlElement)node);
+                            int index = FindElementIndex(definition, (XmlElement)node);
                             builder.Insert(0, "/" + node.Name + "[" + index + "]");
                         }
                         else
@@ -306,7 +307,7 @@ namespace Org.Reddragonit.BpmEngine
             throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(new ArgumentException("Node was not in a document")));
         }
 
-        public static int FindElementIndex(Definition definition,XmlElement element)
+        public static int FindElementIndex(Definition definition, XmlElement element)
         {
             if (definition!=null)
                 definition.Debug("Locating Element Index for element {0}", new object[] { element.Name });
@@ -329,13 +330,13 @@ namespace Org.Reddragonit.BpmEngine
             throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(new ArgumentException("Couldn't find element within parent")));
         }
 
-        internal static object[] GetCustomAttributesForClass(Type clazz,Type attributeType)
+        internal static object[] GetCustomAttributesForClass(Type clazz, Type attributeType)
         {
-            List<object> ret = new List<object>(clazz.GetCustomAttributes(attributeType,false));
+            List<object> ret = new List<object>(clazz.GetCustomAttributes(attributeType, false));
             Type parent = clazz.BaseType;
             if (parent != typeof(object))
             {
-                foreach (object obj in GetCustomAttributesForClass(parent,attributeType))
+                foreach (object obj in GetCustomAttributesForClass(parent, attributeType))
                 {
                     if (!ret.Contains(obj))
                         ret.Add(obj);
@@ -344,7 +345,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret.ToArray();
         }
 
-        internal static object ExtractVariableValue(VariableTypes type,string text)
+        internal static object ExtractVariableValue(VariableTypes type, string text)
         {
             if (type == VariableTypes.Null)
                 return null;
@@ -401,7 +402,7 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        internal static void EncodeVariableValue(object value,XmlElement variableContainer,XmlDocument doc)
+        internal static void EncodeVariableValue(object value, XmlElement variableContainer, XmlDocument doc)
         {
             variableContainer.Attributes.Append(doc.CreateAttribute("type"));
             if (value == null)
@@ -626,48 +627,116 @@ namespace Org.Reddragonit.BpmEngine
 
         private static readonly TimeSpan _maxSpan = new TimeSpan(int.MaxValue);
 
-        internal static void Sleep(TimeSpan value,BusinessProcess process,AEvent evnt)
+        internal static void Sleep(TimeSpan value, BusinessProcess process, AEvent evnt)
         {
-            lock (_suspendedEvents)
+            lock (_events)
             {
-                _suspendedEvents.Add(new sProcessSuspendEvent(process, evnt, value));
+                _events.Add(new sProcessSuspendEvent(process, evnt, value));
+            }
+            _backgroundMREEvent.Set();
+        }
+
+        internal static void DelayStart(TimeSpan value, BusinessProcess process, BoundaryEvent evnt, string sourceID)
+        {
+            lock (_events)
+            {
+                _events.Add(new sProcessDelayedEvent(process, evnt, value, sourceID));
+            }
+            _backgroundMREEvent.Set();
+        }
+
+        internal static void AbortDelayedEvent(BusinessProcess process,BoundaryEvent evnt,string sourceID)
+        {
+            lock (_events)
+            {
+                for(int x = 0; x<_events.Count; x++)
+                {
+                    if (_events[x] is sProcessDelayedEvent)
+                    {
+                        sProcessDelayedEvent spde = (sProcessDelayedEvent)_events[x];
+                        if (spde.Process.Equals(process) && spde.Event.id==evnt.id && spde.SourceID==sourceID)
+                        {
+                            _events.RemoveAt(x);
+                            break;
+                        }
+                    }
+                }
+            }
+            _backgroundMREEvent.Set();
+        }
+
+        internal static void AbortSuspendedElement(BusinessProcess process, string id)
+        {
+            lock (_events)
+            {
+                for (int x = 0; x<_events.Count; x++)
+                {
+                    if (_events[x] is sProcessSuspendEvent)
+                    {
+                        sProcessSuspendEvent spse = (sProcessSuspendEvent)_events[x];
+                        if (spse.Process.Equals(process) && spse.Event.id==id)
+                        {
+                            _events.RemoveAt(x);
+                            break;
+                        }
+                    }
+                }
             }
             _backgroundMREEvent.Set();
         }
 
         internal static void UnloadProcess(BusinessProcess process)
         {
-            lock (_suspendedEvents) {
-                for(int x = 0; x < _suspendedEvents.Count; x++)
+            bool changed = false;
+            lock (_events) {
+                for(int x = 0; x < _events.Count; x++)
                 {
-                    if (_suspendedEvents[x].Process.Equals(process))
+                    if (_events[x] is sProcessDelayedEvent)
                     {
-                        _suspendedEvents.RemoveAt(x);
-                        _backgroundMREEvent.Set();
-                        break;
+                        if (((sProcessDelayedEvent)_events[x]).Process.Equals(process))
+                        {
+                            _events.RemoveAt(x);
+                            x--;
+                            changed=true;
+                        }
+                    }else if (_events[x] is sProcessSuspendEvent)
+                    {
+                        if (((sProcessSuspendEvent)_events[x]).Process.Equals(process))
+                        {
+                            _events.RemoveAt(x);
+                            x--;
+                            changed=true;
+                        }
                     }
                 }
             }
+            if (changed)
+                _backgroundMREEvent.Set();
         }
 
-        internal static void _BackgroundSuspendStart()
+        internal static void _BackgroundStart()
         {
             while (true)
             {
                 int sleep = -1;
-                lock (_suspendedEvents)
+                lock (_events)
                 {
-                    foreach(sProcessSuspendEvent pse in _suspendedEvents)
+                    foreach (object obj in _events)
                     {
-                        if (pse.EndTime.Ticks < DateTime.Now.Ticks)
+                        DateTime compare = DateTime.MaxValue;
+                        if (obj is sProcessSuspendEvent)
+                            compare = ((sProcessSuspendEvent)obj).EndTime;
+                        else if (obj is sProcessDelayedEvent)
+                            compare = ((sProcessDelayedEvent)obj).StartTime;
+                        if (compare.Ticks < DateTime.Now.Ticks)
                         {
                             sleep = 0;
                             break;
                         }
                         else if (sleep == -1)
-                            sleep = (int)Math.Min(pse.EndTime.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue);
+                            sleep = (int)Math.Min(compare.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue);
                         else
-                            sleep = Math.Min(sleep, (int)Math.Min(pse.EndTime.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue));
+                            sleep = Math.Min(sleep, (int)Math.Min(compare.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue));
                     }
                 }
                 if (sleep != 0)
@@ -678,20 +747,36 @@ namespace Org.Reddragonit.BpmEngine
                         _backgroundMREEvent.WaitOne();
                 }
                 _backgroundMREEvent.Reset();
-                lock (_suspendedEvents)
+                lock (_events)
                 {
-                    for(int x = 0; x < _suspendedEvents.Count; x++)
+                    for (int x = 0; x < _events.Count; x++)
                     {
-                        sProcessSuspendEvent spe = _suspendedEvents[x];
-                        if (spe.EndTime.Ticks < DateTime.Now.Ticks)
+                        if (_events[x] is sProcessSuspendEvent)
                         {
-                            try
+                            sProcessSuspendEvent spe = (sProcessSuspendEvent)_events[x];
+                            if (spe.EndTime.Ticks < DateTime.Now.Ticks)
                             {
-                                spe.Process.CompleteTimedEvent(spe.Event);
-                                _suspendedEvents.RemoveAt(x);
-                                x--;
+                                try
+                                {
+                                    spe.Process.CompleteTimedEvent(spe.Event);
+                                    _events.RemoveAt(x);
+                                    x--;
+                                }
+                                catch (Exception e) { spe.Process.WriteLogException(spe.Event, new StackFrame(1, true), DateTime.Now, e); }
                             }
-                            catch (Exception e) { spe.Process.WriteLogException(spe.Event,new StackFrame(1,true),DateTime.Now,e); }
+                        }else if (_events[x] is sProcessDelayedEvent)
+                        {
+                            sProcessDelayedEvent sde = (sProcessDelayedEvent)_events[x];
+                            if (sde.StartTime.Ticks < DateTime.Now.Ticks)
+                            {
+                                try
+                                {
+                                    sde.Process.StartTimedEvent(sde.Event, sde.SourceID);
+                                    _events.RemoveAt(x);
+                                    x--;
+                                }
+                                catch (Exception e) { sde.Process.WriteLogException(sde.Event, new StackFrame(1, true), DateTime.Now, e); }
+                            }
                         }
                     }
                 }
