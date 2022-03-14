@@ -31,7 +31,7 @@ public class {1} {{
         private const string _CODE_BASE_CONDITION_TEMPLATE = @"{0}
 
 public class {1} {{
-    public bool {2}(IVariables variables){{
+    public bool {2}(IReadonlyVariables variables){{
         {3}
     }}
 }}";
@@ -39,7 +39,7 @@ public class {1} {{
         private const string _CODE_BASE_TIMER_EVENT_TEMPLATE = @"{0}
 
 public class {1} {{
-    public DateTime {2}(IVariables variables){{
+    public DateTime {2}(IReadonlyVariables variables){{
         {3}
     }}
 }}";

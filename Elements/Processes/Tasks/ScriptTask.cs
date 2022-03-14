@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
         public ScriptTask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        internal void ProcessTask(ref ProcessVariablesContainer variables, ProcessScriptTask processScriptTask)
+        internal void ProcessTask(ITask task, ProcessTask processScriptTask)
         {
             if (ExtensionElement != null)
             {
@@ -25,14 +25,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                     {
                         if (ie is AScript)
                         {
-                            variables = (ProcessVariablesContainer)((AScript)ie).Invoke(variables);
+                            IVariables vars = (ProcessVariablesContainer)((AScript)ie).Invoke(task);
+                            foreach (string str in vars.Keys)
+                               ((IVariables)task)[str]=vars[str];
                             break;
                         }
                     }
                 }
             }
             if (processScriptTask!=null)
-                processScriptTask(this, ref variables);
+                processScriptTask(task);
         }
     }
 }

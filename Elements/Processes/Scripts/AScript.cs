@@ -82,6 +82,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         }
 
         protected abstract object _Invoke(IVariables variables);
+        protected abstract object _Invoke(IReadonlyVariables variables);
         protected abstract bool _IsValid(out string[] err);
 
         public object Invoke(IVariables variables)
@@ -92,6 +93,20 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 return _Invoke(variables);
             }
             catch (Exception e) {
+                Exception(e);
+                throw e;
+            }
+        }
+
+        public object Invoke(IReadonlyVariables variables)
+        {
+            Info("Attempting to process script {0}", new object[] { id });
+            try
+            {
+                return _Invoke(variables);
+            }
+            catch (Exception e)
+            {
                 Exception(e);
                 throw e;
             }

@@ -6,10 +6,7 @@ using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
 {
-    /// <summary>
-    /// This implements a container to house the process variables and allows for editing of those variables.
-    /// </summary>
-    public sealed class ProcessVariablesContainer : IVariables
+    internal sealed class ProcessVariablesContainer : IVariables
     {
         private List<string> _nulls;
         private Dictionary<string, object> _variables;
@@ -19,13 +16,14 @@ namespace Org.Reddragonit.BpmEngine
         private BusinessProcess _process = null;
         internal void SetProcess(BusinessProcess process) { _process = process; }
 
-        /// <summary>
-        /// Creates a new empty instance of container to house variables
-        /// </summary>
         public ProcessVariablesContainer()
+            : this(new Dictionary<string, object>())
+        {}
+
+        public ProcessVariablesContainer(Dictionary<string,object> props)
         {
             _nulls = new List<string>();
-            _variables = new Dictionary<string, object>();
+            _variables = props;
             _stepIndex = -1;
         }
 
@@ -56,11 +54,6 @@ namespace Org.Reddragonit.BpmEngine
                 _process.WriteLogLine(_elementID, level, stack, stamp, message); ;
         }
 
-        /// <summary>
-        /// Called to get or set the value of a process variable
-        /// </summary>
-        /// <param name="name">The name of the process variable</param>
-        /// <returns>The value of the process variable or null if not found</returns>
         public object this[string name]
         {
             get
@@ -101,9 +94,6 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        /// <summary>
-        /// Called to get a list of all process variable names available
-        /// </summary>
         public string[] Keys
         {
             get
@@ -118,9 +108,6 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        /// <summary>
-        /// Called to get a list of all process variable names available, including process definition constants and runtime constants
-        /// </summary>
         public string[] FullKeys
         {
             get
@@ -144,7 +131,5 @@ namespace Org.Reddragonit.BpmEngine
                 return ret.ToArray();
             }
         }
-
-        public Exception Error => throw new NotImplementedException();
     }
 }

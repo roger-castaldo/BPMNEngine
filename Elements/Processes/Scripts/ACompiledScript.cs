@@ -207,6 +207,27 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             return ret;
         }
 
+        protected sealed override object _Invoke(IReadonlyVariables variables)
+        {
+            Debug("Attempting to compile script to execute for script element {0}", new object[] { id });
+            string errors;
+            if (!_CompileAssembly(out errors))
+                throw new Exception(errors);
+            Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
+            object o = _assembly.CreateInstance(_className);
+            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
+            MethodInfo mi = o.GetType().GetMethod(_functionName);
+            object[] args = new object[] { variables };
+            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
+            object ret = mi.Invoke(o, args);
+            if (mi.ReturnType == typeof(void))
+            {
+                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { id });
+                ret = args[0];
+            }
+            return ret;
+        }
+
         protected override bool _IsValid(out string[] err)
         {
             _assembly = null;

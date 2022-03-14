@@ -75,6 +75,28 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             return pars[1];
         }
 
+        protected override object _Invoke(IReadonlyVariables variables)
+        {
+            Info("Attempting to invoke Javascript script {0}", new object[] { id });
+            if (_engineType == null)
+                throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
+            Debug("Creating new Javascript Engine for script element {0}", new object[] { id });
+            object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+            object[] pars = new object[] { "variables", variables };
+            Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
+            _setValue.Invoke(engine, pars);
+            object ret = null;
+            if (_Code.Contains("return "))
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) }), new object[] { });
+            else
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { _Code }), new object[] { });
+            if (_IsCondition)
+                return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
+            else if (_IsTimerEvent)
+                return DateTime.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
+            return pars[1];
+        }
+
         protected override bool _IsValid(out string[] err)
         {
             try

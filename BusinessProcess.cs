@@ -206,107 +206,107 @@ namespace Org.Reddragonit.BpmEngine
 
         #region delegates
         #region Ons
-        private OnEventStarted _onEventStarted;
+        private OnElementEvent _onEventStarted;
         /// <summary>
         /// Used to define the Event Started delegate
         /// </summary>
-        public OnEventStarted OnEventStarted { get { return _onEventStarted; } set { _onEventStarted = value; } }
+        public OnElementEvent OnEventStarted { get { return _onEventStarted; } set { _onEventStarted = value; } }
 
-        private OnEventCompleted _onEventCompleted;
+        private OnElementEvent _onEventCompleted;
         /// <summary>
         /// Used to define the Event Completed delegate
         /// </summary>
-        public OnEventCompleted OnEventCompleted{get{return _onEventCompleted;}set{_onEventCompleted = value;}}
+        public OnElementEvent OnEventCompleted {get{return _onEventCompleted;}set{_onEventCompleted = value;}}
 
-        private OnEventError _onEventError;
+        private OnElementEvent _onEventError;
         /// <summary>
         /// Used to define the Event Error delegate
         /// </summary>
-        public OnEventError OnEventError{get{return _onEventError;}set{_onEventError=value;}}
+        public OnElementEvent OnEventError {get{return _onEventError;}set{_onEventError=value;}}
 
-        private OnTaskStarted _onTaskStarted;
+        private OnElementEvent _onTaskStarted;
         /// <summary>
         /// Used to define the Task Started delegate
         /// </summary>
-        public OnTaskStarted OnTaskStarted{get{return _onTaskStarted;}set{_onTaskStarted=value;}}
+        public OnElementEvent OnTaskStarted {get{return _onTaskStarted;}set{_onTaskStarted=value;}}
 
-        private OnTaskCompleted _onTaskCompleted;
+        private OnElementEvent _onTaskCompleted;
         /// <summary>
         /// Used to define the Task Completed delegate
         /// </summary>
-        public OnTaskCompleted OnTaskCompleted{get{return _onTaskCompleted;}set{_onTaskCompleted=value;}}
+        public OnElementEvent OnTaskCompleted {get{return _onTaskCompleted;}set{_onTaskCompleted=value;}}
         
-        private OnTaskError _onTaskError;
+        private OnElementEvent _onTaskError;
         /// <summary>
         /// Used to define the Task Error delegate
         /// </summary>
-        public OnTaskError OnTaskError{get{return _onTaskError;}set{_onTaskError = value;}}
+        public OnElementEvent OnTaskError {get{return _onTaskError;}set{_onTaskError = value;}}
 
-        private OnProcessStarted _onProcessStarted;
+        private OnProcessEvent _onProcessStarted;
         /// <summary>
         /// Used to define the Process Started delegate
         /// </summary>
-        public OnProcessStarted OnProcessStarted{get{return _onProcessStarted;}set{_onProcessStarted=value;}}
+        public OnProcessEvent OnProcessStarted {get{return _onProcessStarted;}set{_onProcessStarted=value;}}
         
-        private OnProcessCompleted _onProcessCompleted;
+        private OnProcessEvent _onProcessCompleted;
         /// <summary>
         /// Used to define the Process Completed delegate
         /// </summary>
-        public OnProcessCompleted OnProcessCompleted{get{return _onProcessCompleted;}set{_onProcessCompleted = value;}}
+        public OnProcessEvent OnProcessCompleted {get{return _onProcessCompleted;}set{_onProcessCompleted = value;}}
 
-        private OnProcessError _onProcessError;
+        private OnProcessErrorEvent _onProcessError;
         /// <summary>
         /// Used to define the Process Error delegate
         /// </summary>
-        public OnProcessError OnProcessError { get { return _onProcessError; } set { _onProcessError = value; } }
+        public OnProcessErrorEvent OnProcessError { get { return _onProcessError; } set { _onProcessError = value; } }
 
-        private OnSequenceFlowCompleted _onSequenceFlowCompleted;
+        private OnFlowComplete _onSequenceFlowCompleted;
         /// <summary>
         /// Used to define the Sequence Flow Complete delegate
         /// </summary>
-        public OnSequenceFlowCompleted OnSequenceFlowCompleted { get { return _onSequenceFlowCompleted; } set { _onSequenceFlowCompleted = value; } }
+        public OnFlowComplete OnSequenceFlowCompleted { get { return _onSequenceFlowCompleted; } set { _onSequenceFlowCompleted = value; } }
 
-        private OnMessageFlowCompleted _onMessageFlowCompleted;
+        private OnFlowComplete _onMessageFlowCompleted;
         /// <summary>
         /// Used to define the Message Flow Complete delegate
         /// </summary>
-        public OnMessageFlowCompleted OnMessageFlowCompleted { get { return _onMessageFlowCompleted; } set { _onMessageFlowCompleted = value; } }
+        public OnFlowComplete OnMessageFlowCompleted { get { return _onMessageFlowCompleted; } set { _onMessageFlowCompleted = value; } }
 
-        private OnGatewayStarted _onGatewayStarted;
+        private OnElementEvent _onGatewayStarted;
         /// <summary>
         /// Used to define the Gateway Started delegate
         /// </summary>
-        public OnGatewayStarted OnGatewayStarted { get { return _onGatewayStarted; } set { _onGatewayStarted = value; } }
+        public OnElementEvent OnGatewayStarted { get { return _onGatewayStarted; } set { _onGatewayStarted = value; } }
 
-        private OnGatewayCompleted _onGatewayCompleted;
+        private OnElementEvent _onGatewayCompleted;
         /// <summary>
         /// Used to define the Gateway Completed delegate
         /// </summary>
-        public OnGatewayCompleted OnGatewayCompleted { get { return _onGatewayCompleted; } set { _onGatewayCompleted = value; } }
+        public OnElementEvent OnGatewayCompleted { get { return _onGatewayCompleted; } set { _onGatewayCompleted = value; } }
 
-        private OnGatewayError _onGatewayError;
+        private OnElementEvent _onGatewayError;
         /// <summary>
         /// Used to define the Gateway Error delegate
         /// </summary>
-        public OnGatewayError OnGatewayError { get { return _onGatewayError; } set { _onGatewayError = value; } }
+        public OnElementEvent OnGatewayError { get { return _onGatewayError; } set { _onGatewayError = value; } }
 
-        private OnSubProcessStarted _onSubProcessStarted;
+        private OnElementEvent _onSubProcessStarted;
         /// <summary>
         /// Used to define the Sub Process Started delegate
         /// </summary>
-        public OnSubProcessStarted OnSubProcessStarted { get { return _onSubProcessStarted; } set { _onSubProcessStarted = value; } }
+        public OnElementEvent OnSubProcessStarted { get { return _onSubProcessStarted; } set { _onSubProcessStarted = value; } }
 
-        private OnSubProcessCompleted _onSubProcessCompleted;
+        private OnElementEvent _onSubProcessCompleted;
         /// <summary>
         /// Used to define the Sub Process Completed delegate
         /// </summary>
-        public OnSubProcessCompleted OnSubProcessCompleted { get { return _onSubProcessCompleted; } set { _onSubProcessCompleted = value; } }
+        public OnElementEvent OnSubProcessCompleted { get { return _onSubProcessCompleted; } set { _onSubProcessCompleted = value; } }
 
-        private OnSubProcessError _onSubProcessError;
+        private OnElementEvent _onSubProcessError;
         /// <summary>
         /// Used to define the Sub Process Error delegate
         /// </summary>
-        public OnSubProcessError OnSubProcessError { get { return _onSubProcessError; } set { _onSubProcessError = value; } }
+        public OnElementEvent OnSubProcessError { get { return _onSubProcessError; } set { _onSubProcessError = value; } }
 
         /// <summary>
         /// Used to define the State Change delegate
@@ -340,41 +340,41 @@ namespace Org.Reddragonit.BpmEngine
         #endregion
 
         #region Tasks
-        private ProcessBusinessRuleTask _processBusinessRuleTask;
+        private ProcessTask _processBusinessRuleTask;
         /// <summary>
         /// Used to define the Process Business Rule Task delegate
         /// </summary>
-        public ProcessBusinessRuleTask ProcessBusinessRuleTask { get { return _processBusinessRuleTask; } set { _processBusinessRuleTask = value; } }
+        public ProcessTask ProcessBusinessRuleTask { get { return _processBusinessRuleTask; } set { _processBusinessRuleTask = value; } }
 
-        private BeginManualTask _beginManualTask;
+        private StartManualTask _beginManualTask;
         /// <summary>
         /// Used to define the Begin Manual Task delegate
         /// </summary>
-        public BeginManualTask BeginManualTask { get { return _beginManualTask; } set { _beginManualTask = value; } }
+        public StartManualTask BeginManualTask { get { return _beginManualTask; } set { _beginManualTask = value; } }
 
-        private ProcessRecieveTask _processRecieveTask;
+        private ProcessTask _processRecieveTask;
         /// <summary>
         /// Used to define the Process Recieve Task delegate
         /// </summary>
-        public ProcessRecieveTask ProcessRecieveTask { get { return _processRecieveTask; } set { _processRecieveTask = value; } }
+        public ProcessTask ProcessRecieveTask { get { return _processRecieveTask; } set { _processRecieveTask = value; } }
 
-        private ProcessScriptTask _processScriptTask;
+        private ProcessTask _processScriptTask;
         /// <summary>
         /// Used to define the Process Script Task delegate
         /// </summary>
-        public ProcessScriptTask ProcessScriptTask { get { return _processScriptTask; } set { _processScriptTask=value; } }
+        public ProcessTask ProcessScriptTask { get { return _processScriptTask; } set { _processScriptTask=value; } }
 
-        private ProcessSendTask _processSendTask;
+        private ProcessTask _processSendTask;
         /// <summary>
         /// Used to define the Process Send Task delegate
         /// </summary>
-        public ProcessSendTask ProcessSendTask { get { return _processSendTask; } set { _processSendTask = value; } }
+        public ProcessTask ProcessSendTask { get { return _processSendTask; } set { _processSendTask = value; } }
 
-        private ProcessServiceTask _processServiceTask;
+        private ProcessTask _processServiceTask;
         /// <summary>
         /// Used to define the Process Service Task delegate
         /// </summary>
-        public ProcessServiceTask ProcessServiceTask { get { return _processServiceTask; } set { _processServiceTask = value; } }
+        public ProcessTask ProcessServiceTask { get { return _processServiceTask; } set { _processServiceTask = value; } }
 
         private ProcessTask _processTask;
         /// <summary>
@@ -382,43 +382,81 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         public ProcessTask ProcessTask { get { return _processTask; } set { _processTask = value; } }
 
-        private BeginUserTask _beginUserTask;
+        private StartUserTask _beginUserTask;
         /// <summary>
         /// Used to define the Begin User Task delegate
         /// </summary>
-        public BeginUserTask BeginUserTask { get { return _beginUserTask; } set { _beginUserTask = value; } }
+        public StartUserTask BeginUserTask { get { return _beginUserTask; } set { _beginUserTask = value; } }
 
         #region TaskCallBacks
-        private void _CompleteExternalTask(string taskID, ProcessVariablesContainer variables)
+        public IManualTask GetManualTask(string taskID)
+        {
+            IManualTask ret = null;
+            IElement elem = _GetElement(taskID);
+            if (elem != null && elem is ManualTask)
+            {
+                if (_state.Path.GetStatus(taskID)==StepStatuses.Waiting)
+                {
+                    ret = new Org.Reddragonit.BpmEngine.Tasks.ManualTask((ATask)elem,new ProcessVariablesContainer(taskID,_state,this), this);
+                }
+            }
+            return ret;
+        }
+
+        public IUserTask GetUserTask(string taskID)
+        {
+            IUserTask ret = null;
+            IElement elem = _GetElement(taskID);
+            if (elem != null && elem is UserTask)
+            {
+                if (_state.Path.GetStatus(taskID)==StepStatuses.Waiting)
+                {
+                    ret = new Org.Reddragonit.BpmEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, _state, this), this);
+                }
+            }
+            return ret;
+        }
+
+        private void _HandleTaskEmission(ITask task,object data,EventSubTypes type)
+        {
+            AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)_GetElement(task.id), new ReadOnlyProcessVariablesContainer(task));
+            foreach (AHandlingEvent ahe in events)
+            {
+                _ProcessEvent(task.id, ahe);
+            }
+        }
+
+        internal void EmitTaskMessage(ITask task, string message) {
+            _HandleTaskEmission(task, message, EventSubTypes.Message);
+        }
+
+        internal void EscalateTask(ITask task) {
+            _HandleTaskEmission(task, null, EventSubTypes.Escalation);
+        }
+
+        internal void EmitTaskSignal(ITask task, string signal) {
+            _HandleTaskEmission(task, signal, EventSubTypes.Signal);
+        }
+
+        internal void CompleteTask(IManualTask task)
         {
             bool success = false;
-            IElement elem = _GetElement(taskID);
+            IElement elem = _GetElement(task.id);
             if (elem != null && elem is ATask)
             {
-                _MergeVariables((ATask)elem, variables);
+                if (task is IUserTask)
+                    _MergeVariables((UserTask)elem, task, ((IUserTask)task).UserID);
+                else
+                    _MergeVariables((ATask)elem, task);
                 success = true;
             }
             if (!success)
-                throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
+                throw new Exception(string.Format("Unable to locate task with id {0}", task.id));
         }
-
-        private void _CompleteUserTask(string taskID, ProcessVariablesContainer variables,string completedByID)
+        internal void ErrorTask(ITask task, Exception ex)
         {
             bool success = false;
-            IElement elem = _GetElement(taskID);
-            if (elem != null && elem is ATask)
-            {
-                _MergeVariables((UserTask)elem, variables, completedByID);
-                success = true;
-            }
-            if (!success)
-                throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
-        }
-
-        private void _ErrorExternalTask(string taskID, Exception ex)
-        {
-            bool success = false;
-            IElement elem = _GetElement(taskID);
+            IElement elem = _GetElement(task.id);
             if (elem != null && elem is ATask)
             {
                 if (_onTaskError != null)
@@ -429,49 +467,10 @@ namespace Org.Reddragonit.BpmEngine
                 success = true;
             }
             if (!success)
-                throw new Exception(string.Format("Unable to locate task with id {0}", taskID));
+                throw new Exception(string.Format("Unable to locate task with id {0}", task.id));
         }
 
-        /// <summary>
-        /// This function is used to indicate the completion of a User Task within the given process instance.
-        /// </summary>
-        /// <param name="taskID">The ID of the User Task element completed.</param>
-        /// <param name="variables">The variables associated with the completion of the task.  Supplying values here will update the given process variables for the next step, or it can remain empty if there are no changes to be made.</param>
-        /// <param name="completedByID">Optional to specify a User ID that will show up in the state for indicating the user that completed the task.</param>
-        public void CompleteUserTask(string taskID, ProcessVariablesContainer variables,string completedByID)
-        {
-            _CompleteUserTask(taskID, variables,completedByID);
-        }
-
-        /// <summary>
-        /// This function is used to indicate an error occured completing a User Task within the given process instance.
-        /// </summary>
-        /// <param name="taskID">The ID of the User Task element that had the error.</param>
-        /// <param name="ex">The error that occured on the User Task.</param>
-        public void ErrorUserTask(string taskID, Exception ex)
-        {
-            _ErrorExternalTask(taskID, ex);
-        }
-
-        /// <summary>
-        /// This function is used to indicate the completion of a Manual Task within the given process instance.
-        /// </summary>
-        /// <param name="taskID">The ID of the Manual Task element completed.</param>
-        /// <param name="variables">The variables associated with the completion of the task.  Supplying values here will update the given process variables for the next step, or it can remain empty if there are no changes to be made.</param>
-        public void CompleteManualTask(string taskID, ProcessVariablesContainer variables)
-        {
-            _CompleteExternalTask(taskID, variables);
-        }
-
-        /// <summary>
-        /// This function is used to indicate an error occured completing a Manual Task within the given process instance.
-        /// </summary>
-        /// <param name="taskID">The ID of the Manual Task element that had the error.</param>
-        /// <param name="ex">The error that occured on the Manual Task.</param>
-        public void ErrorManualTask(string taskID, Exception ex)
-        {
-            _ErrorExternalTask(taskID, ex);
-        }
+        
         #endregion
 
         #endregion
@@ -988,9 +987,10 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         /// <param name="variables">The variables to start the process with</param>
         /// <returns>true if the process was successfully started</returns>
-        public bool BeginProcess(ProcessVariablesContainer variables)
+        public bool BeginProcess(Dictionary<string,object> pars)
         {
             _current = this;
+            ProcessVariablesContainer variables = new ProcessVariablesContainer(pars);
             variables.SetProcess(this);
             WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             bool ret = false;
@@ -1225,9 +1225,9 @@ namespace Org.Reddragonit.BpmEngine
                         _state.Path.StartSubProcess(esp, sourceID);
                         _stateEvent.Set();
                         if (_onSubProcessStarted!= null)
-                            _onSubProcessStarted(esp, new ReadOnlyProcessVariablesContainer(variables));
+                            _onSubProcessStarted(esp, variables);
                         if (_onEventStarted != null)
-                            _onEventStarted(se, new ReadOnlyProcessVariablesContainer(variables));
+                            _onEventStarted(se, variables);
                         _state.Path.StartEvent(se, null);
                         _state.Path.SucceedEvent(se);
                         if (_onEventCompleted != null)
@@ -1247,39 +1247,47 @@ namespace Org.Reddragonit.BpmEngine
             try
             {
                 ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state, this);
+                ITask task=null;
                 switch (tsk.GetType().Name)
                 {
                     case "BusinessRuleTask":
-                        _processBusinessRuleTask(tsk, ref variables);
-                        _MergeVariables(tsk, variables);
-                        break;
-                    case "ManualTask":
-                        _beginManualTask(tsk, variables, new CompleteManualTask(_CompleteExternalTask), new ErrorManualTask(_ErrorExternalTask));
-                        break;
                     case "RecieveTask":
-                        _processRecieveTask(tsk, ref variables);
-                        _MergeVariables(tsk, variables);
-                        break;
-                    case "ScriptTask":
-                        ((ScriptTask)tsk).ProcessTask(ref variables, _processScriptTask);
-                        _MergeVariables(tsk, variables);
-                        break;
                     case "SendTask":
-                        _processSendTask(tsk, ref variables);
-                        _MergeVariables(tsk, variables);
-                        break;
                     case "ServiceTask":
-                        _processServiceTask(tsk, ref variables);
-                        _MergeVariables(tsk, variables);
-                        break;
                     case "Task":
-                        _processTask(tsk, ref variables);
-                        _MergeVariables(tsk, variables);
-                        break;
-                    case "UserTask":
-                        _beginUserTask(tsk, variables, new CompleteUserTask(_CompleteUserTask), new ErrorUserTask(_ErrorExternalTask));
+                    case "ScriptTask":
+                        task = new Org.Reddragonit.BpmEngine.Tasks.ExternalTask(tsk, variables, this);
                         break;
                 }
+                switch (tsk.GetType().Name)
+                {
+                    case "BusinessRuleTask":
+                        _processBusinessRuleTask(task);
+                        break;
+                    case "ManualTask":
+                        _beginManualTask(new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, this));
+                        break;
+                    case "RecieveTask":
+                        _processRecieveTask(task);
+                        break;
+                    case "ScriptTask":
+                        ((ScriptTask)tsk).ProcessTask(task,_processScriptTask);
+                        break;
+                    case "SendTask":
+                        _processSendTask(task);
+                        break;
+                    case "ServiceTask":
+                        _processServiceTask(task);
+                        break;
+                    case "Task":
+                        _processTask(task);
+                        break;
+                    case "UserTask":
+                        _beginUserTask(new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk,variables,this));
+                        break;
+                }
+                if (task!=null)
+                    _MergeVariables(tsk, task);
             }
             catch (Exception e)
             {
@@ -1490,17 +1498,17 @@ namespace Org.Reddragonit.BpmEngine
             _ProcessEvent(sourceID, evnt);
         }
 
-        private void _MergeVariables(UserTask task, ProcessVariablesContainer variables, string completedByID)
+        private void _MergeVariables(UserTask task, IVariables variables, string completedByID)
         {
             _MergeVariables((ATask)task, variables, completedByID);
         }
 
-        private void _MergeVariables(ATask task, ProcessVariablesContainer variables)
+        private void _MergeVariables(ATask task, IVariables variables)
         {
             _MergeVariables(task, variables, null);
         }
 
-        private void _MergeVariables(ATask task, ProcessVariablesContainer variables,string completedByID)
+        private void _MergeVariables(ATask task, IVariables variables,string completedByID)
         {
             WriteLogLine(task,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, completedByID }));
             _stateEvent.WaitOne();
