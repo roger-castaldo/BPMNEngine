@@ -1206,7 +1206,7 @@ namespace Org.Reddragonit.BpmEngine
                     _ProcessEvent(sourceID, (AEvent)elem);
                 else if (elem is ATask)
                     _ProcessTask(sourceID, (ATask)elem);
-                else if (elem is SubProcess) ;
+                else if (elem is SubProcess) 
                     _ProcessSubProcess(sourceID, (SubProcess)elem);
             }
         }
