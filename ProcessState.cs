@@ -153,7 +153,19 @@ namespace Org.Reddragonit.BpmEngine
         private void _stateChanged()
         {
             if (_onStateChange != null)
-            { try { _onStateChange(this.Document); } catch (Exception ex) { _process.WriteLogException((string)null,new StackFrame(1,true),DateTime.Now,ex); } }
+            {
+                XmlDocument doc = this.Document;
+                System.Threading.Tasks.Task.Run(() =>
+                {
+                    try
+                    {
+                        _onStateChange(doc);
+                    }catch(Exception ex)
+                    {
+                        _process.WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, ex);
+                    }
+                });
+            }
         }
 
         internal void Suspend()

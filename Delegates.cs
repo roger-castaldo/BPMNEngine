@@ -27,6 +27,25 @@ namespace Org.Reddragonit.BpmEngine
     public delegate void OnElementEvent(IStepElement element, IReadonlyVariables variables);
 
     /// <summary>
+    /// This delegate is implemented to get triggered when a process element has been aborted.
+    /// </summary>
+    /// <remarks>
+    /// As it is an event driven delegate, the process will continue on without waiting for the delegate to finish.
+    /// </remarks>
+    /// <param name="element">The process element that is being aborted.</param>
+    /// <param name="source">The process element that is causing the abort.</param>
+    /// <param name="variables">The process variables being provided to the event it is being aborted.</param>
+    /// <example>
+    ///     public void _OnElementAborted(IElement element,IElement source,IReadonlyVariables variables){
+    ///         Console.WriteLine("Element {0} inside process {1} has been aborted by {2} with the following variables:",element.id,element.Process.id,source.id);
+    ///         foreach (string key in variables.FullKeys){
+    ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+    ///         }
+    ///     }
+    /// </example>
+    public delegate void OnElementAborted(IElement element,IElement source, IReadonlyVariables variables);
+
+    /// <summary>
     /// This delegate is implemented to get triggered when a Process has been started or completed.
     /// </summary>
     /// <remarks>

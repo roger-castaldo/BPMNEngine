@@ -312,6 +312,12 @@ namespace Org.Reddragonit.BpmEngine
         /// Used to define the State Change delegate
         /// </summary>
         public OnStateChange OnStateChange { set { _state.OnStateChange = value; } }
+
+        private OnElementAborted _onStepAborted;
+        /// <summary>
+        /// Used to define the element aborted event delegate
+        /// </summary>
+        public OnElementAborted OnStepAborted { get { return _onStepAborted; } set { _onStepAborted=value; } }
         #endregion
 
         #region Validations
@@ -1007,16 +1013,13 @@ namespace Org.Reddragonit.BpmEngine
                             if (se.IsEventStartValid(ropvc, _isEventStartValid))
                             {
                                 WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
-                                if (_onProcessStarted != null)
-                                    _onProcessStarted(p, new ReadOnlyProcessVariablesContainer(variables));
-                                if (_onEventStarted!=null)
-                                    _onEventStarted(se, new ReadOnlyProcessVariablesContainer(variables));
+                                _TriggerDelegateAsync(_onProcessStarted,new object[] { p, new ReadOnlyProcessVariablesContainer(variables) });
+                                _TriggerDelegateAsync(_onEventStarted,new object[] { se, new ReadOnlyProcessVariablesContainer(variables) });
                                 _state.Path.StartEvent(se, null);
                                 foreach (string str in variables.Keys)
                                     _state[se.id,str]=variables[str];
                                 _state.Path.SucceedEvent(se);
-                                if (_onEventCompleted!=null)
-                                    _onEventCompleted(se, new ReadOnlyProcessVariablesContainer(se.id, _state,this));
+                                _TriggerDelegateAsync(_onEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, _state, this) });
                                 ret=true;
                             }
                         }
@@ -1035,12 +1038,11 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         public void Suspend()
         {
-            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
+            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
             _isSuspended = true;
             _state.Suspend();
             _mreSuspend.WaitOne(5000);
-            if (_state.OnStateChange != null)
-                _state.OnStateChange(_state.Document);
+            _TriggerDelegateAsync(_state.OnStateChange, new object[] { _state.Document});
         }
 
         #region ProcessLock
@@ -1096,6 +1098,64 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         #endregion
+
+        private void _TriggerDelegateAsync(object dgate,object[] pars)
+        {
+            if (dgate!=null)
+            {
+                switch (dgate.GetType().Name)
+                {
+                    case "OnElementEvent":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((OnElementEvent)dgate).Invoke((IStepElement)pars[0], (IReadonlyVariables)pars[1]);
+                        });
+                        break;
+                    case "OnProcessEvent":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((OnProcessEvent)dgate).Invoke((IElement)pars[0], (IReadonlyVariables)pars[1]);
+                        });
+                        break;
+                    case "OnFlowComplete":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((OnFlowComplete)dgate).Invoke((IElement)pars[0], (IReadonlyVariables)pars[1]);
+                        });
+                        break;
+                    case "OnProcessErrorEvent":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((OnProcessErrorEvent)dgate).Invoke((IElement)pars[0], (IElement)pars[1], (IReadonlyVariables)pars[2]);
+                        });
+                        break;
+                    case "OnStateChange":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((OnStateChange)dgate).Invoke((XmlDocument)pars[0]);
+                        });
+                        break;
+                    case "StartManualTask":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((StartManualTask)dgate).Invoke((IManualTask)pars[0]);
+                        });
+                        break;
+                    case "StartUserTask":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((StartUserTask)dgate).Invoke((IUserTask)pars[0]);
+                        });
+                        break;
+                    case "OnElementAborted":
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            ((OnElementAborted)dgate).Invoke((IElement)pars[0],(IElement)pars[1],(IReadonlyVariables)pars[2]);
+                        });
+                        break;
+                }
+            }
+        }
 
         private AHandlingEvent[] _GetEventHandlers(EventSubTypes type,object data, AFlowNode source, IReadonlyVariables variables)
         {
@@ -1158,10 +1218,7 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             if (!success)
-            {
-                if (_onProcessError!=null)
-                    _onProcessError.Invoke(((IStepElement)step).Process,step,new ReadOnlyProcessVariablesContainer(step.id,_state,this,ex));
-            }
+                _TriggerDelegateAsync(_onProcessError,new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.id, _state, this, ex) });
         }
 
         private void _ProcessElement(string sourceID,IElement elem)
@@ -1224,14 +1281,11 @@ namespace Org.Reddragonit.BpmEngine
                         _stateEvent.WaitOne();
                         _state.Path.StartSubProcess(esp, sourceID);
                         _stateEvent.Set();
-                        if (_onSubProcessStarted!= null)
-                            _onSubProcessStarted(esp, variables);
-                        if (_onEventStarted != null)
-                            _onEventStarted(se, variables);
+                        _TriggerDelegateAsync(_onSubProcessStarted,new object[] { esp, variables });
+                        _TriggerDelegateAsync(_onEventStarted,new object[] { se, variables });
                         _state.Path.StartEvent(se, null);
                         _state.Path.SucceedEvent(se);
-                        if (_onEventCompleted != null)
-                            _onEventCompleted(se, new ReadOnlyProcessVariablesContainer(se.id, _state, this));
+                        _TriggerDelegateAsync(_onEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, _state, this) });
                     }
                 }
             }
@@ -1242,8 +1296,7 @@ namespace Org.Reddragonit.BpmEngine
             _stateEvent.WaitOne();
             _state.Path.StartTask(tsk, sourceID);
             _stateEvent.Set();
-            if (_onTaskStarted != null)
-                _onTaskStarted(tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this));
+            _TriggerDelegateAsync(_onTaskStarted,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this) });
             try
             {
                 ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state, this);
@@ -1265,7 +1318,7 @@ namespace Org.Reddragonit.BpmEngine
                         _processBusinessRuleTask(task);
                         break;
                     case "ManualTask":
-                        _beginManualTask(new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, this));
+                        _TriggerDelegateAsync(_beginManualTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, this) });
                         break;
                     case "RecieveTask":
                         _processRecieveTask(task);
@@ -1283,7 +1336,7 @@ namespace Org.Reddragonit.BpmEngine
                         _processTask(task);
                         break;
                     case "UserTask":
-                        _beginUserTask(new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk,variables,this));
+                        _TriggerDelegateAsync(_beginUserTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk, variables, this) });
                         break;
                 }
                 if (task!=null)
@@ -1292,8 +1345,7 @@ namespace Org.Reddragonit.BpmEngine
             catch (Exception e)
             {
                 WriteLogException(tsk, new StackFrame(1, true), DateTime.Now, e);
-                if (_onTaskError != null)
-                    _onTaskError(tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this, e));
+                _TriggerDelegateAsync(_onTaskError,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this, e) });
                 _stateEvent.WaitOne();
                 _state.Path.FailTask(tsk, e);
                 _stateEvent.Set();
@@ -1302,15 +1354,6 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessEvent(string sourceID, AEvent evnt)
         {
-            if (evnt is BoundaryEvent)
-            {
-                if (((BoundaryEvent)evnt).CancelActivity)
-                {
-                    _stateEvent.WaitOne();
-                    _AbortStep(sourceID, _GetElement(((BoundaryEvent)evnt).AttachedToID));
-                    _stateEvent.Set();
-                }
-            }
             if (evnt is IntermediateCatchEvent)
             {
                 SubProcess sp = (SubProcess)evnt.SubProcess;
@@ -1320,8 +1363,16 @@ namespace Org.Reddragonit.BpmEngine
             _stateEvent.WaitOne();
             _state.Path.StartEvent(evnt, sourceID);
             _stateEvent.Set();
-            if (_onEventStarted != null)
-                _onEventStarted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+            _TriggerDelegateAsync(_onEventStarted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
+            if (evnt is BoundaryEvent)
+            {
+                if (((BoundaryEvent)evnt).CancelActivity)
+                {
+                    _stateEvent.WaitOne();
+                    _AbortStep(sourceID, _GetElement(((BoundaryEvent)evnt).AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                    _stateEvent.Set();
+                }
+            }
             bool success = true;
             if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
             {
@@ -1365,16 +1416,14 @@ namespace Org.Reddragonit.BpmEngine
                 _stateEvent.WaitOne();
                 _state.Path.FailEvent(evnt);
                 _stateEvent.Set();
-                if (_onEventError != null)
-                    _onEventError(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                _TriggerDelegateAsync(_onEventError,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
             }
             else
             {
                 _stateEvent.WaitOne();
                 _state.Path.SucceedEvent(evnt);
                 _stateEvent.Set();
-                if (_onEventCompleted != null)
-                    _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                _TriggerDelegateAsync(_onEventCompleted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
                 if (evnt is EndEvent)
                 {
                     if (((EndEvent)evnt).IsProcessEnd)
@@ -1385,13 +1434,11 @@ namespace Org.Reddragonit.BpmEngine
                             _stateEvent.WaitOne();
                             _state.Path.SucceedSubProcess(sp);
                             _stateEvent.Set();
-                            if (_onSubProcessCompleted != null)
-                                _onSubProcessCompleted(sp, new ReadOnlyProcessVariablesContainer(sp.id, _state, this));
+                            _TriggerDelegateAsync(_onSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, _state, this) });
                         }
                         else
                         {
-                            if (_onProcessCompleted != null)
-                                _onProcessCompleted(((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                            _TriggerDelegateAsync(_onProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this)});
                             _processLock.Set();
                         }
                     }
@@ -1399,9 +1446,10 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        private void _AbortStep(string sourceID,IElement element)
+        private void _AbortStep(string sourceID,IElement element,IReadonlyVariables variables)
         {
             _state.Path.AbortStep(sourceID, element.id);
+            _TriggerDelegateAsync(_onStepAborted, new object[] { element, _GetElement(sourceID), variables });
             if (element is SubProcess)
             {
                 foreach (IElement child in ((SubProcess)element).Children)
@@ -1417,7 +1465,7 @@ namespace Org.Reddragonit.BpmEngine
                             break;
                     }
                     if (abort)
-                        _AbortStep(sourceID, child);
+                        _AbortStep(sourceID, child,variables);
                 }
             }
         }
@@ -1444,8 +1492,7 @@ namespace Org.Reddragonit.BpmEngine
                 _state.Path.StartGateway(gw, sourceID);
             if (gatewayComplete)
             {
-                if (_onGatewayStarted != null)
-                    _onGatewayStarted(gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this));
+                _TriggerDelegateAsync(_onGatewayStarted,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this) });
                 string[] outgoings = null;
                 try
                 {
@@ -1454,8 +1501,7 @@ namespace Org.Reddragonit.BpmEngine
                 catch (Exception e)
                 {
                     WriteLogException(gw, new StackFrame(1, true), DateTime.Now, e);
-                    if (_onGatewayError != null)
-                        _onGatewayError(gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this));
+                    _TriggerDelegateAsync(_onGatewayError,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this) });
                     outgoings = null;
                 }
                 if (outgoings == null)
@@ -1470,9 +1516,8 @@ namespace Org.Reddragonit.BpmEngine
         {
             _stateEvent.WaitOne();
             _state.Path.ProcessMessageFlow(mf);
-            _stateEvent.Set();
-            if (_onMessageFlowCompleted != null)
-                _onMessageFlowCompleted(mf, new ReadOnlyProcessVariablesContainer(mf.id, _state, this));
+            _stateEvent.Set(); 
+            _TriggerDelegateAsync(_onMessageFlowCompleted,new object[] { mf, new ReadOnlyProcessVariablesContainer(mf.id, _state, this) });
         }
 
         private void _ProcessSequenceFlow(SequenceFlow sf)
@@ -1480,8 +1525,7 @@ namespace Org.Reddragonit.BpmEngine
             _stateEvent.WaitOne();
             _state.Path.ProcessSequenceFlow(sf);
             _stateEvent.Set();
-            if (_onSequenceFlowCompleted != null)
-                _onSequenceFlowCompleted(sf, new ReadOnlyProcessVariablesContainer(sf.id, _state, this));
+            _TriggerDelegateAsync(_onSequenceFlowCompleted,new object[] { sf, new ReadOnlyProcessVariablesContainer(sf.id, _state, this) });
         }
 
         internal void CompleteTimedEvent(AEvent evnt)
@@ -1489,8 +1533,7 @@ namespace Org.Reddragonit.BpmEngine
             _stateEvent.WaitOne();
             _state.Path.SucceedEvent(evnt);
             _stateEvent.Set();
-            if (_onEventCompleted != null)
-                _onEventCompleted(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+            _TriggerDelegateAsync(_onEventCompleted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
         }
 
         internal void StartTimedEvent(BoundaryEvent evnt,string sourceID)
@@ -1519,8 +1562,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (!_IsVariablesEqual(left,right))
                         _state[task.id, str] = left;
                 }
-                if (_onTaskCompleted != null)
-                    _onTaskCompleted(task, new ReadOnlyProcessVariablesContainer(task.id, _state,this));
+                _TriggerDelegateAsync(_onTaskCompleted,new object[] { task, new ReadOnlyProcessVariablesContainer(task.id, _state, this) });
                 if (task is UserTask)
                     _state.Path.SucceedTask((UserTask)task,completedByID);
                 else
