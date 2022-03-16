@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.State;
 using System;
@@ -64,14 +65,19 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
+        private Edge[] _cachedEdges = null;
         private Edge[] _Edges
         {
             get
             {
-                List<Edge> ret = new List<Edge>();
-                foreach (IElement elem in Children)
-                    _RecurLocateEdges(elem, ref ret);
-                return ret.ToArray();
+                if (_cachedEdges==null)
+                {
+                    List<Edge> ret = new List<Edge>();
+                    foreach (IElement elem in Children)
+                        _RecurLocateEdges(elem, ref ret);
+                    _cachedEdges=ret.ToArray();
+                }
+                return _cachedEdges;
             }
         }
 
@@ -86,14 +92,19 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
+        private Shape[] _cachedShapes = null;
         private Shape[] _Shapes
         {
             get
             {
-                List<Shape> ret = new List<Shape>();
-                foreach (IElement elem in Children)
-                    _RecurLocateShapes(elem, ref ret);
-                return ret.ToArray();
+                if (_cachedShapes==null)
+                {
+                    List<Shape> ret = new List<Shape>();
+                    foreach (IElement elem in Children)
+                        _RecurLocateShapes(elem, ref ret);
+                    _cachedShapes = ret.ToArray();
+                }
+                return _cachedShapes;
             }
         }
 
@@ -156,6 +167,23 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         }
 
+        private Shape[] _GetBoundShapes(Definition definition, string elemid)
+        {
+            List<Shape> ret = new List<Shape>();
+            foreach (IElement elem in definition.GetBoundaryElements(elemid))
+            {
+                foreach (Shape shape in _Shapes)
+                {
+                    if (shape.bpmnElement==elem.id)
+                    {
+                        ret.Add(shape);
+                        break;
+                    }
+                }
+            }
+            return ret.ToArray();
+        }
+
         private Image _Render(ProcessPath path, Definition definition, string elemid)
         {
             Image ret = new Image(Size);
@@ -172,7 +200,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 if (shape.bpmnElement == (elemid == null ? shape.bpmnElement : elemid))
                 {
                     Rectangle rect;
-                    Image img = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), out rect);
+                    Image img = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement),_GetBoundShapes(definition, shape.bpmnElement), out rect);
                     ret.DrawImage(img, rect);
                 }
             }
@@ -190,7 +218,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             {
                 if (shape.bpmnElement == elementID)
                 {
-                    Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), out rectangle);
+                    Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, elementID), out rectangle);
                     rectangle = _ShiftRectangle(rectangle);
                     return ret;
                 }
@@ -225,7 +253,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return ret;
         }
 
-        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,out Rectangle rect)
+        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,Shape[] boundElements,out Rectangle rect)
         {
             rect = shape.Rectangle.Merge((shape.Label!=null ? shape.Label.Bounds.Rectangle : null));
             Image ret = new Image(rect);
@@ -264,6 +292,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH),new RoundRectangle(shape.Rectangle,_LANE_CORNER_RADIUS));
                 else if (elem is SubProcess)
                     ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new RoundRectangle(shape.Rectangle,_SUB_PROCESS_CORNER_RADIUS));
+                if (boundElements!=null)
+                {
+                    foreach (Shape be in boundElements)
+                        ret.FillEllipse(new SolidBrush(Color.White), be.Rectangle);
+                }
                 if (elem.ToString() != "")
                 {
                     if (shape.Label != null)

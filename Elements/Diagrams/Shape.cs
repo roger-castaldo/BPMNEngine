@@ -148,6 +148,29 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                                     break;
                             }
                         }
+                    }else if (elem is BoundaryEvent)
+                    {
+                        switch (evnt.SubType.Value)
+                        {
+                            case EventSubTypes.Message:
+                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingMessageBoundaryEvent : BPMIcons.NonInteruptingMessageBoundaryEvent);
+                                break;
+                            case EventSubTypes.Conditional:
+                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingConditionalBoundaryEvent : BPMIcons.NonInteruptingConditionalBoundaryEvent);
+                                break;
+                            case EventSubTypes.Escalation:
+                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingEscalationBoundaryEvent : BPMIcons.NonInteruptingEscalationBoundaryEvent);
+                                break;
+                            case EventSubTypes.Signal:
+                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingSignalBoundaryEvent : BPMIcons.NonInteruptingSignalBoundaryEvent);
+                                break;
+                            case EventSubTypes.Timer:
+                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingTimerBoundaryEvent : BPMIcons.NonInteruptingTimerBoundaryEvent);
+                                break;
+                            case EventSubTypes.Error:
+                                ret=BPMIcons.InteruptingErrorBoundaryEvent;
+                                break;
+                        }
                     }
                 }
                 else if (elem is AGateway)

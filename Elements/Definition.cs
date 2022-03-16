@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,27 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 }
             }
             return ret;
+        }
+
+        public IElement[] GetBoundaryElements(string attachedToID)
+        {
+            return _RecurGetBoundaryElements(this, attachedToID);
+        }
+
+        private IElement[] _RecurGetBoundaryElements(IElement elem, string attachedToID)
+        {
+            List<IElement> ret = new List<IElement>();
+            if (elem is BoundaryEvent)
+            {
+                if (((BoundaryEvent)elem).AttachedToID==attachedToID)
+                    ret.Add(elem);
+            }
+            if (elem is IParentElement)
+            {
+                foreach (IElement selem in ((IParentElement)elem).Children)
+                    ret.AddRange(_RecurGetBoundaryElements(selem, attachedToID));
+            }
+            return ret.ToArray();
         }
 
         public IElement[] LocateElementsOfType(Type type)

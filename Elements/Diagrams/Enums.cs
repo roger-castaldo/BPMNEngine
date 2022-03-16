@@ -40,6 +40,17 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         ManualTask,
         ServiceTask,
         ScriptTask,
-        BusinessRuleTask
+        BusinessRuleTask,
+        InteruptingMessageBoundaryEvent,
+        InteruptingTimerBoundaryEvent,
+        InteruptingEscalationBoundaryEvent,
+        InteruptingConditionalBoundaryEvent,
+        InteruptingErrorBoundaryEvent,
+        InteruptingSignalBoundaryEvent,
+        NonInteruptingMessageBoundaryEvent,
+        NonInteruptingTimerBoundaryEvent,
+        NonInteruptingEscalationBoundaryEvent,
+        NonInteruptingConditionalBoundaryEvent,
+        NonInteruptingSignalBoundaryEvent
     }
 }

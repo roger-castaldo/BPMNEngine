@@ -22,7 +22,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 
         public bool CancelActivity
         {
-            get { return (this["cancelActivity"]==null ? false : bool.Parse(this["cancelActivity"])); }
+            get { return (this["cancelActivity"]==null ? true : bool.Parse(this["cancelActivity"])); }
         }
 
         public override bool IsValid(out string[] err)

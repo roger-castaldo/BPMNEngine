@@ -30,6 +30,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
                         ret.Add((((ErrorDefinition)elem).Type==null ? "*" : ((ErrorDefinition)elem).Type));
                     }
                 }
+                if (ret.Count==0 && ExtensionElement!=null)
+                {
+                    foreach (IElement elem in ((IParentElement)ExtensionElement).Children)
+                    {
+                        if (elem is ErrorDefinition)
+                        {
+                            ret.Add((((ErrorDefinition)elem).Type == null ? "*" : ((ErrorDefinition)elem).Type));
+                        }
+                    }
+                }
                 return ret.ToArray();
             }
         }

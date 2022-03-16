@@ -25,14 +25,21 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         private float[] _dashPattern;
         public float[] DashPattern { get { return _dashPattern; } set { _dashPattern = value; } }
 
-        public Pen(SolidBrush brush,float size)
+        public Pen(SolidBrush brush,float size,float[] dashPattern)
         {
             _brush= brush;
             _size= size;
+            _dashPattern= dashPattern;
         }
 
+        public Pen(SolidBrush brush, float size)
+            : this(brush, size, null) { }
+
+        public Pen(Color color, float size,float[] dashPattern)
+            : this(new SolidBrush(color), size,dashPattern) { }
+
         public Pen(Color color, float size)
-            : this(new SolidBrush(color), size) { }
+            : this(color,size,null) { }
 
         public object DrawingObject { 
             get {

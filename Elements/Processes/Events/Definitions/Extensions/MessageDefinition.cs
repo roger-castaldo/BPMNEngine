@@ -17,23 +17,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extens
 
         public string Name { get { return this["name"]; } }
 
-        public string Content {
-            get
-            {
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.Text)
-                        return n.Value;
-                }
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.CDATA)
-                        return ((XmlCDataSection)n).InnerText;
-                }
-                return "";
-            }
-        }
-
         public override bool IsValid(out string[] err)
         {
             List<string> errors = new List<string>();

@@ -5,13 +5,13 @@ using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Events
 {
-    [IconTypeAttribute(Elements.Diagrams.BPMIcons.EscalationIntermediateThrowEvent)]
-    internal class EscalationIntermediateThrowEvent : AIcon
+    [IconTypeAttribute(Elements.Diagrams.BPMIcons.InteruptingConditionalBoundaryEvent)]
+    internal class InteruptingConditionalBoundaryEvent : AIcon
     {
         private static readonly IIconPart[] _PARTS = new IIconPart[] {
             new OuterCircle(),
             new InnerCircle(),
-            new UpArrow(true)
+            new Note()
         };
 
         protected override IIconPart[] _parts

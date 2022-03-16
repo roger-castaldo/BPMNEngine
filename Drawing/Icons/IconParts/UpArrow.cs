@@ -15,9 +15,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             new Point(23f,9f)
         };
 
+        private bool _filled;
+        public UpArrow(bool filled)
+        {
+            _filled=filled;
+        }
+
         public void Add(Image gp, int iconSize, Color color)
         {
-            gp.FillPolygon(new SolidBrush(color), _POINTS);
+            if (_filled)
+                gp.FillPolygon(new SolidBrush(color), _POINTS);
+            else
+                gp.DrawLines(new Pen(color, 1F), _POINTS);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Events
     {
         private static readonly IIconPart[] _PARTS = new IIconPart[] {
             new ThickCircle(),
-            new UpArrow()
+            new UpArrow(true)
         };
 
         protected override IIconPart[] _parts

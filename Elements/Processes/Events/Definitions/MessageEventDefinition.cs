@@ -28,6 +28,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
                         ret.Add((((MessageDefinition)elem).Name == null ? "*" : ((MessageDefinition)elem).Name));
                     }
                 }
+                if (ret.Count==0 && ExtensionElement!=null)
+                {
+                    foreach (IElement elem in ((IParentElement)ExtensionElement).Children)
+                    {
+                        if (elem is MessageDefinition)
+                        {
+                            ret.Add((((MessageDefinition)elem).Name == null ? "*" : ((MessageDefinition)elem).Name));
+                        }
+                    }
+                }
                 return ret.ToArray();
             }
         }
