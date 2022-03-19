@@ -64,6 +64,14 @@ namespace Org.Reddragonit.BpmEngine
                 return _path.ResumeSteps;
             }
         }
+
+        internal sDelayedStartEvent[] DelayedEvents
+        {
+            get
+            {
+                return _path.DelayedEvents;
+            }
+        }
         
         internal object this[string elementID, string variableName]
         {

@@ -50,4 +50,23 @@ namespace Org.Reddragonit.BpmEngine.State
             _elementID = elementID;
         }
     }
+
+    internal struct sDelayedStartEvent
+    {
+        private string _incomingID;
+        public string IncomingID { get { return _incomingID; } }
+
+        private string _elementID;
+        public string ElementID { get { return _elementID; } }
+        
+        private DateTime _startTime;
+        public TimeSpan Delay { get { return _startTime.Subtract(DateTime.Now); } }
+
+        public sDelayedStartEvent(string incomingID,string elementID,DateTime startTime)
+        {
+            _incomingID=incomingID;
+            _elementID=elementID;
+            _startTime=startTime;
+        }
+    }
 }

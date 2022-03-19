@@ -743,6 +743,13 @@ namespace Org.Reddragonit.BpmEngine
                     else
                         CompleteTimedEvent((AEvent)_GetElement(ss.id));
                 }
+                foreach (sDelayedStartEvent sdse in _state.DelayedEvents)
+                {
+                    if (sdse.Delay.Ticks<0)
+                        _ProcessEvent(sdse.IncomingID, (AEvent)_GetElement(sdse.ElementID));
+                    else
+                        Utility.DelayStart(sdse.Delay, this, (BoundaryEvent)_GetElement(sdse.ElementID), sdse.IncomingID);
+                }
                 WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
             }
             else
@@ -1249,7 +1256,12 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             TimeSpan? ts = ahe.GetTimeout(ropvc);
                             if (ts.HasValue)
+                            {
+                                _stateEvent.WaitOne();
+                                _state.Path.DelayEventStart(ahe, elem.id, ts.Value);
+                                _stateEvent.Set();
                                 Utility.DelayStart(ts.Value, this, (BoundaryEvent)ahe, elem.id);
+                            }
                         }
                     }
                 }

@@ -95,6 +95,7 @@ namespace Org.Reddragonit.BpmEngine.State
                         case StepStatuses.Succeeded:
                         case StepStatuses.Failed:
                         case StepStatuses.Waiting:
+                        case StepStatuses.Aborted:
                             for(int x = 0; x < ret.Count; x++)
                             {
                                 if (ret[x].ElementID == elem.Attributes[_ELEMENT_ID].Value)
@@ -119,6 +120,37 @@ namespace Org.Reddragonit.BpmEngine.State
                                     }
                                     if (addNext)
                                         ret.Add(new sSuspendedStep(elem.Attributes[_ELEMENT_ID].Value, str));
+                                }
+                            }
+                            break;
+                    }
+                }
+                return ret.ToArray();
+            }
+        }
+
+        internal sDelayedStartEvent[] DelayedEvents
+        {
+            get
+            {
+                List<sDelayedStartEvent> ret = new List<sDelayedStartEvent>();
+                foreach (XmlElement elem in ChildNodes)
+                {
+                    switch ((StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes[_STEP_STATUS].Value))
+                    {
+                        case StepStatuses.WaitingStart:
+                            ret.Add(new sDelayedStartEvent(elem.Attributes[_INCOMING_ID].Value, elem.Attributes[_ELEMENT_ID].Value, DateTime.ParseExact(elem.Attributes[_START_TIME].Value,Constants.DATETIME_FORMAT,CultureInfo.InvariantCulture)));
+                            break;
+                        case StepStatuses.Succeeded:
+                        case StepStatuses.Failed:
+                        case StepStatuses.Waiting:
+                        case StepStatuses.Aborted:
+                            for (int x = 0; x < ret.Count; x++)
+                            {
+                                if (ret[x].ElementID == elem.Attributes[_ELEMENT_ID].Value)
+                                {
+                                    ret.RemoveAt(x);
+                                    break;
                                 }
                             }
                             break;
@@ -256,6 +288,12 @@ namespace Org.Reddragonit.BpmEngine.State
                     break;
                 }
             }
+        }
+
+        internal void DelayEventStart(AEvent Event,string incoming,TimeSpan delay)
+        {
+            _WriteLogLine(Event.id, LogLevels.Debug, "Delaying start of event in Process Path");
+            _addPathEntry(Event.id, incoming, StepStatuses.WaitingStart, DateTime.Now.Add(delay));
         }
 
         internal void StartEvent(AEvent Event, string incoming)
