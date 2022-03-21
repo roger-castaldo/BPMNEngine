@@ -166,5 +166,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             return Definition.Exception(this, exception);
         }
+
+        internal void LoadExtensionElement(ref XmlPrefixMap map, ref ElementTypeCache cache)
+        {
+            if (_extensionElement!=null)
+                ((Org.Reddragonit.BpmEngine.Elements.Processes.ExtensionElements)_extensionElement).LoadChildren(ref map, ref cache);
+        }
     }
 }

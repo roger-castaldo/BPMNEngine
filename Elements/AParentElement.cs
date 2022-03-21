@@ -18,32 +18,25 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        public void LoadChildren(ref XmlPrefixMap map, ref ElementTypeCache cache, ref ConcurrentQueue<System.Threading.Tasks.Task> loadTasks)
+        public void LoadChildren(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {
-            XmlPrefixMap smap = map;
-            ElementTypeCache scache = cache;
-            ConcurrentQueue<System.Threading.Tasks.Task> sloadTasks = loadTasks;
-            loadTasks.Enqueue(System.Threading.Tasks.Task.Run(() =>
+            if (SubNodes != null)
             {
-                if (SubNodes != null)
+                foreach (XmlNode n in SubNodes)
                 {
-                    foreach (XmlNode n in SubNodes)
+                    if (n.NodeType == XmlNodeType.Element)
                     {
-                        if (n.NodeType == XmlNodeType.Element)
+                        IElement subElem = Utility.ConstructElementType((XmlElement)n, ref map, ref cache, this);
+                        if (subElem != null)
                         {
-                            IElement subElem = Utility.ConstructElementType((XmlElement)n, ref smap, ref scache, this);
-                            if (subElem != null)
-                            {
-                                if (_children == null)
-                                    _children = new List<IElement>();
-                                _children.Add(subElem);
-                                if (subElem is AParentElement)
-                                    ((AParentElement)subElem).LoadChildren(ref smap, ref scache, ref sloadTasks);
-                            }
+                            _children.Add(subElem);
+                            if (subElem is AParentElement)
+                                ((AParentElement)subElem).LoadChildren(ref map, ref cache);
                         }
                     }
                 }
-            }));
+            }
+            LoadExtensionElement(ref map, ref cache);
         }
 
         public AParentElement(XmlElement elem,XmlPrefixMap map, AElement parent)

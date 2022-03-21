@@ -343,7 +343,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     ret = Color.Blue;
                     break;
                 case StepStatuses.WaitingStart:
-                    ret=Color.LightBlue;
+                    ret=Color.GoldenYellow;
                     break;
                 case StepStatuses.Aborted:
                     ret=Color.Orange;

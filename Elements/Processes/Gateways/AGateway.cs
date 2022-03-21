@@ -22,7 +22,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
             return path.GetStatus(this.id) == StepStatuses.Waiting;
         }
 
-        public string Default { get { return this["default"]; } }
+        public string Default { 
+            get {
+                if (this.Outgoing!=null && this.Outgoing.Length==1)
+                    return this.Outgoing[0];
+                return this["default"]; 
+            } 
+        }
 
         public override bool IsValid(out string[] err)
         {

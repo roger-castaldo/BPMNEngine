@@ -9,7 +9,6 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
 {
     [XMLTag("bpmn","exclusiveGateway")]
-    [RequiredAttribute("default")]
     internal class ExclusiveGateway : AGateway
     {
         public ExclusiveGateway(XmlElement elem, XmlPrefixMap map, AElement parent)

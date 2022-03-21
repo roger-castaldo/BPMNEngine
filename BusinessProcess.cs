@@ -586,19 +586,19 @@ namespace Org.Reddragonit.BpmEngine
             _components = new List<object>();
             _elements = new Dictionary<string, Interfaces.IElement>();
             XmlPrefixMap map = new XmlPrefixMap(this);
-            ConcurrentQueue<System.Threading.Tasks.Task> loadTasks = new ConcurrentQueue<System.Threading.Tasks.Task>();
             foreach (XmlNode n in doc.ChildNodes)
             {
                 if (n.NodeType == XmlNodeType.Element)
                 {
                     if (map.Load((XmlElement)n))
                         elementMapCache.MapIdeals(map);
-                    IElement elem = Utility.ConstructElementType((XmlElement)n, ref map,ref elementMapCache,null);
+                    IElement elem = Utility.ConstructElementType((XmlElement)n, ref map, ref elementMapCache, null);
                     if (elem != null)
                     {
-                        _components.Add(elem);
                         if (elem is AParentElement)
-                            ((AParentElement)elem).LoadChildren(ref map, ref elementMapCache,ref loadTasks);
+                            ((AParentElement)elem).LoadChildren(ref map, ref elementMapCache);
+                        ((AElement)elem).LoadExtensionElement(ref map, ref elementMapCache);
+                        _components.Add(elem);
                     }
                     else
                         _components.Add(n);
@@ -606,9 +606,6 @@ namespace Org.Reddragonit.BpmEngine
                 else
                     _components.Add(n);
             }
-            System.Threading.Tasks.Task tsk;
-            while(loadTasks.TryDequeue(out tsk))
-                tsk.Wait();
             foreach (object obj in _components)
             {
                 if (obj is IElement)
@@ -629,14 +626,8 @@ namespace Org.Reddragonit.BpmEngine
             }
             if (exceptions.Count == 0)
             {
-                List<AHandlingEvent> tmp = new List<AHandlingEvent>();
                 foreach (IElement elem in _Elements)
-                {
-                    if (elem is AHandlingEvent)
-                        tmp.Add((AHandlingEvent)elem);
                     _ValidateElement((AElement)elem, ref exceptions);
-                }
-                _eventHandlers=tmp.ToArray();
             }
             if (exceptions.Count != 0)
             {
@@ -644,6 +635,13 @@ namespace Org.Reddragonit.BpmEngine
                 WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
+            List<AHandlingEvent> tmp = new List<AHandlingEvent>();
+            foreach (string str in _elements.Keys)
+            {
+                if (_elements[str] is AHandlingEvent)
+                    tmp.Add((AHandlingEvent)_elements[str]);
+            }
+            _eventHandlers = tmp.ToArray();
             
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
             _state = new ProcessState(this,new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
@@ -1198,6 +1196,22 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessStepComplete(string sourceID,string outgoingID) {
             _current = this;
+            if (sourceID!=null)
+            {
+                IElement elem = _GetElement(sourceID);
+                if (elem is AFlowNode)
+                {
+                    ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(sourceID, _state, this);
+                    foreach (AHandlingEvent ahe in _GetEventHandlers(EventSubTypes.Timer, null, (AFlowNode)elem, vars))
+                    {
+                        if (_state.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
+                        {
+                            Utility.AbortDelayedEvent(this, (BoundaryEvent)ahe, sourceID);
+                            _AbortStep(sourceID, ahe, vars);
+                        }
+                    }
+                }
+            }
             WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
             if (outgoingID != null)
             {
@@ -1568,17 +1582,17 @@ namespace Org.Reddragonit.BpmEngine
             WriteLogLine(task,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, completedByID }));
             _stateEvent.WaitOne();
             foreach (string str in variables.Keys)
-                {
-                    object left = variables[str];
-                    object right = _state[task.id, str];
-                    if (!_IsVariablesEqual(left,right))
-                        _state[task.id, str] = left;
-                }
-                _TriggerDelegateAsync(_onTaskCompleted,new object[] { task, new ReadOnlyProcessVariablesContainer(task.id, _state, this) });
-                if (task is UserTask)
-                    _state.Path.SucceedTask((UserTask)task,completedByID);
-                else
-                    _state.Path.SucceedTask(task);
+            {
+                object left = variables[str];
+                object right = _state[task.id, str];
+                if (!_IsVariablesEqual(left,right))
+                    _state[task.id, str] = left;
+            }
+            _TriggerDelegateAsync(_onTaskCompleted,new object[] { task, new ReadOnlyProcessVariablesContainer(task.id, _state, this) });
+            if (task is UserTask)
+                _state.Path.SucceedTask((UserTask)task,completedByID);
+            else
+                _state.Path.SucceedTask(task);
             _stateEvent.Set();
         }
 
