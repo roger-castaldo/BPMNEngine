@@ -28,12 +28,5 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// The error that occured, assuming this was passed to an error event delgate this will have a value
         /// </summary>
         Exception Error { get; }
-
-        /// <summary>
-        /// Called to write a message to the process log
-        /// </summary>
-        /// <param name="level">The Log Level</param>
-        /// <param name="message">The message to write</param>
-        void WriteLogLine(LogLevels level, string message);
     }
 }

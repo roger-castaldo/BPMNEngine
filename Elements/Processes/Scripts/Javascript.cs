@@ -104,7 +104,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 if (_engineType == null)
                     throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
                 object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
-                object[] pars = new object[] { "variables", new ProcessVariablesContainer() };
+                object[] pars = new object[] { "variables", new ProcessVariablesContainer(null,((Definition)this.Definition).OwningProcess,null)};
                 _setValue.Invoke(engine, pars);
                 try
                 {

@@ -8,7 +8,7 @@ namespace Org.Reddragonit.BpmEngine.Tasks
 {
     internal class ManualTask : ExternalTask, IManualTask
     {
-        public ManualTask(ATask task, ProcessVariablesContainer variables, BusinessProcess process) :
+        public ManualTask(ATask task, ProcessVariablesContainer variables, ProcessInstance process) :
             base(task, variables, process)
         { }
 

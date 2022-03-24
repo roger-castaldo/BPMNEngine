@@ -11,12 +11,12 @@ namespace Org.Reddragonit.BpmEngine
         private IVariables _variables;
         private Exception _error;
 
-        internal ReadOnlyProcessVariablesContainer(string elementID, ProcessState state, BusinessProcess process)
-            : this(elementID, state, process, null) { }
+        internal ReadOnlyProcessVariablesContainer(string elementID, ProcessInstance instance)
+            : this(elementID, instance,null) { }
 
-        internal ReadOnlyProcessVariablesContainer(string elementID, ProcessState state, BusinessProcess process,Exception error)
+        internal ReadOnlyProcessVariablesContainer(string elementID, ProcessInstance instance,Exception error)
         {
-            _variables = new ProcessVariablesContainer(elementID, state, process);
+            _variables = new ProcessVariablesContainer(elementID, instance);
             _error = error;
         }
 
@@ -32,10 +32,5 @@ namespace Org.Reddragonit.BpmEngine
         public string[] FullKeys { get { return _variables.FullKeys; } }
 
         public Exception Error { get { return _error; } }
-
-        public void WriteLogLine(LogLevels level, string message)
-        {
-            ((ProcessVariablesContainer)_variables).WriteLogLine(level, new StackFrame(2, true), DateTime.Now, message);
-        }
     }
 }

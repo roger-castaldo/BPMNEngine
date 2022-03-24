@@ -627,7 +627,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private static readonly TimeSpan _maxSpan = new TimeSpan(int.MaxValue);
 
-        internal static void Sleep(TimeSpan value, BusinessProcess process, AEvent evnt)
+        internal static void Sleep(TimeSpan value, ProcessInstance process, AEvent evnt)
         {
             lock (_events)
             {
@@ -636,7 +636,7 @@ namespace Org.Reddragonit.BpmEngine
             _backgroundMREEvent.Set();
         }
 
-        internal static void DelayStart(TimeSpan value, BusinessProcess process, BoundaryEvent evnt, string sourceID)
+        internal static void DelayStart(TimeSpan value, ProcessInstance process, BoundaryEvent evnt, string sourceID)
         {
             lock (_events)
             {
@@ -645,7 +645,7 @@ namespace Org.Reddragonit.BpmEngine
             _backgroundMREEvent.Set();
         }
 
-        internal static void AbortDelayedEvent(BusinessProcess process,BoundaryEvent evnt,string sourceID)
+        internal static void AbortDelayedEvent(ProcessInstance process,BoundaryEvent evnt,string sourceID)
         {
             lock (_events)
             {
@@ -654,7 +654,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (_events[x] is sProcessDelayedEvent)
                     {
                         sProcessDelayedEvent spde = (sProcessDelayedEvent)_events[x];
-                        if (spde.Process.Equals(process) && spde.Event.id==evnt.id && spde.SourceID==sourceID)
+                        if (spde.Instance.Equals(process) && spde.Event.id==evnt.id && spde.SourceID==sourceID)
                         {
                             _events.RemoveAt(x);
                             break;
@@ -665,7 +665,7 @@ namespace Org.Reddragonit.BpmEngine
             _backgroundMREEvent.Set();
         }
 
-        internal static void AbortSuspendedElement(BusinessProcess process, string id)
+        internal static void AbortSuspendedElement(ProcessInstance process, string id)
         {
             lock (_events)
             {
@@ -674,7 +674,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (_events[x] is sProcessSuspendEvent)
                     {
                         sProcessSuspendEvent spse = (sProcessSuspendEvent)_events[x];
-                        if (spse.Process.Equals(process) && spse.Event.id==id)
+                        if (spse.Instance.Equals(process) && spse.Event.id==id)
                         {
                             _events.RemoveAt(x);
                             break;
@@ -688,12 +688,43 @@ namespace Org.Reddragonit.BpmEngine
         internal static void UnloadProcess(BusinessProcess process)
         {
             bool changed = false;
+            lock (_events)
+            {
+                for (int x = 0; x < _events.Count; x++)
+                {
+                    if (_events[x] is sProcessDelayedEvent)
+                    {
+                        if (((sProcessDelayedEvent)_events[x]).Instance.Process.Equals(process))
+                        {
+                            _events.RemoveAt(x);
+                            x--;
+                            changed=true;
+                        }
+                    }
+                    else if (_events[x] is sProcessSuspendEvent)
+                    {
+                        if (((sProcessSuspendEvent)_events[x]).Instance.Process.Equals(process))
+                        {
+                            _events.RemoveAt(x);
+                            x--;
+                            changed=true;
+                        }
+                    }
+                }
+            }
+            if (changed)
+                _backgroundMREEvent.Set();
+        }
+
+        internal static void UnloadProcess(ProcessInstance process)
+        {
+            bool changed = false;
             lock (_events) {
                 for(int x = 0; x < _events.Count; x++)
                 {
                     if (_events[x] is sProcessDelayedEvent)
                     {
-                        if (((sProcessDelayedEvent)_events[x]).Process.Equals(process))
+                        if (((sProcessDelayedEvent)_events[x]).Instance.Equals(process))
                         {
                             _events.RemoveAt(x);
                             x--;
@@ -701,7 +732,7 @@ namespace Org.Reddragonit.BpmEngine
                         }
                     }else if (_events[x] is sProcessSuspendEvent)
                     {
-                        if (((sProcessSuspendEvent)_events[x]).Process.Equals(process))
+                        if (((sProcessSuspendEvent)_events[x]).Instance.Equals(process))
                         {
                             _events.RemoveAt(x);
                             x--;
@@ -758,11 +789,11 @@ namespace Org.Reddragonit.BpmEngine
                             {
                                 try
                                 {
-                                    spe.Process.CompleteTimedEvent(spe.Event);
+                                    spe.Instance.CompleteTimedEvent(spe.Event);
                                     _events.RemoveAt(x);
                                     x--;
                                 }
-                                catch (Exception e) { spe.Process.WriteLogException(spe.Event, new StackFrame(1, true), DateTime.Now, e); }
+                                catch (Exception e) { spe.Instance.WriteLogException(spe.Event, new StackFrame(1, true), DateTime.Now, e); }
                             }
                         }else if (_events[x] is sProcessDelayedEvent)
                         {
@@ -771,11 +802,11 @@ namespace Org.Reddragonit.BpmEngine
                             {
                                 try
                                 {
-                                    sde.Process.StartTimedEvent(sde.Event, sde.SourceID);
+                                    sde.Instance.StartTimedEvent(sde.Event, sde.SourceID);
                                     _events.RemoveAt(x);
                                     x--;
                                 }
-                                catch (Exception e) { sde.Process.WriteLogException(sde.Event, new StackFrame(1, true), DateTime.Now, e); }
+                                catch (Exception e) { sde.Instance.WriteLogException(sde.Event, new StackFrame(1, true), DateTime.Now, e); }
                             }
                         }
                     }

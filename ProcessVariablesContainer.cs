@@ -12,46 +12,48 @@ namespace Org.Reddragonit.BpmEngine
         private Dictionary<string, object> _variables;
         private int _stepIndex;
         private string _elementID;
-
         private BusinessProcess _process = null;
-        internal void SetProcess(BusinessProcess process) { _process = process; }
+        private ProcessInstance _processInstance;
 
-        public ProcessVariablesContainer()
-            : this(new Dictionary<string, object>())
-        {}
-
-        public ProcessVariablesContainer(Dictionary<string,object> props)
+        public ProcessVariablesContainer(Dictionary<string,object> props,BusinessProcess process,ProcessInstance processInstance)
         {
             _nulls = new List<string>();
-            _variables = props;
+            _variables = (props==null ? new Dictionary<string, object>() : props);
             _stepIndex = -1;
+            _process=process;
+            _processInstance= processInstance;
         }
 
-        internal ProcessVariablesContainer(string elementID, ProcessState state,BusinessProcess process)
+        internal ProcessVariablesContainer(string elementID, ProcessInstance processInstance)
         {
-            _process = process;
+            _processInstance= processInstance;
+            _process = processInstance.Process;
             _process.WriteLogLine(elementID,LogLevels.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
             _elementID = elementID;
-            _stepIndex = state.Path.CurrentStepIndex(elementID);
+            _stepIndex = processInstance.State.Path.CurrentStepIndex(elementID);
             _nulls = new List<string>();
             _variables = new Dictionary<string, object>();
-            foreach (string str in state[elementID])
+            foreach (string str in processInstance.State[elementID])
             {
                 _process.WriteLogLine(elementID, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID }));
-                _variables.Add(str,state[elementID, str]);
+                _variables.Add(str, processInstance.State[elementID, str]);
             }
         }
 
         internal void WriteLogLine(LogLevels level,string message)
         {
-            if (_process != null)
+            if (_processInstance != null)
+                _processInstance.WriteLogLine(_elementID, level, new StackFrame(2, true), DateTime.Now, message);
+            else if (_process != null)
                 _process.WriteLogLine(_elementID, level, new StackFrame(2, true), DateTime.Now, message);
         }
 
         internal void WriteLogLine(LogLevels level,StackFrame stack, DateTime stamp, string message)
         {
-            if (_process!=null)
-                _process.WriteLogLine(_elementID, level, stack, stamp, message); ;
+            if (_processInstance!=null)
+                _processInstance.WriteLogLine(_elementID, level, stack, stamp, message);
+            else if (_process!= null)
+                _process.WriteLogLine(_elementID, level, stack, stamp, message);
         }
 
         public object this[string name]
@@ -74,8 +76,6 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (!found && _process != null)
                     ret = _process[name];
-                else if (!found && BusinessProcess.Current != null)
-                    ret = BusinessProcess.Current[name];
                 return ret;
             }
             set
@@ -116,13 +116,6 @@ namespace Org.Reddragonit.BpmEngine
                 if (_process!=null)
                 {
                     foreach (string key in _process.Keys)
-                    {
-                        if (!ret.Contains(key))
-                            ret.Add(key);
-                    }
-                }else if (BusinessProcess.Current != null)
-                {
-                    foreach (string key in BusinessProcess.Current.Keys)
                     {
                         if (!ret.Contains(key))
                             ret.Add(key);

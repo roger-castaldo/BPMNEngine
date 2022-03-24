@@ -37,13 +37,11 @@ namespace Org.Reddragonit.BpmEngine
         private const int _VARIABLE_IMAGE_WIDTH = _VARIABLE_NAME_WIDTH+_VARIABLE_VALUE_WIDTH;
 
         private Guid _id;
-        private bool _isSuspended = false;
-        private ManualResetEvent _mreSuspend;
         private List<object> _components;
         private Dictionary<string, IElement> _elements;
         private AHandlingEvent[] _eventHandlers = null;
 
-        private IElement _GetElement(string id)
+        internal IElement GetElement(string id)
         {
             if (_elements.ContainsKey(id))
                 return _elements[id];
@@ -78,23 +76,6 @@ namespace Org.Reddragonit.BpmEngine
         /// The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
         /// </summary>
         public XmlDocument Document { get { return _doc; } }
-
-        private ProcessState _state;
-        /// <summary>
-        /// The Process State of the current process
-        /// </summary>
-        public XmlDocument State { get { return _state.Document; } }
-
-        private AutoResetEvent _stateEvent=new AutoResetEvent(true);
-
-        private LogLevels _stateLogLevel = LogLevels.None;
-
-        /// <summary>
-        /// The log level to use inside the state document for logging
-        /// </summary>
-        public LogLevels StateLogLevel { get { return _stateLogLevel; } set { _stateLogLevel = value; } }
-
-        private ManualResetEvent _processLock;
 
         private sProcessRuntimeConstant[] _constants;
         /// <summary>
@@ -146,9 +127,7 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        /// <summary>
-        /// Called to obtain the names of all process runtime and definition constants
-        /// </summary>
+        
         internal string[] Keys
         {
             get
@@ -197,369 +176,28 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        [ThreadStatic()]
-        private static BusinessProcess _current;
-        /// <summary>
-        /// The current Business Process inside the current thread
-        /// </summary>
-        public static BusinessProcess Current { get { return _current; } }
+        private DelegateContainer _delegates;
 
-        #region delegates
-        #region Ons
-        private OnElementEvent _onEventStarted;
-        /// <summary>
-        /// Used to define the Event Started delegate
-        /// </summary>
-        public OnElementEvent OnEventStarted { get { return _onEventStarted; } set { _onEventStarted = value; } }
-
-        private OnElementEvent _onEventCompleted;
-        /// <summary>
-        /// Used to define the Event Completed delegate
-        /// </summary>
-        public OnElementEvent OnEventCompleted {get{return _onEventCompleted;}set{_onEventCompleted = value;}}
-
-        private OnElementEvent _onEventError;
-        /// <summary>
-        /// Used to define the Event Error delegate
-        /// </summary>
-        public OnElementEvent OnEventError {get{return _onEventError;}set{_onEventError=value;}}
-
-        private OnElementEvent _onTaskStarted;
-        /// <summary>
-        /// Used to define the Task Started delegate
-        /// </summary>
-        public OnElementEvent OnTaskStarted {get{return _onTaskStarted;}set{_onTaskStarted=value;}}
-
-        private OnElementEvent _onTaskCompleted;
-        /// <summary>
-        /// Used to define the Task Completed delegate
-        /// </summary>
-        public OnElementEvent OnTaskCompleted {get{return _onTaskCompleted;}set{_onTaskCompleted=value;}}
-        
-        private OnElementEvent _onTaskError;
-        /// <summary>
-        /// Used to define the Task Error delegate
-        /// </summary>
-        public OnElementEvent OnTaskError {get{return _onTaskError;}set{_onTaskError = value;}}
-
-        private OnProcessEvent _onProcessStarted;
-        /// <summary>
-        /// Used to define the Process Started delegate
-        /// </summary>
-        public OnProcessEvent OnProcessStarted {get{return _onProcessStarted;}set{_onProcessStarted=value;}}
-        
-        private OnProcessEvent _onProcessCompleted;
-        /// <summary>
-        /// Used to define the Process Completed delegate
-        /// </summary>
-        public OnProcessEvent OnProcessCompleted {get{return _onProcessCompleted;}set{_onProcessCompleted = value;}}
-
-        private OnProcessErrorEvent _onProcessError;
-        /// <summary>
-        /// Used to define the Process Error delegate
-        /// </summary>
-        public OnProcessErrorEvent OnProcessError { get { return _onProcessError; } set { _onProcessError = value; } }
-
-        private OnFlowComplete _onSequenceFlowCompleted;
-        /// <summary>
-        /// Used to define the Sequence Flow Complete delegate
-        /// </summary>
-        public OnFlowComplete OnSequenceFlowCompleted { get { return _onSequenceFlowCompleted; } set { _onSequenceFlowCompleted = value; } }
-
-        private OnFlowComplete _onMessageFlowCompleted;
-        /// <summary>
-        /// Used to define the Message Flow Complete delegate
-        /// </summary>
-        public OnFlowComplete OnMessageFlowCompleted { get { return _onMessageFlowCompleted; } set { _onMessageFlowCompleted = value; } }
-
-        private OnElementEvent _onGatewayStarted;
-        /// <summary>
-        /// Used to define the Gateway Started delegate
-        /// </summary>
-        public OnElementEvent OnGatewayStarted { get { return _onGatewayStarted; } set { _onGatewayStarted = value; } }
-
-        private OnElementEvent _onGatewayCompleted;
-        /// <summary>
-        /// Used to define the Gateway Completed delegate
-        /// </summary>
-        public OnElementEvent OnGatewayCompleted { get { return _onGatewayCompleted; } set { _onGatewayCompleted = value; } }
-
-        private OnElementEvent _onGatewayError;
-        /// <summary>
-        /// Used to define the Gateway Error delegate
-        /// </summary>
-        public OnElementEvent OnGatewayError { get { return _onGatewayError; } set { _onGatewayError = value; } }
-
-        private OnElementEvent _onSubProcessStarted;
-        /// <summary>
-        /// Used to define the Sub Process Started delegate
-        /// </summary>
-        public OnElementEvent OnSubProcessStarted { get { return _onSubProcessStarted; } set { _onSubProcessStarted = value; } }
-
-        private OnElementEvent _onSubProcessCompleted;
-        /// <summary>
-        /// Used to define the Sub Process Completed delegate
-        /// </summary>
-        public OnElementEvent OnSubProcessCompleted { get { return _onSubProcessCompleted; } set { _onSubProcessCompleted = value; } }
-
-        private OnElementEvent _onSubProcessError;
-        /// <summary>
-        /// Used to define the Sub Process Error delegate
-        /// </summary>
-        public OnElementEvent OnSubProcessError { get { return _onSubProcessError; } set { _onSubProcessError = value; } }
-
-        /// <summary>
-        /// Used to define the State Change delegate
-        /// </summary>
-        public OnStateChange OnStateChange { set { _state.OnStateChange = value; } }
-
-        private OnElementAborted _onStepAborted;
-        /// <summary>
-        /// Used to define the element aborted event delegate
-        /// </summary>
-        public OnElementAborted OnStepAborted { get { return _onStepAborted; } set { _onStepAborted=value; } }
-        #endregion
-
-        #region Validations
-        private static bool _DefaultEventStartValid(IElement Event, IReadonlyVariables variables){return true;}
-        private IsEventStartValid _isEventStartValid = new IsEventStartValid(_DefaultEventStartValid);
-        /// <summary>
-        /// Used to define the Is Event Start Valid delegate
-        /// </summary>
-        public IsEventStartValid IsEventStartValid { get { return _isEventStartValid; } set { _isEventStartValid = value; } }
-
-        private static bool _DefaultProcessStartValid(IElement Event, IReadonlyVariables variables){return true;}
-        private IsProcessStartValid _isProcessStartValid = new IsProcessStartValid(_DefaultProcessStartValid);
-        /// <summary>
-        /// Used to define the Is Process Start Valid delegate
-        /// </summary>
-        public IsProcessStartValid IsProcessStartValid { get { return _isProcessStartValid; } set { _isProcessStartValid = value; } }
-        #endregion
-
-        #region Conditions
-        private static bool _DefaultFlowValid(IElement flow, IReadonlyVariables variables) { return true; }
-        private IsFlowValid _isFlowValid = new IsFlowValid(_DefaultFlowValid);
-        /// <summary>
-        /// Used to define the Is Flow Valid delegate
-        /// </summary>
-        public IsFlowValid IsFlowValid { get { return _isFlowValid; } set { _isFlowValid = value; } }
-        #endregion
-
-        #region Tasks
-        private ProcessTask _processBusinessRuleTask;
-        /// <summary>
-        /// Used to define the Process Business Rule Task delegate
-        /// </summary>
-        public ProcessTask ProcessBusinessRuleTask { get { return _processBusinessRuleTask; } set { _processBusinessRuleTask = value; } }
-
-        private StartManualTask _beginManualTask;
-        /// <summary>
-        /// Used to define the Begin Manual Task delegate
-        /// </summary>
-        public StartManualTask BeginManualTask { get { return _beginManualTask; } set { _beginManualTask = value; } }
-
-        private ProcessTask _processRecieveTask;
-        /// <summary>
-        /// Used to define the Process Recieve Task delegate
-        /// </summary>
-        public ProcessTask ProcessRecieveTask { get { return _processRecieveTask; } set { _processRecieveTask = value; } }
-
-        private ProcessTask _processScriptTask;
-        /// <summary>
-        /// Used to define the Process Script Task delegate
-        /// </summary>
-        public ProcessTask ProcessScriptTask { get { return _processScriptTask; } set { _processScriptTask=value; } }
-
-        private ProcessTask _processSendTask;
-        /// <summary>
-        /// Used to define the Process Send Task delegate
-        /// </summary>
-        public ProcessTask ProcessSendTask { get { return _processSendTask; } set { _processSendTask = value; } }
-
-        private ProcessTask _processServiceTask;
-        /// <summary>
-        /// Used to define the Process Service Task delegate
-        /// </summary>
-        public ProcessTask ProcessServiceTask { get { return _processServiceTask; } set { _processServiceTask = value; } }
-
-        private ProcessTask _processTask;
-        /// <summary>
-        /// Used to define the Process Task delegate
-        /// </summary>
-        public ProcessTask ProcessTask { get { return _processTask; } set { _processTask = value; } }
-
-        private StartUserTask _beginUserTask;
-        /// <summary>
-        /// Used to define the Begin User Task delegate
-        /// </summary>
-        public StartUserTask BeginUserTask { get { return _beginUserTask; } set { _beginUserTask = value; } }
-
-        #region TaskCallBacks
-        public IManualTask GetManualTask(string taskID)
+        internal ATask GetTask(string taskID)
         {
-            IManualTask ret = null;
-            IElement elem = _GetElement(taskID);
-            if (elem != null && elem is ManualTask)
-            {
-                if (_state.Path.GetStatus(taskID)==StepStatuses.Waiting)
-                {
-                    ret = new Org.Reddragonit.BpmEngine.Tasks.ManualTask((ATask)elem,new ProcessVariablesContainer(taskID,_state,this), this);
-                }
-            }
-            return ret;
+            IElement elem = GetElement(taskID);
+            if (elem is ATask)
+                return (ATask)elem;
+            return null;
         }
 
-        public IUserTask GetUserTask(string taskID)
+        internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type)
         {
-            IUserTask ret = null;
-            IElement elem = _GetElement(taskID);
-            if (elem != null && elem is UserTask)
-            {
-                if (_state.Path.GetStatus(taskID)==StepStatuses.Waiting)
-                {
-                    ret = new Org.Reddragonit.BpmEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, _state, this), this);
-                }
-            }
-            return ret;
-        }
-
-        private void _HandleTaskEmission(ITask task,object data,EventSubTypes type)
-        {
-            AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)_GetElement(task.id), new ReadOnlyProcessVariablesContainer(task));
+            AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task));
             foreach (AHandlingEvent ahe in events)
             {
-                _ProcessEvent(task.id, ahe);
+                ProcessEvent(instance,task.id, ahe);
             }
         }
-
-        internal void EmitTaskMessage(ITask task, string message) {
-            _HandleTaskEmission(task, message, EventSubTypes.Message);
-        }
-
-        internal void EscalateTask(ITask task) {
-            _HandleTaskEmission(task, null, EventSubTypes.Escalation);
-        }
-
-        internal void EmitTaskSignal(ITask task, string signal) {
-            _HandleTaskEmission(task, signal, EventSubTypes.Signal);
-        }
-
-        internal void CompleteTask(IManualTask task)
-        {
-            bool success = false;
-            IElement elem = _GetElement(task.id);
-            if (elem != null && elem is ATask)
-            {
-                if (task is IUserTask)
-                    _MergeVariables((UserTask)elem, task, ((IUserTask)task).UserID);
-                else
-                    _MergeVariables((ATask)elem, task);
-                success = true;
-            }
-            if (!success)
-                throw new Exception(string.Format("Unable to locate task with id {0}", task.id));
-        }
-        internal void ErrorTask(ITask task, Exception ex)
-        {
-            bool success = false;
-            IElement elem = _GetElement(task.id);
-            if (elem != null && elem is ATask)
-            {
-                if (_onTaskError != null)
-                    _onTaskError((ATask)elem, new ReadOnlyProcessVariablesContainer(elem.id, _state, this, ex));
-                _stateEvent.WaitOne();
-                _state.Path.FailTask((ATask)elem, ex);
-                _stateEvent.Set();
-                success = true;
-            }
-            if (!success)
-                throw new Exception(string.Format("Unable to locate task with id {0}", task.id));
-        }
-
-        
-        #endregion
-
-        #endregion
-
-        #region Logging
-        private LogLine _logLine;
-        /// <summary>
-        /// Used to define the Log Line delegate
-        /// </summary>
-        public LogLine LogLine { get { return _logLine; }set { _logLine = value; } }
-
-        private LogException _logException;
-        /// <summary>
-        /// Used to define the Log Exception delegate
-        /// </summary>
-        public LogException LogException { get { return _logException; }set { _logException = value; } }
-        #endregion
-
-        #endregion
 
         private BusinessProcess() {
             _id = Utility.NextRandomGuid();
-            _processLock = new ManualResetEvent(false);
-            _mreSuspend = new ManualResetEvent(false);
         }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition only
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        public BusinessProcess(XmlDocument doc)
-            :this(doc,LogLevels.None) { }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition and LogLine delegate
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="logLine">The LogLine delegate</param>
-        public BusinessProcess(XmlDocument doc,LogLine logLine)
-            : this(doc, LogLevels.None,logLine) { }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition and runtime constants
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
-        public BusinessProcess(XmlDocument doc,sProcessRuntimeConstant[] constants)
-            : this(doc, LogLevels.None,constants) { }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition, runtime constants and the LogLine delegate
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
-        /// <param name="logLine">The LogLine delegate</param>
-        public BusinessProcess(XmlDocument doc, sProcessRuntimeConstant[] constants,LogLine logLine)
-            : this(doc, LogLevels.None, constants,logLine) { }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition and StateLogLevel
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
-        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel)
-            : this(doc, stateLogLevel, null,null) { }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition, the StateLogLevel and the LogLine delegate
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
-        /// <param name="logLine">The LogLine delegate</param>
-        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,LogLine logLine)
-            : this(doc, stateLogLevel, null,logLine) { }
-
-        /// <summary>
-        /// Creates a new instance of the BusinessProcess passing it the definition, the StateLogLevel and runtime constants
-        /// </summary>
-        /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
-        /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
-        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel, sProcessRuntimeConstant[] constants)
-            : this(doc, stateLogLevel, constants, null) { }
 
         /// <summary>
         /// Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
@@ -567,19 +205,457 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
         /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
         /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
-        /// <param name="logLine">The LogLine delegate</param>
-        public BusinessProcess(XmlDocument doc, LogLevels stateLogLevel,sProcessRuntimeConstant[] constants,LogLine logLine)
+        /// <param name="logLine">The LogLine delegate called to append a log line entry from the process</param>
+        /// <param name="logException">The LogException delegate called to append a logged exception from the process</param>
+        /// <param name="onEventStarted">
+        /// The OnEventStarted delegate called when an event starts
+        /// <code>
+        /// public void OnEventStarted(IStepElement Event, IReadonlyVariables variables);{
+        ///     Console.WriteLine("Event {0} inside process {1} has been started with the following variables:",Event.id,Event.Process.id);
+        ///     foreach (string key in variables.FullKeys){
+        ///         Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///     }
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="onEventCompleted">
+        /// The OnEventCompleted delegate called when an event completes
+        /// <code>
+        /// public void OnEventCompleted(IStepElement Event, IReadonlyVariables variables){
+        ///     Console.WriteLine("Event {0} inside process {1} has completed with the following variables:",Event.id,Event.Process.id);
+        ///     foreach (string key in variables.FullKeys){
+        ///         Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///     }
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="onEventError">
+        /// The OnEventError delegate called when an Event has an error
+        /// <code>
+        ///     public void OnEventError(IStepElement Event, IReadonlyVariables variables){
+        ///         Console.WriteLine("Event {0} inside process {1} had the error {2} occur with the following variables:",new object[]{Event.id,Event.Process.id,variables.Error.Message});
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onTaskStarted">
+        /// The OnTaskStarted delegate called when an Task starts
+        /// <code>
+        /// public void OnTaskStarted(IStepElement task, IReadonlyVariables variables){
+        ///         Console.WriteLine("Task {0} inside process {1} has been started with the following variables:",task.id,task.Process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onTaskCompleted">
+        /// The OnTaskCompleted delegate called when an Task completes
+        /// <code>
+        /// public void OnTaskCompleted(IStepElement task, IReadonlyVariables variables)
+        ///         Console.WriteLine("Task {0} inside process {1} has completed with the following variables:",task.id,task.Process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onTaskError">
+        /// The OnTaskError delegate called when an Task has an error
+        /// <code>
+        ///     public void OnTaskError(IStepElement task, IReadonlyVariables variables){
+        ///         Console.WriteLine("Task {0} inside process {1} had the error {2} occur with the following variables:",new object[]{task.id,Event.task.id,variables.Error.Message});
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onProcessStarted">
+        /// The OnProcessStarted delegate called when an Process starts
+        /// <code>
+        /// public void OnProcessStarted(IElement process, IReadonlyVariables variables){
+        ///         Console.WriteLine("Process {0} has been started with the following variables:",process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onProcessCompleted">
+        /// The OnProcessCompleted delegate called when an Process completes
+        /// <code>
+        /// public void OnProcessCompleted(IElement process, IReadonlyVariables variables){
+        ///         Console.WriteLine("Process {0} has completed with the following variables:",process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onProcessError">
+        /// The OnProcessError delegate called when an Process has an error
+        /// <code>
+        /// public void OnProcessError(IElement process, IElement sourceElement, IReadonlyVariables variables){
+        ///         Console.WriteLine("Element {0} inside process {1} had the error {2} occur with the following variables:",new object[]{sourceElement.id,process.id,variables.Error.Message});
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onSequenceFlowCompleted">
+        /// The OnSequenceFlowCompleted delegate called when a sequence flow completes
+        /// <code>
+        /// public void OnSequenceFlowCompleted(IElement flow, IReadonlyVariables variables){
+        ///         Console.WriteLine("Sequence Flow {0} has been completed with the following variables:",flow.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onMessageFlowCompleted">
+        /// The OnMessageFlowCompleted delegate called when a message flow completes
+        /// <code>
+        /// public void OnMessageFlowCompleted(IElement flow, IReadonlyVariables variables){
+        ///         Console.WriteLine("Message Flow {0} has been completed with the following variables:",flow.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onGatewayStarted">
+        /// The OnGatewayStarted delegate called when an Gateway starts
+        /// <code>
+        ///     public void OnGatewayStarted(IStepElement gateway, IReadonlyVariables variables){
+        ///         Console.WriteLine("Gateway {0} inside process {1} has been started with the following variables:",gateway.id,gateway.Process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onGatewayCompleted">
+        /// The OnGatewayCompleted delegate called when an Gateway completes
+        /// <code>
+        /// public void OnGatewayCompleted(IStepElement gateway, IReadonlyVariables variables){
+        ///         Console.WriteLine("Gateway {0} inside process {1} has completed with the following variables:",gateway.id,gateway.Process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onGatewayError">
+        /// The OnGatewayError delegate called when an Gateway has an error
+        /// <code>
+        /// public void OnGatewayError(IStepElement gateway, IReadonlyVariables variables){
+        ///         Console.WriteLine("Gateway {0} inside process {1} had the error {2} occur with the following variables:",new object[]{gateway.id,gateway.Process.id,variables.Error.Message});
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onSubProcessStarted">
+        /// The OnSubProcessStarted delegate called when an SubProcess starts
+        /// <code>
+        ///  public void OnSubProcessStarted(IStepElement SubProcess, IReadonlyVariables variables){
+        ///         Console.WriteLine("Sub Process {0} inside process {1} has been started with the following variables:",SubProcess.id,SubProcess.Process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onSubProcessCompleted">
+        /// The OnSubProcessCompleted delegate called when an SubProcess completes
+        /// <code>
+        /// public void OnSubProcessCompleted(IStepElement SubProcess, IReadonlyVariables variables){
+        ///         Console.WriteLine("Sub Process {0} inside process {1} has completed with the following variables:",SubProcess.id,SubProcess.Process.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onSubProcessError">
+        /// The OnSubProcessError delegate called when an SubProcess has an error
+        /// <code>
+        /// public void OnSubProcessError(IStepElement SubProcess, IReadonlyVariables variables){
+        ///         Console.WriteLine("Sub Process {0} inside process {1} had the error {2} occur with the following variables:",new object[]{SubProcess.id,SubProcess.Process.id,variables.Error.Message});
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onStateChange">
+        /// The OnStateChange delegate called when the process state document has changed
+        /// <code>
+        /// public void OnStateChange(XmlDocument stateDocument){
+        ///         Console.WriteLine("Current Process State: \n{0}",stateDocument.OuterXML);
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="onElementAborted">
+        /// The OnElementAborted delegate called when an element is aborted within the process
+        /// <code>
+        /// public void OnStepAborted(IElement element, IElement source, IReadonlyVariables variables){
+        ///         Console.WriteLine("Element {0} inside process {1} has been aborted by {2} with the following variables:",element.id,element.Process.id,source.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// <param name="isEventStartValid">
+        /// The IsEventStartValid delegate called to validate if an event can start
+        /// <code>
+        /// <![CDATA[
+        /// XML:
+        /// <bpmn:startEvent id="StartEvent_0ikjhwl">
+        ///  <bpmn:extensionElements>
+        ///    <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+        ///  </bpmn:extensionElements>
+        ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+        /// </bpmn:startEvent>
+        /// ]]>
+        /// 
+        /// public bool IsEventStartValid(IStepElement Event, IVariables variables){
+        ///     if (Event.ExtensionElement != null){
+        ///         foreach (XmlNode xn in Event.ExtensionElement.SubNodes){
+        ///             if (xn.NodeType == XmlNodeType.Element)
+        ///             {
+        ///                 if (xn.Name=="DateRange"){
+        ///                     return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+        ///                 }
+        ///             }
+        ///         }
+        ///     }
+        ///     return true;
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="isProcessStartValid">
+        /// The IsProcessStartValid delegate called to validate if a process is valid to start
+        /// <code>
+        /// <![CDATA[
+        /// XML:
+        /// <bpmn:process id="Process_1" isExecutable="false">
+        ///  ...
+        ///  <bpmn:extensionElements>
+        ///    <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+        ///  </bpmn:extensionElements>
+        /// </bpmn:process>
+        /// ]]>
+        /// 
+        /// public bool IsProcessStartValid(IElement process, IVariables variables){
+        ///     if (process.ExtensionElement != null){
+        ///         foreach (XmlNode xn in process.ExtensionElement.SubNodes){
+        ///             if (xn.NodeType == XmlNodeType.Element)
+        ///             {
+        ///                 if (xn.Name=="DateRange"){
+        ///                     return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+        ///                 }
+        ///             }
+        ///         }
+        ///     }
+        ///     return true;
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="isFlowValid">
+        /// The IsFlowValid delegate called to validate if a flow is valid to run
+        /// <code>
+        /// <![CDATA[
+        /// XML:
+        /// <bpmn:outgoing>SequenceFlow_1jma3bu
+        ///  <bpmn:extensionElements>
+        ///    <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+        ///  </bpmn:extensionElements>
+        /// </bpmn:outgoing>
+        /// ]]>
+        /// 
+        /// public bool IsFlowValid(IElement flow, IVariables variables){
+        ///     if (flow.ExtensionElement != null){
+        ///         foreach (XmlNode xn in flow.ExtensionElement.SubNodes){
+        ///             if (xn.NodeType == XmlNodeType.Element)
+        ///             {
+        ///                 if (xn.Name=="DateRange"){
+        ///                     return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+        ///                 }
+        ///             }
+        ///         }
+        ///     }
+        ///     return true;
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="processBusinessRuleTask">
+        /// The ProcessBusinessRuleTask delegate called to execute a Business Rule Task
+        /// <code>
+        /// <![CDATA[
+        /// XML:
+        /// <bpmn:businessRuleTask id="BusinessRule_0ikjhwl">
+        ///  <bpmn:extensionElements>
+        ///    <Analysis outputVariable="averageCost" inputs="Cost" formula="Average"/>
+        ///    <Analysis outputVariable="totalQuantity" inputs="Quantity" formula="Sum"/>
+        ///  </bpmn:extensionElements>
+        ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+        /// </bpmn:startEvent>
+        /// ]]>
+        /// 
+        /// public void ProcessBusinessRuleTask(ITask task)
+        ///     if (task.ExtensionElement != null){
+        ///         foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+        ///             if (xn.NodeType == XmlNodeType.Element)
+        ///             {
+        ///                 if (xn.Name=="Analysis"){
+        ///                     switch(xn.Attributes["formula"].Value){
+        ///                         case "Average":
+        ///                             decimal avgSum=0;
+        ///                             decimal avgCount=0;
+        ///                             foreach (Hashtable item in task["Items"]){
+        ///                                 if (item.ContainsKey(xn.Attributes["inputs"].Value)){
+        ///                                     avgSum+=(decimal)item[xn.Attributes["inputs"].Value];
+        ///                                     avgCount++;
+        ///                                 }
+        ///                             }
+        ///                             task[xn.Attriubtes["outputVariable"].Value] = avgSum/avgCount;
+        ///                             break;
+        ///                         case "Sum":
+        ///                             decimal sum=0;
+        ///                             foreach (Hashtable item in task["Items"]){
+        ///                                 if (item.ContainsKey(xn.Attributes["inputs"].Value)){
+        ///                                     sum+=(decimal)item[xn.Attributes["inputs"].Value];
+        ///                                 }
+        ///                             }
+        ///                             task[xn.Attriubtes["outputVariable"].Value] = sum;
+        ///                             break;
+        ///                     }
+        ///                 }
+        ///             }
+        ///         }
+        ///     }
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="beginManualTask">
+        /// The BeginManualTask delegate called to start a Manual Task
+        /// <code>
+        /// <![CDATA[
+        /// XML:
+        /// <bpmn:manualTask id="ManualTask_0ikjhwl">
+        ///  <bpmn:extensionElements>
+        ///    <Question prompt="What is the answer to the life, universe and everything" answer_property="answer"/>
+        ///  </bpmn:extensionElements>
+        ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+        /// </bpmn:startEvent>
+        /// ]]>
+        /// 
+        /// public void BeginManualTask(IManualTask task)
+        ///     if (task.ExtensionElement != null){
+        ///         foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+        ///             if (xn.NodeType == XmlNodeType.Element)
+        ///             {
+        ///                 if (xn.Name=="Question"){
+        ///                     Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
+        ///                     task[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+        ///                 }
+        ///             }
+        ///         }
+        ///     }
+        ///     task.MarkComplete();
+        /// }
+        /// </code>
+        /// </param>
+        /// <param name="processRecieveTask">The ProcessRecieveTask delegate called to execute a Recieve Task</param>
+        /// <param name="processScriptTask">The ProcessScriptTask delegate called to execute a Script Task.  This is called after any internal script extension elements have been processed.</param>
+        /// <param name="processSendTask">The ProcessSendTask delegate called to exeucte a Send Task.</param>
+        /// <param name="processServiceTask">The ProcessServiceTask delegate called to execute a Service Task</param>
+        /// <param name="processTask">The ProcessTask delegate called to execute a Task</param>
+        /// <param name="beginUserTask">
+        /// The BeginUserTask delegate called to start a User Task
+        /// <code>
+        /// <![CDATA[
+        /// XML:
+        /// <bpmn:userTask id="UserTask_0ikjhwl">
+        ///  <bpmn:extensionElements>
+        ///    <Question prompt="What is the answer to the life, universe and everything" answer_property="answer"/>
+        ///  </bpmn:extensionElements>
+        ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+        /// </bpmn:startEvent>
+        /// ]]>
+        /// 
+        /// public void BeginUserTask(IUserTask task)
+        ///     if (task.ExtensionElement != null){
+        ///         foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+        ///             if (xn.NodeType == XmlNodeType.Element)
+        ///             {
+        ///                 if (xn.Name=="Question"){
+        ///                     Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
+        ///                     task[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+        ///                     Console.WriteLine("Who Are You?");
+        ///                     task.UserID = Console.ReadLine();
+        ///                 }
+        ///             }
+        ///         }
+        ///     }
+        ///     task.MarkComplete();
+        /// }
+        /// </code>
+        /// </param>
+        public BusinessProcess(XmlDocument doc, 
+            sProcessRuntimeConstant[] constants = null,
+            LogLine logLine = null,
+            LogException logException = null,
+            OnElementEvent onEventStarted = null,
+            OnElementEvent onEventCompleted = null,
+            OnElementEvent onEventError=null,
+            OnElementEvent onTaskStarted=null,
+            OnElementEvent onTaskCompleted=null,
+            OnElementEvent onTaskError=null,
+            OnProcessEvent onProcessStarted=null,
+            OnProcessEvent onProcessCompleted=null,
+            OnProcessErrorEvent onProcessError=null,
+            OnFlowComplete onSequenceFlowCompleted=null,
+            OnFlowComplete onMessageFlowCompleted=null,
+            OnElementEvent onGatewayStarted=null,
+            OnElementEvent onGatewayCompleted=null,
+            OnElementEvent onGatewayError=null,
+            OnElementEvent onSubProcessStarted=null,
+            OnElementEvent onSubProcessCompleted=null,
+            OnElementEvent onSubProcessError=null,
+            OnStateChange onStateChange=null,
+            OnElementAborted onElementAborted=null,
+            IsEventStartValid isEventStartValid=null,
+            IsProcessStartValid isProcessStartValid=null,
+            IsFlowValid isFlowValid=null,
+            ProcessTask processBusinessRuleTask=null,
+            StartManualTask beginManualTask=null,
+            ProcessTask processRecieveTask=null,
+            ProcessTask processScriptTask=null,
+            ProcessTask processSendTask=null,
+            ProcessTask processServiceTask=null,
+            ProcessTask processTask=null,
+            StartUserTask beginUserTask=null
+            )
         {
             _id = Utility.NextRandomGuid();
-            _stateLogLevel = stateLogLevel;
             _constants = constants;
-            _logLine = logLine;
+            _delegates = new DelegateContainer(logLine, logException, onEventStarted, onEventCompleted, onEventError, onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError, onSequenceFlowCompleted, onMessageFlowCompleted,
+                onGatewayStarted, onGatewayCompleted, onGatewayError, onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid, isProcessStartValid, isFlowValid, processBusinessRuleTask,
+                beginManualTask, processRecieveTask, processScriptTask, processSendTask, processServiceTask, processTask, beginUserTask);
+
+
             List<Exception> exceptions = new List<Exception>();
-            _processLock = new ManualResetEvent(false);
-            _mreSuspend = new ManualResetEvent(false);
             _doc = new XmlDocument();
             _doc.LoadXml(doc.OuterXml);
-            _current = this;
             BpmEngine.ElementTypeCache elementMapCache = new BpmEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
             WriteLogLine((IElement)null,LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
@@ -624,6 +700,7 @@ namespace Org.Reddragonit.BpmEngine
                 if (!found)
                     exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             }
+            _InitDefinition();
             if (exceptions.Count == 0)
             {
                 foreach (IElement elem in _Elements)
@@ -642,10 +719,7 @@ namespace Org.Reddragonit.BpmEngine
                     tmp.Add((AHandlingEvent)_elements[str]);
             }
             _eventHandlers = tmp.ToArray();
-            
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
-            _state = new ProcessState(this,new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError));
-            _InitDefinition();
         }
 
         private void _InitDefinition()
@@ -688,90 +762,111 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         /// <summary>
-        /// Called to load the process state from an XmlDocument
-        /// </summary>
-        /// <param name="doc">The process state document</param>
-        /// <returns>true if succeeded or false if failed</returns>
-        public bool LoadState(XmlDocument doc)
-        {
-            return LoadState(doc, false);
-        }
-
-        /// <summary>
-        /// Called to load the process state from an XmlDocument
+        /// Called to load a Process Instance from a stored State Document
         /// </summary>
         /// <param name="doc">The process state document</param>
         /// <param name="autoResume">set true if the process was suspended and needs to resume once loaded</param>
-        /// <returns>true if successed or false if failed</returns>
-        public bool LoadState(XmlDocument doc,bool autoResume)
+        /// <param name="logLine">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="logException">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onEventStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onEventCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onEventError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onTaskStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onTaskCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onTaskError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onProcessStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onProcessCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onProcessError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSequenceFlowCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onMessageFlowCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onGatewayStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onGatewayCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onGatewayError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSubProcessStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSubProcessCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSubProcessError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onStateChange">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onElementAborted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="isEventStartValid">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="isProcessStartValid">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="isFlowValid">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processBusinessRuleTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="beginManualTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processRecieveTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processScriptTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processSendTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processServiceTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="beginUserTask">Used to replace existing process delegate specific for this instance</param>
+        /// <returns>an instance of IProcessInstance if successful or null it failed</returns>
+        public IProcessInstance LoadState(XmlDocument doc,
+            bool autoResume=false,
+            LogLine logLine = null,
+            LogException logException = null,
+            OnElementEvent onEventStarted = null,
+            OnElementEvent onEventCompleted = null,
+            OnElementEvent onEventError = null,
+            OnElementEvent onTaskStarted = null,
+            OnElementEvent onTaskCompleted = null,
+            OnElementEvent onTaskError = null,
+            OnProcessEvent onProcessStarted = null,
+            OnProcessEvent onProcessCompleted = null,
+            OnProcessErrorEvent onProcessError = null,
+            OnFlowComplete onSequenceFlowCompleted = null,
+            OnFlowComplete onMessageFlowCompleted = null,
+            OnElementEvent onGatewayStarted = null,
+            OnElementEvent onGatewayCompleted = null,
+            OnElementEvent onGatewayError = null,
+            OnElementEvent onSubProcessStarted = null,
+            OnElementEvent onSubProcessCompleted = null,
+            OnElementEvent onSubProcessError = null,
+            OnStateChange onStateChange = null,
+            OnElementAborted onElementAborted = null,
+            IsEventStartValid isEventStartValid = null,
+            IsProcessStartValid isProcessStartValid = null,
+            IsFlowValid isFlowValid = null,
+            ProcessTask processBusinessRuleTask = null,
+            StartManualTask beginManualTask = null,
+            ProcessTask processRecieveTask = null,
+            ProcessTask processScriptTask = null,
+            ProcessTask processSendTask = null,
+            ProcessTask processServiceTask = null,
+            ProcessTask processTask = null,
+            StartUserTask beginUserTask = null,
+            LogLevels stateLogLevel=LogLevels.None)
         {
-            _current = this;
-            if (_state.Load(doc))
-            {
-                WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
-                _isSuspended = _state.IsSuspended;
-                if (autoResume&&_isSuspended)
-                    Resume();
-                return true;
-            }
-            return false;
+            ProcessInstance ret = new ProcessInstance(this, _delegates.Merge(logLine, logException, onEventStarted, onEventCompleted, onEventError,
+                onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError,
+                onSequenceFlowCompleted, onMessageFlowCompleted, onGatewayStarted, onGatewayCompleted, onGatewayError,
+                onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid,
+                isProcessStartValid, isFlowValid, processBusinessRuleTask, beginManualTask, processRecieveTask, processScriptTask,
+                processSendTask, processServiceTask, processTask, beginUserTask), stateLogLevel);
+            if (ret.LoadState(doc, autoResume))
+                return ret;
+            return null;
         }
 
         /// <summary>
-        /// Called to Resume a suspended process.  Will fail if the process is not currently suspended.
-        /// </summary>
-        public void Resume()
-        {
-            _current = this;
-            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
-            if (_isSuspended)
-            {
-                _isSuspended = false;
-                sSuspendedStep[] resumeSteps = _state.ResumeSteps;
-                _state.Resume();
-                if (resumeSteps != null)
-                {
-                    foreach (sSuspendedStep ss in resumeSteps)
-                        _ProcessStepComplete(ss.IncomingID, ss.ElementID);
-                }
-                foreach (sStepSuspension ss in _state.SuspendedSteps)
-                {
-                    if (DateTime.Now.Ticks < ss.EndTime.Ticks)
-                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), this, (AEvent)_GetElement(ss.id));
-                    else
-                        CompleteTimedEvent((AEvent)_GetElement(ss.id));
-                }
-                foreach (sDelayedStartEvent sdse in _state.DelayedEvents)
-                {
-                    if (sdse.Delay.Ticks<0)
-                        _ProcessEvent(sdse.IncomingID, (AEvent)_GetElement(sdse.ElementID));
-                    else
-                        Utility.DelayStart(sdse.Delay, this, (BoundaryEvent)_GetElement(sdse.ElementID), sdse.IncomingID);
-                }
-                WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
-            }
-            else
-            {
-                Exception ex = new NotSuspendedException();
-                WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
-                throw ex;
-            }
-        }
-
-        /// <summary>
-        /// Called to render a PNG image of the process at its current state
+        /// Called to render a PNG image of the process
         /// </summary>
         /// <param name="outputVariables">Set true to include outputting variables into the image</param>
-        /// <returns>A Bitmap containing a rendered image of the process at its current state</returns>
-        public byte[] Diagram(bool outputVariables, ImageOuputTypes type)
+        /// <returns>A Bitmap containing a rendered image of the process</returns>
+        public byte[] Diagram(ImageOuputTypes type)
         {
-            return _Diagram(outputVariables).ToFile(type);
+            return _Diagram(false,null).ToFile(type);
         }
 
-        private Image _Diagram(bool outputVariables)
+        internal byte[] Diagram(bool outputVariables,ProcessState state, ImageOuputTypes type)
+        {
+            return _Diagram(outputVariables, state).ToFile(type);
+        }
+
+        private Image _Diagram(bool outputVariables, ProcessState state)
         {
             if (!Image.CanUse)
                 throw new Exception("Unable to produce a Diagram or Animated Diagram as there is no valid Drawing Assembly Loaded, please add either System.Drawing.Common or SkiaSharp");
+            if (state==null)
+                state = new ProcessState(this, null, null,null);
             WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             int width = 0;
             int height = 0;
@@ -796,21 +891,21 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     foreach (Diagram d in ((Definition)elem).Diagrams)
                     {
-                        ret.DrawImage(d.Render(_state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
+                        ret.DrawImage(d.Render(state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
                         padding += d.Size.Height + _DEFAULT_PADDING;
                     }
                 }
             }
             if (outputVariables)
-                ret = _AppendVariables(ret);
+                ret = _AppendVariables(ret,state);
             return ret;
         }
 
-        private Image _ProduceVariablesImage(Image diagram)
+        private Image _ProduceVariablesImage(Image diagram,ProcessState state)
         {
             Size sz = diagram.MeasureString("Variables");
             int varHeight = (int)sz.Height + 2;
-            string[] keys = _state[null];
+            string[] keys = state[null];
             foreach (string str in keys)
                 varHeight += (int)diagram.MeasureString(str,null).Height + 2;
             Image ret = new Image(_VARIABLE_IMAGE_WIDTH, varHeight);
@@ -834,24 +929,24 @@ namespace Org.Reddragonit.BpmEngine
                     szLabel = ret.MeasureString(label);
                 }
                 string val = "";
-                if (_state[null, keys[x]] != null)
+                if (state[null, keys[x]] != null)
                 {
-                    if (_state[null, keys[x]].GetType().IsArray)
+                    if (state[null, keys[x]].GetType().IsArray)
                     {
                         val = "";
-                        foreach (object o in (IEnumerable)_state[null, keys[x]])
+                        foreach (object o in (IEnumerable)state[null, keys[x]])
                             val += string.Format("{0},", o);
                         val = val.Substring(0, val.Length - 1);
                     }
-                    else if (_state[null, keys[x]] is Hashtable)
+                    else if (state[null, keys[x]] is Hashtable)
                     {
                         val = "{";
-                        foreach (string key in ((Hashtable)_state[null, keys[x]]).Keys)
-                            val += string.Format("{{\"{0}\":\"{1}\"}},", key, ((Hashtable)_state[null, keys[x]])[key]);
+                        foreach (string key in ((Hashtable)state[null, keys[x]]).Keys)
+                            val += string.Format("{{\"{0}\":\"{1}\"}},", key, ((Hashtable)state[null, keys[x]])[key]);
                         val = val.Substring(0, val.Length - 1) + "}";
                     }
                     else
-                        val = _state[null, keys[x]].ToString();
+                        val = state[null, keys[x]].ToString();
                 }
                 Size szValue = ret.MeasureString(val);
                 if (szValue.Width > _VARIABLE_VALUE_WIDTH)
@@ -871,9 +966,9 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        private Image _AppendVariables(Image diagram)
+        private Image _AppendVariables(Image diagram,ProcessState state)
         {
-            Image vmap = _ProduceVariablesImage(diagram);
+            Image vmap = _ProduceVariablesImage(diagram,state);
             Image ret = new Image(diagram.Size.Width + _DEFAULT_PADDING + vmap.Size.Width, Math.Max(diagram.Size.Height, vmap.Size.Height + _DEFAULT_PADDING));
             ret.Clear(Color.White);
             ret.DrawImage(diagram, new Point(0, 0));
@@ -882,25 +977,19 @@ namespace Org.Reddragonit.BpmEngine
             return ret;
         }
 
-        /// <summary>
-        /// Called to render an animated version of the process (output in GIF format).  This will animate each step of the process using the current state.
-        /// </summary>
-        /// <param name="outputVariables">Set true to output the variables into the diagram</param>
-        /// <returns>a binary array of data containing the animated GIF</returns>
-        public byte[] Animate(bool outputVariables)
+        internal byte[] Animate(bool outputVariables,ProcessState state)
         {
-            _current = this;
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             MemoryStream ms = new MemoryStream();
             using (Drawing.GifEncoder enc = new Drawing.GifEncoder(ms))
             {
                 enc.FrameDelay = _ANIMATION_DELAY;
-                _state.Path.StartAnimation();
-                Image bd = _Diagram(false);
-                enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd) : bd)) });
-                while (_state.Path.HasNext())
+                state.Path.StartAnimation();
+                Image bd = _Diagram(false,state);
+                enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd,state) : bd)) });
+                while (state.Path.HasNext())
                 {
-                    string nxtStep = _state.Path.MoveToNextStep();
+                    string nxtStep = state.Path.MoveToNextStep();
                     if (nxtStep != null)
                     {
                         List<Drawing.GifEncoder.sFramePart> frames = new List<Drawing.GifEncoder.sFramePart>();
@@ -914,7 +1003,7 @@ namespace Org.Reddragonit.BpmEngine
                                 {
                                     if (d.RendersElement(nxtStep))
                                     {
-                                        Image img = d.RenderElement(_state.Path, (Definition)elem, nxtStep, out rect);
+                                        Image img = d.RenderElement(state.Path, (Definition)elem, nxtStep, out rect);
                                         if (rect!=null)
                                         {
                                             frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.X, padding+(int)rect.Y));
@@ -927,182 +1016,124 @@ namespace Org.Reddragonit.BpmEngine
                             }
                         }
                         if (outputVariables)
-                            frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(bd), bd.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
+                            frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(bd,state), bd.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
                         enc.AddFrame(frames.ToArray());
                     }
                 }
-                _state.Path.FinishAnimation();
+                state.Path.FinishAnimation();
             }
             return ms.ToArray();
         }
 
         /// <summary>
-        /// Called to clone a new instance of the process.  This would be used for efficincy when executing multiple instances since this will have already read and loaded the definition.
+        /// Called to start and instance of the defined BusinessProcess
         /// </summary>
-        /// <param name="includeState">Set true to include the current process state</param>
-        /// <param name="includeDelegates">Set true to include all the delegates</param>
-        /// <returns>A new instance of the current BusinessProcess with the process defintion already loaded</returns>
-        public BusinessProcess Clone(bool includeState,bool includeDelegates)
+        /// <param name="pars">The variables to start the process with</param>
+        /// <param name="logLine">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="logException">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onEventStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onEventCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onEventError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onTaskStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onTaskCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onTaskError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onProcessStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onProcessCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onProcessError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSequenceFlowCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onMessageFlowCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onGatewayStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onGatewayCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onGatewayError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSubProcessStarted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSubProcessCompleted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onSubProcessError">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onStateChange">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="onElementAborted">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="isEventStartValid">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="isProcessStartValid">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="isFlowValid">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processBusinessRuleTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="beginManualTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processRecieveTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processScriptTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processSendTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processServiceTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="processTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="beginUserTask">Used to replace existing process delegate specific for this instance</param>
+        /// <returns>a process instance if the process was successfully started</returns>
+        public IProcessInstance BeginProcess(Dictionary<string,object> pars,
+            LogLine logLine = null,
+            LogException logException = null,
+            OnElementEvent onEventStarted = null,
+            OnElementEvent onEventCompleted = null,
+            OnElementEvent onEventError = null,
+            OnElementEvent onTaskStarted = null,
+            OnElementEvent onTaskCompleted = null,
+            OnElementEvent onTaskError = null,
+            OnProcessEvent onProcessStarted = null,
+            OnProcessEvent onProcessCompleted = null,
+            OnProcessErrorEvent onProcessError = null,
+            OnFlowComplete onSequenceFlowCompleted = null,
+            OnFlowComplete onMessageFlowCompleted = null,
+            OnElementEvent onGatewayStarted = null,
+            OnElementEvent onGatewayCompleted = null,
+            OnElementEvent onGatewayError = null,
+            OnElementEvent onSubProcessStarted = null,
+            OnElementEvent onSubProcessCompleted = null,
+            OnElementEvent onSubProcessError = null,
+            OnStateChange onStateChange = null,
+            OnElementAborted onElementAborted = null,
+            IsEventStartValid isEventStartValid = null,
+            IsProcessStartValid isProcessStartValid = null,
+            IsFlowValid isFlowValid = null,
+            ProcessTask processBusinessRuleTask = null,
+            StartManualTask beginManualTask = null,
+            ProcessTask processRecieveTask = null,
+            ProcessTask processScriptTask = null,
+            ProcessTask processSendTask = null,
+            ProcessTask processServiceTask = null,
+            ProcessTask processTask = null,
+            StartUserTask beginUserTask = null,
+            LogLevels stateLogLevel = LogLevels.None)
         {
-            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Cloning Business Process {0} {1}",new object[] {
-                (includeState ? "including state":"without state"),
-                (includeDelegates ? "including delegates" : "without delegates")
-            }));
-            BusinessProcess ret = new BusinessProcess();
-            ret._doc = _doc;
-            ret._components = new List<object>(_components.ToArray());
-            ret._eventHandlers = new List<AHandlingEvent>(_eventHandlers).ToArray();
-            ret._InitDefinition();
-            ret._constants = _constants;
-            ret._elements = _elements;
-            ret._stateLogLevel = _stateLogLevel;
-            if (includeState)
-                ret._state = _state;
-            else
-                ret._state = new ProcessState(ret,new ProcessStepComplete(ret._ProcessStepComplete), new ProcessStepError(ret._ProcessStepError));
-            if (includeDelegates)
-            {
-                ret.OnEventStarted = OnEventStarted;
-                ret.OnEventCompleted = OnEventCompleted;
-                ret.OnEventError = OnEventError;
-                ret.OnTaskStarted = OnTaskStarted;
-                ret.OnTaskCompleted = OnTaskCompleted;
-                ret.OnTaskError = OnTaskError;
-                ret.OnProcessStarted = OnProcessStarted;
-                ret.OnProcessCompleted = OnProcessCompleted;
-                ret.OnProcessError = OnProcessError;
-                ret.OnSubProcessStarted = OnSubProcessStarted;
-                ret.OnSubProcessCompleted = OnSubProcessCompleted;
-                ret.OnSubProcessError = OnSubProcessError;
-                ret.OnSequenceFlowCompleted = OnSequenceFlowCompleted;
-                ret.OnMessageFlowCompleted = OnMessageFlowCompleted;
-                ret.IsEventStartValid = IsEventStartValid;
-                ret.IsProcessStartValid = IsProcessStartValid;
-                ret.IsFlowValid = IsFlowValid;
-                ret.ProcessBusinessRuleTask = ProcessBusinessRuleTask;
-                ret.BeginManualTask = BeginManualTask;
-                ret.ProcessRecieveTask = ProcessRecieveTask;
-                ret.ProcessScriptTask = ProcessScriptTask;
-                ret.ProcessSendTask = ProcessSendTask;
-                ret.ProcessServiceTask = ProcessServiceTask;
-                ret.ProcessTask = ProcessTask;
-                ret.BeginUserTask = BeginUserTask;
-                ret.LogException = LogException;
-                ret.LogLine = LogLine;
-            }
-            return ret;
-        }
-
-        /// <summary>
-        /// Called to start this instance of the defined BusinessProcess
-        /// </summary>
-        /// <param name="variables">The variables to start the process with</param>
-        /// <returns>true if the process was successfully started</returns>
-        public bool BeginProcess(Dictionary<string,object> pars)
-        {
-            _current = this;
-            ProcessVariablesContainer variables = new ProcessVariablesContainer(pars);
-            variables.SetProcess(this);
-            WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
-            bool ret = false;
+            ProcessInstance ret = new ProcessInstance(this, _delegates.Merge(logLine, logException, onEventStarted, onEventCompleted, onEventError,
+               onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError,
+               onSequenceFlowCompleted, onMessageFlowCompleted, onGatewayStarted, onGatewayCompleted, onGatewayError,
+               onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid,
+               isProcessStartValid, isFlowValid, processBusinessRuleTask, beginManualTask, processRecieveTask, processScriptTask,
+               processSendTask, processServiceTask, processTask, beginUserTask), stateLogLevel);
+            ProcessVariablesContainer variables = new ProcessVariablesContainer(pars,this,ret);
+            ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
             foreach (IElement elem in _elements.Values)
             {
                 if (elem is Elements.Process)
                 {
-                    if (((Elements.Process)elem).IsStartValid(ropvc, _isProcessStartValid))
+                    if (((Elements.Process)elem).IsStartValid(ropvc, ret.Delegates.IsProcessStartValid))
                     {
                         Elements.Process p = (Elements.Process)elem;
                         foreach (StartEvent se in p.StartEvents)
                         {
-                            if (se.IsEventStartValid(ropvc, _isEventStartValid))
+                            if (se.IsEventStartValid(ropvc, ret.Delegates.IsEventStartValid))
                             {
-                                WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
-                                _TriggerDelegateAsync(_onProcessStarted,new object[] { p, new ReadOnlyProcessVariablesContainer(variables) });
-                                _TriggerDelegateAsync(_onEventStarted,new object[] { se, new ReadOnlyProcessVariablesContainer(variables) });
-                                _state.Path.StartEvent(se, null);
+                                ret.WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
+                                _TriggerDelegateAsync(ret.Delegates.OnProcessStarted,new object[] { p, new ReadOnlyProcessVariablesContainer(variables) });
+                                _TriggerDelegateAsync(ret.Delegates.OnEventStarted,new object[] { se, new ReadOnlyProcessVariablesContainer(variables) });
+                                ret.State.Path.StartEvent(se, null);
                                 foreach (string str in variables.Keys)
-                                    _state[se.id,str]=variables[str];
-                                _state.Path.SucceedEvent(se);
-                                _TriggerDelegateAsync(_onEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, _state, this) });
-                                ret=true;
+                                    ret.State[se.id,str]=variables[str];
+                                ret.State.Path.SucceedEvent(se);
+                                _TriggerDelegateAsync(ret.Delegates.OnEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, ret) });
+                                return ret;
                             }
                         }
                     }
                 }
-                if (ret)
-                    break;
             }
-            if (!ret)
-                WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
-            return ret;
+            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
+            return null;
         }
-
-        /// <summary>
-        /// Called to suspend a running process
-        /// </summary>
-        public void Suspend()
-        {
-            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
-            _isSuspended = true;
-            _state.Suspend();
-            _mreSuspend.WaitOne(5000);
-            _TriggerDelegateAsync(_state.OnStateChange, new object[] { _state.Document});
-        }
-
-        #region ProcessLock
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete
-        /// </summary>
-        /// <returns>the result of calling WaitOne on the Process Complete manual reset event</returns>
-        public bool WaitForCompletion()
-        {
-            return _processLock.WaitOne();
-        }
-
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete including a timeout
-        /// </summary>
-        /// <param name="millisecondsTimeout">The timeout for the process to complete</param>
-        /// <returns>the result of calling WaitOne(millisecondsTimeout) on the Process Complete manual reset event</returns>
-        public bool WaitForCompletion(int millisecondsTimeout)
-        {
-            return _processLock.WaitOne(millisecondsTimeout);
-        }
-
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete including a timeout
-        /// </summary>
-        /// <param name="timeout">The timeout for the process to complete</param>
-        /// <returns>the result of calling WaitOne(timeout) on the Process Complete manual reset event</returns>
-        public bool WaitForCompletion(TimeSpan timeout)
-        {
-            return _processLock.WaitOne(timeout);
-        }
-
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete including a timeout and exit context
-        /// </summary>
-        /// <param name="millisecondsTimeout">The timeout for the process to complete</param>
-        /// <param name="exitContext">The exitContext variable</param>
-        /// <returns>the result of calling WaitOne(millisecondsTimeout,exitContext) on the Process Complete manual reset event</returns>
-        public bool WaitForCompletion(int millisecondsTimeout,bool exitContext)
-        {
-            return _processLock.WaitOne(millisecondsTimeout,exitContext);
-        }
-
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete including a timeout and exit context
-        /// </summary>
-        /// <param name="timeout">The timeout for the process to complete</param>
-        /// <param name="exitContext">The exitContext variable</param>
-        /// <returns>the result of calling WaitOne(timeout,exitContext) on the Process Complete manual reset event</returns>
-        public bool WaitForCompletion(TimeSpan timeout,bool exitContext)
-        {
-            return _processLock.WaitOne(timeout,exitContext);
-        }
-
-        #endregion
 
         private void _TriggerDelegateAsync(object dgate,object[] pars)
         {
@@ -1194,20 +1225,21 @@ namespace Org.Reddragonit.BpmEngine
             return ret.ToArray();
         }
 
-        private void _ProcessStepComplete(string sourceID,string outgoingID) {
-            _current = this;
+        internal void ProcessStepComplete(ProcessInstance instance,string sourceID,string outgoingID) {
             if (sourceID!=null)
             {
-                IElement elem = _GetElement(sourceID);
+                IElement elem = GetElement(sourceID);
                 if (elem is AFlowNode)
                 {
-                    ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(sourceID, _state, this);
+                    ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(sourceID,instance);
                     foreach (AHandlingEvent ahe in _GetEventHandlers(EventSubTypes.Timer, null, (AFlowNode)elem, vars))
                     {
-                        if (_state.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
+                        if (instance.State.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
                         {
-                            Utility.AbortDelayedEvent(this, (BoundaryEvent)ahe, sourceID);
-                            _AbortStep(sourceID, ahe, vars);
+                            Utility.AbortDelayedEvent(instance, (BoundaryEvent)ahe, sourceID);
+                            instance.StateEvent.WaitOne();
+                            _AbortStep(instance,sourceID, ahe, vars);
+                            instance.StateEvent.Set();
                         }
                     }
                 }
@@ -1215,52 +1247,50 @@ namespace Org.Reddragonit.BpmEngine
             WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
             if (outgoingID != null)
             {
-                IElement elem = _GetElement(outgoingID);
+                IElement elem = GetElement(outgoingID);
                 if (elem != null)
-                    _ProcessElement(sourceID, elem);
+                    _ProcessElement(instance,sourceID, elem);
             }
         }
 
-        private void _ProcessStepError(IElement step, Exception ex) {
-            _current = this;
-            WriteLogLine(step,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
+        internal void ProcessStepError(ProcessInstance instance,IElement step, Exception ex) {
+            instance.WriteLogLine(step,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
             bool success = false;
             if (step is AFlowNode)
             {
-                AHandlingEvent[] events = _GetEventHandlers(EventSubTypes.Error, ex, (AFlowNode)step, new ReadOnlyProcessVariablesContainer(step.id,_state,this,ex));
+                AHandlingEvent[] events = _GetEventHandlers(EventSubTypes.Error, ex, (AFlowNode)step, new ReadOnlyProcessVariablesContainer(step.id,instance,ex));
                 if (events.Length>0)
                 {
                     success=true;
                     foreach (AHandlingEvent ahe in events)
                     {
-                        WriteLogLine(step, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.id));
-                        _ProcessElement(step.id, ahe);
+                        instance.WriteLogLine(step, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.id));
+                        _ProcessElement(instance,step.id, ahe);
                     }
                 }
             }
             if (!success)
-                _TriggerDelegateAsync(_onProcessError,new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.id, _state, this, ex) });
+                _TriggerDelegateAsync(instance.Delegates.OnProcessError,new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.id, instance, ex) });
         }
 
-        private void _ProcessElement(string sourceID,IElement elem)
+        private void _ProcessElement(ProcessInstance instance,string sourceID,IElement elem)
         {
-            if (_isSuspended)
+            if (instance.IsSuspended)
             {
-                _state.Path.SuspendElement(sourceID, elem);
-                _mreSuspend.Set();
+                instance.State.Path.SuspendElement(sourceID, elem);
+                instance.MreSuspend.Set();
             }
             else
             {
-                WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
-                _current = this;
+                instance.WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
                 bool abort = false;
                 if (elem is AFlowNode)
                 {
-                    ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(sourceID, _state, this);
+                    ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(sourceID, instance);
                     AHandlingEvent[] evnts = _GetEventHandlers(EventSubTypes.Conditional, null, ((AFlowNode)elem), ropvc);
                     foreach (AHandlingEvent ahe in evnts)
                     {
-                        _ProcessEvent(elem.id, ahe);
+                        ProcessEvent(instance,elem.id, ahe);
                         abort|=(ahe is BoundaryEvent ? ((BoundaryEvent)ahe).CancelActivity : false);
                     }
                     if (!abort)
@@ -1271,61 +1301,61 @@ namespace Org.Reddragonit.BpmEngine
                             TimeSpan? ts = ahe.GetTimeout(ropvc);
                             if (ts.HasValue)
                             {
-                                _stateEvent.WaitOne();
-                                _state.Path.DelayEventStart(ahe, elem.id, ts.Value);
-                                _stateEvent.Set();
-                                Utility.DelayStart(ts.Value, this, (BoundaryEvent)ahe, elem.id);
+                                instance.StateEvent.WaitOne();
+                                instance.State.Path.DelayEventStart(ahe, elem.id, ts.Value);
+                                instance.StateEvent.Set();
+                                Utility.DelayStart(ts.Value, instance, (BoundaryEvent)ahe, elem.id);
                             }
                         }
                     }
                 }
                 if (elem is SequenceFlow)
-                    _ProcessSequenceFlow((SequenceFlow)elem);
+                    _ProcessSequenceFlow(instance,(SequenceFlow)elem);
                 else if (elem is MessageFlow)
-                    _ProcessMessageFlow((MessageFlow)elem);
+                    _ProcessMessageFlow(instance, (MessageFlow)elem);
                 else if (elem is AGateway)
-                    _ProcessGateway(sourceID, (AGateway)elem);
+                    _ProcessGateway(instance, sourceID, (AGateway)elem);
                 else if (elem is AEvent)
-                    _ProcessEvent(sourceID, (AEvent)elem);
+                    ProcessEvent(instance, sourceID, (AEvent)elem);
                 else if (elem is ATask)
-                    _ProcessTask(sourceID, (ATask)elem);
+                    _ProcessTask(instance, sourceID, (ATask)elem);
                 else if (elem is SubProcess) 
-                    _ProcessSubProcess(sourceID, (SubProcess)elem);
+                    _ProcessSubProcess(instance, sourceID, (SubProcess)elem);
             }
         }
 
-        private void _ProcessSubProcess(string sourceID, SubProcess esp)
+        private void _ProcessSubProcess(ProcessInstance instance,string sourceID, SubProcess esp)
         {
-            ReadOnlyProcessVariablesContainer variables = new ReadOnlyProcessVariablesContainer(new ProcessVariablesContainer(esp.id, _state, this));
-            if (esp.IsStartValid(variables, _isProcessStartValid))
+            ReadOnlyProcessVariablesContainer variables = new ReadOnlyProcessVariablesContainer(new ProcessVariablesContainer(esp.id, instance));
+            if (esp.IsStartValid(variables, instance.Delegates.IsProcessStartValid))
             {
                 foreach (StartEvent se in esp.StartEvents)
                 {
-                    if (se.IsEventStartValid(variables, _isEventStartValid))
+                    if (se.IsEventStartValid(variables,instance.Delegates.IsEventStartValid))
                     {
-                        WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
-                        _stateEvent.WaitOne();
-                        _state.Path.StartSubProcess(esp, sourceID);
-                        _stateEvent.Set();
-                        _TriggerDelegateAsync(_onSubProcessStarted,new object[] { esp, variables });
-                        _TriggerDelegateAsync(_onEventStarted,new object[] { se, variables });
-                        _state.Path.StartEvent(se, null);
-                        _state.Path.SucceedEvent(se);
-                        _TriggerDelegateAsync(_onEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, _state, this) });
+                        instance.WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
+                        instance.StateEvent.WaitOne();
+                        instance.State.Path.StartSubProcess(esp, sourceID);
+                        instance.StateEvent.Set();
+                        _TriggerDelegateAsync(instance.Delegates.OnSubProcessStarted,new object[] { esp, variables });
+                        _TriggerDelegateAsync(instance.Delegates.OnEventStarted,new object[] { se, variables });
+                        instance.State.Path.StartEvent(se, null);
+                        instance.State.Path.SucceedEvent(se);
+                        _TriggerDelegateAsync(instance.Delegates.OnEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, instance) });
                     }
                 }
             }
         }
 
-        private void _ProcessTask(string sourceID, ATask tsk)
+        private void _ProcessTask(ProcessInstance instance,string sourceID, ATask tsk)
         {
-            _stateEvent.WaitOne();
-            _state.Path.StartTask(tsk, sourceID);
-            _stateEvent.Set();
-            _TriggerDelegateAsync(_onTaskStarted,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this) });
+            instance.StateEvent.WaitOne();
+            instance.State.Path.StartTask(tsk, sourceID);
+            instance.StateEvent.Set();
+            _TriggerDelegateAsync(instance.Delegates.OnTaskStarted,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, instance) });
             try
             {
-                ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, _state, this);
+                ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, instance);
                 ITask task=null;
                 switch (tsk.GetType().Name)
                 {
@@ -1335,82 +1365,85 @@ namespace Org.Reddragonit.BpmEngine
                     case "ServiceTask":
                     case "Task":
                     case "ScriptTask":
-                        task = new Org.Reddragonit.BpmEngine.Tasks.ExternalTask(tsk, variables, this);
+                        task = new Org.Reddragonit.BpmEngine.Tasks.ExternalTask(tsk, variables, instance);
                         break;
                 }
+                ProcessTask delTask = null;
                 switch (tsk.GetType().Name)
                 {
                     case "BusinessRuleTask":
-                        _processBusinessRuleTask(task);
+                        delTask = instance.Delegates.ProcessBusinessRuleTask;
                         break;
                     case "ManualTask":
-                        _TriggerDelegateAsync(_beginManualTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, this) });
+                        _TriggerDelegateAsync(instance.Delegates.BeginManualTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, instance) });
                         break;
                     case "RecieveTask":
-                        _processRecieveTask(task);
+                        delTask = instance.Delegates.ProcessRecieveTask;
                         break;
                     case "ScriptTask":
-                        ((ScriptTask)tsk).ProcessTask(task,_processScriptTask);
+                        ((ScriptTask)tsk).ProcessTask(task,instance.Delegates.ProcessScriptTask);
                         break;
                     case "SendTask":
-                        _processSendTask(task);
+                        delTask = instance.Delegates.ProcessSendTask;
                         break;
                     case "ServiceTask":
-                        _processServiceTask(task);
+                        delTask = instance.Delegates.ProcessServiceTask;
                         break;
                     case "Task":
-                        _processTask(task);
+                        delTask = instance.Delegates.ProcessTask;
                         break;
                     case "UserTask":
-                        _TriggerDelegateAsync(_beginUserTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk, variables, this) });
+                        _TriggerDelegateAsync(instance.Delegates.BeginUserTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk, variables, instance) });
                         break;
                 }
+                if (delTask!=null)
+                    delTask.Invoke(task);
                 if (task!=null)
-                    _MergeVariables(tsk, task);
+                    instance.MergeVariables(task);
             }
             catch (Exception e)
             {
-                WriteLogException(tsk, new StackFrame(1, true), DateTime.Now, e);
-                _TriggerDelegateAsync(_onTaskError,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, _state, this, e) });
-                _stateEvent.WaitOne();
-                _state.Path.FailTask(tsk, e);
-                _stateEvent.Set();
+                instance.WriteLogException(tsk, new StackFrame(1, true), DateTime.Now, e);
+                _TriggerDelegateAsync(instance.Delegates.OnTaskError,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, instance, e) });
+                instance.StateEvent.WaitOne();
+                instance.State.Path.FailTask(tsk, e);
+                instance.StateEvent.Set();
             }
         }
 
-        private void _ProcessEvent(string sourceID, AEvent evnt)
+        internal void ProcessEvent(ProcessInstance instance,string sourceID, AEvent evnt)
         {
             if (evnt is IntermediateCatchEvent)
             {
                 SubProcess sp = (SubProcess)evnt.SubProcess;
                 if (sp != null)
-                    _state.Path.StartSubProcess(sp, sourceID);
+                    instance.State.Path.StartSubProcess(sp, sourceID);
             }
-            _stateEvent.WaitOne();
-            _state.Path.StartEvent(evnt, sourceID);
-            _stateEvent.Set();
-            _TriggerDelegateAsync(_onEventStarted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
+            instance.StateEvent.WaitOne();
+            instance.State.Path.StartEvent(evnt, sourceID);
+            instance.StateEvent.Set();
+            _TriggerDelegateAsync(instance.Delegates.OnEventStarted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
             if (evnt is BoundaryEvent)
             {
                 if (((BoundaryEvent)evnt).CancelActivity)
                 {
-                    _stateEvent.WaitOne();
-                    _AbortStep(sourceID, _GetElement(((BoundaryEvent)evnt).AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
-                    _stateEvent.Set();
+                    instance.StateEvent.WaitOne();
+                    _AbortStep(instance,sourceID, GetElement(((BoundaryEvent)evnt).AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                    instance.StateEvent.Set();
                 }
             }
             bool success = true;
             if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
             {
-                TimeSpan? ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                TimeSpan? ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, instance));
                 if (ts.HasValue)
                 {
-                    _stateEvent.WaitOne();
-                    _state.SuspendStep(evnt.id, ts.Value);
-                    _stateEvent.Set();
+                    instance.StateEvent.WaitOne();
+                    instance.State.SuspendStep(evnt.id, ts.Value);
+                    instance.StateEvent.Set();
                     if (ts.Value.TotalMilliseconds > 0)
                     {
-                        Utility.Sleep(ts.Value, this, evnt);
+                        Utility.Sleep(ts.Value, instance, evnt);
                         return;
                     }
                     else
@@ -1419,37 +1452,37 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     if (evnt.SubType.HasValue)
                     {
-                        AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, ((IntermediateThrowEvent)evnt).Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                        AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, ((IntermediateThrowEvent)evnt).Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
                         foreach (AHandlingEvent tsk in evnts)
-                            _ProcessEvent(evnt.id, tsk);
+                            ProcessEvent(instance,evnt.id, tsk);
                     }
                 }
             }
-            else if (_isEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
+            else if (instance.Delegates.IsEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
             {
                 try
                 {
-                    success = _isEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this));
+                    success = instance.Delegates.IsEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
                 }
                 catch (Exception e)
                 {
-                    WriteLogException(evnt, new StackFrame(1, true), DateTime.Now, e);
+                    instance.WriteLogException(evnt, new StackFrame(1, true), DateTime.Now, e);
                     success = false;
                 }
             }
             if (!success)
             {
-                _stateEvent.WaitOne();
-                _state.Path.FailEvent(evnt);
-                _stateEvent.Set();
-                _TriggerDelegateAsync(_onEventError,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
+                instance.StateEvent.WaitOne();
+                instance.State.Path.FailEvent(evnt);
+                instance.StateEvent.Set();
+                _TriggerDelegateAsync(instance.Delegates.OnEventError,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
             }
             else
             {
-                _stateEvent.WaitOne();
-                _state.Path.SucceedEvent(evnt);
-                _stateEvent.Set();
-                _TriggerDelegateAsync(_onEventCompleted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
+                instance.StateEvent.WaitOne();
+                instance.State.Path.SucceedEvent(evnt);
+                instance.StateEvent.Set();
+                _TriggerDelegateAsync(instance.Delegates.OnEventCompleted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
                 if (evnt is EndEvent)
                 {
                     if (((EndEvent)evnt).IsProcessEnd)
@@ -1457,46 +1490,46 @@ namespace Org.Reddragonit.BpmEngine
                         SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
                         if (sp != null)
                         {
-                            _stateEvent.WaitOne();
-                            _state.Path.SucceedSubProcess(sp);
-                            _stateEvent.Set();
-                            _TriggerDelegateAsync(_onSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, _state, this) });
+                            instance.StateEvent.WaitOne();
+                            instance.State.Path.SucceedSubProcess(sp);
+                            instance.StateEvent.Set();
+                            _TriggerDelegateAsync(instance.Delegates.OnSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
                         }
                         else
                         {
-                            _TriggerDelegateAsync(_onProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this)});
-                            _processLock.Set();
+                            _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance)});
+                            instance.ProcessLock.Set();
                         }
                     }
                 }
             }
         }
 
-        private void _AbortStep(string sourceID,IElement element,IReadonlyVariables variables)
+        private void _AbortStep(ProcessInstance instance,string sourceID,IElement element,IReadonlyVariables variables)
         {
-            _state.Path.AbortStep(sourceID, element.id);
-            _TriggerDelegateAsync(_onStepAborted, new object[] { element, _GetElement(sourceID), variables });
+            instance.State.Path.AbortStep(sourceID, element.id);
+            _TriggerDelegateAsync(instance.Delegates.OnStepAborted, new object[] { element, GetElement(sourceID), variables });
             if (element is SubProcess)
             {
                 foreach (IElement child in ((SubProcess)element).Children)
                 {
                     bool abort = false;
-                    switch (_state.Path.GetStatus(child.id)) {
+                    switch (instance.State.Path.GetStatus(child.id)) {
                         case StepStatuses.Suspended:
                             abort=true;
-                            Utility.AbortSuspendedElement(this, child.id);
+                            Utility.AbortSuspendedElement(instance, child.id);
                             break;
                         case StepStatuses.Waiting:
                             abort=true;
                             break;
                     }
                     if (abort)
-                        _AbortStep(sourceID, child,variables);
+                        _AbortStep(instance,sourceID, child,variables);
                 }
             }
         }
 
-        private void _ProcessGateway(string sourceID,AGateway gw)
+        private void _ProcessGateway(ProcessInstance instance,string sourceID,AGateway gw)
         {
             Definition def = null;
             foreach (IElement e in _Elements)
@@ -1510,177 +1543,70 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
             }
-            _stateEvent.WaitOne();
+            instance.StateEvent.WaitOne();
             bool gatewayComplete = false;
-            if (gw.IsIncomingFlowComplete(sourceID, _state.Path))
+            if (gw.IsIncomingFlowComplete(sourceID, instance.State.Path))
                 gatewayComplete = true;
-            if (!gw.IsWaiting(_state.Path))
-                _state.Path.StartGateway(gw, sourceID);
+            if (!gw.IsWaiting(instance.State.Path))
+                instance.State.Path.StartGateway(gw, sourceID);
             if (gatewayComplete)
             {
-                _TriggerDelegateAsync(_onGatewayStarted,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this) });
+                _TriggerDelegateAsync(instance.Delegates.OnGatewayStarted,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
                 string[] outgoings = null;
                 try
                 {
-                    outgoings = gw.EvaulateOutgoingPaths(def, _isFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, _state, this));
+                    outgoings = gw.EvaulateOutgoingPaths(def, instance.Delegates.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, instance));
                 }
                 catch (Exception e)
                 {
-                    WriteLogException(gw, new StackFrame(1, true), DateTime.Now, e);
-                    _TriggerDelegateAsync(_onGatewayError,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, _state, this) });
+                    instance.WriteLogException(gw, new StackFrame(1, true), DateTime.Now, e);
+                    _TriggerDelegateAsync(instance.Delegates.OnGatewayError,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
                     outgoings = null;
                 }
                 if (outgoings == null)
-                    _state.Path.FailGateway(gw);
+                    instance.State.Path.FailGateway(gw);
                 else
-                    _state.Path.SuccessGateway(gw, outgoings);
+                    instance.State.Path.SuccessGateway(gw, outgoings);
             }
-            _stateEvent.Set();
+            instance.StateEvent.Set();
         }
 
-        private void _ProcessMessageFlow(MessageFlow mf)
+        private void _ProcessMessageFlow(ProcessInstance instance,MessageFlow mf)
         {
-            _stateEvent.WaitOne();
-            _state.Path.ProcessMessageFlow(mf);
-            _stateEvent.Set(); 
-            _TriggerDelegateAsync(_onMessageFlowCompleted,new object[] { mf, new ReadOnlyProcessVariablesContainer(mf.id, _state, this) });
+            instance.StateEvent.WaitOne();
+            instance.State.Path.ProcessMessageFlow(mf);
+            instance.StateEvent.Set(); 
+            _TriggerDelegateAsync(instance.Delegates.OnMessageFlowCompleted,new object[] { mf, new ReadOnlyProcessVariablesContainer(mf.id, instance) });
         }
 
-        private void _ProcessSequenceFlow(SequenceFlow sf)
+        private void _ProcessSequenceFlow(ProcessInstance instance,SequenceFlow sf)
         {
-            _stateEvent.WaitOne();
-            _state.Path.ProcessSequenceFlow(sf);
-            _stateEvent.Set();
-            _TriggerDelegateAsync(_onSequenceFlowCompleted,new object[] { sf, new ReadOnlyProcessVariablesContainer(sf.id, _state, this) });
-        }
-
-        internal void CompleteTimedEvent(AEvent evnt)
-        {
-            _stateEvent.WaitOne();
-            _state.Path.SucceedEvent(evnt);
-            _stateEvent.Set();
-            _TriggerDelegateAsync(_onEventCompleted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, _state, this) });
-        }
-
-        internal void StartTimedEvent(BoundaryEvent evnt,string sourceID)
-        {
-            _ProcessEvent(sourceID, evnt);
-        }
-
-        private void _MergeVariables(UserTask task, IVariables variables, string completedByID)
-        {
-            _MergeVariables((ATask)task, variables, completedByID);
-        }
-
-        private void _MergeVariables(ATask task, IVariables variables)
-        {
-            _MergeVariables(task, variables, null);
-        }
-
-        private void _MergeVariables(ATask task, IVariables variables,string completedByID)
-        {
-            WriteLogLine(task,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, completedByID }));
-            _stateEvent.WaitOne();
-            foreach (string str in variables.Keys)
-            {
-                object left = variables[str];
-                object right = _state[task.id, str];
-                if (!_IsVariablesEqual(left,right))
-                    _state[task.id, str] = left;
-            }
-            _TriggerDelegateAsync(_onTaskCompleted,new object[] { task, new ReadOnlyProcessVariablesContainer(task.id, _state, this) });
-            if (task is UserTask)
-                _state.Path.SucceedTask((UserTask)task,completedByID);
-            else
-                _state.Path.SucceedTask(task);
-            _stateEvent.Set();
-        }
-
-        private bool _IsVariablesEqual(object left, object right)
-        {
-            if (left == null && right != null)
-                return false;
-            else if (left != null && right == null)
-                return false;
-            else if (left == null && right == null)
-                return true;
-            else 
-            {
-                if (left is Array)
-                {
-                    if (!(right is Array))
-                        return false;
-                    else
-                    {
-                        Array aleft = (Array)left;
-                        Array aright = (Array)right;
-                        if (aleft.Length != aright.Length)
-                            return false;
-                        for (int x = 0; x < aleft.Length; x++)
-                        {
-                            if (!_IsVariablesEqual(aleft.GetValue(x), aright.GetValue(x)))
-                                return false;
-                        }
-                        return true;
-                    }
-                }
-                else if (left is Hashtable)
-                {
-                    if (!(right is Hashtable))
-                        return false;
-                    else
-                    {
-                        Hashtable hleft = (Hashtable)left;
-                        Hashtable hright = (Hashtable)right;
-                        if (hleft.Count != hright.Count)
-                            return false;
-                        foreach (object key in hleft.Keys)
-                        {
-                            if (!hright.ContainsKey(key))
-                                return false;
-                            else if (!_IsVariablesEqual(hleft[key], hright[key]))
-                                return false;
-                        }
-                        foreach (object key in hright.Keys)
-                        {
-                            if (!hleft.ContainsKey(key))
-                                return false;
-                        }
-                        return true;
-                    }
-                }
-                else
-                {
-                    try { return left.Equals(right); }
-                    catch (Exception e) { WriteLogException((string)null,new StackFrame(2,true),DateTime.Now,e); return false; }
-                }
-            }
+            instance.StateEvent.WaitOne();
+            instance.State.Path.ProcessSequenceFlow(sf);
+            instance.StateEvent.Set();
+            _TriggerDelegateAsync(instance.Delegates.OnSequenceFlowCompleted,new object[] { sf, new ReadOnlyProcessVariablesContainer(sf.id, instance) });
         }
 
         #region Logging
         internal void WriteLogLine(string elementID,LogLevels level,StackFrame sf,DateTime timestamp, string message)
         {
-            WriteLogLine((IElement)(elementID == null ? null : _GetElement(elementID)), level, sf, timestamp, message);
+            WriteLogLine((IElement)(elementID == null ? null : GetElement(elementID)), level, sf, timestamp, message);
         }
         internal void WriteLogLine(IElement element, LogLevels level, StackFrame sf, DateTime timestamp, string message)
         {
-            if ((int)level <= (int)_stateLogLevel && _state!=null)
-                _state.LogLine((element==null ? null : element.id),sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
-            if (_logLine != null)
-                _logLine.Invoke(element,sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
+            if (_delegates.LogLine != null)
+                _delegates.LogLine.Invoke(element,sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
 
         internal Exception WriteLogException(string elementID,StackFrame sf, DateTime timestamp, Exception exception)
         {
-            return WriteLogException((IElement)(elementID == null ? null : _GetElement(elementID)), sf, timestamp, exception);
+            return WriteLogException((IElement)(elementID == null ? null : GetElement(elementID)), sf, timestamp, exception);
         }
         
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
-            if ((int)LogLevels.Error <= (int)_stateLogLevel)
-                _state.LogException((element==null ? null : element.id),sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
-            if (_logException != null)
-                _logException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+            if (_delegates.LogException != null)
+                _delegates.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             return exception;
         }
         #endregion

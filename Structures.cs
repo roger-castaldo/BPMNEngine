@@ -119,8 +119,8 @@ namespace Org.Reddragonit.BpmEngine
         /// <summary>
         /// Create a new Process Runtime Constant with the given name and value.
         /// </summary>
-        /// <param name="name">Becomes the Name property of the File.</param>
-        /// <param name="value">Becomes the Value property of the File.</param>
+        /// <param name="name">Becomes the Name property of the variable.</param>
+        /// <param name="value">Becomes the Value property of the variable.</param>
         public sProcessRuntimeConstant(string name,object value)
         {
             _name = name;
@@ -130,15 +130,15 @@ namespace Org.Reddragonit.BpmEngine
 
     internal struct sProcessSuspendEvent : IComparable
     {
-        private BusinessProcess _process;
-        public BusinessProcess Process { get { return _process; } }
+        private ProcessInstance _instance;
+        public ProcessInstance Instance { get { return _instance; } }
         private AEvent _event;
         public AEvent Event { get { return _event; } }
         private DateTime _endTime;
         public DateTime EndTime { get { return _endTime; } }
 
-        public sProcessSuspendEvent(BusinessProcess process,AEvent evnt,TimeSpan time){
-            _process = process;
+        public sProcessSuspendEvent(ProcessInstance instance,AEvent evnt,TimeSpan time){
+            _instance = instance;
             _event = evnt;
             _endTime = DateTime.Now.Add(time);
         }
@@ -156,8 +156,8 @@ namespace Org.Reddragonit.BpmEngine
 
     internal struct sProcessDelayedEvent : IComparable
     {
-        private BusinessProcess _process;
-        public BusinessProcess Process { get { return _process; } }
+        private ProcessInstance _instance;
+        public ProcessInstance Instance { get { return _instance; } }
         private BoundaryEvent _event;
         public BoundaryEvent Event { get { return _event; } }
         private DateTime _startTime;
@@ -165,9 +165,9 @@ namespace Org.Reddragonit.BpmEngine
         private string _sourceID;
         public string SourceID { get { return _sourceID; } }
 
-        public sProcessDelayedEvent(BusinessProcess process, BoundaryEvent evnt, TimeSpan time,string sourceID)
+        public sProcessDelayedEvent(ProcessInstance instance, BoundaryEvent evnt, TimeSpan time,string sourceID)
         {
-            _process = process;
+            _instance = instance;
             _event = evnt;
             _startTime = DateTime.Now.Add(time);
             _sourceID=sourceID;

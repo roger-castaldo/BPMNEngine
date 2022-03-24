@@ -11,9 +11,9 @@ namespace Org.Reddragonit.BpmEngine.Tasks
     {
         private ATask _task;
         private ProcessVariablesContainer _variables;
-        protected BusinessProcess _businessProcess;
+        protected ProcessInstance _businessProcess;
 
-        public ExternalTask(ATask task,ProcessVariablesContainer variables,BusinessProcess process)
+        public ExternalTask(ATask task,ProcessVariablesContainer variables, ProcessInstance process)
         {
             _task=task;
             _variables=variables;

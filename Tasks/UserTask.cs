@@ -7,11 +7,12 @@ namespace Org.Reddragonit.BpmEngine.Tasks
 {
     internal class UserTask : ManualTask, IUserTask
     {
-        public UserTask(Elements.Processes.Tasks.ATask task, ProcessVariablesContainer variables, BusinessProcess process) :
+        public UserTask(Elements.Processes.Tasks.ATask task, ProcessVariablesContainer variables, ProcessInstance process) :
             base(task, variables, process)
         {
         }
 
-        public string UserID { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        private string _userID=null;
+        public string UserID { get { return _userID; } set { _userID=value; } }
     }
 }

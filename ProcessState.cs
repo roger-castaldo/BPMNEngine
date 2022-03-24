@@ -108,12 +108,10 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         private OnStateChange _onStateChange;
-        internal OnStateChange OnStateChange { set { _onStateChange = value; } get { return _onStateChange; } }
-
         private BusinessProcess _process;
         internal BusinessProcess Process { get { return _process; } }
 
-        internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error)
+        internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
         {
             _process = process;
             _evnt = new AutoResetEvent(true);
@@ -124,6 +122,7 @@ namespace Org.Reddragonit.BpmEngine
             _variables = new StateVariableContainer(this);
             _suspensions = new SuspendedStepContainer(this);
             _path = new ProcessPath(complete, error, new processStateChanged(_stateChanged),this);
+            _onStateChange = onStateChange;
         }
 
         internal bool Load(XmlDocument doc)

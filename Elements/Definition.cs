@@ -130,6 +130,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private BusinessProcess _owningProcess;
         internal BusinessProcess OwningProcess
         {
+            get { return _owningProcess; }
             set { _owningProcess = value; }
         }
 
