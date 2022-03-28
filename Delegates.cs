@@ -17,12 +17,14 @@ namespace Org.Reddragonit.BpmEngine
     /// <param name="element">The process element that is starting, has completed or has errored.</param>
     /// <param name="variables">The process variables being provided to the event when it started,completed or errored.</param>
     /// <example>
+    /// <code>
     ///     public void _OnElementStarted(IStepElement element,IReadonlyVariables variables){
     ///         Console.WriteLine("Element {0} inside process {1} has been started with the following variables:",element.id,element.Process.id);
     ///         foreach (string key in variables.FullKeys){
     ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
     ///         }
     ///     }
+    /// </code>
     /// </example>
     public delegate void OnElementEvent(IStepElement element, IReadonlyVariables variables);
 
@@ -36,12 +38,14 @@ namespace Org.Reddragonit.BpmEngine
     /// <param name="source">The process element that is causing the abort.</param>
     /// <param name="variables">The process variables being provided to the event it is being aborted.</param>
     /// <example>
+    /// <code>
     ///     public void _OnElementAborted(IElement element,IElement source,IReadonlyVariables variables){
     ///         Console.WriteLine("Element {0} inside process {1} has been aborted by {2} with the following variables:",element.id,element.Process.id,source.id);
     ///         foreach (string key in variables.FullKeys){
     ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
     ///         }
     ///     }
+    /// </code>
     /// </example>
     public delegate void OnElementAborted(IElement element,IElement source, IReadonlyVariables variables);
 
@@ -54,12 +58,14 @@ namespace Org.Reddragonit.BpmEngine
     /// <param name="process">The Process being started or completed</param>
     /// <param name="variables">The process variables at the the time of the Process Start or Completion</param>
     /// <example>
+    /// <code>
     ///     public void _ProcessStarted(IElement process,IReadonlyVariables variables){
     ///         Console.WriteLine("Process {0} has been started with the following variables:",process.id);
     ///         foreach (string key in variables.FullKeys){
     ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
     ///         }
     ///     }
+    /// </code>
     /// </example>
     public delegate void OnProcessEvent(IElement process, IReadonlyVariables variables);
 
@@ -72,12 +78,14 @@ namespace Org.Reddragonit.BpmEngine
     /// <param name="element">The process flow that has been completed.</param>
     /// <param name="variables">The process variables being provided to the event when it completed.</param>
     /// <example>
+    /// <code>
     ///     public void _OnFlowCompleted(IElement element,IReadonlyVariables variables){
     ///         Console.WriteLine("Flow {0} inside process {1} has been started with the following variables:",element.id,element.Process.id);
     ///         foreach (string key in variables.FullKeys){
     ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
     ///         }
     ///     }
+    /// </code>
     /// </example>
     public delegate void OnFlowComplete(IElement element, IReadonlyVariables variables);
 
@@ -91,12 +99,14 @@ namespace Org.Reddragonit.BpmEngine
     /// <param name="sourceElement">The Process Element that is the source of the error</param>
     /// <param name="variables">The process variables at the time of the Error</param>
     /// <example>
+    /// <code>
     ///     public void _ProcessError(IElement process,IElement sourceElement, IReadonlyVariables variables){
     ///         Console.WriteLine("Element {0} inside process {1} had the error {2} occur with the following variables:",new object[]{sourceElement.id,process.id,variables.Error.Message});
     ///         foreach (string key in variables.FullKeys){
     ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
     ///         }
     ///     }
+    /// </code>
     /// </example>
     public delegate void OnProcessErrorEvent(IElement process,IElement sourceElement, IReadonlyVariables variables);
 
@@ -105,9 +115,11 @@ namespace Org.Reddragonit.BpmEngine
     /// </summary>
     /// <param name="stateDocument">The XML Document containing the Process State</param>
     /// <example>
+    /// <code>
     ///     public void _StateChange(XmlDocument stateDocument){
     ///         Console.WriteLine("Current Process State: \n{0}",stateDocument.OuterXML);
     ///     }
+    /// </code>
     /// </example>
     public delegate void OnStateChange(XmlDocument stateDocument);
     internal delegate void processStateChanged();
@@ -135,7 +147,7 @@ namespace Org.Reddragonit.BpmEngine
     ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
     /// </bpmn:startEvent>
     /// ]]>
-    /// 
+    /// <code>
     /// public bool _EventStartValid(IStepElement Event, IVariables variables){
     ///     if (Event.ExtensionElement != null){
     ///         foreach (XmlNode xn in Event.ExtensionElement.SubNodes){
@@ -149,7 +161,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     ///     return true;
     /// }
-    /// 
+    /// </code>
     /// </example>
     public delegate bool IsEventStartValid(IStepElement Event, IReadonlyVariables variables);
 
@@ -173,7 +185,7 @@ namespace Org.Reddragonit.BpmEngine
     ///  </bpmn:extensionElements>
     /// </bpmn:process>
     /// ]]>
-    /// 
+    /// <code>
     /// public bool _ProcessStartValid(IElement process, IVariables variables){
     ///     if (process.ExtensionElement != null){
     ///         foreach (XmlNode xn in process.ExtensionElement.SubNodes){
@@ -187,7 +199,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     ///     return true;
     /// }
-    /// 
+    /// </code>
     /// </example>
     public delegate bool IsProcessStartValid(IElement process, IReadonlyVariables variables);
 
@@ -210,7 +222,7 @@ namespace Org.Reddragonit.BpmEngine
     ///  </bpmn:extensionElements>
     /// </bpmn:outgoing>
     /// ]]>
-    /// 
+    /// <code>
     /// public bool _FlowValid(IElement flow, IVariables variables){
     ///     if (flow.ExtensionElement != null){
     ///         foreach (XmlNode xn in flow.ExtensionElement.SubNodes){
@@ -224,7 +236,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     ///     return true;
     /// }
-    /// 
+    /// </code>
     /// </example>
     public delegate bool IsFlowValid(IElement flow, IReadonlyVariables variables);
     #endregion
@@ -249,7 +261,7 @@ namespace Org.Reddragonit.BpmEngine
     ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
     /// </bpmn:startEvent>
     /// ]]>
-    /// 
+    /// <code>
     /// public void _ProcessBusinessRuleTask(ITask task)
     ///     if (task.ExtensionElement != null){
     ///         foreach (XmlNode xn in task.ExtensionElement.SubNodes){
@@ -283,7 +295,7 @@ namespace Org.Reddragonit.BpmEngine
     ///         }
     ///     }
     /// }
-    /// 
+    /// </code>
     /// </example>
     public delegate void ProcessTask(ITask task);
 
@@ -304,7 +316,7 @@ namespace Org.Reddragonit.BpmEngine
     ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
     /// </bpmn:startEvent>
     /// ]]>
-    /// 
+    /// <code>
     /// public void _ProcessManualTask(IManualTask task)
     ///     if (task.ExtensionElement != null){
     ///         foreach (XmlNode xn in task.ExtensionElement.SubNodes){
@@ -319,7 +331,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     ///     task.MarkComplete();
     /// }
-    /// 
+    /// </code>
     /// </example>
     public delegate void StartManualTask(IManualTask task);
     /// <summary>
@@ -339,7 +351,7 @@ namespace Org.Reddragonit.BpmEngine
     ///  <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
     /// </bpmn:startEvent>
     /// ]]>
-    /// 
+    /// <code>
     /// public void _ProcessUserTask(IUserTask task)
     ///     if (task.ExtensionElement != null){
     ///         foreach (XmlNode xn in task.ExtensionElement.SubNodes){
@@ -356,7 +368,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     ///     task.MarkComplete();
     /// }
-    /// 
+    /// </code>
     /// </example>
     public delegate void StartUserTask(IUserTask task);
     #endregion
