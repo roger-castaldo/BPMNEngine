@@ -190,6 +190,18 @@ namespace Org.Reddragonit.BpmEngine.State
             return ret;
         }
 
+        public int GetStepSuccessCount(string elementid)
+        {
+            int ret = 0;
+            XmlElement[] nodes = ChildNodes;
+            for (int x = 0; x < Math.Min(nodes.Length, _lastStep); x++)
+            {
+                if (nodes[x].Attributes[_ELEMENT_ID].Value == elementid)
+                    ret += ((StepStatuses)Enum.Parse(typeof(StepStatuses), nodes[x].Attributes[_STEP_STATUS].Value) == StepStatuses.Succeeded ? 1 : 0);
+            }
+            return ret;
+        }
+
         public int CurrentStepIndex(string elementid)
         {
             int ret = -1;

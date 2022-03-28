@@ -203,7 +203,6 @@ namespace Org.Reddragonit.BpmEngine
         /// Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
         /// </summary>
         /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
-        /// <param name="stateLogLevel">The log level to use for logging data into the process state</param>
         /// <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
         /// <param name="logLine">The LogLine delegate called to append a log line entry from the process</param>
         /// <param name="logException">The LogException delegate called to append a logged exception from the process</param>
@@ -798,6 +797,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="processServiceTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="processTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="beginUserTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
         /// <returns>an instance of IProcessInstance if successful or null it failed</returns>
         public IProcessInstance LoadState(XmlDocument doc,
             bool autoResume=false,
@@ -849,7 +849,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <summary>
         /// Called to render a PNG image of the process
         /// </summary>
-        /// <param name="outputVariables">Set true to include outputting variables into the image</param>
+        /// <param name="type">The output image format to generate, this being jpeg,png or bmp</param>
         /// <returns>A Bitmap containing a rendered image of the process</returns>
         public byte[] Diagram(ImageOuputTypes type)
         {
@@ -1061,8 +1061,10 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="processServiceTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="processTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="beginUserTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
         /// <returns>a process instance if the process was successfully started</returns>
-        public IProcessInstance BeginProcess(Dictionary<string,object> pars,
+        public IProcessInstance BeginProcess(
+            Dictionary<string,object> pars,
             LogLine logLine = null,
             LogException logException = null,
             OnElementEvent onEventStarted = null,

@@ -32,6 +32,20 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
                     break;
                 }
             }
+            if (ret)
+            {
+                int[] counts = new int[Incoming.Length];
+                for(int x = 0; x<counts.Length; x++)
+                    counts[x]=path.GetStepSuccessCount(Incoming[x]);
+                for(int x = 1; x<counts.Length; x++)
+                {
+                    if (counts[0]!=counts[1])
+                    {
+                        ret=false;
+                        break;
+                    }
+                }
+            }
             return ret;
         }
     }

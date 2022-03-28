@@ -43,7 +43,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// Called to log a debug level message
         /// </summary>
         /// <param name="message">The string formatted message</param>
-        /// <param name="args">The arguments to be fed into a string format call agains the message</param>
+        /// <param name="pars">The arguments to be fed into a string format call agains the message</param>
         void Debug(string message,object[] pars);
         /// <summary>
         /// Called to log an info level message
@@ -54,7 +54,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// Called to log an info level message
         /// </summary>
         /// <param name="message">The string formatted message</param>
-        /// <param name="args">The arguments to be fed into a string format call agains the message</param>
+        /// <param name="pars">The arguments to be fed into a string format call agains the message</param>
         void Info(string message, object[] pars);
         /// <summary>
         /// Called to log an error level message
@@ -65,7 +65,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// Called to log an error level message
         /// </summary>
         /// <param name="message">The string formatted message</param>
-        /// <param name="args">The arguments to be fed into a string format call agains the message</param>
+        /// <param name="pars">The arguments to be fed into a string format call agains the message</param>
         void Error(string message, object[] pars);
         /// <summary>
         /// Called to log a fatal level message
@@ -76,7 +76,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// Called to log a fatal level message
         /// </summary>
         /// <param name="message">The string formatted message</param>
-        /// <param name="args">The arguments to be fed into a string format call agains the message</param>
+        /// <param name="pars">The arguments to be fed into a string format call agains the message</param>
         void Fatal(string message, object[] pars);
         /// <summary>
         /// Called to log an exception 

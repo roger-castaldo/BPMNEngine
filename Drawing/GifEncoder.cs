@@ -163,7 +163,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         /// <summary>
         /// Adds a frame to this animation.
         /// </summary>
-        /// <param name="img">The image to add</param>
+        /// <param name="parts">The image parts to generate a frame from</param>
         public void AddFrame(sFramePart[] parts)
         {
             for(int x = 0; x < parts.Length; x++)

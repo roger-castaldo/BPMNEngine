@@ -20,7 +20,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// Called to get a list of all process variable names available
         /// </summary>
         string[] Keys { get; }
-        // <summary>
+        /// <summary>
         /// Called to get a list of all process variable names available, including process definition constants and runtime constants
         /// </summary>
         string[] FullKeys { get; }
