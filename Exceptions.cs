@@ -1,5 +1,6 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -63,5 +64,14 @@ namespace Org.Reddragonit.BpmEngine
     {
         internal NotSuspendedException()
             : base("Unable to resume a process that is not suspended.") { }
+    }
+
+    /// <summary>
+    /// This Exception is thrown when an Exclusive Gateway evalutes to more than 1 outgoing path
+    /// </summary>
+    public class MultipleOutgoingPathsException: Exception
+    {
+        internal MultipleOutgoingPathsException(ExclusiveGateway gateway)
+            : base(string.Format("The Exclusive Gateway {0} has evaluated the outgoing paths and determine more than 1 result", new object[] { gateway.id })) { }
     }
 }

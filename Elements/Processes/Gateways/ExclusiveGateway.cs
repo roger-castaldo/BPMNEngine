@@ -24,8 +24,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
                     SequenceFlow sf = (SequenceFlow)definition.LocateElement(str);
                     if (sf.IsFlowValid(isFlowValid, variables))
                     {
+                        if (ret!=null)
+                            throw new MultipleOutgoingPathsException(this);
                         ret = sf.id;
-                        break;
                     }
                 }
             }
