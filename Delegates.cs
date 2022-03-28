@@ -223,7 +223,7 @@ namespace Org.Reddragonit.BpmEngine
     /// </bpmn:outgoing>
     /// ]]>
     /// <code>
-    /// public bool _FlowValid(IElement flow, IVariables variables){
+    /// public bool _FlowValid(ISequenceFlow flow, IVariables variables){
     ///     if (flow.ExtensionElement != null){
     ///         foreach (XmlNode xn in flow.ExtensionElement.SubNodes){
     ///             if (xn.NodeType == XmlNodeType.Element)
@@ -238,7 +238,7 @@ namespace Org.Reddragonit.BpmEngine
     /// }
     /// </code>
     /// </example>
-    public delegate bool IsFlowValid(IElement flow, IReadonlyVariables variables);
+    public delegate bool IsFlowValid(ISequenceFlow flow, IReadonlyVariables variables);
     #endregion
 
     #region Tasks
