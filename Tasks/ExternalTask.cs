@@ -20,24 +20,6 @@ namespace Org.Reddragonit.BpmEngine.Tasks
             _businessProcess=process;
         }
 
-        #region IVariables
-        public object this[string name] { 
-            get { 
-                return _variables[name]; 
-            } 
-            set { 
-                _variables[name]=value; 
-            } 
-        }
-
-        public string[] Keys { get { return _variables.Keys; } }
-
-        public string[] FullKeys
-        {
-            get { return _variables.FullKeys; }
-        }
-        #endregion
-
         #region IElement
         string IElement.this[string attributeName]
         {
@@ -140,5 +122,7 @@ namespace Org.Reddragonit.BpmEngine.Tasks
         {
             _businessProcess.EmitTaskSignal(this, signal);
         }
+
+        public IVariables Variables { get { return _variables; } }
     }
 }

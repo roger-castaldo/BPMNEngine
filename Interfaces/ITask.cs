@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
     /// All emissions from this Task if caught by a brounday event that is flagged to cancelActivity will cause this task to abort and no longer be usable.  
     /// In doing so it will not submit the variable changes into the process.
     /// </summary>
-    public interface ITask : IVariables, IStepElement
+    public interface ITask : IStepElement
     {
         /// <summary>
         /// Called to issue a signal from the task (this should be caught somewhere within the process by a Signal Recieving Element with a matching signal defined)
@@ -30,5 +30,9 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// </summary>
         /// <param name="error"></param>
         void EmitError(Exception error);
+        /// <summary>
+        /// The variables container for this task which allows you to both obtain and modify process variables.
+        /// </summary>
+        IVariables Variables { get; }
     }
 }

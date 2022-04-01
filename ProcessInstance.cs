@@ -146,9 +146,10 @@ namespace Org.Reddragonit.BpmEngine
         {
             WriteLogLine(task, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, (task is IUserTask ? ((IUserTask)task).UserID : null) }));
             _stateEvent.WaitOne();
-            foreach (string str in task.Keys)
+            IVariables vars = task.Variables;
+            foreach (string str in vars.Keys)
             {
-                object left = ((IVariables)task)[str];
+                object left = vars[str];
                 object right = _state[task.id, str];
                 if (!_IsVariablesEqual(left, right))
                     _state[task.id, str] = left;

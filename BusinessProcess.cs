@@ -188,7 +188,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type)
         {
-            AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task));
+            AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task.Variables));
             foreach (AHandlingEvent ahe in events)
             {
                 ProcessEvent(instance,task.id, ahe);

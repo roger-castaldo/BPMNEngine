@@ -272,22 +272,22 @@ namespace Org.Reddragonit.BpmEngine
     ///                         case "Average":
     ///                             decimal avgSum=0;
     ///                             decimal avgCount=0;
-    ///                             foreach (Hashtable item in task["Items"]){
+    ///                             foreach (Hashtable item in task.Variables["Items"]){
     ///                                 if (item.ContainsKey(xn.Attributes["inputs"].Value)){
     ///                                     avgSum+=(decimal)item[xn.Attributes["inputs"].Value];
     ///                                     avgCount++;
     ///                                 }
     ///                             }
-    ///                             task[xn.Attriubtes["outputVariable"].Value] = avgSum/avgCount;
+    ///                             task.Variables[xn.Attriubtes["outputVariable"].Value] = avgSum/avgCount;
     ///                             break;
     ///                         case "Sum":
     ///                             decimal sum=0;
-    ///                             foreach (Hashtable item in task["Items"]){
+    ///                             foreach (Hashtable item in task.Variables["Items"]){
     ///                                 if (item.ContainsKey(xn.Attributes["inputs"].Value)){
     ///                                     sum+=(decimal)item[xn.Attributes["inputs"].Value];
     ///                                 }
     ///                             }
-    ///                             task[xn.Attriubtes["outputVariable"].Value] = sum;
+    ///                             task.Variables[xn.Attriubtes["outputVariable"].Value] = sum;
     ///                             break;
     ///                     }
     ///                 }
@@ -324,7 +324,7 @@ namespace Org.Reddragonit.BpmEngine
     ///             {
     ///                 if (xn.Name=="Question"){
     ///                     Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
-    ///                     task[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+    ///                     task.Variables[xn.Attributes["answer_property"].Value] = Console.ReadLine();
     ///                 }
     ///             }
     ///         }
@@ -359,7 +359,7 @@ namespace Org.Reddragonit.BpmEngine
     ///             {
     ///                 if (xn.Name=="Question"){
     ///                     Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
-    ///                     task[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+    ///                     task.Variables[xn.Attributes["answer_property"].Value] = Console.ReadLine();
     ///                     Console.WriteLine("Who Are You?");
     ///                     task.UserID = Console.ReadLine();
     ///                 }
