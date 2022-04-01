@@ -9,6 +9,7 @@ namespace Org.Reddragonit.BpmEngine.State
 {
     internal class StateVariableContainer : AStateContainer
     {
+        private const string _CONTAINER_NAME = "ProcessVariables";
         private const string _VARIABLE_ENTRY_ELEMENT = "sVariableEntry";
         private const string _PATH_STEP_INDEX = "pathStepIndex";
         private const string _NAME = "name";
@@ -20,7 +21,7 @@ namespace Org.Reddragonit.BpmEngine.State
         {
             get
             {
-                return "ProcessVariables";
+                return _CONTAINER_NAME;
             }
         }
 
@@ -83,7 +84,7 @@ namespace Org.Reddragonit.BpmEngine.State
             }
         }
 
-        private object ConvertValue(XmlElement elem)
+        private static object ConvertValue(XmlElement elem)
         {
             object ret = null;
             if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes["type"].Value) == VariableTypes.File)
@@ -150,6 +151,27 @@ namespace Org.Reddragonit.BpmEngine.State
                 }
                 else
                     ret = null;
+            }
+            return ret;
+        }
+
+        public static Dictionary<string,object> ExtractVariables(XmlDocument doc)
+        {
+            Dictionary<string, object> ret = new Dictionary<string, object>();
+            foreach (XmlNode node in doc.GetElementsByTagName(_CONTAINER_NAME))
+            {
+                foreach (XmlNode cnode in node.ChildNodes)
+                {
+                    if (cnode.NodeType==XmlNodeType.Element)
+                    {
+                        XmlElement elem = (XmlElement)cnode;
+                        string name = elem.Attributes[_NAME].Value;
+                        object val = ConvertValue(elem);
+                        if (ret.ContainsKey(name))
+                            ret.Remove(name);
+                        ret.Add(name, val);
+                    }
+                }
             }
             return ret;
         }

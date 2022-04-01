@@ -200,6 +200,13 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         /// <summary>
+        /// A Utility call used to extract the variable values from a Business Process State Document.
+        /// </summary>
+        /// <param name="doc">The State XML Document file to extract the values from</param>
+        /// <returns>The variables extracted from the Process State Document</returns>
+        public static Dictionary<string,object> ExtractProcessVariablesFromStateDocument(XmlDocument doc) { return StateVariableContainer.ExtractVariables(doc); }
+
+        /// <summary>
         /// Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
         /// </summary>
         /// <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>

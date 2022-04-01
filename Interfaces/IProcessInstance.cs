@@ -105,5 +105,9 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// <param name="taskID">The id of the task to load</param>
         /// <returns>The User task specified from the business process. If it cannot be found or the Task is not waiting it will return null.</returns>
         IManualTask GetManualTask(string taskID);
+        /// <summary>
+        /// Used to get the current variable values for this process instance
+        /// </summary>
+        Dictionary<string,object> CurrentVariables { get; }
     }
 }

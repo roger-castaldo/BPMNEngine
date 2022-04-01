@@ -392,7 +392,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             return _processLock.WaitOne(timeout, exitContext);
         }
-
+        Dictionary<string, object> IProcessInstance.CurrentVariables { get { return StateVariableContainer.ExtractVariables(((IProcessInstance)this).CurrentState); } }
         #endregion
 
         byte[] IProcessInstance.Diagram(bool outputVariables,ImageOuputTypes type) { return _process.Diagram(outputVariables, _state, type); }
