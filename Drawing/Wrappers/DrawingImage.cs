@@ -13,18 +13,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         private static readonly Type _GraphicsType = Utility.GetType(ASSEMBLY_NAME,"System.Drawing.Graphics");
         private static readonly Type _BitmapType = Utility.GetType(ASSEMBLY_NAME,"System.Drawing.Bitmap");
 
-        private static readonly object _FONT = (Utility.GetType(ASSEMBLY_NAME,"System.Drawing.Font")==null ?
-            null :
-            Utility.GetType(ASSEMBLY_NAME,"System.Drawing.Font").GetConstructor(new Type[] { Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontFamily"), typeof(float), Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontStyle"), Utility.GetType(ASSEMBLY_NAME,"System.Drawing.GraphicsUnit") }).Invoke(
-                new object[]
-                {
-                    Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontFamily").GetProperty("GenericSerif",BindingFlags.Static|BindingFlags.Public).GetValue(null),
-                    Constants.FONT_SIZE,
-                    Enum.Parse(Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontStyle"),Constants.FONT_STYLE),
-                    Enum.Parse(Utility.GetType(ASSEMBLY_NAME,"System.Drawing.GraphicsUnit"),Constants.FONT_GRAPHICS_UNIT)
-                }
-            )
-        );
+        private static object _FONT = null;
 
         private static object _CenterStringFormat=null;
         private static object _LeftStringFormat = null;
@@ -37,6 +26,22 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         {
             if (_GraphicsType!=null)
             {
+                try
+                {
+                    _FONT= (Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Font")==null ?
+                            null :
+                            Utility.GetType(ASSEMBLY_NAME, "System.Drawing.Font").GetConstructor(new Type[] { Utility.GetType(ASSEMBLY_NAME, "System.Drawing.FontFamily"), typeof(float), Utility.GetType(ASSEMBLY_NAME, "System.Drawing.FontStyle"), Utility.GetType(ASSEMBLY_NAME, "System.Drawing.GraphicsUnit") }).Invoke(
+                                new object[]
+                                {
+                                    Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontFamily").GetProperty("GenericSerif",BindingFlags.Static|BindingFlags.Public).GetValue(null),
+                                    Constants.FONT_SIZE,
+                                    Enum.Parse(Utility.GetType(ASSEMBLY_NAME,"System.Drawing.FontStyle"),Constants.FONT_STYLE),
+                                    Enum.Parse(Utility.GetType(ASSEMBLY_NAME,"System.Drawing.GraphicsUnit"),Constants.FONT_GRAPHICS_UNIT)
+                                }
+                            )
+                        );
+                }
+                catch (Exception e) { }
                 Type t = Utility.GetType(ASSEMBLY_NAME, "System.Drawing.StringFormat");
                 if (t!=null)
                 {
