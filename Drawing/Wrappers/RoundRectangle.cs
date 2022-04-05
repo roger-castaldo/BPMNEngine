@@ -7,14 +7,17 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class RoundRectangle : IDrawingObject
     {
-        public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Drawing2D.GraphicsPath");
-        private static readonly ConstructorInfo _drawingConstructor = (DrawingType==null ? null : DrawingType.GetConstructor(Type.EmptyTypes));
-        private static readonly MethodInfo _drawingAddArc = (DrawingType==null ? null : DrawingType.GetMethod("AddArc", new Type[] { typeof(float), typeof(float), typeof(float), typeof(float), typeof(float), typeof(float) }));
-        private static readonly MethodInfo _drawingAddLine = (DrawingType==null ? null : DrawingType.GetMethod("AddLine", new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
-        private static readonly MethodInfo _drawingClose = (DrawingType==null ? null : DrawingType.GetMethod("CloseFigure", Type.EmptyTypes));
+        public const string DRAWING_TYPE = "System.Drawing.Drawing2D.GraphicsPath";
+        public const string SKIA_TYPE = "SkiaSharp.SKRoundRect";
 
-        public static readonly Type SkiaType = Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKRoundRect");
-        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(new Type[] {Rectangle.SkiaType,typeof(float) }));
+        private static readonly Type _DrawingType = DrawingImage.LocateType(DRAWING_TYPE);
+        private static readonly ConstructorInfo _drawingConstructor = (_DrawingType==null ? null : _DrawingType.GetConstructor(Type.EmptyTypes));
+        private static readonly MethodInfo _drawingAddArc = (_DrawingType==null ? null : _DrawingType.GetMethod("AddArc", new Type[] { typeof(float), typeof(float), typeof(float), typeof(float), typeof(float), typeof(float) }));
+        private static readonly MethodInfo _drawingAddLine = (_DrawingType==null ? null : _DrawingType.GetMethod("AddLine", new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
+        private static readonly MethodInfo _drawingClose = (_DrawingType==null ? null : _DrawingType.GetMethod("CloseFigure", Type.EmptyTypes));
+
+        private static readonly Type _SkiaType = SkiaImage.LocateType(SKIA_TYPE);
+        private static readonly ConstructorInfo _skiaConstructor = (_SkiaType==null ? null : _SkiaType.GetConstructor(new Type[] {SkiaImage.LocateType(Rectangle.SKIA_TYPE),typeof(float) }));
 
         private float _x;
         public float X { get { return _x; } }

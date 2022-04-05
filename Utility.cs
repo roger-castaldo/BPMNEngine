@@ -162,6 +162,34 @@ namespace Org.Reddragonit.BpmEngine
 
         private static Dictionary<string, Assembly> _cache = new Dictionary<string, Assembly>();
 
+        public static bool LoadAssemblies(string[] assemblies)
+        {
+            Assembly ass = null;
+            foreach (string assembly in assemblies)
+            {
+                lock (_cache)
+                {
+                    if (_cache.ContainsKey(assembly))
+                        ass=_cache[assembly];
+                    else
+                    {
+                        try
+                        {
+                            ass = Assembly.Load(assembly);
+                        }
+                        catch (Exception ex)
+                        {
+                            ass=null;
+                        }
+                        _cache.Add(assembly, ass);
+                    }
+                }
+                if (ass==null)
+                    return false;
+            }
+            return true;
+        }
+
         public static Type GetType(string[] assemblies, string type)
         {
             Assembly ass = null;

@@ -7,15 +7,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class Pen : IDrawingObject
     {
-        public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Pen");
-        public static readonly Type SkiaType = Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint");
+        public const string DRAWING_TYPE = "System.Drawing.Pen";
+        public const string SKIA_TYPE = "SkiaSharp.SKPaint";
 
-        private static readonly ConstructorInfo _drawingConstructor = (DrawingType==null ? null : DrawingType.GetConstructor(new Type[] { Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Brush"), typeof(float) }));
-        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(Type.EmptyTypes));
+        private static readonly Type _DrawingType = DrawingImage.LocateType(DRAWING_TYPE);
+        private static readonly Type _SkiaType = SkiaImage.LocateType(SKIA_TYPE);
 
-        private static readonly object _skiaStyle = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaintStyle")==null ? null : Enum.Parse(Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaintStyle"), "Stroke"));
+        private static readonly ConstructorInfo _drawingConstructor = (_DrawingType==null ? null : _DrawingType.GetConstructor(new Type[] { DrawingImage.LocateType("System.Drawing.Brush"), typeof(float) }));
+        private static readonly ConstructorInfo _skiaConstructor = (_SkiaType==null ? null : _SkiaType.GetConstructor(Type.EmptyTypes));
 
-        private static readonly MethodInfo _skiaCreateDash = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPathEffect")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPathEffect").GetMethod("CreateDash", BindingFlags.Public|BindingFlags.Static));
+        private static readonly object _skiaStyle = (SkiaImage.LocateType("SkiaSharp.SKPaintStyle")==null ? null : Enum.Parse(SkiaImage.LocateType("SkiaSharp.SKPaintStyle"), "Stroke"));
+
+        private static readonly MethodInfo _skiaCreateDash = (SkiaImage.LocateType("SkiaSharp.SKPathEffect")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPathEffect").GetMethod("CreateDash", BindingFlags.Public|BindingFlags.Static));
 
         private SolidBrush _brush;
         public SolidBrush Brush { get { return _brush; } }

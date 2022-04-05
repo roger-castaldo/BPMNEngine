@@ -7,11 +7,14 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class Color : IDrawingObject
     {
-        public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Color");
-        public static readonly Type SkiaType = Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKColor");
+        public const string DRAWING_TYPE = "System.Drawing.Color";
+        public const string SKIA_TYPE = "SkiaSharp.SKColor";
 
-        private static readonly MethodInfo _drawingMethod = (DrawingType == null ? null : DrawingType.GetMethod("FromArgb", new Type[] {typeof(int), typeof(int) , typeof(int) , typeof(int) }));
-        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }));
+        private static readonly Type _DrawingType = DrawingImage.LocateType(DRAWING_TYPE);
+        private  static readonly Type _SkiaType = SkiaImage.LocateType(SKIA_TYPE);
+
+        private static readonly MethodInfo _drawingMethod = (_DrawingType == null ? null : _DrawingType.GetMethod("FromArgb", new Type[] {typeof(int), typeof(int) , typeof(int) , typeof(int) }));
+        private static readonly ConstructorInfo _skiaConstructor = (_SkiaType==null ? null : _SkiaType.GetConstructor(new Type[] { typeof(byte), typeof(byte), typeof(byte), typeof(byte) }));
 
         public static readonly Color White = new Color(255, 255,255,255);
         public static readonly Color Red = new Color(255, 255, 0, 0);
@@ -48,22 +51,22 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         internal static Color FromDrawingObject(object obj)
         {
-            if (obj.GetType().FullName==DrawingType.FullName)
+            if (obj.GetType().FullName==_DrawingType.FullName)
             {
                 return new Color(
-                    (byte)DrawingType.GetProperty("A").GetValue(obj),
-                    (byte)DrawingType.GetProperty("R").GetValue(obj),
-                    (byte)DrawingType.GetProperty("G").GetValue(obj),
-                    (byte)DrawingType.GetProperty("B").GetValue(obj)
+                    (byte)_DrawingType.GetProperty("A").GetValue(obj),
+                    (byte)_DrawingType.GetProperty("R").GetValue(obj),
+                    (byte)_DrawingType.GetProperty("G").GetValue(obj),
+                    (byte)_DrawingType.GetProperty("B").GetValue(obj)
                 );
             }
-            if (obj.GetType().FullName==SkiaType.FullName)
+            if (obj.GetType().FullName==_SkiaType.FullName)
             {
                 return new Color(
-                    (byte)SkiaType.GetProperty("Alpha").GetValue(obj),
-                    (byte)SkiaType.GetProperty("Red").GetValue(obj),
-                    (byte)SkiaType.GetProperty("Green").GetValue(obj),
-                    (byte)SkiaType.GetProperty("Blue").GetValue(obj)
+                    (byte)_SkiaType.GetProperty("Alpha").GetValue(obj),
+                    (byte)_SkiaType.GetProperty("Red").GetValue(obj),
+                    (byte)_SkiaType.GetProperty("Green").GetValue(obj),
+                    (byte)_SkiaType.GetProperty("Blue").GetValue(obj)
                 );
             }
             return null;

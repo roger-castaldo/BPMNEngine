@@ -9,10 +9,33 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class SkiaImage : IDrawingSurface
     {
-        public static readonly string[] ASSEMBLY_NAME = new string[] { "SkiaSharp" };
+        public static readonly string[] _ASSEMBLY_NAME = new string[] { "SkiaSharp" };
 
-        private static readonly Type _GraphicsType = Utility.GetType(ASSEMBLY_NAME, "SkiaSharp.SKCanvas");
-        private static readonly Type _BitmapType = Utility.GetType(ASSEMBLY_NAME, "SkiaSharp.SKBitmap");
+        public static readonly bool CAN_USE = Utility.LoadAssemblies(_ASSEMBLY_NAME);
+
+        private static Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
+
+        public static Type LocateType(string name)
+        {
+            Type ret = null;
+            if (CAN_USE)
+            {
+                lock (_typeCache)
+                {
+                    if (_typeCache.ContainsKey(name))
+                        ret=_typeCache[name];
+                    else
+                    {
+                        ret=Utility.GetType(_ASSEMBLY_NAME, name);
+                        _typeCache.Add(name, ret);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        private static readonly Type _GraphicsType = LocateType("SkiaSharp.SKCanvas");
+        private static readonly Type _BitmapType = LocateType("SkiaSharp.SKBitmap");
 
         private static readonly ConstructorInfo _bmpConstructor = (_BitmapType==null ? null : _BitmapType.GetConstructor(new Type[] { typeof(int), typeof(int),typeof(bool) }));
         private static readonly ConstructorInfo _graphicsConstructor = (_GraphicsType==null ? null : _GraphicsType.GetConstructor(new Type[] { _BitmapType }));
@@ -21,39 +44,40 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         static SkiaImage()
         {
-            if (_GraphicsType!=null)
+            if (CAN_USE)
             {
-                _methods = new Dictionary<string, MethodInfo>()
+                try
                 {
-                    {"FromEncodedData", Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKImage").GetMethod("FromEncodedData", new Type[] { typeof(Stream) })},
-                    {"FromImage", _BitmapType.GetMethod("FromImage", new Type[] { Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKImage") })},
+                    _methods = new Dictionary<string, MethodInfo>()
+                {
+                    {"FromEncodedData", LocateType("SkiaSharp.SKImage").GetMethod("FromEncodedData", new Type[] { typeof(Stream) })},
+                    {"FromImage", _BitmapType.GetMethod("FromImage", new Type[] { LocateType("SkiaSharp.SKImage") })},
                     {"_Clear",_GraphicsType.GetMethod("Clear",Type.EmptyTypes) },
-                    {"Clear",_GraphicsType.GetMethod("Clear",new Type[]{Color.SkiaType}) },
-                    {"DrawEllipse",_GraphicsType.GetMethod("DrawOval",new Type[]{Rectangle.SkiaType,Pen.SkiaType}) },
-                    {"FillEllipse",_GraphicsType.GetMethod("DrawOval",new Type[]{Rectangle.SkiaType,Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPaint")}) },
-                    {"DrawImage",_GraphicsType.GetMethod("DrawImage",new Type[]{Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKImage"),Rectangle.SkiaType,Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPaint")}) },
-                    {"_ScalePixels",_BitmapType.GetMethod("ScalePixels",new Type[]{_BitmapType,Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKFilterQuality")}) },
-                    {"DrawLine",_GraphicsType.GetMethod("DrawLine",new Type[]{Point.SkiaType,Point.SkiaType,Pen.SkiaType}) },
-                    //{"DrawLines",_GraphicsType.GetMethod("DrawPoints",new Type[]{Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPointMode"),Utility.GetType(ASSEMBLY_NAME,Point.SkiaType.ToString()+"[]"),Pen.SkiaType}) },
-                    {"DrawRoundRectangle",_GraphicsType.GetMethod("DrawRoundRect",new Type[]{RoundRectangle.SkiaType,Pen.SkiaType}) },
-                    {"MeasureString",Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPaint").GetMethod("MeasureText",new Type[]{typeof(string),Rectangle.SkiaType.MakeByRefType()}) },
-                    {"_MeasureString",Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPaint").GetMethod("MeasureText",new Type[]{typeof(string)}) },
-                    {"DrawString",_GraphicsType.GetMethod("DrawText",new Type[]{typeof(string),typeof(float),typeof(float),Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPaint")}) },
-                    {"FillPolygon",_GraphicsType.GetMethod("DrawPath",new Type[]{Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPath"),Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKPaint")}) },
+                    {"Clear",_GraphicsType.GetMethod("Clear",new Type[]{LocateType(Color.SKIA_TYPE)}) },
+                    {"DrawEllipse",_GraphicsType.GetMethod("DrawOval",new Type[]{LocateType(Rectangle.SKIA_TYPE),LocateType(Pen.SKIA_TYPE)}) },
+                    {"FillEllipse",_GraphicsType.GetMethod("DrawOval",new Type[]{LocateType(Rectangle.SKIA_TYPE),LocateType("SkiaSharp.SKPaint")}) },
+                    {"DrawImage",_GraphicsType.GetMethod("DrawImage",new Type[]{LocateType("SkiaSharp.SKImage"),LocateType(Rectangle.SKIA_TYPE),LocateType("SkiaSharp.SKPaint")}) },
+                    {"_ScalePixels",_BitmapType.GetMethod("ScalePixels",new Type[]{_BitmapType,LocateType("SkiaSharp.SKFilterQuality")}) },
+                    {"DrawLine",_GraphicsType.GetMethod("DrawLine",new Type[]{LocateType(Point.SKIA_TYPE),LocateType(Point.SKIA_TYPE),LocateType(Pen.SKIA_TYPE)}) },
+                    //{"DrawLines",_GraphicsType.GetMethod("DrawPoints",new Type[]{LocateType("SkiaSharp.SKPointMode"),LocateType(LocateType(Point.SKIA_TYPE).ToString()+"[]"),LocateType(Pen.SKIA_TYPE)}) },
+                    {"DrawRoundRectangle",_GraphicsType.GetMethod("DrawRoundRect",new Type[]{LocateType(RoundRectangle.SKIA_TYPE),LocateType(Pen.SKIA_TYPE)}) },
+                    {"MeasureString",LocateType("SkiaSharp.SKPaint").GetMethod("MeasureText",new Type[]{typeof(string), LocateType(Rectangle.SKIA_TYPE).MakeByRefType()}) },
+                    {"_MeasureString",LocateType("SkiaSharp.SKPaint").GetMethod("MeasureText",new Type[]{typeof(string)}) },
+                    {"DrawString",_GraphicsType.GetMethod("DrawText",new Type[]{typeof(string),typeof(float),typeof(float),LocateType("SkiaSharp.SKPaint")}) },
+                    {"FillPolygon",_GraphicsType.GetMethod("DrawPath",new Type[]{LocateType("SkiaSharp.SKPath"),LocateType("SkiaSharp.SKPaint")}) },
                     {"Flush",_GraphicsType.GetMethod("Flush",Type.EmptyTypes) },
                     {"GetPixel",_BitmapType.GetMethod("GetPixel",new Type[]{typeof(int),typeof(int)}) },
                     {"RotateTransform",_GraphicsType.GetMethod("RotateDegrees",new Type[]{typeof(float)}) },
-                    {"SetPixel",_BitmapType.GetMethod("SetPixel",new Type[]{typeof(int),typeof(int),Color.SkiaType}) },
-                    {"Save",_BitmapType.GetMethod("Encode",new Type[]{typeof(Stream),Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKEncodedImageFormat"),typeof(int)}) },
+                    {"SetPixel",_BitmapType.GetMethod("SetPixel",new Type[]{typeof(int),typeof(int),LocateType(Color.SKIA_TYPE)}) },
+                    {"Save",_BitmapType.GetMethod("Encode",new Type[]{typeof(Stream),LocateType("SkiaSharp.SKEncodedImageFormat"),typeof(int)}) },
                     {"TranslateTransform",_GraphicsType.GetMethod("Translate",new Type[]{typeof(float),typeof(float)}) },
-                    {"FromBitmap",Utility.GetType(ASSEMBLY_NAME,"SkiaSharp.SKImage").GetMethod("FromBitmap", new Type[] { _BitmapType }) }
+                    {"FromBitmap",LocateType("SkiaSharp.SKImage").GetMethod("FromBitmap", new Type[] { _BitmapType }) }
                 };
+                }
+                catch (Exception ex) {
+                    Console.WriteLine(ex.Message);
+                }
             }
-        }
-
-        public static bool CanUse
-        {
-            get { return _GraphicsType!=null; }
         }
 
         private Size _size;
@@ -98,7 +122,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             _methods["Clear"].Invoke(_gp, new object[] { color.SkiaObject });
         }
 
-        private static readonly object _filterQuality = (Utility.GetType(ASSEMBLY_NAME, "SkiaSharp.SKFilterQuality")==null ? null : Enum.Parse(Utility.GetType(ASSEMBLY_NAME, "SkiaSharp.SKFilterQuality"), "High"));
+        private static readonly object _filterQuality = (CAN_USE ? Enum.Parse(LocateType("SkiaSharp.SKFilterQuality"), "High") : null);
         public void DrawImage(IDrawingSurface image, Rectangle rect)
         {
             object img = image.SkiaObject;
@@ -118,7 +142,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         private object _ConvertPoints(Point[] points)
         {
-            Array arr = Array.CreateInstance(Point.SkiaType, points.Length);
+            Array arr = Array.CreateInstance(LocateType(Point.SKIA_TYPE), points.Length);
             for (int x = 0; x<points.Length; x++)
                 arr.SetValue(points[x].SkiaObject, x);
             return arr;
@@ -167,7 +191,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             _methods["FillEllipse"].Invoke(_gp, new object[] { rect.SkiaObject, brush.SkiaObject });
         }
 
-        private static readonly Type _skPath = Utility.GetType(ASSEMBLY_NAME, "SkiaSharp.SKPath");
+        private static readonly Type _skPath = LocateType("SkiaSharp.SKPath");
         private static readonly ConstructorInfo _skPathConstructor = (_skPath==null ? null : _skPath.GetConstructor(Type.EmptyTypes));
         private static readonly MethodInfo _skPathMoveTo = (_skPath==null ? null : _skPath.GetMethod("MoveTo", new Type[] { typeof(float), typeof(float) }));
         private static readonly MethodInfo _skPathLineTo = (_skPath==null ? null : _skPath.GetMethod("LineTo", new Type[] { typeof(float), typeof(float) }));
@@ -297,7 +321,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             _methods["SetPixel"].Invoke(_bmp, new object[] { x, y, color.SkiaObject });
         }
 
-        private static readonly Type _imageFormatEnum = Utility.GetType(ASSEMBLY_NAME, "SkiaSharp.SKEncodedImageFormat");
+        private static readonly Type _imageFormatEnum = LocateType("SkiaSharp.SKEncodedImageFormat");
         public byte[] ToFile(ImageOuputTypes type)
         { 
             MemoryStream ms = new MemoryStream();

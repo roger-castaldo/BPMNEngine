@@ -7,18 +7,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class SolidBrush : IDrawingObject
     {
-        private static readonly ConstructorInfo _drawingConstructor = (Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.SolidBrush")==null ? null : Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.SolidBrush").GetConstructor(new Type[] { Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.Color") }));
-        private static readonly ConstructorInfo _skiaConstructor = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint").GetConstructor(Type.EmptyTypes));
+        private static readonly ConstructorInfo _drawingConstructor = (DrawingImage.LocateType("System.Drawing.SolidBrush")==null ? null : DrawingImage.LocateType("System.Drawing.SolidBrush").GetConstructor(new Type[] { DrawingImage.LocateType("System.Drawing.Color") }));
+        private static readonly ConstructorInfo _skiaConstructor = (SkiaImage.LocateType("SkiaSharp.SKPaint")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPaint").GetConstructor(Type.EmptyTypes));
 
-        private static readonly object _skiaStyle = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaintStyle")==null ? null : Enum.Parse(Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaintStyle"), "StrokeAndFill"));
-        private static readonly object _skiaTextAlign = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKTextAlign")==null ? null : Enum.Parse(Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKTextAlign"), "Left"));
-        private static readonly object _skiaTypeFace = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKTypeface")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKTypeface").GetMethod("FromFamilyName", new Type[] { typeof(string) }).Invoke(null, new object[] { "Arial" }));
+        private static readonly object _skiaStyle = (SkiaImage.LocateType("SkiaSharp.SKPaintStyle")==null ? null : Enum.Parse(SkiaImage.LocateType("SkiaSharp.SKPaintStyle"), "StrokeAndFill"));
+        private static readonly object _skiaTextAlign = (SkiaImage.LocateType("SkiaSharp.SKTextAlign")==null ? null : Enum.Parse(SkiaImage.LocateType("SkiaSharp.SKTextAlign"), "Left"));
+        private static readonly object _skiaTypeFace = (SkiaImage.LocateType("SkiaSharp.SKTypeface")==null ? null : SkiaImage.LocateType("SkiaSharp.SKTypeface").GetMethod("FromFamilyName", new Type[] { typeof(string) }).Invoke(null, new object[] { "Arial" }));
 
-        private static readonly PropertyInfo _skiaColorProperty = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint").GetProperty("Color",BindingFlags.Public | BindingFlags.Instance));
-        private static readonly PropertyInfo _skiaStyleProperty = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint").GetProperty("Style", BindingFlags.Public | BindingFlags.Instance));
-        private static readonly PropertyInfo _skiaTextAlignProperty = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint").GetProperty("TextAlign", BindingFlags.Public | BindingFlags.Instance));
-        private static readonly PropertyInfo _skiaTextSizeProperty = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint").GetProperty("TextSize", BindingFlags.Public | BindingFlags.Instance));
-        private static readonly PropertyInfo _skiaTypeFaceProperty = (Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint")==null ? null : Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKPaint").GetProperty("Typeface", BindingFlags.Public | BindingFlags.Instance));
+        private static readonly PropertyInfo _skiaColorProperty = (SkiaImage.LocateType("SkiaSharp.SKPaint")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPaint").GetProperty("Color",BindingFlags.Public | BindingFlags.Instance));
+        private static readonly PropertyInfo _skiaStyleProperty = (SkiaImage.LocateType("SkiaSharp.SKPaint")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPaint").GetProperty("Style", BindingFlags.Public | BindingFlags.Instance));
+        private static readonly PropertyInfo _skiaTextAlignProperty = (SkiaImage.LocateType("SkiaSharp.SKPaint")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPaint").GetProperty("TextAlign", BindingFlags.Public | BindingFlags.Instance));
+        private static readonly PropertyInfo _skiaTextSizeProperty = (SkiaImage.LocateType("SkiaSharp.SKPaint")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPaint").GetProperty("TextSize", BindingFlags.Public | BindingFlags.Instance));
+        private static readonly PropertyInfo _skiaTypeFaceProperty = (SkiaImage.LocateType("SkiaSharp.SKPaint")==null ? null : SkiaImage.LocateType("SkiaSharp.SKPaint").GetProperty("Typeface", BindingFlags.Public | BindingFlags.Instance));
 
         private Color _color;
         public Color Color { get { return _color; } }

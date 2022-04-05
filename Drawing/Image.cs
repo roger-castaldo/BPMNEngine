@@ -12,7 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         {
             get
             {
-                return DrawingImage.CanUse||SkiaImage.CanUse;
+                return DrawingImage.CAN_USE||SkiaImage.CAN_USE;
             }
         }
 
@@ -37,27 +37,27 @@ namespace Org.Reddragonit.BpmEngine.Drawing
 
         public Image(Size size)
         {
-            _surface = (DrawingImage.CanUse ? new DrawingImage(size) : (IDrawingSurface)(SkiaImage.CanUse ? new SkiaImage(size) : null));
+            _surface = (DrawingImage.CAN_USE ? new DrawingImage(size) : (IDrawingSurface)(SkiaImage.CAN_USE ? new SkiaImage(size) : null));
         }
 
         public static int VerticalTextShift
         {
-            get { return (DrawingImage.CanUse ? -7 : 5); }
+            get { return (DrawingImage.CAN_USE ? -7 : 5); }
         }
 
         public static float EdgeLabelVerticalShift
         {
-            get { return (DrawingImage.CanUse ? 0 : 6f); }
+            get { return (DrawingImage.CAN_USE ? 0 : 6f); }
         }
 
         public static float EdgeLabelHorizontalShift
         {
-            get { return (DrawingImage.CanUse ? 0 : -1.5f); }
+            get { return (DrawingImage.CAN_USE ? 0 : -1.5f); }
         }
 
         private Image(Stream str)
         {
-            _surface = (DrawingImage.CanUse ? new DrawingImage(str) : (IDrawingSurface)(SkiaImage.CanUse ? new SkiaImage(str) : null));
+            _surface = (DrawingImage.CAN_USE ? new DrawingImage(str) : (IDrawingSurface)(SkiaImage.CAN_USE ? new SkiaImage(str) : null));
         }
 
         public void Clear(Color color)

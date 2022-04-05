@@ -7,11 +7,14 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class Rectangle :IDrawingObject
     {
-        public static readonly Type DrawingType = Utility.GetType(DrawingImage.ASSEMBLY_NAME, "System.Drawing.RectangleF");
-        public static readonly Type SkiaType = Utility.GetType(SkiaImage.ASSEMBLY_NAME, "SkiaSharp.SKRect");
+        public const string DRAWING_TYPE = "System.Drawing.RectangleF";
+        public const string SKIA_TYPE = "SkiaSharp.SKRect";
 
-        private static readonly ConstructorInfo _drawingConstructor = (DrawingType==null ? null : DrawingType.GetConstructor(new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
-        private static readonly ConstructorInfo _skiaConstructor = (SkiaType==null ? null : SkiaType.GetConstructor(new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
+        private static readonly Type _DrawingType = DrawingImage.LocateType(DRAWING_TYPE);
+        private static readonly Type _SkiaType = SkiaImage.LocateType(SKIA_TYPE);
+
+        private static readonly ConstructorInfo _drawingConstructor = (_DrawingType==null ? null : _DrawingType.GetConstructor(new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
+        private static readonly ConstructorInfo _skiaConstructor = (_SkiaType==null ? null : _SkiaType.GetConstructor(new Type[] { typeof(float), typeof(float), typeof(float), typeof(float) }));
 
         private float _x;
         public float X { get { return _x; } }
@@ -53,11 +56,11 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         {
             _height = (float)drawingObject.GetType().GetProperty("Height").GetValue(drawingObject, new object[] { });
             _width = (float)drawingObject.GetType().GetProperty("Width").GetValue(drawingObject, new object[] { });
-            if (drawingObject.GetType().FullName==DrawingType.FullName)
+            if (drawingObject.GetType().FullName==_DrawingType.FullName)
             {
                 _x = (float)drawingObject.GetType().GetProperty("X").GetValue(drawingObject, new object[] { });
                 _y = (float)drawingObject.GetType().GetProperty("Y").GetValue(drawingObject, new object[] { });
-            }else if (drawingObject.GetType().FullName==SkiaType.FullName)
+            }else if (drawingObject.GetType().FullName==_SkiaType.FullName)
             {
                 _x = (float)drawingObject.GetType().GetProperty("Left").GetValue(drawingObject, new object[] { });
                 _y = (float)drawingObject.GetType().GetProperty("Top").GetValue(drawingObject, new object[] { });
