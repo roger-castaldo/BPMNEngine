@@ -3,7 +3,7 @@
     <TargetFrameworks>netcoreapp3.1;net461;netstandard2.1;net6.0;</TargetFrameworks>
     <RootNamespace>Org.Reddragonit.BpmEngine</RootNamespace>
     <PackageId>Org.Reddragonit.BpmEngine</PackageId>
-    <Version>2.0-beta4</Version>
+    <Version>2.0-beta5</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
