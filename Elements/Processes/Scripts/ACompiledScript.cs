@@ -2,8 +2,7 @@
 #if NETCOREAPP3_1
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
-#endif
-#if NET461
+#else
 using System.CodeDom.Compiler;
 #endif
 using System.Collections.Generic;
@@ -150,9 +149,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
             return errors == null;
         }
-#endif
 
-#if NET461
+#else
+
         protected abstract string _GenerateCode(string[] imports,string code);
         protected abstract CodeDomProvider _CodeProvider { get; }
         

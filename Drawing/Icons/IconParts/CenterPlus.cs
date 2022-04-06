@@ -1,10 +1,4 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Text;
-
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
+﻿namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class CenterPlus : ABase64Icon
     {

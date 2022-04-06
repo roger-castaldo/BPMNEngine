@@ -2,13 +2,12 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
+#else
+using System.CodeDom.Compiler;
 #endif
 using Microsoft.CSharp;
 using Org.Reddragonit.BpmEngine.Attributes;
 using System;
-#if NET461
-using System.CodeDom.Compiler;
-#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -66,9 +65,7 @@ public class {1} {{
             CSharpCompilation comp = CSharpCompilation.Create(name, tress,references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             return comp.Emit(ms);
         }
-#endif
-
-#if NET461
+#else
         protected override string _GenerateCode(string[] imports,string code)
         {
             Info("Generating C# Code for script compilation for script element {0}",new object[] { id });

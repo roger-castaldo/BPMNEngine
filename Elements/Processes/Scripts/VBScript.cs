@@ -2,14 +2,13 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.VisualBasic;
+#else
+using System.CodeDom.Compiler;
 #endif
 using Microsoft.CSharp;
 using Microsoft.VisualBasic;
 using Org.Reddragonit.BpmEngine.Attributes;
 using System;
-#if NET461
-using System.CodeDom.Compiler;
-#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -76,9 +75,7 @@ End Class";
             VisualBasicCompilation comp = VisualBasicCompilation.Create(name, tress,references, new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             return comp.Emit(ms);
         }
-#endif
-
-#if NET461
+#else
         protected override string _GenerateCode(string[] imports, string code)
         {
             Info("Generating VB Code for script compilation for script element {0}", new object[] { id });
