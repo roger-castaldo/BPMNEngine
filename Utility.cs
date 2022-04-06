@@ -161,30 +161,14 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         private static Dictionary<string, Assembly> _cache = new Dictionary<string, Assembly>();
+        private static Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
 
-        public static bool LoadAssemblies(string[] assemblies)
+
+        public static bool AllTypesAvailable(string[] assemblies,string[] types)
         {
-            Assembly ass = null;
-            foreach (string assembly in assemblies)
+            foreach (string str in types)
             {
-                lock (_cache)
-                {
-                    if (_cache.ContainsKey(assembly))
-                        ass=_cache[assembly];
-                    else
-                    {
-                        try
-                        {
-                            ass = Assembly.Load(assembly);
-                        }
-                        catch (Exception ex)
-                        {
-                            ass=null;
-                        }
-                        _cache.Add(assembly, ass);
-                    }
-                }
-                if (ass==null)
+                if (GetType(assemblies, str)==null)
                     return false;
             }
             return true;
@@ -194,29 +178,46 @@ namespace Org.Reddragonit.BpmEngine
         {
             Assembly ass = null;
             Type ret = null;
-            foreach (string assembly in assemblies)
+            bool search = true;
+            lock (_typeCache)
             {
-                lock (_cache)
+                if (_typeCache.ContainsKey(type))
                 {
-                    if (_cache.ContainsKey(assembly))
-                        ass=_cache[assembly];
-                    else
-                    {
-                        try
-                        {
-                            ass = Assembly.Load(assembly);
-                        }
-                        catch (Exception ex)
-                        {
-                            ass=null;
-                        }
-                        _cache.Add(assembly, ass);
-                    }
+                    search=false;
+                    ret=_typeCache[type];
                 }
-                if (ass!=null)
-                    ret = ass.GetType(type, false);
-                if (ret!=null)
-                    break;
+            }
+            if (search)
+            {
+                foreach (string assembly in assemblies)
+                {
+                    lock (_cache)
+                    {
+                        if (_cache.ContainsKey(assembly))
+                            ass=_cache[assembly];
+                        else
+                        {
+                            try
+                            {
+                                ass = Assembly.Load(assembly);
+                            }
+                            catch (Exception ex)
+                            {
+                                ass=null;
+                            }
+                            _cache.Add(assembly, ass);
+                        }
+                    }
+                    if (ass!=null)
+                        ret = ass.GetType(type, false);
+                    if (ret!=null)
+                        break;
+                }
+                lock (_typeCache)
+                {
+                    if (!_typeCache.ContainsKey(type))
+                        _typeCache.Add(type, ret);
+                }
             }
             return ret;
         }

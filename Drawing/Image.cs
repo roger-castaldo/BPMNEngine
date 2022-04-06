@@ -37,27 +37,27 @@ namespace Org.Reddragonit.BpmEngine.Drawing
 
         public Image(Size size)
         {
-            _surface = (DrawingImage.CAN_USE ? new DrawingImage(size) : (IDrawingSurface)(SkiaImage.CAN_USE ? new SkiaImage(size) : null));
+            _surface = (SkiaImage.CAN_USE ? new SkiaImage(size) : (IDrawingSurface)(DrawingImage.CAN_USE ? new DrawingImage(size) : null));
         }
 
         public static int VerticalTextShift
         {
-            get { return (DrawingImage.CAN_USE ? -7 : 5); }
+            get { return (SkiaImage.CAN_USE ? 5 : -7); }
         }
 
         public static float EdgeLabelVerticalShift
         {
-            get { return (DrawingImage.CAN_USE ? 0 : 6f); }
+            get { return (SkiaImage.CAN_USE ? 6f : 0); }
         }
 
         public static float EdgeLabelHorizontalShift
         {
-            get { return (DrawingImage.CAN_USE ? 0 : -1.5f); }
+            get { return (SkiaImage.CAN_USE ? -1.5f : 0); }
         }
 
         private Image(Stream str)
         {
-            _surface = (DrawingImage.CAN_USE ? new DrawingImage(str) : (IDrawingSurface)(SkiaImage.CAN_USE ? new SkiaImage(str) : null));
+            _surface = (SkiaImage.CAN_USE ? new SkiaImage(str) : (IDrawingSurface)(DrawingImage.CAN_USE ? new DrawingImage(str) : null));
         }
 
         public void Clear(Color color)

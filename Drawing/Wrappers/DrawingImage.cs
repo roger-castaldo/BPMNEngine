@@ -10,30 +10,29 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
     {
         private static readonly string[] _ASSEMBLY_NAME = new string[]{ "System.Drawing.Common", "System.Drawing.Primitives" };
 
-        public static bool CAN_USE = Utility.LoadAssemblies(_ASSEMBLY_NAME);
-
-        private static Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
         public static Type LocateType(string name)
         {
-            Type ret = null;
-            if (CAN_USE)
-            {
-                lock (_typeCache)
-                {
-                    if (_typeCache.ContainsKey(name))
-                        ret=_typeCache[name];
-                    else
-                    {
-                        ret=Utility.GetType(_ASSEMBLY_NAME, name);
-                        _typeCache.Add(name, ret);
-                    }
-                }
-            }
-            return ret;
+            return Utility.GetType(_ASSEMBLY_NAME, name);
         }
 
-        private static readonly Type _GraphicsType = LocateType("System.Drawing.Graphics");
-        private static readonly Type _BitmapType = LocateType("System.Drawing.Bitmap");
+        private const string _GRAPHICS_TYPE = "System.Drawing.Graphics";
+        private const string _BITMAP_TYPE = "System.Drawing.Bitmap";
+        private const string _FONT_TYPE = "System.Drawing.Font";
+        private const string _FONT_FAMILY_TYPE = "System.Drawing.FontFamily";
+        private const string _FONT_STYLE_TYPE = "System.Drawing.FontStyle";
+        private const string _GRAPHICS_UNIT_TYPE = "System.Drawing.GraphicsUnit";
+        private const string _STRING_ALIGNMENT_TYPE = "System.Drawing.StringAlignment";
+        private const string _IMAGE_TYPE = "System.Drawing.Image";
+        private const string _STRING_FORMAT_TYPE = "System.Drawing.StringFormat";
+        private const string _BRUSH_TYPE = "System.Drawing.Brush";
+        private const string _SIZE_TYPE = "System.Drawing.SizeF";
+        private const string _IMAGE_FORMAT_TYPE = "System.Drawing.Imaging.ImageFormat";
+
+        public static readonly bool CAN_USE = Utility.AllTypesAvailable(_ASSEMBLY_NAME, new string[] { _GRAPHICS_TYPE,_BITMAP_TYPE,_FONT_TYPE, _FONT_FAMILY_TYPE, _FONT_STYLE_TYPE, _GRAPHICS_UNIT_TYPE, _STRING_ALIGNMENT_TYPE, _IMAGE_TYPE, _STRING_FORMAT_TYPE,_BRUSH_TYPE, _SIZE_TYPE, _IMAGE_FORMAT_TYPE, Color.DRAWING_TYPE,GraphicsPath.DRAWING_TYPE,Pen.DRAWING_TYPE,Point.DRAWING_TYPE,Rectangle.DRAWING_TYPE,RoundRectangle.DRAWING_TYPE,Size.DRAWING_TYPE})
+            && Utility.AllTypesAvailable(_ASSEMBLY_NAME,SolidBrush.DRAWING_TYPES);
+
+        private static readonly Type _GraphicsType = LocateType(_GRAPHICS_TYPE);
+        private static readonly Type _BitmapType = LocateType(_BITMAP_TYPE);
 
         private static object _FONT = null;
 
@@ -50,47 +49,47 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             {
                 try
                 {
-                    _FONT= (LocateType("System.Drawing.Font")==null ?
+                    _FONT= (LocateType(_FONT_TYPE)==null ?
                             null :
-                            LocateType("System.Drawing.Font").GetConstructor(new Type[] { LocateType("System.Drawing.FontFamily"), typeof(float), LocateType("System.Drawing.FontStyle"), LocateType("System.Drawing.GraphicsUnit") }).Invoke(
+                            LocateType(_FONT_TYPE).GetConstructor(new Type[] { LocateType(_FONT_FAMILY_TYPE), typeof(float), LocateType(_FONT_STYLE_TYPE), LocateType(_GRAPHICS_UNIT_TYPE) }).Invoke(
                                 new object[]
                                 {
-                                    Utility.GetType(_ASSEMBLY_NAME,"System.Drawing.FontFamily").GetProperty("GenericSerif",BindingFlags.Static|BindingFlags.Public).GetValue(null),
+                                    Utility.GetType(_ASSEMBLY_NAME,_FONT_FAMILY_TYPE).GetProperty("GenericSerif",BindingFlags.Static|BindingFlags.Public).GetValue(null),
                                     Constants.FONT_SIZE,
-                                    Enum.Parse(Utility.GetType(_ASSEMBLY_NAME,"System.Drawing.FontStyle"),Constants.FONT_STYLE),
-                                    Enum.Parse(Utility.GetType(_ASSEMBLY_NAME,"System.Drawing.GraphicsUnit"),Constants.FONT_GRAPHICS_UNIT)
+                                    Enum.Parse(Utility.GetType(_ASSEMBLY_NAME,_FONT_STYLE_TYPE),Constants.FONT_STYLE),
+                                    Enum.Parse(Utility.GetType(_ASSEMBLY_NAME,_GRAPHICS_UNIT_TYPE),Constants.FONT_GRAPHICS_UNIT)
                                 }
                             )
                         );
-                    Type t = LocateType("System.Drawing.StringFormat");
+                    Type t = LocateType(_STRING_FORMAT_TYPE);
                     if (t!=null)
                     {
                         _CenterStringFormat = t.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
-                        t.GetProperty("Alignment").SetValue(_CenterStringFormat, Enum.Parse(LocateType("System.Drawing.StringAlignment"), "Center"));
-                        t.GetProperty("LineAlignment").SetValue(_CenterStringFormat, Enum.Parse(LocateType("System.Drawing.StringAlignment"), "Center"));
+                        t.GetProperty("Alignment").SetValue(_CenterStringFormat, Enum.Parse(LocateType(_STRING_ALIGNMENT_TYPE), "Center"));
+                        t.GetProperty("LineAlignment").SetValue(_CenterStringFormat, Enum.Parse(LocateType(_STRING_ALIGNMENT_TYPE), "Center"));
                         _LeftStringFormat = t.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
-                        t.GetProperty("Alignment").SetValue(_LeftStringFormat, Enum.Parse(LocateType("System.Drawing.StringAlignment"), "Center"));
-                        t.GetProperty("LineAlignment").SetValue(_LeftStringFormat, Enum.Parse(LocateType("System.Drawing.StringAlignment"), "Near"));
+                        t.GetProperty("Alignment").SetValue(_LeftStringFormat, Enum.Parse(LocateType(_STRING_ALIGNMENT_TYPE), "Center"));
+                        t.GetProperty("LineAlignment").SetValue(_LeftStringFormat, Enum.Parse(LocateType(_STRING_ALIGNMENT_TYPE), "Near"));
                     }
                     _methods = new Dictionary<string, MethodInfo>()
                     {
                         {"FromImage",_GraphicsType.GetMethod("FromImage", BindingFlags.Public|BindingFlags.Static) },
-                        {"LoadFromStream", Utility.GetType(_ASSEMBLY_NAME,"System.Drawing.Image").GetMethod("FromStream", new Type[] { typeof(Stream) })},
+                        {"LoadFromStream", Utility.GetType(_ASSEMBLY_NAME,_IMAGE_TYPE).GetMethod("FromStream", new Type[] { typeof(Stream) })},
                         {"TranslateTransform", _GraphicsType.GetMethod("TranslateTransform", new Type[] { typeof(float), typeof(float) })},
                         {"RotateTransform", _GraphicsType.GetMethod("RotateTransform", new Type[] { typeof(float) })},
-                        {"DrawImage", _GraphicsType.GetMethod("DrawImage", new Type[] { LocateType("System.Drawing.Image"), LocateType(Rectangle.DRAWING_TYPE) })},
+                        {"DrawImage", _GraphicsType.GetMethod("DrawImage", new Type[] { LocateType(_IMAGE_TYPE), LocateType(Rectangle.DRAWING_TYPE) })},
                         {"DrawLines", _GraphicsType.GetMethod("DrawLines", new Type[] { LocateType(Pen.DRAWING_TYPE), LocateType(Point.DRAWING_TYPE+"[]")})},
                         {"DrawLine",_GraphicsType.GetMethod("DrawLine", new Type[] { LocateType(Pen.DRAWING_TYPE), LocateType(Point.DRAWING_TYPE), LocateType(Point.DRAWING_TYPE) }) },
                         {"DrawEllipse",_GraphicsType.GetMethod("DrawEllipse", new Type[] { LocateType(Pen.DRAWING_TYPE), LocateType(Rectangle.DRAWING_TYPE) }) },
-                        {"FillEllipse",_GraphicsType.GetMethod("FillEllipse",new Type[] { LocateType("System.Drawing.Brush"),LocateType(Rectangle.DRAWING_TYPE)}) },
-                        {"MeasureString",_GraphicsType.GetMethod("MeasureString", new Type[] { typeof(string), _FONT.GetType(), LocateType("System.Drawing.SizeF"), _CenterStringFormat.GetType() }) },
-                        {"DrawString",_GraphicsType.GetMethod("DrawString", new Type[] { typeof(string), _FONT.GetType(), LocateType("System.Drawing.Brush"), LocateType(Rectangle.DRAWING_TYPE), _CenterStringFormat.GetType() }) },
+                        {"FillEllipse",_GraphicsType.GetMethod("FillEllipse",new Type[] { LocateType(_BRUSH_TYPE), LocateType(Rectangle.DRAWING_TYPE)}) },
+                        {"MeasureString",_GraphicsType.GetMethod("MeasureString", new Type[] { typeof(string), _FONT.GetType(), LocateType(_SIZE_TYPE), _CenterStringFormat.GetType() }) },
+                        {"DrawString",_GraphicsType.GetMethod("DrawString", new Type[] { typeof(string), _FONT.GetType(), LocateType(_BRUSH_TYPE), LocateType(Rectangle.DRAWING_TYPE), _CenterStringFormat.GetType() }) },
                         {"DrawRoundRectangle",_GraphicsType.GetMethod("DrawPath", new Type[] { LocateType(Pen.DRAWING_TYPE), LocateType(RoundRectangle.DRAWING_TYPE) }) },
                         {"Flush",_GraphicsType.GetMethod("Flush", Type.EmptyTypes) },
                         {"GetPixel",_BitmapType.GetMethod("GetPixel", new Type[] { typeof(int), typeof(int) }) },
                         {"SetPixel",_BitmapType.GetMethod("SetPixel", new Type[] { typeof(int), typeof(int), LocateType(Color.DRAWING_TYPE) }) },
-                        {"FillPolygon",_GraphicsType.GetMethod("FillPolygon", new Type[] { LocateType("System.Drawing.Brush"), LocateType(LocateType(Point.DRAWING_TYPE).FullName+"[]") }) },
-                        {"Save",_BitmapType.GetMethod("Save",new Type[] {typeof(Stream), LocateType("System.Drawing.Imaging.ImageFormat")}) },
+                        {"FillPolygon",_GraphicsType.GetMethod("FillPolygon", new Type[] { LocateType(_BRUSH_TYPE), LocateType(Point.DRAWING_TYPE+"[]") }) },
+                        {"Save",_BitmapType.GetMethod("Save",new Type[] {typeof(Stream), LocateType(_IMAGE_FORMAT_TYPE) }) },
                         {"Clear",_GraphicsType.GetMethod("Clear",new Type[]{LocateType(Color.DRAWING_TYPE)}) },
                         {"BMPDispose",_BitmapType.GetMethod("Dispose",Type.EmptyTypes)},
                         {"GPDispose",_GraphicsType.GetMethod("Dispose",Type.EmptyTypes) }
@@ -210,7 +209,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             _methods["FillPolygon"].Invoke(_gp, new object[] { brush.DrawingObject, arr });
         }
 
-        private static readonly Type _imageFormat = (CAN_USE ? LocateType("System.Drawing.Imaging.ImageFormat") : null);
+        private static readonly Type _imageFormat = (CAN_USE ? LocateType(_IMAGE_FORMAT_TYPE) : null);
         public byte[] ToFile(ImageOuputTypes type)
         {
             try
