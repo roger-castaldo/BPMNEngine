@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFrameworks>netcoreapp3.1;net461;netstandard2.1;net6.0;</TargetFrameworks>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
+    <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
+    <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Jint" Version="3.0.0-beta-1138" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SkiaSharp" Version="2.80.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BpmEngine\BpmEngine.csproj" />
+  </ItemGroup>
+
+</Project>
