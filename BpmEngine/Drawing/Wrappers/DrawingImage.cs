@@ -8,7 +8,15 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class DrawingImage : IDrawingSurface
     {
-        private static readonly string[] _ASSEMBLY_NAME = new string[]{ "System.Drawing.Common", "System.Drawing.Primitives" };
+        private const string _ASSEMBLIES = "System.Drawing.Common,System.Drawing.Primitives";
+
+        private static string[] _ASSEMBLY_NAME
+        {
+            get
+            {
+                return _ASSEMBLIES.Split(',');
+            }
+        }
 
         public static Type LocateType(string name)
         {

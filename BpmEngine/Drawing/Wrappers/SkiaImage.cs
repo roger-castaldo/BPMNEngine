@@ -9,7 +9,15 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class SkiaImage : IDrawingSurface
     {
-        public static readonly string[] _ASSEMBLY_NAME = new string[] { "SkiaSharp" };
+        private const string _ASSEMBLIES = "SkiaSharp";
+
+        private static string[] _ASSEMBLY_NAME
+        {
+            get
+            {
+                return _ASSEMBLIES.Split(',');
+            }
+        }
 
         public static Type LocateType(string name)
         {
