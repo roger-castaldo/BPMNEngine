@@ -6,6 +6,7 @@ task objects.
 Current Test Status:
 [![.NET-Test-6x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml)
 [![.NET-Test-3x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml)
+[![.NET-Test-Framework-4.6.1](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml)
 
 # XSD
 
