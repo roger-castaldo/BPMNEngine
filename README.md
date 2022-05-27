@@ -3,7 +3,9 @@ A BPMN Engine written in .net.  The engine attempts to read in a bpmn notation x
 render the diagram in its current state or animated into a gif.  Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and 
 task objects.
 
-Current Test Status: [![.NET](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests.yml)
+Current Test Status:
+[![.NET-Test-6x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml)
+[![.NET-Test-3x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml)
 
 # XSD
 
