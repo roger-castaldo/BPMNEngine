@@ -1,0 +1,26 @@
+name: .NET-Test-3x
+
+on:
+  push:
+    branches: [ '2.0' ]
+  pull_request:
+    branches: [ '2.0' ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: |
+          3.1.x
+    - name: Restore dependencies
+      run: dotnet restore UnitTest
+    - name: Build-3.1
+      run: dotnet build --framework netcoreapp3.1 --no-restore UnitTest
+    - name: Test-3.1
+      run: dotnet test --framework netcoreapp3.1 --no-build --verbosity normal UnitTest
