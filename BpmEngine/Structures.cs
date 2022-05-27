@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Xml;
@@ -11,7 +12,7 @@ namespace Org.Reddragonit.BpmEngine
     /// <summary>
     /// This structure is used to house a File associated within a process instance.  It is used to both store, encode, decode and retreive File variables inside the process state.
     /// </summary>
-    public struct sFile
+    public struct sFile 
     {
         private string _name;
         /// <summary>
@@ -96,6 +97,32 @@ namespace Org.Reddragonit.BpmEngine
             if (_content.Length > 0)
                 ret.AppendChild(doc.CreateCDataSection(Convert.ToBase64String(_content)));
             return ret;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is sFile)
+            {
+                sFile fle = (sFile)obj;
+                return fle.Name.Equals(Name) &&
+                    fle.Extension.Equals(Extension) &&
+                    _dataEquals(fle.Content);
+            }
+            return false;
+        }
+
+        private bool _dataEquals(byte[] content)
+        {
+            if (_content.Length==content.Length)
+            {
+                for(int x=0;x<content.Length; x++)
+                {
+                    if (_content[x]!=content[x])
+                        return false;
+                }
+                return true;
+            }
+            return false;
         }
     }
 

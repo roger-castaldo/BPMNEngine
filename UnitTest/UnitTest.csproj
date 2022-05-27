@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>netcoreapp3.1;net461;netstandard2.1;net6.0;</TargetFrameworks>
+	  <TargetFrameworks>netcoreapp3.1;net461;net6.0;</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -25,8 +25,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SkiaSharp" Version="2.80.3" />
   </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
+	    <PackageReference Include="SkiaSharp" Version="2.80.3" />
+    </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BpmEngine\BpmEngine.csproj" />

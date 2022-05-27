@@ -23,4 +23,4 @@ jobs:
     - name: Build-6.0
       run: dotnet build --framework net6.0 --no-restore UnitTest
     - name: Test-6.0
-      run: dotnet test --framework net6.0 --no-build --verbosity normal UnitTest
+      run: dotnet test --framework net6.0 --no-build --verbosity normal --filter "ClassName!='SkiaImageTests'&ClassName!='GraphicsTests'" UnitTest

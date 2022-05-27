@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -28,6 +29,40 @@ namespace UnitTest
             XmlDocument ret = new XmlDocument();
             ret.Load(src);
             return ret;
+        }
+
+        public static bool AreHashtablesEqual(Hashtable left,Hashtable right)
+        {
+            if (
+                (left==null && right!=null)||
+                (left!=null&&right==null)
+               )
+                return false;
+            else if (left==null&&right==null)
+                return true;
+            else if (left.Count!=right.Count)
+                return false;
+            foreach (object key in left.Keys)
+            {
+                if (!right.ContainsKey(key))
+                    return false;
+                else if (
+                    (left[key]==null && right[key]!=null)||
+                    (left[key]!=null && right[key]==null)
+                    )
+                    return false;
+                else if (left[key]!=null&&right[key]!=null)
+                {
+                    if (!left[key].Equals(right[key]))
+                        return false;
+                }
+            }
+            foreach (object key in right.Keys)
+            {
+                if (!left.ContainsKey(key))
+                    return false;
+            }
+            return true;
         }
     }
 }

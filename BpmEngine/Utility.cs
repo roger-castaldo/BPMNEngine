@@ -607,12 +607,15 @@ namespace Org.Reddragonit.BpmEngine
                                 break;
                             case "System.Decimal":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Decimal.ToString();
+                                text = ((decimal)value).ToString("R");
                                 break;
                             case "System.Double":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Double.ToString();
+                                text = ((double)value).ToString("R");
                                 break;
                             case "System.Single":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Float.ToString();
+                                text = ((float)value).ToString("R");
                                 break;
                             case "System.Int32":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Integer.ToString();

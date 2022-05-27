@@ -1,0 +1,24 @@
+name: .NET-Test-Framework-4.6.1
+
+on:
+  push:
+    branches: [ '2.0' ]
+  pull_request:
+    branches: [ '2.0' ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        version: [net461]
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore dependencies
+      run: dotnet restore UnitTest
+    - name: Build-4.6.1
+      run: dotnet build --framework net461 --no-restore UnitTest
+    - name: Test-4.6.1
+      run: dotnet test --framework net461 --no-build --verbosity normal --filter "ClassName!='SkiaImageTests'&ClassName!='GraphicsTests'" UnitTest
