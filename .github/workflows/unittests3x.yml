@@ -23,4 +23,4 @@ jobs:
     - name: Build-3.1
       run: dotnet build --framework netcoreapp3.1 --no-restore UnitTest
     - name: Test-3.1
-      run: dotnet test --framework netcoreapp3.1 --no-build --verbosity normal --filter "ClassName!='SkiaImageTests'&ClassName!='GraphicsTests'" UnitTest
+      run: dotnet test --framework netcoreapp3.1 --no-build --verbosity normal --filter "ClassName!=SkiaImageTests&ClassName!=GraphicsTests" UnitTest

@@ -1,5 +1,5 @@
 ﻿using System;
-#if NETCOREAPP3_1
+#if !NET461
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 #else
@@ -30,7 +30,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         {
             get
             {
-                List<string> ret = new List<string>(new string[] { "Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces" });
+                List<string> ret = new List<string>(new string[] { "System","Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces" });
                 if (SubNodes.Length > 1)
                 {
                     foreach (XmlNode n in SubNodes)
@@ -93,7 +93,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
-#if NETCOREAPP3_1
+#if !NET461
         protected abstract EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms);
         
         private bool _CompileAssembly(out string errors)

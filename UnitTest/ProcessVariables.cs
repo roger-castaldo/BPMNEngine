@@ -12,12 +12,25 @@ namespace UnitTest
     [TestClass]
     public class ProcessVariables
     {
+        private static BusinessProcess _process;
+
+        [ClassInitialize()]
+        public static void Initialize(TestContext testContext)
+        {
+            _process = new BusinessProcess(Utility.LoadResourceDocument("DiagramLoading/start_to_stop.bpmn"));
+        }
+
+        [ClassCleanup()]
+        public static void Cleanup()
+        {
+            _process.Dispose();
+        }
+
         private Dictionary<string,object> _TestProcessVariable(string variableName,object variableValue)
         {
             try
             {
-                BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("DiagramLoading/start_to_stop.bpmn"));
-                IProcessInstance inst = proc.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
+                IProcessInstance inst = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
                 inst.WaitForCompletion();
                 return inst.CurrentVariables;
             }

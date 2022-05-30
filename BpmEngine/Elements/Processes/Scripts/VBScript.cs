@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP3_1
+﻿#if !NET461
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.VisualBasic;
@@ -57,7 +57,7 @@ End Class";
             : base(elem, map, parent)
         { }
 
-#if NETCOREAPP3_1
+#if !NET461
         protected override EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms)
         {
             Info("Generating VB Code for script compilation for script element {0}", new object[] { id });

@@ -1,4 +1,4 @@
-name: .NET-Test-6x
+name: Jint-3.0.0-beta-1138
 
 on:
   push:
@@ -23,4 +23,4 @@ jobs:
     - name: Build-6.0
       run: dotnet build --framework net6.0 --no-restore UnitTest
     - name: Test-6.0
-      run: dotnet test --framework net6.0 --no-build --verbosity normal --filter "ClassName!=SkiaImageTests&ClassName!=GraphicsTests" UnitTest
+      run: dotnet test --framework net6.0 --no-build --verbosity normal --filter "FullyQualifiedName=UnitTest.Extensions.Scripts.TestJavascript" UnitTest

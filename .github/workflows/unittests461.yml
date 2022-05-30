@@ -21,4 +21,4 @@ jobs:
     - name: Build-4.6.1
       run: dotnet build --framework net461 --no-restore UnitTest
     - name: Test-4.6.1
-      run: dotnet test --framework net461 --no-build --verbosity normal --filter "ClassName!='SkiaImageTests'&ClassName!='GraphicsTests'" UnitTest
+      run: dotnet test --framework net461 --no-build --verbosity normal --filter "ClassName!=SkiaImageTests&ClassName!=GraphicsTests" UnitTest

@@ -27,7 +27,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                         {
                             IVariables vars = (ProcessVariablesContainer)((AScript)ie).Invoke(task.Variables);
                             foreach (string str in vars.Keys)
-                               ((IVariables)task)[str]=vars[str];
+                               task.Variables[str]=vars[str];
                             break;
                         }
                     }
