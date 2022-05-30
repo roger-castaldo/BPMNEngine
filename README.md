@@ -4,9 +4,11 @@ render the diagram in its current state or animated into a gif.  Using the deleg
 task objects.
 
 Current Test Status:
-[![.NET-Test-6x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml)
-[![.NET-Test-3x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml)
-[![.NET-Test-Framework-4.6.1](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml)
+
+[![.NET-Test-6x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml)\
+[![.NET-Test-3x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml)\
+[![.NET-Test-Framework-4.6.1](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml)\
+[![Jint-3.0.0-beta-1138](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml/badge.svg)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml)
 
 # XSD
 
