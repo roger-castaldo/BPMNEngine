@@ -15,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         protected override bool _Evaluate(IReadonlyVariables variables)
         {
-            return _Compare(variables) < 0;
+            return _Compare(variables) <= 0;
         }
     }
 }

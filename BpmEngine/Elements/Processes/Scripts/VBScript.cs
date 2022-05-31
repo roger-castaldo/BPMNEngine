@@ -37,9 +37,9 @@ Public Class {1}
     Public Sub New()
     End Sub
 
-    Public Function {2}(ByRef variables As IVariables) AS Boolean
+    Public Function {2}(variables As IReadonlyVariables) AS Boolean
         {3}
-    End Sub
+    End Function
 End Class";
 
         private const string _CODE_BASE_TIMER_EVENT_TEMPLATE = @"{0}
@@ -48,9 +48,9 @@ Public Class {1}
     Public Sub New()
     End Sub
 
-    Public Function {2}(ByRef variables As IVariables) AS DateTime
+    Public Function {2}(variables As IReadonlyVariables) AS DateTime
         {3}
-    End Sub
+    End Function
 End Class";
 
         public VBScript(XmlElement elem, XmlPrefixMap map, AElement parent)

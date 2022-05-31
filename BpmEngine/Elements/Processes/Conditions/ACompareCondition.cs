@@ -91,9 +91,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                         left = _ConvertToType((string)left, right.GetType(),variables);
                     else if (!(left is string) && right is string)
                         right = _ConvertToType((string)right, left.GetType(),variables);
-                    else
-                        return left.ToString().CompareTo(right.ToString());
-                    return ((IComparable)left).CompareTo(right);
+                    else if (left.GetType() == right.GetType() && left is IComparable)
+                        return ((IComparable)left).CompareTo(right);
+                    return left.ToString().CompareTo(right.ToString());
                 }
             }
         }
@@ -101,13 +101,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         private object _extractVariable(object source, string name)
         {
             object ret = null;
-            if (source is ProcessVariablesContainer)
+            if (source is IReadonlyVariables)
             {
                 if (!name.Contains("."))
-                    ret = ((ProcessVariablesContainer)source)[name];
-                else if (((ProcessVariablesContainer)source)[name.Substring(0, name.IndexOf("."))] != null)
-                    ret = _extractVariable(((ProcessVariablesContainer)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
-            } else if (source is Hashtable)
+                    ret = ((IReadonlyVariables)source)[name];
+                else if (((IReadonlyVariables)source)[name.Substring(0, name.IndexOf("."))] != null)
+                    ret = _extractVariable(((IReadonlyVariables)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+            } else if (source is IVariables)
+            {
+                if (!name.Contains("."))
+                    ret = ((IVariables)source)[name];
+                else if (((IVariables)source)[name.Substring(0, name.IndexOf("."))] != null)
+                    ret = _extractVariable(((IVariables)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+            }else if (source is Hashtable)
             {
                 if (!name.Contains("."))
                 {

@@ -9,17 +9,19 @@
   <ItemGroup>
     <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
-    <None Remove="diagrams\Scripts\c_sharp.bpmn" />
-    <None Remove="diagrams\Scripts\javascript.bpmn" />
-    <None Remove="diagrams\Scripts\visual_basic.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
-    <EmbeddedResource Include="diagrams\Scripts\javascript.bpmn" />
-    <EmbeddedResource Include="diagrams\Scripts\visual_basic.bpmn" />
-    <EmbeddedResource Include="diagrams\Scripts\c_sharp.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />
   </ItemGroup>
 
   <ItemGroup>

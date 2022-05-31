@@ -18,7 +18,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCSharp()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Scripts/c_sharp.bpmn"));
+            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"));
             IProcessInstance instance = null;
             try
             {
@@ -34,7 +34,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestVBScript()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Scripts/visual_basic.bpmn"));
+            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/visual_basic.bpmn"));
             IProcessInstance instance = null;
             try
             {
@@ -51,7 +51,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestJavascript()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Scripts/javascript.bpmn"));
+            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/javascript.bpmn"));
             IProcessInstance instance = null;
             try
             {

@@ -16,7 +16,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public override bool Evaluate(IReadonlyVariables variables)
         {
-            return _Conditions[0].Evaluate(variables);
+            try
+            {
+                return _Conditions[0].Evaluate(variables);
+            }catch(Exception ex)
+            {
+                Error(ex.Message);
+                return false;
+            }
         }
 
         public override bool IsValid(out string[] err)

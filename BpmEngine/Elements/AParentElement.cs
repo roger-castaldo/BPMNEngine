@@ -32,6 +32,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
                             _children.Add(subElem);
                             if (subElem is AParentElement)
                                 ((AParentElement)subElem).LoadChildren(ref map, ref cache);
+                            else
+                                ((AElement)subElem).LoadExtensionElement(ref map, ref cache);
                         }
                     }
                 }
