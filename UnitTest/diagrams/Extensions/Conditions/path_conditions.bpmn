@@ -41,14 +41,14 @@
       <bpmn:outgoing>SequenceFlow_0kxeico</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_0kxeico" sourceRef="ExclusiveGateway_1huwvxf" targetRef="EndEvent_1d1a99g" />
-	  <bpmn:sequenceFlow id="SequenceFlow_0r78igv" name="IsNull" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf">
+	  <bpmn:sequenceFlow id="SequenceFlow_0r78igv" name="IsNull" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf">
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:isNull variable="isnull"/>
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1mbqakg" name="Equals" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_1mbqakg" name="Equals" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:isEqualCondition leftVariable="isequal">
@@ -57,7 +57,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0g1sewb" name="GreaterThan" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_0g1sewb" name="GreaterThan" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:greaterThanCondition leftVariable="isgreater">
@@ -66,7 +66,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1qp8sqa" name="GreaterThan OrEqual" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_1qp8sqa" name="GreaterThan OrEqual" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:greaterThanOrEqualCondition leftVariable="isgreaterequal">
@@ -75,7 +75,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1eq3whe" name="LessThan" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_1eq3whe" name="LessThan" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:lessThanCondition leftVariable="isless">
@@ -84,7 +84,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1mtijhy" name="LessThan OrEqual" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_1mtijhy" name="LessThan OrEqual" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:lessThanOrEqualCondition leftVariable="islessequal">
@@ -93,7 +93,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0gxpluj" name="Contains" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
+    <bpmn:sequenceFlow id="SequenceFlow_0gxpluj" name="Contains" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:containsCondition leftVariable="contains">
@@ -102,7 +102,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0x85a81" name="Negated" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
+    <bpmn:sequenceFlow id="SequenceFlow_0x85a81" name="Negated" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:isEqualCondition leftVariable="isnotequal" negated="true">
@@ -111,7 +111,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0vosocx" name="And" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
+    <bpmn:sequenceFlow id="SequenceFlow_0vosocx" name="And" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:andCondition>
@@ -125,7 +125,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_12lxen4" name="Or" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_12lxen4" name="Or" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:orCondition>
@@ -139,7 +139,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0dxvrs0" name="C# Script" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
+    <bpmn:sequenceFlow id="SequenceFlow_0dxvrs0" name="C# Script" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:cSharpScript>
@@ -150,7 +150,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_1t675ms" name="VB Script" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
+    <bpmn:sequenceFlow id="SequenceFlow_1t675ms" name="VB Script" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf" >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:VBScript>
@@ -161,7 +161,7 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="SequenceFlow_0ep2blb" name="JavaScript" sourceRef="InclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
+    <bpmn:sequenceFlow id="SequenceFlow_0ep2blb" name="JavaScript" sourceRef="ExclusiveGateway_0p5zhd6" targetRef="ExclusiveGateway_1huwvxf"  >
 		  <bpmn:extensionElements>
 			  <exts:ConditionSet>
 				  <exts:Javascript>
@@ -194,7 +194,7 @@
           <dc:Bounds x="192" y="199" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="InclusiveGateway_0p5zhd6_di" bpmnElement="InclusiveGateway_0p5zhd6">
+      <bpmndi:BPMNShape id="ExclusiveGateway_0p5zhd6_di" bpmnElement="ExclusiveGateway_0p5zhd6">
         <dc:Bounds x="272" y="184" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="252" y="234" width="90" height="20" />

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1nbzow2</bpmn:outgoing>
+		<bpmn:extensionElements>
+			<exts:ConditionSet>
+				<exts:isEqualCondition leftVariable="canstart">
+					<exts:right>True</exts:right>
+				</exts:isEqualCondition>
+			</exts:ConditionSet>
+		</bpmn:extensionElements>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_1d1a99g">
+      <bpmn:incoming>SequenceFlow_1iuxioy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_08fre1k">
+      <bpmn:outgoing>SequenceFlow_0u6v9q5</bpmn:outgoing>
+		<bpmn:extensionElements>
+			<exts:ConditionSet>
+				<exts:isEqualCondition leftVariable="canstart" negated="true">
+					<exts:right>True</exts:right>
+				</exts:isEqualCondition>
+			</exts:ConditionSet>
+		</bpmn:extensionElements>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="ExclusiveGateway_005d97d">
+      <bpmn:incoming>SequenceFlow_1nbzow2</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_0u6v9q5</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1iuxioy</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="SequenceFlow_1nbzow2" name="Can Start" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_005d97d" />
+    <bpmn:sequenceFlow id="SequenceFlow_0u6v9q5" name="Default" sourceRef="StartEvent_08fre1k" targetRef="ExclusiveGateway_005d97d" />
+    <bpmn:sequenceFlow id="SequenceFlow_1iuxioy" sourceRef="ExclusiveGateway_005d97d" targetRef="EndEvent_1d1a99g" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="276" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="249" y="158" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1d1a99g_di" bpmnElement="EndEvent_1d1a99g">
+        <dc:Bounds x="463" y="191" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="436" y="227" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_08fre1k_di" bpmnElement="StartEvent_08fre1k">
+        <dc:Bounds x="276" y="269" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="249" y="305" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ExclusiveGateway_005d97d_di" bpmnElement="ExclusiveGateway_005d97d" isMarkerVisible="true">
+        <dc:Bounds x="348" y="184" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="328" y="234" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1nbzow2_di" bpmnElement="SequenceFlow_1nbzow2">
+        <di:waypoint xsi:type="dc:Point" x="312" y="140" />
+        <di:waypoint xsi:type="dc:Point" x="373" y="140" />
+        <di:waypoint xsi:type="dc:Point" x="373" y="184" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="315.5" y="116" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0u6v9q5_di" bpmnElement="SequenceFlow_0u6v9q5">
+        <di:waypoint xsi:type="dc:Point" x="312" y="287" />
+        <di:waypoint xsi:type="dc:Point" x="373" y="287" />
+        <di:waypoint xsi:type="dc:Point" x="373" y="234" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="300.5" y="291" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1iuxioy_di" bpmnElement="SequenceFlow_1iuxioy">
+        <di:waypoint xsi:type="dc:Point" x="398" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="463" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="385.5" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

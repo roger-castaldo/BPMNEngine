@@ -15,6 +15,8 @@ namespace UnitTest.Extensions
 
         private static BusinessProcess _pathProcess;
         private static Dictionary<string, object> _pathFailVariables;
+        private static BusinessProcess _startProcess;
+        private static BusinessProcess _eventProcess;
 
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
@@ -38,12 +40,16 @@ namespace UnitTest.Extensions
                 {"vbscript",1 },
                 {"javascript",1 }
             };
+            _startProcess = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Conditions/process_start_condition.bpmn"));
+            _eventProcess = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Conditions/event_start_condition.bpmn"));
         }
 
         [ClassCleanup()]
         public static void Cleanup()
         {
             _pathProcess.Dispose();
+            _startProcess.Dispose();
+            _eventProcess.Dispose();
         }
 
         private XmlDocument RunPathProcess(Dictionary<string,object> variables)
@@ -62,9 +68,9 @@ namespace UnitTest.Extensions
             return processInstance.CurrentState;
         }
 
-        private bool _StepRan(XmlDocument xmlDocument, string name)
+        private bool _StepRan(BusinessProcess process,XmlDocument xmlDocument, string name)
         {
-            XmlNode node = _pathProcess.Document.SelectSingleNode(string.Format("/*[local-name()='definitions']/*[local-name()='process']/*[local-name()='sequenceFlow'][@name='{0}']", name));
+            XmlNode node = process.Document.SelectSingleNode(string.Format("/*[local-name()='definitions']/*[local-name()='process']/*[local-name()='sequenceFlow'][@name='{0}']", name));
             if (node==null)
                 return false;
             return xmlDocument.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']",node.Attributes["id"].Value))!=null;
@@ -73,83 +79,108 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestIsNull()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isnull", null } }),"IsNull"));
+            Assert.IsTrue(_StepRan(_pathProcess,RunPathProcess(new Dictionary<string, object>() { { "isnull", null } }),"IsNull"));
         }
 
         [TestMethod]
         public void TestIsEqual()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isequal", 12} }), "Equals"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isequal", 12} }), "Equals"));
         }
 
         [TestMethod]
         public void TestIsGreater()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isgreater", 13 } }), "GreaterThan"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isgreater", 13 } }), "GreaterThan"));
         }
 
         [TestMethod]
         public void TestIsGreaterOrEqual()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isgreaterequal", 12 } }), "GreaterThan OrEqual"));
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isgreaterequal", 13 } }), "GreaterThan OrEqual"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isgreaterequal", 12 } }), "GreaterThan OrEqual"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isgreaterequal", 13 } }), "GreaterThan OrEqual"));
         }
 
         [TestMethod]
         public void TestIsLess()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isless", 11 } }), "LessThan"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isless", 11 } }), "LessThan"));
         }
 
         [TestMethod]
         public void TestIsLessOrEqual()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "islessequal", 12 } }), "LessThan OrEqual"));
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "islessequal", 11 } }), "LessThan OrEqual"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "islessequal", 12 } }), "LessThan OrEqual"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "islessequal", 11 } }), "LessThan OrEqual"));
         }
 
         [TestMethod]
         public void Contains()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "contains", new int[] { 1, 2, 12, 13, 14 } } }), "Contains"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "contains", new int[] { 1, 2, 12, 13, 14 } } }), "Contains"));
         }
 
         [TestMethod]
         public void TestIsNotEqual()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "isnotequal", 10 } }), "Negated"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isnotequal", 10 } }), "Negated"));
         }
 
         [TestMethod]
         public void TestAnd()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "andequal1", 12 }, { "andequal2", 12 } }), "And"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "andequal1", 12 }, { "andequal2", 12 } }), "And"));
         }
 
         [TestMethod]
         public void TestOr()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "orequal1", 12 }, { "orequal2", 12 } }), "Or"));
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "orequal1", 12 } }), "Or"));
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "orequal2", 12 } }), "Or"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "orequal1", 12 }, { "orequal2", 12 } }), "Or"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "orequal1", 12 } }), "Or"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "orequal2", 12 } }), "Or"));
         }
 
         [TestMethod]
         public void TestCSharpScript()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "cscript", 12 } }), "C# Script"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "cscript", 12 } }), "C# Script"));
         }
 
         [TestMethod]
         public void TestVBScript()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "vbscript", 12 } }), "VB Script"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "vbscript", 12 } }), "VB Script"));
         }
 
         [TestMethod]
         public void TestJavascript()
         {
-            Assert.IsTrue(_StepRan(RunPathProcess(new Dictionary<string, object>() { { "javascript", 12 } }), "JavaScript"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "javascript", 12 } }), "JavaScript"));
+        }
+
+        [TestMethod]
+        public void TestProcessStartCondition()
+        {
+            IProcessInstance instance = _startProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            instance = _startProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", false } });
+            Assert.IsNull(instance);
+        }
+
+        [TestMethod]
+        public void TestEventStartCondition()
+        {
+            IProcessInstance instance = _eventProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
+            Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Default"));
+            instance = _eventProcess.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
+            Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Default"));
         }
     }
 }
