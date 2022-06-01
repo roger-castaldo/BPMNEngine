@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace UnitTest
     [TestClass]
     public class Delegates
     {
-        private static Dictionary<Guid, List<string>> _cache;
+        private static ConcurrentQueue<string> _cache;
         private static BusinessProcess _startCompleteProcess;
         private static BusinessProcess _pathChecksProcess;
         private const string _TEST_ID_NAME = "TestID";
@@ -32,7 +33,7 @@ namespace UnitTest
                 onTaskCompleted:new OnElementEvent(_elementStartedCompleted),
                 onTaskStarted:new OnElementEvent(_elementStartedCompleted)
             );
-            _cache = new Dictionary<Guid, List<string>>();
+            _cache = new ConcurrentQueue<string>(); 
             _pathChecksProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/path_valid_checks.bpmn"),
                 onEventStarted: new OnElementEvent(_elementStartedCompleted),
                 onEventCompleted: new OnElementEvent(_elementStartedCompleted),
@@ -67,32 +68,12 @@ namespace UnitTest
 
         private static void _flowCompleted(IElement element, IReadonlyVariables variables)
         {
-            lock (_cache)
-            {
-                List<string> tmp = new List<string>();
-                if (_cache.ContainsKey((Guid)variables[_TEST_ID_NAME]))
-                {
-                    tmp = _cache[(Guid)variables[_TEST_ID_NAME]];
-                    _cache.Remove((Guid)variables[_TEST_ID_NAME]);
-                }
-                tmp.Add(element.id);
-                _cache.Add((Guid)variables[_TEST_ID_NAME], tmp);
-            }
+            _cache.Enqueue(string.Format("{0}_{1}", new object[] { variables[_TEST_ID_NAME], element.id }));
         }
 
         private static void _elementStartedCompleted(IStepElement element, IReadonlyVariables variables)
         {
-            lock (_cache)
-            {
-                List<string> tmp = new List<string>();
-                if (_cache.ContainsKey((Guid)variables[_TEST_ID_NAME]))
-                {
-                    tmp = _cache[(Guid)variables[_TEST_ID_NAME]];
-                    _cache.Remove((Guid)variables[_TEST_ID_NAME]);
-                }
-                tmp.Add(element.id);
-                _cache.Add((Guid)variables[_TEST_ID_NAME], tmp);
-            }
+            _cache.Enqueue(string.Format("{0}_{1}", new object[] { variables[_TEST_ID_NAME], element.id }));
         }
 
         [ClassCleanup]
@@ -106,13 +87,10 @@ namespace UnitTest
         private int _CountCacheOccurences(Guid instanceID,string name)
         {
             int ret = 0;
-            lock (_cache)
+            foreach (string str in _cache)
             {
-                if (_cache.ContainsKey(instanceID))
-                {
-                    foreach (string str in _cache[instanceID])
-                        ret+=(str==name ? 1 : 0);
-                }
+                if (str==string.Format("{0}_{1}", new object[] { instanceID, name }))
+                    ret++;
             }
             return ret;
         }
@@ -152,10 +130,13 @@ namespace UnitTest
                 total+=_entryCounts[key];
                 Assert.AreEqual(_entryCounts[key], _CountCacheOccurences(guid, key));
             }
-            lock (_cache)
+            int cnt = 0;
+            foreach (string str in _cache)
             {
-                Assert.AreEqual(total, _cache[guid].Count);
+                if (str.StartsWith(guid.ToString()+"_"))
+                    cnt++;
             }
+            Assert.AreEqual(total, cnt);
         }
 
         [TestMethod]
