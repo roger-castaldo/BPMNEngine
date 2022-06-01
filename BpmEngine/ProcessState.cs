@@ -264,9 +264,13 @@ namespace Org.Reddragonit.BpmEngine
         {
             return _doc.CreateElement(elementName);
         }
-        internal void EncodeVariableValue(object value, XmlElement elem)
+        internal XmlElement EncodeFile(sFile file)
         {
-            Utility.EncodeVariableValue(value, elem, _doc);
+            return file.ToElement(_doc);
+        }
+        internal XmlCDataSection EncodeCData(string content)
+        {
+            return _doc.CreateCDataSection(content);
         }
         internal void AppendValue(string containerName, string value)
         {

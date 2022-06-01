@@ -29,6 +29,16 @@ namespace Org.Reddragonit.BpmEngine.State
             return _state.CreateElement(name);
         }
 
+        protected XmlElement _EncodeFile(sFile file)
+        {
+            return _state.EncodeFile(file);
+        }
+
+        protected XmlCDataSection _EncodeCData(string content)
+        {
+            return _state.EncodeCData(content);
+        }
+
         protected void AppendValue(string content)
         {
             _state.AppendValue(_ContainerName, content);
@@ -47,11 +57,7 @@ namespace Org.Reddragonit.BpmEngine.State
         {
             _state.InsertBefore(_ContainerName, element, child);
         }
-        protected void _EncodeVariableValue(object value,XmlElement elem)
-        {
-            _state.EncodeVariableValue(value, elem);
-        }
-
+        
         protected void _WriteLogLine(string elementID,LogLevels level,string message)
         {
             _state.Process.WriteLogLine(elementID, level, new System.Diagnostics.StackFrame(2, true), DateTime.Now, message);
