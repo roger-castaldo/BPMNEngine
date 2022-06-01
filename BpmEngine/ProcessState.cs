@@ -83,6 +83,8 @@ namespace Org.Reddragonit.BpmEngine
                     stepIndex = _path.LastStep;
                 else
                     stepIndex = _path.CurrentStepIndex(elementID);
+                if (elementID!=null && stepIndex==-1)
+                    stepIndex=_path.LastStep;
                 ret = _variables[variableName, stepIndex];
                 return ret;
             }
@@ -103,6 +105,8 @@ namespace Org.Reddragonit.BpmEngine
                     stepIndex = _path.LastStep;
                 else
                     stepIndex = _path.CurrentStepIndex(elementID);
+                if (elementID!=null && stepIndex==-1)
+                    stepIndex=_path.LastStep;
                 return _variables[stepIndex];
             }
         }

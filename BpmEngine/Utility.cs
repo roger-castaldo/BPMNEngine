@@ -423,6 +423,9 @@ namespace Org.Reddragonit.BpmEngine
                 case VariableTypes.String:
                     ret = text;
                     break;
+                case VariableTypes.Guid:
+                    ret = new Guid(text);
+                    break;
                 case VariableTypes.Hashtable:
                     System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                     ret = bf.Deserialize(new MemoryStream(Convert.FromBase64String(text)));
@@ -567,6 +570,14 @@ namespace Org.Reddragonit.BpmEngine
                                     variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
                                 }
                                 break;
+                            case "System.Guid":
+                                variableContainer.Attributes["type"].Value = VariableTypes.Guid.ToString();
+                                foreach (string b in (IEnumerable)value)
+                                {
+                                    variableContainer.AppendChild(doc.CreateElement("Value"));
+                                    variableContainer.ChildNodes[variableContainer.ChildNodes.Count - 1].AppendChild(doc.CreateCDataSection(b.ToString()));
+                                }
+                                break;
                             case "System.Collections.Hashtable":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Hashtable.ToString();
                                 foreach (Hashtable ht in (IEnumerable)value)
@@ -636,6 +647,9 @@ namespace Org.Reddragonit.BpmEngine
                                 break;
                             case "System.String":
                                 variableContainer.Attributes["type"].Value = VariableTypes.String.ToString();
+                                break;
+                            case "System.Guid":
+                                variableContainer.Attributes["type"].Value = VariableTypes.Guid.ToString();
                                 break;
                             case "System.Collections.Hashtable":
                                 variableContainer.Attributes["type"].Value = VariableTypes.Hashtable.ToString();

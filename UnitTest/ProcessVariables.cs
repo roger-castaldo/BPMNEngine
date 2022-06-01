@@ -261,5 +261,17 @@ namespace UnitTest
             Assert.IsTrue(results.Count==1);
             Assert.AreEqual(new string((char[])variableValue), (results.ContainsKey(variableName) ? new string((char[])results[variableName]) : null));
         }
+
+        [TestMethod]
+        public void TestGuidVariable()
+        {
+            string variableName = "TestGuid";
+            object variableValue = Utility.GenerateRandomGuid();
+            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==1);
+            Assert.AreEqual((Guid?)variableValue, (Guid?)(results.ContainsKey(variableName) ? results[variableName] : null));
+        }
     }
 }

@@ -33,7 +33,8 @@ namespace Org.Reddragonit.BpmEngine
         Byte,
         Null,
         File,
-        Hashtable
+        Hashtable,
+        Guid
     }
     /// <summary>
     /// This enumartor is used to specify the level of logging a process will log within its state.  It is also used to specify the log level messages recieved through the log line delegate are applied to.

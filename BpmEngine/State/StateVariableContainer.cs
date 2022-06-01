@@ -136,6 +136,9 @@ namespace Org.Reddragonit.BpmEngine.State
                             case VariableTypes.Hashtable:
                                 ret = Array.CreateInstance(typeof(Hashtable), elem.ChildNodes.Count);
                                 break;
+                            case VariableTypes.Guid:
+                                ret = Array.CreateInstance(typeof(Guid), elem.ChildNodes.Count);
+                                break;
                         }
                         for (int x = 0; x < elem.ChildNodes.Count; x++)
                         {
