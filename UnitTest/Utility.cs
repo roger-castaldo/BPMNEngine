@@ -64,13 +64,5 @@ namespace UnitTest
             }
             return true;
         }
-
-        public static Guid GenerateRandomGuid()
-        {
-            Random random = new Random(DateTime.Now.Millisecond);
-            byte[] tmp = new byte[16];
-            random.NextBytes(tmp);
-            return new Guid(tmp);
-        }
     }
 }

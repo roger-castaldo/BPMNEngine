@@ -142,7 +142,7 @@ namespace UnitTest
         [TestMethod]
         public void TestDelegatesTriggered()
         {
-            Guid guid = Utility.GenerateRandomGuid();
+            Guid guid = new Guid("8782dc9a-915a-40af-ac39-b7d808fda926");
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(30*1000));
@@ -161,7 +161,7 @@ namespace UnitTest
         [TestMethod]
         public void TestPathIsValid()
         {
-            Guid guid = Utility.GenerateRandomGuid();
+            Guid guid = new Guid("b420ba32-fd0b-4a67-ba7f-2606b8cd994d");
             IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
                 { _TEST_ID_NAME,guid },
@@ -174,6 +174,7 @@ namespace UnitTest
             Assert.AreEqual(1, _CountCacheOccurences(guid, "SequenceFlow_1sl9l6m"));
             Assert.AreEqual(0, _CountCacheOccurences(guid, "SequenceFlow_0ijuqxx"));
 
+            guid = new Guid("da2a2dd4-c299-417a-896b-eefa15ad9b8f");
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
                 { _TEST_ID_NAME,guid },

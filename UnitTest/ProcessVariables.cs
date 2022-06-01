@@ -266,7 +266,7 @@ namespace UnitTest
         public void TestGuidVariable()
         {
             string variableName = "TestGuid";
-            object variableValue = Utility.GenerateRandomGuid();
+            object variableValue = new Guid("a4966f14-0108-48ba-a793-8be9982bc411");
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
