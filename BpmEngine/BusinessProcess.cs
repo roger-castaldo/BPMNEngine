@@ -1569,13 +1569,19 @@ namespace Org.Reddragonit.BpmEngine
                 catch (Exception e)
                 {
                     instance.WriteLogException(gw, new StackFrame(1, true), DateTime.Now, e);
-                    _TriggerDelegateAsync(instance.Delegates.OnGatewayError,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
+                    _TriggerDelegateAsync(instance.Delegates.OnGatewayError,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,e) });
                     outgoings = null;
                 }
                 if (outgoings == null)
+                {
                     instance.State.Path.FailGateway(gw);
+                    _TriggerDelegateAsync(instance.Delegates.OnGatewayError, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,new Exception("No valid outgoing path located")) });
+                }
                 else
+                {
                     instance.State.Path.SuccessGateway(gw, outgoings);
+                    _TriggerDelegateAsync(instance.Delegates.OnGatewayCompleted, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
+                }
             }
             instance.StateEvent.Set();
         }

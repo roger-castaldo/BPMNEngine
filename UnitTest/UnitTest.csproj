@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="diagrams\Delegates\path_valid_checks.bpmn" />
+    <None Remove="diagrams\Delegates\start_complete_triggers.bpmn" />
     <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
@@ -18,6 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="diagrams\Delegates\start_complete_triggers.bpmn" />
+    <EmbeddedResource Include="diagrams\Delegates\path_valid_checks.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
