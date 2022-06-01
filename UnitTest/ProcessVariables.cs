@@ -137,7 +137,7 @@ namespace UnitTest
         [TestMethod]
         public void TestDecimalVariable()
         {
-            string variableName = "TesDecimal";
+            string variableName = "TestDecimal";
             object variableValue = decimal.MinValue;
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);

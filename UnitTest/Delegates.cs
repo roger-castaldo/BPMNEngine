@@ -22,29 +22,29 @@ namespace UnitTest
         public static void Initialize(TestContext testContext)
         {
             _startCompleteProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/start_complete_triggers.bpmn"),
-                onEventStarted:new OnElementEvent(_elementStartedCompleted),
-                onEventCompleted:new OnElementEvent(_elementStartedCompleted),
-                onGatewayStarted:new OnElementEvent(_elementStartedCompleted),
-                onGatewayCompleted:new OnElementEvent(_elementStartedCompleted),
+                onEventStarted:new OnElementEvent(_elementStarted),
+                onEventCompleted:new OnElementEvent(_elementCompleted),
+                onGatewayStarted:new OnElementEvent(_elementStarted),
+                onGatewayCompleted:new OnElementEvent(_elementCompleted),
                 onSequenceFlowCompleted:new OnFlowComplete(_flowCompleted),
                 onMessageFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onSubProcessCompleted:new OnElementEvent(_elementStartedCompleted),
-                onSubProcessStarted:new OnElementEvent(_elementStartedCompleted),
-                onTaskCompleted:new OnElementEvent(_elementStartedCompleted),
-                onTaskStarted:new OnElementEvent(_elementStartedCompleted)
+                onSubProcessCompleted:new OnElementEvent(_elementCompleted),
+                onSubProcessStarted:new OnElementEvent(_elementStarted),
+                onTaskCompleted:new OnElementEvent(_elementCompleted),
+                onTaskStarted:new OnElementEvent(_elementStarted)
             );
             _cache = new ConcurrentQueue<string>(); 
             _pathChecksProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/path_valid_checks.bpmn"),
-                onEventStarted: new OnElementEvent(_elementStartedCompleted),
-                onEventCompleted: new OnElementEvent(_elementStartedCompleted),
-                onGatewayStarted: new OnElementEvent(_elementStartedCompleted),
-                onGatewayCompleted: new OnElementEvent(_elementStartedCompleted),
+                onEventStarted: new OnElementEvent(_elementStarted),
+                onEventCompleted: new OnElementEvent(_elementCompleted),
+                onGatewayStarted: new OnElementEvent(_elementStarted),
+                onGatewayCompleted: new OnElementEvent(_elementCompleted),
                 onSequenceFlowCompleted: new OnFlowComplete(_flowCompleted),
                 onMessageFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onSubProcessCompleted: new OnElementEvent(_elementStartedCompleted),
-                onSubProcessStarted: new OnElementEvent(_elementStartedCompleted),
-                onTaskCompleted: new OnElementEvent(_elementStartedCompleted),
-                onTaskStarted: new OnElementEvent(_elementStartedCompleted),
+                onSubProcessCompleted: new OnElementEvent(_elementCompleted),
+                onSubProcessStarted: new OnElementEvent(_elementStarted),
+                onTaskCompleted: new OnElementEvent(_elementCompleted),
+                onTaskStarted: new OnElementEvent(_elementStarted),
                 isFlowValid: new IsFlowValid(_isFlowValid),
                 isProcessStartValid:new IsProcessStartValid(_isProcessStartValid),
                 isEventStartValid:new IsEventStartValid(_isEventStartValid)
@@ -68,12 +68,20 @@ namespace UnitTest
 
         private static void _flowCompleted(IElement element, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}_{1}", new object[] { variables[_TEST_ID_NAME], element.id }));
+            Assert.IsNotNull(variables[_TEST_ID_NAME]);
+            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
         }
 
-        private static void _elementStartedCompleted(IStepElement element, IReadonlyVariables variables)
+        private static void _elementStarted(IStepElement element, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}_{1}", new object[] { variables[_TEST_ID_NAME], element.id }));
+            Assert.IsNotNull(variables[_TEST_ID_NAME]);
+            _cache.Enqueue(string.Format("{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.id }));
+        }
+
+        private static void _elementCompleted(IStepElement element, IReadonlyVariables variables)
+        {
+            Assert.IsNotNull(variables[_TEST_ID_NAME]);
+            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
         }
 
         [ClassCleanup]
@@ -84,38 +92,15 @@ namespace UnitTest
             _cache = null;
         }
 
-        private int _CountCacheOccurences(Guid instanceID,string name)
+        private bool _EventOccured(Guid instanceID,string name,string evnt)
         {
-            int ret = 0;
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}_{1}", new object[] { instanceID, name }))
-                    ret++;
+                if (str==string.Format("{0}_{1}_{2}", new object[] { instanceID, name, evnt }))
+                    return true;
             }
-            return ret;
+            return false;
         }
-
-        private static readonly Dictionary<string,int> _entryCounts = new Dictionary<string, int>(){
-            { "StartEvent_1",2 },
-            {"EndEvent_1d1a99g",2},
-            {"ServiceTask_19kcbag",2},
-            {"ParallelGateway_197wuek",2},
-            {"ParallelGateway_1ud7d8q",2},
-            {"ScriptTask_0a8en2y",2},
-            {"SubProcess_1fk97di",2},
-            {"StartEvent_1sttpuv",2},
-            {"EndEvent_0exopsv",2},
-            {"Task_12seef8",2},
-            {"SequenceFlow_1fnfz4x",1 },
-            {"SequenceFlow_1qrw9p3",1 },
-            {"SequenceFlow_1e88oob",1 },
-            {"SequenceFlow_1g5hpce",1 },
-            {"SequenceFlow_143qney",1 },
-            {"SequenceFlow_1yaim57",1 },
-            {"SequenceFlow_09hc5op",1 },
-            {"SequenceFlow_1w3bfnx",1 },
-            {"SequenceFlow_0zrlx9l",1 }
-        };
 
         [TestMethod]
         public void TestDelegatesTriggered()
@@ -124,19 +109,45 @@ namespace UnitTest
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(30*1000));
-            int total = 0;
-            foreach (string key in _entryCounts.Keys)
-            {
-                total+=_entryCounts[key];
-                Assert.AreEqual(_entryCounts[key], _CountCacheOccurences(guid, key));
-            }
+            System.Threading.Thread.Sleep(5000);
+            Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "EndEvent_1d1a99g", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "EndEvent_1d1a99g", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "ServiceTask_19kcbag", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "ServiceTask_19kcbag", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "ParallelGateway_197wuek", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "ParallelGateway_197wuek", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "ParallelGateway_1ud7d8q", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "ParallelGateway_1ud7d8q", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "ScriptTask_0a8en2y", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "ScriptTask_0a8en2y", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "SubProcess_1fk97di", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SubProcess_1fk97di", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "StartEvent_1sttpuv", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "StartEvent_1sttpuv", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "EndEvent_0exopsv", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "EndEvent_0exopsv", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Completed"));
+
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1fnfz4x", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1qrw9p3", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1e88oob", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1g5hpce", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_143qney", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1yaim57", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_09hc5op", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1w3bfnx", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_0zrlx9l", "Completed"));
+
             int cnt = 0;
             foreach (string str in _cache)
             {
                 if (str.StartsWith(guid.ToString()+"_"))
                     cnt++;
             }
-            Assert.AreEqual(total, cnt);
+            Assert.AreEqual(29, cnt);
         }
 
         [TestMethod]
@@ -150,11 +161,16 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(30*1000));
-            Assert.AreEqual(2, _CountCacheOccurences(guid, "StartEvent_1"));
-            Assert.AreEqual(0, _CountCacheOccurences(guid, "StartEvent_0fbfgne"));
-            Assert.AreEqual(1, _CountCacheOccurences(guid, "SequenceFlow_1sl9l6m"));
-            Assert.AreEqual(0, _CountCacheOccurences(guid, "SequenceFlow_0ijuqxx"));
+            System.Threading.Thread.Sleep(5000);
 
+            Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Completed"));
+            Assert.IsFalse(_EventOccured(guid, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(_EventOccured(guid, "StartEvent_0fbfgne", "Completed"));
+
+            Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1sl9l6m", "Completed"));
+            Assert.IsFalse(_EventOccured(guid, "SequenceFlow_0ijuqxx", "Completed"));
+            
             guid = new Guid("da2a2dd4-c299-417a-896b-eefa15ad9b8f");
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
