@@ -1279,7 +1279,12 @@ namespace Org.Reddragonit.BpmEngine
                 }
             }
             if (!success)
-                _TriggerDelegateAsync(instance.Delegates.OnProcessError,new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.id, instance, ex) });
+            {
+                if (((IStepElement)step).SubProcess!=null)
+                    _TriggerDelegateAsync(instance.Delegates.OnSubProcessError, new object[] { (IStepElement)((IStepElement)step).SubProcess, new ReadOnlyProcessVariablesContainer(step.id, instance, ex) });
+                else
+                    _TriggerDelegateAsync(instance.Delegates.OnProcessError, new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.id, instance, ex) });
+            }
         }
 
         private void _ProcessElement(ProcessInstance instance,string sourceID,IElement elem)
@@ -1420,7 +1425,7 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        internal void ProcessEvent(ProcessInstance instance,string sourceID, AEvent evnt)
+        internal void ProcessEvent(ProcessInstance instance, string sourceID, AEvent evnt)
         {
             if (evnt is IntermediateCatchEvent)
             {
@@ -1431,40 +1436,39 @@ namespace Org.Reddragonit.BpmEngine
             instance.StateEvent.WaitOne();
             instance.State.Path.StartEvent(evnt, sourceID);
             instance.StateEvent.Set();
-            _TriggerDelegateAsync(instance.Delegates.OnEventStarted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+            _TriggerDelegateAsync(instance.Delegates.OnEventStarted, new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
             if (evnt is BoundaryEvent)
             {
                 if (((BoundaryEvent)evnt).CancelActivity)
                 {
                     instance.StateEvent.WaitOne();
-                    _AbortStep(instance,sourceID, GetElement(((BoundaryEvent)evnt).AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                    _AbortStep(instance, sourceID, GetElement(((BoundaryEvent)evnt).AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
                     instance.StateEvent.Set();
                 }
             }
             bool success = true;
+            TimeSpan? ts = null;
             if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
+                ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+            if (ts.HasValue)
             {
-                TimeSpan? ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, instance));
-                if (ts.HasValue)
+                instance.StateEvent.WaitOne();
+                instance.State.SuspendStep(evnt.id, ts.Value);
+                instance.StateEvent.Set();
+                if (ts.Value.TotalMilliseconds > 0)
                 {
-                    instance.StateEvent.WaitOne();
-                    instance.State.SuspendStep(evnt.id, ts.Value);
-                    instance.StateEvent.Set();
-                    if (ts.Value.TotalMilliseconds > 0)
-                    {
-                        Utility.Sleep(ts.Value, instance, evnt);
-                        return;
-                    }
-                    else
-                        success = true;
-                }else if (evnt is IntermediateThrowEvent)
+                    Utility.Sleep(ts.Value, instance, evnt);
+                    return;
+                }
+                else
+                    success = true;
+            }else if (evnt is IntermediateThrowEvent)
+            {
+                if (evnt.SubType.HasValue)
                 {
-                    if (evnt.SubType.HasValue)
-                    {
-                        AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, ((IntermediateThrowEvent)evnt).Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
-                        foreach (AHandlingEvent tsk in evnts)
-                            ProcessEvent(instance,evnt.id, tsk);
-                    }
+                    AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, ((IntermediateThrowEvent)evnt).Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                    foreach (AHandlingEvent tsk in evnts)
+                        ProcessEvent(instance,evnt.id, tsk);
                 }
             }
             else if (instance.Delegates.IsEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
