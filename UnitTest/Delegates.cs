@@ -14,13 +14,17 @@ namespace UnitTest
         private static ConcurrentQueue<string> _cache;
         private static BusinessProcess _startCompleteProcess;
         private static BusinessProcess _pathChecksProcess;
+        private static BusinessProcess _taskCallsProcess;
         private const string _TEST_ID_NAME = "TestID";
         private const string _VALID_PATHS_NAME = "ValidPaths";
         private const string _PROCESS_BLOCKED_NAME = "IsProcessBlocked";
+        private const string _TASK_LIST_VARIABLE = "TasksExecuted";
+        private const string _TASK_USER_ID = "MyUser";
 
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
+            _cache = new ConcurrentQueue<string>();
             _startCompleteProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/start_complete_triggers.bpmn"),
                 onEventStarted:new OnElementEvent(_elementStarted),
                 onEventCompleted:new OnElementEvent(_elementCompleted),
@@ -33,7 +37,6 @@ namespace UnitTest
                 onTaskCompleted:new OnElementEvent(_elementCompleted),
                 onTaskStarted:new OnElementEvent(_elementStarted)
             );
-            _cache = new ConcurrentQueue<string>(); 
             _pathChecksProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/path_valid_checks.bpmn"),
                 onEventStarted: new OnElementEvent(_elementStarted),
                 onEventCompleted: new OnElementEvent(_elementCompleted),
@@ -49,6 +52,56 @@ namespace UnitTest
                 isProcessStartValid:new IsProcessStartValid(_isProcessStartValid),
                 isEventStartValid:new IsEventStartValid(_isEventStartValid)
             );
+            _taskCallsProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/task_checks.bpmn"),
+                onEventStarted: new OnElementEvent(_elementStarted),
+                onEventCompleted: new OnElementEvent(_elementCompleted),
+                onGatewayStarted: new OnElementEvent(_elementStarted),
+                onGatewayCompleted: new OnElementEvent(_elementCompleted),
+                onSequenceFlowCompleted: new OnFlowComplete(_flowCompleted),
+                onMessageFlowCompleted: new OnFlowComplete(_flowCompleted),
+                onSubProcessCompleted: new OnElementEvent(_elementCompleted),
+                onSubProcessStarted: new OnElementEvent(_elementStarted),
+                onTaskCompleted: new OnElementEvent(_elementCompleted),
+                onTaskStarted: new OnElementEvent(_elementStarted),
+                processBusinessRuleTask:new ProcessTask(_processTask),
+                processRecieveTask:new ProcessTask(_processTask),
+                processScriptTask: new ProcessTask(_processTask),
+                processSendTask:new ProcessTask(_processTask),
+                processServiceTask:new ProcessTask(_processTask),
+                processTask:new ProcessTask(_processTask),
+                beginManualTask:new StartManualTask(_startManualTask),
+                beginUserTask:new StartUserTask(_startUserTask)
+            );
+        }
+
+        private static void _startUserTask(IUserTask task)
+        {
+            if (task.Variables[_TASK_LIST_VARIABLE]==null)
+                task.Variables[_TASK_LIST_VARIABLE] = new string[] { };
+            List<string> tmp = new List<string>((string[])task.Variables[_TASK_LIST_VARIABLE]);
+            tmp.Add(task.id);
+            task.Variables[_TASK_LIST_VARIABLE] = tmp.ToArray();
+            task.UserID = _TASK_USER_ID;
+            task.MarkComplete();
+        }
+
+        private static void _startManualTask(IManualTask task)
+        {
+            if (task.Variables[_TASK_LIST_VARIABLE]==null)
+                task.Variables[_TASK_LIST_VARIABLE] = new string[] { };
+            List<string> tmp = new List<string>((string[])task.Variables[_TASK_LIST_VARIABLE]);
+            tmp.Add(task.id);
+            task.Variables[_TASK_LIST_VARIABLE] = tmp.ToArray();
+            task.MarkComplete();
+        }
+
+        private static void _processTask(ITask task)
+        {
+            if (task.Variables[_TASK_LIST_VARIABLE]==null)
+                task.Variables[_TASK_LIST_VARIABLE] = new string[] { };
+            List<string> tmp = new List<string>((string[])task.Variables[_TASK_LIST_VARIABLE]);
+            tmp.Add(task.id);
+            task.Variables[_TASK_LIST_VARIABLE] = tmp.ToArray();
         }
 
         private static bool _isEventStartValid(IStepElement Event, IReadonlyVariables variables)
@@ -181,5 +234,31 @@ namespace UnitTest
             Assert.IsNull(instance);
         }
 
+        [TestMethod()]
+        public void TestTaskCallbacks()
+        {
+            Guid guid = new Guid("b799bd4c-19ea-48e5-87ee-c028a948c460");
+            IProcessInstance instance = _taskCallsProcess.BeginProcess(new Dictionary<string, object>()
+            {
+                { _TEST_ID_NAME,guid }
+            });
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+
+            Dictionary<string, object> results = instance.CurrentVariables;
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(_TASK_LIST_VARIABLE));
+            Assert.IsInstanceOfType(results[_TASK_LIST_VARIABLE], typeof(string[]));
+            List<string> tmp = new List<string>((string[])results[_TASK_LIST_VARIABLE]);
+            Assert.AreEqual(7, tmp.Count);
+            Assert.IsTrue(tmp.Contains("Task_1koadgj"));
+            Assert.IsTrue(tmp.Contains("SendTask_1i9s13s"));
+            Assert.IsTrue(tmp.Contains("ReceiveTask_0xcb37w"));
+            Assert.IsTrue(tmp.Contains("UserTask_1997n3l"));
+            Assert.IsTrue(tmp.Contains("ManualTask_15lp0xy"));
+            Assert.IsTrue(tmp.Contains("BusinessRuleTask_14b2ep0"));
+            Assert.IsTrue(tmp.Contains("ServiceTask_1w2aowp"));
+            Assert.IsNotNull(instance.CurrentState.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='UserTask_1997n3l'][@status='Succeeded'][@CompletedByID='{0}']", _TASK_USER_ID)));
+        }
     }
 }

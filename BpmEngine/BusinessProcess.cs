@@ -1369,7 +1369,7 @@ namespace Org.Reddragonit.BpmEngine
                 switch (tsk.GetType().Name)
                 {
                     case "BusinessRuleTask":
-                    case "RecieveTask":
+                    case "ReceiveTask":
                     case "SendTask":
                     case "ServiceTask":
                     case "Task":
@@ -1386,7 +1386,7 @@ namespace Org.Reddragonit.BpmEngine
                     case "ManualTask":
                         _TriggerDelegateAsync(instance.Delegates.BeginManualTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, instance) });
                         break;
-                    case "RecieveTask":
+                    case "ReceiveTask":
                         delTask = instance.Delegates.ProcessRecieveTask;
                         break;
                     case "ScriptTask":
