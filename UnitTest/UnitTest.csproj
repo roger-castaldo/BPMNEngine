@@ -15,9 +15,12 @@
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
+    <None Remove="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
+    <None Remove="diagrams\UserTasks\multiple_user_tasks.bpmn" />
+    <None Remove="diagrams\UserTasks\single_user_task.bpmn" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,9 +32,12 @@
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <EmbeddedResource Include="diagrams\UserTasks\multiple_user_tasks.bpmn" />
+    <EmbeddedResource Include="diagrams\UserTasks\single_user_task.bpmn" />
   </ItemGroup>
 
   <ItemGroup>
