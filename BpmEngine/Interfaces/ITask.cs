@@ -15,21 +15,25 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// Called to issue a signal from the task (this should be caught somewhere within the process by a Signal Recieving Element with a matching signal defined)
         /// </summary>
         /// <param name="signal">The signal to emit into the process</param>
-        void Signal(string signal);
+        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        void Signal(string signal,out bool isAborted);
         /// <summary>
         /// Called to issue an escalation from the task (this should be caught somewhere within the process by an Escalation Reciving Element)
         /// </summary>
-        void Escalate();
+        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        void Escalate(out bool isAborted);
         /// <summary>
         /// Called to issue a message from the task (this should be caught somewhere within the process by a Message Recieving Element with a matching message defined)
         /// </summary>
         /// <param name="message">The message to emit into the process</param>
-        void EmitMessage(string message);
+        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        void EmitMessage(string message, out bool isAborted);
         /// <summary>
         /// Called to issue an exception fromn the task (this should be caught somewhere within the process by an Exception Recieving Element with a matching exception definition)
         /// </summary>
         /// <param name="error"></param>
-        void EmitError(Exception error);
+        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        void EmitError(Exception error, out bool isAborted);
         /// <summary>
         /// The variables container for this task which allows you to both obtain and modify process variables.
         /// </summary>

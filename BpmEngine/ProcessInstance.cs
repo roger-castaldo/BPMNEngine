@@ -106,7 +106,7 @@ namespace Org.Reddragonit.BpmEngine
             _process.ProcessEvent(this, sourceID, evnt);
         }
 
-        internal void ErrorTask(Tasks.ExternalTask externalTask, Exception error)
+        internal void EmitTaskError(Tasks.ExternalTask externalTask, Exception error, out bool isAborted)
         {
             if (_delegates.OnTaskError!=null)
                 System.Threading.Tasks.Task.Run(() =>
@@ -117,24 +117,22 @@ namespace Org.Reddragonit.BpmEngine
                     }
                     catch (Exception ex) { }
                 });
-            _stateEvent.WaitOne();
-            _state.Path.FailTask(_process.GetTask(externalTask.id), error);
-            _stateEvent.Set();
+            _process.HandleTaskEmission(this, externalTask, error, EventSubTypes.Error, out isAborted);
         }
 
-        internal void EmitTaskMessage(Tasks.ExternalTask externalTask, string message)
+        internal void EmitTaskMessage(Tasks.ExternalTask externalTask, string message,out bool isAborted)
         {
-            _process.HandleTaskEmission(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message);
+            _process.HandleTaskEmission(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message, out isAborted);
         }
 
-        internal void EscalateTask(Tasks.ExternalTask externalTask)
+        internal void EscalateTask(Tasks.ExternalTask externalTask, out bool isAborted)
         {
-            _process.HandleTaskEmission(this, externalTask, null, Elements.Processes.Events.EventSubTypes.Escalation);
+            _process.HandleTaskEmission(this, externalTask, null, Elements.Processes.Events.EventSubTypes.Escalation, out isAborted);
         }
 
-        internal void EmitTaskSignal(Tasks.ExternalTask externalTask, string signal)
+        internal void EmitTaskSignal(Tasks.ExternalTask externalTask, string signal, out bool isAborted)
         {
-            _process.HandleTaskEmission(this, externalTask, signal, Elements.Processes.Events.EventSubTypes.Signal);
+            _process.HandleTaskEmission(this, externalTask, signal, Elements.Processes.Events.EventSubTypes.Signal, out isAborted);
         }
 
         internal void CompleteTask(Tasks.ManualTask manualTask)
@@ -144,31 +142,34 @@ namespace Org.Reddragonit.BpmEngine
 
         public void MergeVariables(ITask task)
         {
-            WriteLogLine(task, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, (task is IUserTask ? ((IUserTask)task).UserID : null) }));
-            _stateEvent.WaitOne();
-            IVariables vars = task.Variables;
-            foreach (string str in vars.Keys)
+            if (!((Tasks.ExternalTask)task).Aborted)
             {
-                object left = vars[str];
-                object right = _state[task.id, str];
-                if (!_IsVariablesEqual(left, right))
-                    _state[task.id, str] = left;
-            }
-            if (_delegates.OnTaskCompleted!=null)
-                System.Threading.Tasks.Task.Run(() =>
+                WriteLogLine(task, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, (task is IUserTask ? ((IUserTask)task).UserID : null) }));
+                _stateEvent.WaitOne();
+                IVariables vars = task.Variables;
+                foreach (string str in vars.Keys)
                 {
-                    try
+                    object left = vars[str];
+                    object right = _state[task.id, str];
+                    if (!_IsVariablesEqual(left, right))
+                        _state[task.id, str] = left;
+                }
+                if (_delegates.OnTaskCompleted!=null)
+                    System.Threading.Tasks.Task.Run(() =>
                     {
-                        _delegates.OnTaskCompleted.Invoke(task, new ReadOnlyProcessVariablesContainer(task.id, this));
-                    }
-                    catch (Exception ex) { }
-                });
-            ATask tsk = _process.GetTask(task.id);
-            if (tsk is UserTask)
-                _state.Path.SucceedTask((UserTask)tsk, ((IUserTask)task).UserID);
-            else
-                _state.Path.SucceedTask(tsk);
-            _stateEvent.Set();
+                        try
+                        {
+                            _delegates.OnTaskCompleted.Invoke(task, new ReadOnlyProcessVariablesContainer(task.id, this));
+                        }
+                        catch (Exception ex) { }
+                    });
+                ATask tsk = _process.GetTask(task.id);
+                if (tsk is UserTask)
+                    _state.Path.SucceedTask((UserTask)tsk, ((IUserTask)task).UserID);
+                else
+                    _state.Path.SucceedTask(tsk);
+                _stateEvent.Set();
+            }
         }
 
         private bool _IsVariablesEqual(object left, object right)

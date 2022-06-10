@@ -73,7 +73,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                     if (sb==null)
                         ret=false;
                 }
-            }else if (this.SubProcess!=null)
+            }
+            else if (this.SubProcess!=null)
             {
                 cost=3;
                 sb=(SubProcess)this.SubProcess;
@@ -83,6 +84,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                     cost+=2;
                 }
             }
+            else
+                cost=2;
             return ret;
         }
     }

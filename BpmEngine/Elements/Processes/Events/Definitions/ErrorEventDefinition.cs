@@ -40,6 +40,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
                         }
                     }
                 }
+                if (ret.Count==0)
+                    ret.Add("*");
                 return ret.ToArray();
             }
         }

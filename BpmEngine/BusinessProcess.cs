@@ -186,13 +186,14 @@ namespace Org.Reddragonit.BpmEngine
             return null;
         }
 
-        internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type)
+        internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type,out bool isAborted)
         {
             AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task.Variables));
             foreach (AHandlingEvent ahe in events)
             {
                 ProcessEvent(instance,task.id, ahe);
             }
+            isAborted = instance.State.Path.GetStatus(task.id)==StepStatuses.Aborted;
         }
 
         private BusinessProcess() {
@@ -1370,7 +1371,7 @@ namespace Org.Reddragonit.BpmEngine
             try
             {
                 ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, instance);
-                ITask task=null;
+                Org.Reddragonit.BpmEngine.Tasks.ExternalTask task =null;
                 switch (tsk.GetType().Name)
                 {
                     case "BusinessRuleTask":
@@ -1412,7 +1413,7 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (delTask!=null)
                     delTask.Invoke(task);
-                if (task!=null)
+                if (task!=null && !task.Aborted)
                     instance.MergeVariables(task);
             }
             catch (Exception e)

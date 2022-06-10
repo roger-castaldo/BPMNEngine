@@ -13,6 +13,7 @@
     <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
     <None Remove="diagrams\ErrorHandling\no_error_handling.bpmn" />
+    <None Remove="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
@@ -30,6 +31,7 @@
     <EmbeddedResource Include="diagrams\Delegates\path_valid_checks.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
+    <EmbeddedResource Include="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\event_start_condition.bpmn" />

@@ -12,6 +12,8 @@ namespace Org.Reddragonit.BpmEngine.Tasks
         private ATask _task;
         private ProcessVariablesContainer _variables;
         protected ProcessInstance _businessProcess;
+        private bool _aborted;
+        public bool Aborted { get { return _aborted; } }
 
         public ExternalTask(ATask task,ProcessVariablesContainer variables, ProcessInstance process)
         {
@@ -102,25 +104,29 @@ namespace Org.Reddragonit.BpmEngine.Tasks
         }
         #endregion
 
-        public void EmitError(Exception error)
+        public void EmitError(Exception error, out bool isAborted)
         {
-            _businessProcess.ErrorTask(this, error);
+            _businessProcess.EmitTaskError(this, error, out isAborted);
+            _aborted=_aborted||isAborted;
         }
 
-        public void EmitMessage(string message)
+        public void EmitMessage(string message, out bool isAborted)
         {
-            _businessProcess.EmitTaskMessage(this, message);
+            _businessProcess.EmitTaskMessage(this, message,out isAborted);
+            _aborted=_aborted||isAborted;
         }
 
 
-        public void Escalate()
+        public void Escalate(out bool isAborted)
         {
-            _businessProcess.EscalateTask(this);
+            _businessProcess.EscalateTask(this, out isAborted);
+            _aborted=_aborted||isAborted;
         }
 
-        public void Signal(string signal)
+        public void Signal(string signal, out bool isAborted)
         {
-            _businessProcess.EmitTaskSignal(this, signal);
+            _businessProcess.EmitTaskSignal(this, signal, out isAborted);
+            _aborted=_aborted||isAborted;
         }
 
         public IVariables Variables { get { return _variables; } }
