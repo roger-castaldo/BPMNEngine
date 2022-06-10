@@ -74,10 +74,6 @@ namespace Org.Reddragonit.BpmEngine
         /// <summary>
         /// PNG
         /// </summary>
-        Png,
-        /// <summary>
-        /// Bitmap
-        /// </summary>
-        Bmp
+        Png
     }
 }

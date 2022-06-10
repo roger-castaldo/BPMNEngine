@@ -8,13 +8,17 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 {
     internal class DrawingImage : IDrawingSurface
     {
-        private const string _ASSEMBLIES = "System.Drawing.Common,System.Drawing.Primitives";
+#if !NET461
+        private const string _ASSEMBLIES = "System.Drawing.Common;System.Drawing.Primitives";
+#else
+        private const string _ASSEMBLIES = "System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+#endif
 
         private static string[] _ASSEMBLY_NAME
         {
             get
             {
-                return _ASSEMBLIES.Split(',');
+                return _ASSEMBLIES.Split(';');
             }
         }
 

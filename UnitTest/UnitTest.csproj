@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	  <TargetFrameworks>netcoreapp3.1;net461;net6.0;</TargetFrameworks>
@@ -21,6 +21,9 @@
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
+    <None Remove="diagrams\ImageTests\all_icons.bpmn" />
+    <None Remove="diagrams\ImageTests\vacation_request.bpmn" />
+    <None Remove="diagrams\ImageTests\vacation_state.xml" />
     <None Remove="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <None Remove="diagrams\UserTasks\single_user_task.bpmn" />
   </ItemGroup>
@@ -40,6 +43,11 @@
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <EmbeddedResource Include="diagrams\ImageTests\all_icons.bpmn" />
+    <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="diagrams\ImageTests\vacation_state.xml" />
     <EmbeddedResource Include="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\single_user_task.bpmn" />
   </ItemGroup>
@@ -56,11 +64,21 @@
   </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
-	    <PackageReference Include="SkiaSharp" Version="2.80.3" />
+	    <PackageReference Include="SkiaSharp" Version="2.88.0" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'"/>
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'"/>
     </ItemGroup>
+
+	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+	</ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\BpmEngine\BpmEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="diagrams\EmissionHandling\" />
   </ItemGroup>
 
 </Project>

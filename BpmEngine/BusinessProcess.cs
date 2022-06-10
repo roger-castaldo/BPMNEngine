@@ -861,12 +861,14 @@ namespace Org.Reddragonit.BpmEngine
         /// <returns>A Bitmap containing a rendered image of the process</returns>
         public byte[] Diagram(ImageOuputTypes type)
         {
-            return _Diagram(false,null).ToFile(type);
+            Image tmp = _Diagram(false, null);
+            return (tmp==null ? null : tmp.ToFile(type));
         }
 
         internal byte[] Diagram(bool outputVariables,ProcessState state, ImageOuputTypes type)
         {
-            return _Diagram(outputVariables, state).ToFile(type);
+            Image tmp = _Diagram(outputVariables, state);
+            return (tmp==null ? null : tmp.ToFile(type));
         }
 
         private Image _Diagram(bool outputVariables, ProcessState state)
@@ -890,22 +892,30 @@ namespace Org.Reddragonit.BpmEngine
                     }
                 }
             }
-            Image ret = new Image(width, height);
-            ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, width, height));
-            int padding = _DEFAULT_PADDING / 2;
-            foreach (IElement elem in _Elements)
+            Image ret = null;
+            try
             {
-                if (elem is Definition)
+                ret = new Image(width, height);
+                ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, width, height));
+                int padding = _DEFAULT_PADDING / 2;
+                foreach (IElement elem in _Elements)
                 {
-                    foreach (Diagram d in ((Definition)elem).Diagrams)
+                    if (elem is Definition)
                     {
-                        ret.DrawImage(d.Render(state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
-                        padding += d.Size.Height + _DEFAULT_PADDING;
+                        foreach (Diagram d in ((Definition)elem).Diagrams)
+                        {
+                            ret.DrawImage(d.Render(state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
+                            padding += d.Size.Height + _DEFAULT_PADDING;
+                        }
                     }
                 }
+                if (outputVariables)
+                    ret = _AppendVariables(ret, state);
+            }catch(Exception e)
+            {
+                WriteLogException((IElement)null, new StackFrame(1, true), DateTime.Now, e);
+                ret=null;
             }
-            if (outputVariables)
-                ret = _AppendVariables(ret,state);
             return ret;
         }
 
@@ -991,46 +1001,55 @@ namespace Org.Reddragonit.BpmEngine
             MemoryStream ms = new MemoryStream();
             using (Drawing.GifEncoder enc = new Drawing.GifEncoder(ms))
             {
-                enc.FrameDelay = _ANIMATION_DELAY;
-                state.Path.StartAnimation();
-                Image bd = _Diagram(false,state);
-                enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd,state) : bd)) });
-                while (state.Path.HasNext())
+                try
                 {
-                    string nxtStep = state.Path.MoveToNextStep();
-                    if (nxtStep != null)
+                    enc.FrameDelay = _ANIMATION_DELAY;
+                    state.Path.StartAnimation();
+                    Image bd = _Diagram(false, state);
+                    if (bd==null)
+                        throw new Exception("Unable to create first diagram frame");
+                    enc.AddFrame(new Drawing.GifEncoder.sFramePart[] { new Drawing.GifEncoder.sFramePart((outputVariables ? _AppendVariables(bd, state) : bd)) });
+                    while (state.Path.HasNext())
                     {
-                        List<Drawing.GifEncoder.sFramePart> frames = new List<Drawing.GifEncoder.sFramePart>();
-                        Rectangle rect;
-                        int padding = _DEFAULT_PADDING / 2;
-                        foreach (IElement elem in _Elements)
+                        string nxtStep = state.Path.MoveToNextStep();
+                        if (nxtStep != null)
                         {
-                            if (elem is Definition)
+                            List<Drawing.GifEncoder.sFramePart> frames = new List<Drawing.GifEncoder.sFramePart>();
+                            Rectangle rect;
+                            int padding = _DEFAULT_PADDING / 2;
+                            foreach (IElement elem in _Elements)
                             {
-                                foreach (Diagram d in ((Definition)elem).Diagrams)
+                                if (elem is Definition)
                                 {
-                                    if (d.RendersElement(nxtStep))
+                                    foreach (Diagram d in ((Definition)elem).Diagrams)
                                     {
-                                        Image img = d.RenderElement(state.Path, (Definition)elem, nxtStep, out rect);
-                                        if (rect!=null)
+                                        if (d.RendersElement(nxtStep))
                                         {
-                                            frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.X, padding+(int)rect.Y));
-                                            //gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
-                                            break;
+                                            Image img = d.RenderElement(state.Path, (Definition)elem, nxtStep, out rect);
+                                            if (rect!=null)
+                                            {
+                                                frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.X, padding+(int)rect.Y));
+                                                //gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
+                                                break;
+                                            }
                                         }
+                                        padding += d.Size.Height + _DEFAULT_PADDING;
                                     }
-                                    padding += d.Size.Height + _DEFAULT_PADDING;
                                 }
                             }
+                            if (outputVariables)
+                                frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(bd, state), bd.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
+                            enc.AddFrame(frames.ToArray());
                         }
-                        if (outputVariables)
-                            frames.Add(new Drawing.GifEncoder.sFramePart(_ProduceVariablesImage(bd,state), bd.Size.Width + _DEFAULT_PADDING, _DEFAULT_PADDING));
-                        enc.AddFrame(frames.ToArray());
                     }
+                    state.Path.FinishAnimation();
+                }catch(Exception e)
+                {
+                    WriteLogException((IElement)null, new StackFrame(1, true), DateTime.Now, e);
+                    ms=null;
                 }
-                state.Path.FinishAnimation();
             }
-            return ms.ToArray();
+            return (ms==null ? null : ms.ToArray());
         }
 
         /// <summary>

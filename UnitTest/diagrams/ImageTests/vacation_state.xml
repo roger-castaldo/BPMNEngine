@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProcessState isSuspended="False">
+  <ProcessPath>
+    <sPathEntry elementID="StartEvent_0ikjhwl" status="Waiting" startTime="20220419094629283" />
+    <sPathEntry elementID="StartEvent_0ikjhwl" status="Succeeded" startTime="20220419094629283" endTime="20220419094629296" outgoingID="SequenceFlow_1kh3jxa" />
+    <sPathEntry elementID="SequenceFlow_1kh3jxa" status="Succeeded" startTime="20220419094629300" incomingID="StartEvent_0ikjhwl" endTime="20220419094629300" outgoingID="Task_16n77qg" />
+    <sPathEntry elementID="Task_16n77qg" status="Waiting" startTime="20220419094629307" incomingID="SequenceFlow_1kh3jxa" />
+    <sPathEntry elementID="Task_16n77qg" status="Succeeded" startTime="20220419094629307" incomingID="SequenceFlow_1kh3jxa" endTime="20220419094631597" CompletedByID="manager" outgoingID="SequenceFlow_1jma3bu" />
+    <sPathEntry elementID="SequenceFlow_1jma3bu" status="Succeeded" startTime="20220419094631600" incomingID="Task_16n77qg" endTime="20220419094631600" outgoingID="ExclusiveGateway_0dujghp" />
+    <sPathEntry elementID="ExclusiveGateway_0dujghp" status="Waiting" startTime="20220419094631602" incomingID="SequenceFlow_1jma3bu" />
+    <sPathEntry elementID="ExclusiveGateway_0dujghp" status="Succeeded" startTime="20220419094631602" incomingID="SequenceFlow_1jma3bu" endTime="20220419094631604" outgoingID="SequenceFlow_1834102" />
+    <sPathEntry elementID="SequenceFlow_1834102" status="Succeeded" startTime="20220419094631606" incomingID="ExclusiveGateway_0dujghp" endTime="20220419094631606" outgoingID="IntermediateThrowEvent_03o2ijn" />
+    <sPathEntry elementID="IntermediateThrowEvent_03o2ijn" status="Waiting" startTime="20220419094631609" incomingID="SequenceFlow_1834102" />
+    <sPathEntry elementID="IntermediateThrowEvent_03o2ijn" status="Succeeded" startTime="20220419094631609" incomingID="SequenceFlow_1834102" endTime="20220419094731612" outgoingID="SequenceFlow_1i6f2mb" />
+    <sPathEntry elementID="SequenceFlow_1i6f2mb" status="Succeeded" startTime="20220419094731626" incomingID="IntermediateThrowEvent_03o2ijn" endTime="20220419094731626" outgoingID="Task_1g7k3ya" />
+    <sPathEntry elementID="Task_1g7k3ya" status="Waiting" startTime="20220419094731629" incomingID="SequenceFlow_1i6f2mb" />
+    <sPathEntry elementID="Task_1g7k3ya" status="Succeeded" startTime="20220419094731629" incomingID="SequenceFlow_1i6f2mb" endTime="20220419094734266" CompletedByID="manager" outgoingID="SequenceFlow_1ix78mx" />
+    <sPathEntry elementID="SequenceFlow_1ix78mx" status="Succeeded" startTime="20220419094734272" incomingID="Task_1g7k3ya" endTime="20220419094734272" outgoingID="ExclusiveGateway_0wsjber" />
+    <sPathEntry elementID="ExclusiveGateway_0wsjber" status="Waiting" startTime="20220419094734275" incomingID="SequenceFlow_1ix78mx" />
+    <sPathEntry elementID="ExclusiveGateway_0wsjber" status="Succeeded" startTime="20220419094734275" incomingID="SequenceFlow_1ix78mx" endTime="20220419094734276" outgoingID="SequenceFlow_157id57" />
+    <sPathEntry elementID="SequenceFlow_157id57" status="Succeeded" startTime="20220419094734279" incomingID="ExclusiveGateway_0wsjber" endTime="20220419094734279" outgoingID="ExclusiveGateway_194d97k" />
+    <sPathEntry elementID="ExclusiveGateway_194d97k" status="Waiting" startTime="20220419094734284" incomingID="SequenceFlow_157id57" />
+    <sPathEntry elementID="ExclusiveGateway_194d97k" status="Succeeded" startTime="20220419094734284" incomingID="SequenceFlow_157id57" endTime="20220419094734285">
+      <outgoing>SequenceFlow_0vz4lps</outgoing>
+      <outgoing>SequenceFlow_0bkqpvi</outgoing>
+    </sPathEntry>
+    <sPathEntry elementID="SequenceFlow_0bkqpvi" status="Succeeded" startTime="20220419094734291" incomingID="ExclusiveGateway_194d97k" endTime="20220419094734291" outgoingID="Task_1w3xqcn" />
+    <sPathEntry elementID="SequenceFlow_0vz4lps" status="Succeeded" startTime="20220419094734295" incomingID="ExclusiveGateway_194d97k" endTime="20220419094734295" outgoingID="Task_032jl99" />
+    <sPathEntry elementID="Task_1w3xqcn" status="Waiting" startTime="20220419094734299" incomingID="SequenceFlow_0bkqpvi" />
+    <sPathEntry elementID="Task_032jl99" status="Waiting" startTime="20220419094734300" incomingID="SequenceFlow_0vz4lps" />
+    <sPathEntry elementID="Task_032jl99" status="Succeeded" startTime="20220419094734300" incomingID="SequenceFlow_0vz4lps" endTime="20220419094734304" />
+    <sPathEntry elementID="Task_1w3xqcn" status="Succeeded" startTime="20220419094734299" incomingID="SequenceFlow_0bkqpvi" endTime="20220419094735767" CompletedByID="manager" outgoingID="SequenceFlow_1ariavv" />
+    <sPathEntry elementID="SequenceFlow_1ariavv" status="Succeeded" startTime="20220419094735771" incomingID="Task_1w3xqcn" endTime="20220419094735771" outgoingID="EndEvent_1pt6tvc" />
+    <sPathEntry elementID="EndEvent_1pt6tvc" status="Waiting" startTime="20220419094735774" incomingID="SequenceFlow_1ariavv" />
+    <sPathEntry elementID="EndEvent_1pt6tvc" status="Succeeded" startTime="20220419094735774" incomingID="SequenceFlow_1ariavv" endTime="20220419094735775" />
+  </ProcessPath>
+  <ProcessVariables>
+    <sVariableEntry pathStepIndex="0" name="name" type="String" isArray="False"><![CDATA[bob loblaw]]></sVariableEntry>
+    <sVariableEntry pathStepIndex="0" name="startdate" type="String" isArray="False"><![CDATA[2022-05-02]]></sVariableEntry>
+    <sVariableEntry pathStepIndex="0" name="enddate" type="String" isArray="False"><![CDATA[2022-05-05]]></sVariableEntry>
+    <sVariableEntry pathStepIndex="0" name="test" type="UnsignedLong" isArray="False"><![CDATA[0]]></sVariableEntry>
+    <sVariableEntry pathStepIndex="3" name="approved" type="String" isArray="False"><![CDATA[Y]]></sVariableEntry>
+  </ProcessVariables>
+  <SuspendedSteps>
+    <sStepSuspension id="IntermediateThrowEvent_03o2ijn" stepIndex="9" endTime="20220419094731611" />
+  </SuspendedSteps>
+</ProcessState>
