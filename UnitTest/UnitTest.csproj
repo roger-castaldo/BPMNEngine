@@ -12,6 +12,9 @@
     <None Remove="diagrams\Delegates\task_checks.bpmn" />
     <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
+    <None Remove="diagrams\EmissionHandling\escalations.bpmn" />
+    <None Remove="diagrams\EmissionHandling\messages.bpmn" />
+    <None Remove="diagrams\EmissionHandling\signals.bpmn" />
     <None Remove="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <None Remove="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
@@ -34,6 +37,9 @@
     <EmbeddedResource Include="diagrams\Delegates\path_valid_checks.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
+    <EmbeddedResource Include="diagrams\EmissionHandling\escalations.bpmn" />
+    <EmbeddedResource Include="diagrams\EmissionHandling\signals.bpmn" />
+    <EmbeddedResource Include="diagrams\EmissionHandling\messages.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
@@ -65,8 +71,8 @@
 
     <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
 	    <PackageReference Include="SkiaSharp" Version="2.88.0" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'"/>
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'"/>
+		<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'" />
+		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
     </ItemGroup>
 
 	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
@@ -75,10 +81,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BpmEngine\BpmEngine.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="diagrams\EmissionHandling\" />
   </ItemGroup>
 
 </Project>

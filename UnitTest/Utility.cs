@@ -64,5 +64,10 @@ namespace UnitTest
             }
             return true;
         }
+
+        public static bool StepCompleted(XmlDocument state,string name)
+        {
+            return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
+        }
     }
 }
