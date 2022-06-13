@@ -27,6 +27,8 @@
     <None Remove="diagrams\ImageTests\all_icons.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_request.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_state.xml" />
+    <None Remove="diagrams\ProcessSuspension\timer.bpmn" />
+    <None Remove="diagrams\ProcessSuspension\user_task.bpmn" />
     <None Remove="diagrams\Timers\timing.bpmn" />
     <None Remove="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <None Remove="diagrams\UserTasks\single_user_task.bpmn" />
@@ -55,6 +57,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\ImageTests\vacation_state.xml" />
+    <EmbeddedResource Include="diagrams\ProcessSuspension\timer.bpmn" />
+    <EmbeddedResource Include="diagrams\ProcessSuspension\user_task.bpmn" />
     <EmbeddedResource Include="diagrams\Timers\timing.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\single_user_task.bpmn" />
