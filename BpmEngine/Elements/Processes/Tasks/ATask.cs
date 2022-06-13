@@ -36,7 +36,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                         {
                             IElement ice = this.Definition.LocateElement(destID);
                             if (ice is IntermediateCatchEvent)
-                                add = false;
+                            {
+                                IntermediateCatchEvent inter = (IntermediateCatchEvent)ice;
+                                if (inter.SubType.HasValue)
+                                {
+                                    switch(inter.SubType.Value)
+                                    {
+                                        case EventSubTypes.Signal:
+                                        case EventSubTypes.Escalation:
+                                        case EventSubTypes.Error:
+                                        case EventSubTypes.Message:
+                                        case EventSubTypes.Link:
+                                            add=false;
+                                            break;
+                                    }
+                                }
+                            }
                         }
                         if (add)
                             ret.Add(str);

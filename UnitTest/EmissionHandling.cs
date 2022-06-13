@@ -30,6 +30,8 @@ namespace UnitTest
         public static void Cleanup()
         {
             _messageProcess.Dispose();
+            _signalProcess.Dispose();
+            _escalateProcess.Dispose();
         }
 
         private static void _ProcessTask(ITask task)

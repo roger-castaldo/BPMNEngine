@@ -139,7 +139,7 @@ namespace Org.Reddragonit.BpmEngine.State
                     switch ((StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes[_STEP_STATUS].Value))
                     {
                         case StepStatuses.WaitingStart:
-                            ret.Add(new sDelayedStartEvent(elem.Attributes[_INCOMING_ID].Value, elem.Attributes[_ELEMENT_ID].Value, DateTime.ParseExact(elem.Attributes[_START_TIME].Value,Constants.DATETIME_FORMAT,CultureInfo.InvariantCulture)));
+                            ret.Add(new sDelayedStartEvent(elem.Attributes[_INCOMING_ID].Value, elem.Attributes[_ELEMENT_ID].Value, DateTime.ParseExact((elem.Attributes[_END_TIME]!=null ? elem.Attributes[_END_TIME].Value : elem.Attributes[_START_TIME].Value),Constants.DATETIME_FORMAT,CultureInfo.InvariantCulture)));
                             break;
                         case StepStatuses.Succeeded:
                         case StepStatuses.Failed:
@@ -297,7 +297,6 @@ namespace Org.Reddragonit.BpmEngine.State
                 {
                     incoming = (nodes[x].Attributes[_INCOMING_ID] == null ? null : nodes[x].Attributes[_INCOMING_ID].Value);
                     start = DateTime.ParseExact(nodes[x].Attributes[_START_TIME].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
-                    break;
                 }
             }
         }
@@ -305,7 +304,7 @@ namespace Org.Reddragonit.BpmEngine.State
         internal void DelayEventStart(AEvent Event,string incoming,TimeSpan delay)
         {
             _WriteLogLine(Event.id, LogLevels.Debug, "Delaying start of event in Process Path");
-            _addPathEntry(Event.id, incoming, StepStatuses.WaitingStart, DateTime.Now.Add(delay));
+            _addPathEntry(Event.id, incoming, StepStatuses.WaitingStart, DateTime.Now,DateTime.Now.Add(delay));
         }
 
         internal void StartEvent(AEvent Event, string incoming)
