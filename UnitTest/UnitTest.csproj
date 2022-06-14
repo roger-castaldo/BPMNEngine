@@ -27,6 +27,9 @@
     <None Remove="diagrams\ImageTests\all_icons.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_request.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_state.xml" />
+    <None Remove="diagrams\ProcessEnd\sub_process_end.bpmn" />
+    <None Remove="diagrams\ProcessEnd\sub_process_terminate.bpmn" />
+    <None Remove="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
     <None Remove="diagrams\ProcessSuspension\timer.bpmn" />
     <None Remove="diagrams\ProcessSuspension\user_task.bpmn" />
     <None Remove="diagrams\Timers\timing.bpmn" />
@@ -57,6 +60,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="diagrams\ImageTests\vacation_state.xml" />
+    <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_end.bpmn" />
+    <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
+    <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\timer.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\user_task.bpmn" />
     <EmbeddedResource Include="diagrams\Timers\timing.bpmn" />

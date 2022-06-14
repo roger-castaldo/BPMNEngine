@@ -69,5 +69,10 @@ namespace UnitTest
         {
             return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
         }
+
+        public static bool StepAborted(XmlDocument state, string name)
+        {
+            return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
+        }
     }
 }

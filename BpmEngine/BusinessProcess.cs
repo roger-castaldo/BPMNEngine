@@ -1530,16 +1530,28 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     if (((EndEvent)evnt).IsProcessEnd)
                     {
-                        SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
-                        if (!((EndEvent)evnt).IsTermination && sp != null)
+                        if (!((EndEvent)evnt).IsTermination)
                         {
-                            instance.StateEvent.WaitOne();
-                            instance.State.Path.SucceedSubProcess(sp);
-                            instance.StateEvent.Set();
-                            _TriggerDelegateAsync(instance.Delegates.OnSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
+                            SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
+                            if (sp != null)
+                            {
+                                instance.StateEvent.WaitOne();
+                                instance.State.Path.SucceedSubProcess(sp);
+                                instance.StateEvent.Set();
+                                _TriggerDelegateAsync(instance.Delegates.OnSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
+                            }
+                            else
+                            {
+                                _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                                instance.ProcessLock.Set();
+                            }
                         }
-                        if (((EndEvent)evnt).IsTermination || sp==null) { 
-                            _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance)});
+                        else
+                        {
+                            ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(evnt.id, instance);
+                            foreach (string str in instance.State.ActiveSteps)
+                                _AbortStep(instance, evnt.id, GetElement(str), vars);
+                            _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
                             instance.ProcessLock.Set();
                         }
                     }

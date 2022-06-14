@@ -160,6 +160,31 @@ namespace Org.Reddragonit.BpmEngine.State
             }
         }
 
+        public string[] ActiveSteps
+        {
+            get
+            {
+                List<string> ret = new List<string>();
+                foreach (XmlElement elem in ChildNodes)
+                {
+                    switch ((StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes[_STEP_STATUS].Value))
+                    {
+                        case StepStatuses.WaitingStart:
+                        case StepStatuses.Waiting:
+                            if (!ret.Contains(elem.Attributes[_ELEMENT_ID].Value))
+                                ret.Add(elem.Attributes[_ELEMENT_ID].Value);
+                            break;
+                        case StepStatuses.Succeeded:
+                        case StepStatuses.Failed:
+                        case StepStatuses.Aborted:
+                            ret.Remove(elem.Attributes[_ELEMENT_ID].Value);
+                            break;
+                    }
+                }
+                return ret.ToArray();
+            }
+        }
+
         internal bool IsStepWaiting(string id, int stepIndex)
         {
             bool ret = true;
