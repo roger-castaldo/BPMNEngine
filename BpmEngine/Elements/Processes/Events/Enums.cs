@@ -13,6 +13,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         Link,
         Compensation,
         Signal,
-        Error
+        Error,
+        Terminate
     }
 }

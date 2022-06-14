@@ -78,6 +78,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                     }
                     else if (elem is IntermediateThrowEvent)
                     {
+                        ret = BPMIcons.IntermediateThrowEvent;
                         if (evnt.SubType.HasValue)
                         {
                             switch (evnt.SubType.Value)
@@ -146,9 +147,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                                 case EventSubTypes.Signal:
                                     ret = BPMIcons.SignalEndEvent;
                                     break;
+                                case EventSubTypes.Error:
+                                    ret = BPMIcons.ErrorEndEvent;
+                                    break;
+                                case EventSubTypes.Terminate:
+                                    ret = BPMIcons.TerminateEndEvent;
+                                    break;
                             }
                         }
-                    }else if (elem is BoundaryEvent)
+                    }
+                    else if (elem is BoundaryEvent)
                     {
                         switch (evnt.SubType.Value)
                         {
@@ -176,7 +184,17 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                 else if (elem is AGateway)
                     ret = (BPMIcons)Enum.Parse(typeof(BPMIcons), elem.GetType().Name);
                 else if (elem is ATask)
-                    ret = (BPMIcons)Enum.Parse(typeof(BPMIcons), elem.GetType().Name);
+                {
+#if !NET461
+                    object obj;
+                    if (Enum.TryParse(typeof(BPMIcons), elem.GetType().Name, out obj))
+                        ret = (BPMIcons)obj;
+#else
+                    BPMIcons obj;
+                    if (Enum.TryParse<BPMIcons>(elem.GetType().Name,true,out obj))
+                        ret=obj;
+#endif
+                }
             }
             return ret;
         }

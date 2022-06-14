@@ -69,6 +69,8 @@ namespace Org.Reddragonit.BpmEngine
         public ProcessTask ProcessServiceTask { get { return _processServiceTask;} }
         private ProcessTask _processTask;
         public ProcessTask ProcessTask { get { return _processTask; } }
+        private ProcessTask _callActivity;
+        public ProcessTask CallActivity { get { return _callActivity; } }
         private StartUserTask _beginUserTask;
         public StartUserTask BeginUserTask { get { return _beginUserTask; } }
         private LogLine _logLine;
@@ -107,6 +109,7 @@ namespace Org.Reddragonit.BpmEngine
             ProcessTask processSendTask,
             ProcessTask processServiceTask,
             ProcessTask processTask,
+            ProcessTask callActivity,
             StartUserTask beginUserTask)
         {
             _logLine = logLine;
@@ -140,6 +143,7 @@ namespace Org.Reddragonit.BpmEngine
             _processSendTask=processSendTask;
             _processServiceTask=processServiceTask;
             _processTask=processTask;
+            _callActivity=callActivity;
             _beginUserTask=beginUserTask;
         }
 
@@ -174,6 +178,7 @@ namespace Org.Reddragonit.BpmEngine
             ProcessTask processSendTask,
             ProcessTask processServiceTask,
             ProcessTask processTask,
+            ProcessTask callActivity,
             StartUserTask beginUserTask)
         {
             return new DelegateContainer(
@@ -208,6 +213,7 @@ namespace Org.Reddragonit.BpmEngine
                 (processSendTask==null ? _processSendTask : processSendTask),
                 (processServiceTask==null ? _processServiceTask : processServiceTask),
                 (processTask==null ? _processTask : processTask),
+                (callActivity==null ? _callActivity : callActivity),
                 (beginUserTask==null ? _beginUserTask : beginUserTask)
                 );
         }

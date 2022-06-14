@@ -11,6 +11,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         TimerStartEvent,
         ConditionalStartEvent,
         SignalStartEvent,
+        IntermediateThrowEvent,
         MessageIntermediateThrowEvent,
         EscalationIntermediateThrowEvent,
         LinkIntermediateThrowEvent,

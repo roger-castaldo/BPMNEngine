@@ -6,11 +6,11 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "compensateEventDefinition")]
+    [XMLTag("bpmn", "terminateEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class CompensationEventDefinition : AElement
+    internal class TerminateEventDefinition : AParentElement
     {
-        public CompensationEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
+        public TerminateEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {
         }
     }

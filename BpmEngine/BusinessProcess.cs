@@ -586,6 +586,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="processSendTask">The ProcessSendTask delegate called to exeucte a Send Task.</param>
         /// <param name="processServiceTask">The ProcessServiceTask delegate called to execute a Service Task</param>
         /// <param name="processTask">The ProcessTask delegate called to execute a Task</param>
+        /// <param name="callActivity">The ProcessTask delegate called to execute a CallActivity</param>
         /// <param name="beginUserTask">
         /// The BeginUserTask delegate called to start a User Task
         /// <code>
@@ -650,6 +651,7 @@ namespace Org.Reddragonit.BpmEngine
             ProcessTask processSendTask=null,
             ProcessTask processServiceTask=null,
             ProcessTask processTask=null,
+            ProcessTask callActivity = null,
             StartUserTask beginUserTask=null
             )
         {
@@ -657,7 +659,7 @@ namespace Org.Reddragonit.BpmEngine
             _constants = constants;
             _delegates = new DelegateContainer(logLine, logException, onEventStarted, onEventCompleted, onEventError, onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError, onSequenceFlowCompleted, onMessageFlowCompleted,
                 onGatewayStarted, onGatewayCompleted, onGatewayError, onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid, isProcessStartValid, isFlowValid, processBusinessRuleTask,
-                beginManualTask, processRecieveTask, processScriptTask, processSendTask, processServiceTask, processTask, beginUserTask);
+                beginManualTask, processRecieveTask, processScriptTask, processSendTask, processServiceTask, processTask,callActivity, beginUserTask);
 
 
             List<Exception> exceptions = new List<Exception>();
@@ -804,6 +806,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="processSendTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="processServiceTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="processTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="callActivity">Used to replace existing call activity delegate specific for this instance</param>
         /// <param name="beginUserTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
         /// <returns>an instance of IProcessInstance if successful or null it failed</returns>
@@ -840,6 +843,7 @@ namespace Org.Reddragonit.BpmEngine
             ProcessTask processSendTask = null,
             ProcessTask processServiceTask = null,
             ProcessTask processTask = null,
+            ProcessTask callActivity = null,
             StartUserTask beginUserTask = null,
             LogLevels stateLogLevel=LogLevels.None)
         {
@@ -848,7 +852,7 @@ namespace Org.Reddragonit.BpmEngine
                 onSequenceFlowCompleted, onMessageFlowCompleted, onGatewayStarted, onGatewayCompleted, onGatewayError,
                 onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid,
                 isProcessStartValid, isFlowValid, processBusinessRuleTask, beginManualTask, processRecieveTask, processScriptTask,
-                processSendTask, processServiceTask, processTask, beginUserTask), stateLogLevel);
+                processSendTask, processServiceTask, processTask,callActivity, beginUserTask), stateLogLevel);
             if (ret.LoadState(doc, autoResume))
                 return ret;
             return null;
@@ -1087,6 +1091,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="processSendTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="processServiceTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="processTask">Used to replace existing process delegate specific for this instance</param>
+        /// <param name="callActivity">Used to replace existing call activity delegate specific for this instance</param>
         /// <param name="beginUserTask">Used to replace existing process delegate specific for this instance</param>
         /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
         /// <returns>a process instance if the process was successfully started</returns>
@@ -1123,6 +1128,7 @@ namespace Org.Reddragonit.BpmEngine
             ProcessTask processSendTask = null,
             ProcessTask processServiceTask = null,
             ProcessTask processTask = null,
+            ProcessTask callActivity = null,
             StartUserTask beginUserTask = null,
             LogLevels stateLogLevel = LogLevels.None)
         {
@@ -1131,7 +1137,7 @@ namespace Org.Reddragonit.BpmEngine
                onSequenceFlowCompleted, onMessageFlowCompleted, onGatewayStarted, onGatewayCompleted, onGatewayError,
                onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid,
                isProcessStartValid, isFlowValid, processBusinessRuleTask, beginManualTask, processRecieveTask, processScriptTask,
-               processSendTask, processServiceTask, processTask, beginUserTask), stateLogLevel);
+               processSendTask, processServiceTask, processTask,callActivity, beginUserTask), stateLogLevel);
             ProcessVariablesContainer variables = new ProcessVariablesContainer(pars,this,ret);
             ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
@@ -1399,6 +1405,7 @@ namespace Org.Reddragonit.BpmEngine
                     case "ServiceTask":
                     case "Task":
                     case "ScriptTask":
+                    case "CallActivity":
                         task = new Org.Reddragonit.BpmEngine.Tasks.ExternalTask(tsk, variables, instance);
                         break;
                 }
@@ -1425,6 +1432,9 @@ namespace Org.Reddragonit.BpmEngine
                         break;
                     case "Task":
                         delTask = instance.Delegates.ProcessTask;
+                        break;
+                    case "CallActivity":
+                        delTask = instance.Delegates.CallActivity;
                         break;
                     case "UserTask":
                         _TriggerDelegateAsync(instance.Delegates.BeginUserTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk, variables, instance) });
@@ -1521,15 +1531,14 @@ namespace Org.Reddragonit.BpmEngine
                     if (((EndEvent)evnt).IsProcessEnd)
                     {
                         SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
-                        if (sp != null)
+                        if (!((EndEvent)evnt).IsTermination && sp != null)
                         {
                             instance.StateEvent.WaitOne();
                             instance.State.Path.SucceedSubProcess(sp);
                             instance.StateEvent.Set();
                             _TriggerDelegateAsync(instance.Delegates.OnSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
                         }
-                        else
-                        {
+                        if (((EndEvent)evnt).IsTermination || sp==null) { 
                             _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance)});
                             instance.ProcessLock.Set();
                         }

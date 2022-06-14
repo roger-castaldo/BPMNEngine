@@ -27,6 +27,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             }
         }
 
+        public bool IsTermination
+        {
+            get
+            {
+                foreach (IElement child in Children)
+                {
+                    if (child is TerminateEventDefinition)
+                        return true;
+                }
+                return false;
+            }
+        }
+
         public override bool IsValid(out string[] err)
         {
             if (Outgoing != null)

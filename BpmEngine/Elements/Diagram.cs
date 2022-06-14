@@ -21,6 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     {
         private const float _SUB_PROCESS_CORNER_RADIUS = 10f;
         private const float _TASK_CORNER_RADIUS = 7.5f;
+        private const float _WIDE_TASK_CORNER_RADIUS = 12f;
         private const float _LANE_CORNER_RADIUS = 3f;
 
         public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)
@@ -270,8 +271,6 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     case BPMIcons.ServiceTask:
                     case BPMIcons.ScriptTask:
                     case BPMIcons.BusinessRuleTask:
-                        Pen p = new Pen(_GetBrush(status), Constants.PEN_WIDTH);
-                        ret.DrawRoundRectangle(p, new RoundRectangle(shape.Rectangle, _TASK_CORNER_RADIUS));
                         IconGraphic.AppendIcon(new Rectangle(shape.Rectangle.X + 5, shape.Rectangle.Y + 5, 15, 15), icon.Value, ret, _GetColor(status));
                         break;
                     default:
@@ -292,6 +291,13 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH),new RoundRectangle(shape.Rectangle,_LANE_CORNER_RADIUS));
                 else if (elem is SubProcess)
                     ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new RoundRectangle(shape.Rectangle,_SUB_PROCESS_CORNER_RADIUS));
+                else if (elem is ATask)
+                {
+                    if (elem is CallActivity)
+                        ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.WIDE_PEN_WIDTH), new RoundRectangle(shape.Rectangle, _WIDE_TASK_CORNER_RADIUS));
+                    else
+                        ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new RoundRectangle(shape.Rectangle, _TASK_CORNER_RADIUS));
+                }
                 if (boundElements!=null)
                 {
                     foreach (Shape be in boundElements)

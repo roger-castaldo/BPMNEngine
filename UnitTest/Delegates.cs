@@ -63,14 +63,15 @@ namespace UnitTest
                 onSubProcessStarted: new OnElementEvent(_elementStarted),
                 onTaskCompleted: new OnElementEvent(_elementCompleted),
                 onTaskStarted: new OnElementEvent(_elementStarted),
-                processBusinessRuleTask:new ProcessTask(_processTask),
-                processRecieveTask:new ProcessTask(_processTask),
+                processBusinessRuleTask: new ProcessTask(_processTask),
+                processRecieveTask: new ProcessTask(_processTask),
                 processScriptTask: new ProcessTask(_processTask),
-                processSendTask:new ProcessTask(_processTask),
-                processServiceTask:new ProcessTask(_processTask),
-                processTask:new ProcessTask(_processTask),
-                beginManualTask:new StartManualTask(_startManualTask),
-                beginUserTask:new StartUserTask(_startUserTask)
+                processSendTask: new ProcessTask(_processTask),
+                processServiceTask: new ProcessTask(_processTask),
+                processTask: new ProcessTask(_processTask),
+                callActivity: new ProcessTask(_processTask),
+                beginManualTask: new StartManualTask(_startManualTask),
+                beginUserTask: new StartUserTask(_startUserTask)
             );
         }
 
@@ -250,7 +251,7 @@ namespace UnitTest
             Assert.IsTrue(results.ContainsKey(_TASK_LIST_VARIABLE));
             Assert.IsInstanceOfType(results[_TASK_LIST_VARIABLE], typeof(string[]));
             List<string> tmp = new List<string>((string[])results[_TASK_LIST_VARIABLE]);
-            Assert.AreEqual(7, tmp.Count);
+            Assert.AreEqual(8, tmp.Count);
             Assert.IsTrue(tmp.Contains("Task_1koadgj"));
             Assert.IsTrue(tmp.Contains("SendTask_1i9s13s"));
             Assert.IsTrue(tmp.Contains("ReceiveTask_0xcb37w"));
@@ -258,6 +259,7 @@ namespace UnitTest
             Assert.IsTrue(tmp.Contains("ManualTask_15lp0xy"));
             Assert.IsTrue(tmp.Contains("BusinessRuleTask_14b2ep0"));
             Assert.IsTrue(tmp.Contains("ServiceTask_1w2aowp"));
+            Assert.IsTrue(tmp.Contains("CallActivity_18jh67i"));
             Assert.IsNotNull(instance.CurrentState.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='UserTask_1997n3l'][@status='Succeeded'][@CompletedByID='{0}']", _TASK_USER_ID)));
         }
     }

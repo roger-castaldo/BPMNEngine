@@ -44,6 +44,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                         case "ErrorEventDefinition":
                             ret = EventSubTypes.Error;
                             break;
+                        case "TerminateEventDefinition":
+                            ret = EventSubTypes.Terminate;
+                            break;
                     }
                 }
                 return ret;
