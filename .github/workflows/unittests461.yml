@@ -2,9 +2,9 @@ name: .NET-Test-Framework-4.6.1
 
 on:
   push:
-    branches: [ '2.0' ]
+    branches: [ 'master' ]
   pull_request:
-    branches: [ '2.0' ]
+    branches: [ 'master' ]
 
 jobs:
   build:

@@ -2,9 +2,9 @@ name: .NET-Test-6x-SkiaSharp-2.88.0
 
 on:
   push:
-    branches: [ '2.0' ]
+    branches: [ 'master' ]
   pull_request:
-    branches: [ '2.0' ]
+    branches: [ 'master' ]
 
 jobs:
   build:
