@@ -273,5 +273,71 @@ namespace UnitTest
             Assert.IsTrue(results.Count==1);
             Assert.AreEqual((Guid?)variableValue, (Guid?)(results.ContainsKey(variableName) ? results[variableName] : null));
         }
+
+        [TestMethod]
+        public void TestStateXMLVariableStorage()
+        {
+            Stream str = Utility.LoadResource("DiagramLoading/start_to_stop.bpmn");
+            byte[] data = new byte[str.Length];
+            str.Read(data, 0, data.Length);
+            str.Close();
+            Dictionary<string, object> variables = new Dictionary<string, object>()
+            {
+                {"TestDateTime",DateTime.Now },
+                {"TestInteger",int.MinValue },
+                {"TestShort",short.MinValue },
+                {"TestLong",long.MinValue },
+                {"TestUnsignedInteger",uint.MinValue },
+                {"TestUnsignedShort",ushort.MinValue },
+                {"TestUnsignedLong",ulong.MinValue },
+                {"TestDouble",double.MinValue },
+                {"TestDecimal",decimal.MinValue },
+                {"TestString","This is a test string"},
+                {"TestChar",'c'},
+                {"TestBoolean",true },
+                {"TestFloat",float.MinValue},
+                {"TestByte", System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345")},
+                {"TestNull",null },
+                { "TestFile",new sFile("start_to_stop","bpmn",data) },
+                {"TestHashtable",new Hashtable()
+                    {
+                        {"part1",1234 },
+                        {"part2",5678 }
+                    }
+                },
+                {"TestArray","This is a test".ToCharArray() },
+                {"TestGuid",new Guid("a4966f14-0108-48ba-a793-8be9982bc411") }
+            };
+            IProcessInstance inst = _process.BeginProcess(variables);
+            Assert.IsNotNull(inst);
+            Assert.IsTrue(inst.WaitForCompletion(30*1000));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(inst.CurrentState.InnerXml);
+
+            _CompareVariableSets(variables, BusinessProcess.ExtractProcessVariablesFromStateDocument(doc));
+
+            inst = _process.LoadState(doc);
+            Assert.IsNotNull(inst);
+            _CompareVariableSets(variables, inst.CurrentVariables);
+        }
+
+        private void _CompareVariableSets(Dictionary<string, object> inputted, Dictionary<string, object> extracted)
+        {
+            Assert.AreEqual(inputted.Count, extracted.Count);
+            foreach (string str in inputted.Keys)
+            {
+                Assert.IsTrue(extracted.ContainsKey(str));
+                if (inputted[str] is DateTime)
+                    Assert.AreEqual(inputted[str].ToString(), extracted[str].ToString());
+                else if (inputted[str] is Hashtable)
+                    Assert.IsTrue(Utility.AreHashtablesEqual((Hashtable)inputted[str], (Hashtable)extracted[str]));
+                else if (inputted[str] is byte[])
+                    Assert.AreEqual(Convert.ToBase64String((byte[])inputted[str]), Convert.ToBase64String((byte[])extracted[str]));
+                else if (inputted[str] is char[])
+                    Assert.AreEqual(new String((char[])inputted[str]), new string((char[])extracted[str]));
+                else
+                    Assert.AreEqual(inputted[str], extracted[str]);
+            }
+        }
     }
 }
