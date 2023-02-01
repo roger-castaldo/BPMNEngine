@@ -13,7 +13,7 @@ Current Test Status:
 [![.NET-Test-7x-SkiaSharp-2.88.0](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests7x-Skia.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests7x-Skia.yml)\
 [![Jint-3.0.0-beta-1138](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml)\
 [![CodeQL](https://github.com/roger-castaldo/BPMEngine/actions/workflows/codeql.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/codeql.yml)\
-[![codecov](https://codecov.io/gh/roger-castaldo/BPMEngine/branch/master/graph/badge.svg?token=OX96XIOJQX)](https://codecov.io/gh/roger-castaldo/BPMEngine)
+[![codecov](https://codecov.io/gh/roger-castaldo/BPMEngine/branch/Version2/graph/badge.svg?token=OX96XIOJQX)](https://codecov.io/gh/roger-castaldo/BPMEngine)
 
 # XSD
 
