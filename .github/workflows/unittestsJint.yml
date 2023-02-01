@@ -18,6 +18,7 @@ jobs:
       with:
         dotnet-version: |
           6.0.x
+          7.0.x
     - name: Restore dependencies
       run: dotnet restore UnitTest
     - name: Build-6.0
