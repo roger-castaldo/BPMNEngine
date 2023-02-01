@@ -10,7 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     internal abstract class AParentElement : AElement,IParentElement
     {
 
-        private List<IElement> _children=null;
+        private readonly List<IElement> _children=null;
         public IElement[] Children
         {
             get {   
@@ -30,8 +30,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
                         if (subElem != null)
                         {
                             _children.Add(subElem);
-                            if (subElem is AParentElement)
-                                ((AParentElement)subElem).LoadChildren(ref map, ref cache);
+                            if (subElem is AParentElement element)
+                                element.LoadChildren(ref map, ref cache);
                             else
                                 ((AElement)subElem).LoadExtensionElement(ref map, ref cache);
                         }
@@ -41,8 +41,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
             LoadExtensionElement(ref map, ref cache);
         }
 
-        public AParentElement(XmlElement elem,XmlPrefixMap map, AElement parent)
-            : base(elem,map,parent)
+        public AParentElement(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
         {
             _children=new List<IElement>();
         }

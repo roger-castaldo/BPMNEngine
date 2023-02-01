@@ -15,6 +15,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -36,48 +37,37 @@ namespace Org.Reddragonit.BpmEngine
         private const int _VARIABLE_VALUE_WIDTH = 300;
         private const int _VARIABLE_IMAGE_WIDTH = _VARIABLE_NAME_WIDTH+_VARIABLE_VALUE_WIDTH;
 
-        private Guid _id;
-        private List<object> _components;
-        private Dictionary<string, IElement> _elements;
-        private AHandlingEvent[] _eventHandlers = null;
+        private readonly Guid _id;
+        private readonly List<object> _components;
+        private readonly Dictionary<string, IElement> _elements;
+        private readonly AHandlingEvent[] _eventHandlers = null;
+        private readonly Definition definition;
 
-        internal IElement GetElement(string id)
-        {
-            if (_elements.ContainsKey(id))
-                return _elements[id];
-            return null;
-        }
-        private IElement[] _Elements
-        {
-            get
-            {
-                List<IElement> ret = new List<IElement>();
-                foreach (object obj in _components)
-                {
-                    if (new List<Type>(obj.GetType().GetInterfaces()).Contains(typeof(IElement)))
-                        ret.Add((IElement)obj);
-                }
-                return ret.ToArray();
-            }
-        }
+        internal IElement GetElement(string id) => (_elements.ContainsKey(id) ? _elements[id] : null);
+#pragma warning disable S2365 // Properties should not make collection or array copies
+        private IElement[] _Elements => _components
+            .Where(obj => obj.GetType().GetInterfaces().Contains(typeof(IElement)))
+            .Select(obj => (IElement)obj)
+            .ToArray<IElement>();
+#pragma warning restore S2365 // Properties should not make collection or array copies
 
         private void _RecurAddChildren(IElement parent)
         {
             _elements.Add(parent.id, parent);
-            if (parent is IParentElement)
+            if (parent is IParentElement element)
             {
-                foreach (IElement elem in ((IParentElement)parent).Children)
+                foreach (IElement elem in element.Children)
                     _RecurAddChildren(elem);
             }
         }
 
-        private XmlDocument _doc;
+        private readonly XmlDocument _doc;
         /// <summary>
         /// The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
         /// </summary>
         public XmlDocument Document { get { return _doc; } }
 
-        private sProcessRuntimeConstant[] _constants;
+        private readonly sProcessRuntimeConstant[] _constants;
         /// <summary>
         /// This is used to access the values of the process runtime and definition constants
         /// </summary>
@@ -87,42 +77,21 @@ namespace Org.Reddragonit.BpmEngine
         {
             get
             {
-                if (_constants != null)
-                {
-                    foreach (sProcessRuntimeConstant sprc in _constants)
-                    {
-                        if (sprc.Name == name)
-                            return sprc.Value;
-                    }
-                }
-                if (_Elements != null)
-                {
-                    foreach (IElement elem in _Elements)
-                    {
-                        if (elem is Definition)
-                        {
-                            Definition def = (Definition)elem;
-                            if (def.ExtensionElement != null)
-                            {
-                                foreach (IElement e in ((ExtensionElements)def.ExtensionElement).Children)
-                                {
-                                    if (e is DefinitionVariable)
-                                    {
-                                        DefinitionVariable dv = (DefinitionVariable)e;
-                                        if (dv.Name == name)
-                                            return dv.Value;
-                                    }else if (e is DefinitionFile)
-                                    {
-                                        DefinitionFile df = (DefinitionFile)e;
-                                        if (string.Format("{0}.{1}", df.Name, df.Extension) == name || df.Name == name)
-                                            return new sFile(df.Name, df.Extension, df.ContentType, df.Content);
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
+                if (_constants != null && _constants.Any(c => c.Name==name))
+                    return _constants.FirstOrDefault(c => c.Name==name).Value;
+                if (definition==null || definition.ExtensionElement==null)
+                    return null;
+                var definitionVariable = ((ExtensionElements)definition.ExtensionElement).Children
+                    .FirstOrDefault(elem =>
+                    (elem is DefinitionVariable && ((DefinitionVariable)elem).Name==name) ||
+                    (elem is DefinitionFile &&
+                        (string.Format("{0}.{1}", ((DefinitionFile)elem).Name, ((DefinitionFile)elem).Extension)==name
+                        || ((DefinitionFile)elem).Name==name)
+                    ));
+                if (definitionVariable!=null)
+                    return (definitionVariable is DefinitionVariable ? ((DefinitionVariable)definitionVariable).Value
+                        : new sFile((DefinitionFile)definitionVariable)
+                    );
                 return null;
             }
         }
@@ -134,55 +103,39 @@ namespace Org.Reddragonit.BpmEngine
             {
                 List<string> ret = new List<string>();
                 if (_constants != null)
+                    ret.AddRange(_constants.Select(c => c.Name).ToArray());
+                if (definition==null || definition.ExtensionElement==null)
                 {
-                    foreach (sProcessRuntimeConstant sprc in _constants)
-                    {
-                        if (!ret.Contains(sprc.Name))
-                            ret.Add(sprc.Name);
-                    }
+                    return ret.Distinct()
+                        .ToArray();
                 }
-                if (_Elements != null)
-                {
-                    foreach (IElement elem in _Elements)
-                    {
-                        if (elem is Definition)
-                        {
-                            Definition def = (Definition)elem;
-                            if (def.ExtensionElement != null)
-                            {
-                                foreach (IElement e in ((ExtensionElements)def.ExtensionElement).Children)
-                                {
-                                    if (e is DefinitionVariable)
-                                    {
-                                        DefinitionVariable dv = (DefinitionVariable)e;
-                                        if (!ret.Contains(dv.Name))
-                                            ret.Add(dv.Name);
-                                    }
-                                    else if (e is DefinitionFile)
-                                    {
-                                        DefinitionFile df = (DefinitionFile)e;
-                                        if (!ret.Contains(string.Format("{0}.{1}", df.Name, df.Extension)))
-                                            ret.Add(string.Format("{0}.{1}", df.Name, df.Extension));
-                                        if (!ret.Contains(df.Name))
-                                            ret.Add(df.Name);
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                return ret.ToArray();
+                ret.AddRange(((ExtensionElements)definition.ExtensionElement)
+                    .Children
+                    .Where(c => c is DefinitionVariable)
+                    .Select(d => ((DefinitionVariable)d).Name)
+                    .ToArray());
+                ret.AddRange(((ExtensionElements)definition.ExtensionElement)
+                    .Children
+                    .Where(c => c is DefinitionFile)
+                    .Select(d => ((DefinitionFile)d).Name)
+                    .ToArray());
+                ret.AddRange(((ExtensionElements)definition.ExtensionElement)
+                    .Children
+                    .Where(c => c is DefinitionFile)
+                    .Select(d => string.Format("{0}.{1}", ((DefinitionFile)d).Name, ((DefinitionFile)d).Extension))
+                    .ToArray());
+                return ret.Distinct()
+                    .ToArray();
             }
         }
 
-        private DelegateContainer _delegates;
+        private readonly DelegateContainer _delegates;
 
         internal ATask GetTask(string taskID)
         {
             IElement elem = GetElement(taskID);
-            if (elem is ATask)
-                return (ATask)elem;
+            if (elem is ATask task)
+                return task;
             return null;
         }
 
@@ -190,9 +143,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task.Variables));
             foreach (AHandlingEvent ahe in events)
-            {
                 ProcessEvent(instance,task.id, ahe);
-            }
             isAborted = instance.State.Path.GetStatus(task.id)==StepStatuses.Aborted;
         }
 
@@ -680,8 +631,13 @@ namespace Org.Reddragonit.BpmEngine
                     IElement elem = Utility.ConstructElementType((XmlElement)n, ref map, ref elementMapCache, null);
                     if (elem != null)
                     {
-                        if (elem is AParentElement)
-                            ((AParentElement)elem).LoadChildren(ref map, ref elementMapCache);
+                        if (elem is Definition)
+                        {
+                            ((Definition)elem).OwningProcess = this;
+                            this.definition=((Definition)elem);
+                        }
+                        if (elem is AParentElement element)
+                            element.LoadChildren(ref map, ref elementMapCache);
                         ((AElement)elem).LoadExtensionElement(ref map, ref elementMapCache);
                         _components.Add(elem);
                     }
@@ -691,25 +647,15 @@ namespace Org.Reddragonit.BpmEngine
                 else
                     _components.Add(n);
             }
-            foreach (object obj in _components)
-            {
-                if (obj is IElement)
-                    _RecurAddChildren((IElement)obj);
-            }
+            foreach (IElement elem in _components.Where(o=>o is IElement).Select(i=>(IElement)i))
+                    _RecurAddChildren(elem);
             if (_Elements.Length== 0)
                 exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
             {
-                bool found = false;
-                foreach (IElement elem in _Elements)
-                {
-                    if (elem is Definition)
-                        found = true;
-                }
-                if (!found)
+                if (definition==null)
                     exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             }
-            _InitDefinition();
             if (exceptions.Count == 0)
             {
                 foreach (IElement elem in _Elements)
@@ -721,28 +667,11 @@ namespace Org.Reddragonit.BpmEngine
                 WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
-            List<AHandlingEvent> tmp = new List<AHandlingEvent>();
-            foreach (string str in _elements.Keys)
-            {
-                if (_elements[str] is AHandlingEvent)
-                    tmp.Add((AHandlingEvent)_elements[str]);
-            }
-            _eventHandlers = tmp.ToArray();
+            _eventHandlers = _elements.Values
+                .Where(e => e is AHandlingEvent)
+                .Select(a => (AHandlingEvent)a)
+                .ToArray();
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
-        }
-
-        private void _InitDefinition()
-        {
-            for (int x = 0; x < _components.Count; x++)
-            {
-                if (_components[x] is Definition)
-                {
-                    Definition def = (Definition)_components[x];
-                    _components.RemoveAt(x);
-                    def.OwningProcess = this;
-                    _components.Insert(x, def);
-                }
-            }
         }
 
         private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
@@ -763,9 +692,9 @@ namespace Org.Reddragonit.BpmEngine
                 exceptions.Add(new InvalidElementException(elem.Definition,elem.Element, err));
             if (elem.ExtensionElement != null)
                 _ValidateElement((ExtensionElements)elem.ExtensionElement, ref exceptions);
-            if (elem is AParentElement)
+            if (elem is AParentElement element)
             {
-                foreach (AElement e in ((AParentElement)elem).Children)
+                foreach (AElement e in element.Children)
                     _ValidateElement(e,ref exceptions);
             }
         }
@@ -884,16 +813,12 @@ namespace Org.Reddragonit.BpmEngine
             WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             int width = 0;
             int height = 0;
-            foreach (IElement elem in _Elements)
+            if (definition!=null)
             {
-                if (elem is Definition)
+                foreach (Size s in definition.Diagrams.Select(d=>d.Size))
                 {
-                    foreach (Diagram d in ((Definition)elem).Diagrams)
-                    {
-                        Size s = d.Size;
-                        width = Math.Max(width, s.Width + _DEFAULT_PADDING);
-                        height += _DEFAULT_PADDING + s.Height;
-                    }
+                    width = Math.Max(width, s.Width + _DEFAULT_PADDING);
+                    height += _DEFAULT_PADDING + s.Height;
                 }
             }
             Image ret = null;
@@ -902,15 +827,12 @@ namespace Org.Reddragonit.BpmEngine
                 ret = new Image(width, height);
                 ret.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, width, height));
                 int padding = _DEFAULT_PADDING / 2;
-                foreach (IElement elem in _Elements)
+                if (definition!=null)
                 {
-                    if (elem is Definition)
+                    foreach (Diagram d in definition.Diagrams)
                     {
-                        foreach (Diagram d in ((Definition)elem).Diagrams)
-                        {
-                            ret.DrawImage(d.Render(state.Path, ((Definition)elem)), new Point(_DEFAULT_PADDING / 2, padding));
-                            padding += d.Size.Height + _DEFAULT_PADDING;
-                        }
+                        ret.DrawImage(d.Render(state.Path, definition), new Point(_DEFAULT_PADDING / 2, padding));
+                        padding += d.Size.Height + _DEFAULT_PADDING;
                     }
                 }
                 if (outputVariables)
@@ -1021,24 +943,20 @@ namespace Org.Reddragonit.BpmEngine
                             List<Drawing.GifEncoder.sFramePart> frames = new List<Drawing.GifEncoder.sFramePart>();
                             Rectangle rect;
                             int padding = _DEFAULT_PADDING / 2;
-                            foreach (IElement elem in _Elements)
+                            if (definition!=null)
                             {
-                                if (elem is Definition)
+                                foreach (Diagram d in definition.Diagrams)
                                 {
-                                    foreach (Diagram d in ((Definition)elem).Diagrams)
+                                    if (d.RendersElement(nxtStep))
                                     {
-                                        if (d.RendersElement(nxtStep))
+                                        Image img = d.RenderElement(state.Path, definition, nxtStep, out rect);
+                                        if (rect!=null)
                                         {
-                                            Image img = d.RenderElement(state.Path, (Definition)elem, nxtStep, out rect);
-                                            if (rect!=null)
-                                            {
-                                                frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.X, padding+(int)rect.Y));
-                                                //gp.DrawImage(d.UpdateState(_state.Path, ((Definition)elem), nxtStep), new Point(_DEFAULT_PADDING / 2, padding));
-                                                break;
-                                            }
+                                            frames.Add(new Drawing.GifEncoder.sFramePart(img, (_DEFAULT_PADDING / 2)+(int)rect.X, padding+(int)rect.Y));
+                                            break;
                                         }
-                                        padding += d.Size.Height + _DEFAULT_PADDING;
                                     }
+                                    padding += d.Size.Height + _DEFAULT_PADDING;
                                 }
                             }
                             if (outputVariables)
@@ -1053,7 +971,7 @@ namespace Org.Reddragonit.BpmEngine
                     ms=null;
                 }
             }
-            return (ms==null ? null : ms.ToArray());
+            return ms!=null ? ms.ToArray() : null;
         }
 
         /// <summary>
@@ -1141,27 +1059,25 @@ namespace Org.Reddragonit.BpmEngine
             ProcessVariablesContainer variables = new ProcessVariablesContainer(pars,this,ret);
             ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
-            foreach (IElement elem in _elements.Values)
+            foreach (Elements.Process proc in _elements.Values
+                .Where(e => e is Elements.Process)
+                .Select(e => (Elements.Process)e))
             {
-                if (elem is Elements.Process)
+                if (proc.IsStartValid(ropvc, ret.Delegates.IsProcessStartValid))
                 {
-                    if (((Elements.Process)elem).IsStartValid(ropvc, ret.Delegates.IsProcessStartValid))
+                    foreach (StartEvent se in proc.StartEvents)
                     {
-                        Elements.Process p = (Elements.Process)elem;
-                        foreach (StartEvent se in p.StartEvents)
+                        if (se.IsEventStartValid(ropvc, ret.Delegates.IsEventStartValid))
                         {
-                            if (se.IsEventStartValid(ropvc, ret.Delegates.IsEventStartValid))
-                            {
-                                ret.WriteLogLine(se,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
-                                _TriggerDelegateAsync(ret.Delegates.OnProcessStarted,new object[] { p, new ReadOnlyProcessVariablesContainer(variables) });
-                                _TriggerDelegateAsync(ret.Delegates.OnEventStarted,new object[] { se, new ReadOnlyProcessVariablesContainer(variables) });
-                                ret.State.Path.StartEvent(se, null);
-                                foreach (string str in variables.Keys)
-                                    ret.State[se.id,str]=variables[str];
-                                ret.State.Path.SucceedEvent(se);
-                                _TriggerDelegateAsync(ret.Delegates.OnEventCompleted,new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, ret) });
-                                return ret;
-                            }
+                            ret.WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
+                            _TriggerDelegateAsync(ret.Delegates.OnProcessStarted, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
+                            _TriggerDelegateAsync(ret.Delegates.OnEventStarted, new object[] { se, new ReadOnlyProcessVariablesContainer(variables) });
+                            ret.State.Path.StartEvent(se, null);
+                            foreach (string str in variables.Keys)
+                                ret.State[se.id, str]=variables[str];
+                            ret.State.Path.SucceedEvent(se);
+                            _TriggerDelegateAsync(ret.Delegates.OnEventCompleted, new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, ret) });
+                            return ret;
                         }
                     }
                 }
@@ -1264,10 +1180,10 @@ namespace Org.Reddragonit.BpmEngine
             if (sourceID!=null)
             {
                 IElement elem = GetElement(sourceID);
-                if (elem is AFlowNode)
+                if (elem is AFlowNode node)
                 {
                     ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(sourceID,instance);
-                    foreach (AHandlingEvent ahe in _GetEventHandlers(EventSubTypes.Timer, null, (AFlowNode)elem, vars))
+                    foreach (AHandlingEvent ahe in _GetEventHandlers(EventSubTypes.Timer, null, node, vars))
                     {
                         if (instance.State.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
                         {
@@ -1291,9 +1207,9 @@ namespace Org.Reddragonit.BpmEngine
         internal void ProcessStepError(ProcessInstance instance,IElement step, Exception ex) {
             instance.WriteLogLine(step,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
             bool success = false;
-            if (step is AFlowNode)
+            if (step is AFlowNode node)
             {
-                AHandlingEvent[] events = _GetEventHandlers(EventSubTypes.Error, ex, (AFlowNode)step, new ReadOnlyProcessVariablesContainer(step.id,instance,ex));
+                AHandlingEvent[] events = _GetEventHandlers(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.id,instance,ex));
                 if (events.Length>0)
                 {
                     success=true;
@@ -1324,10 +1240,10 @@ namespace Org.Reddragonit.BpmEngine
             {
                 instance.WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
                 bool abort = false;
-                if (elem is AFlowNode)
+                if (elem is AFlowNode node)
                 {
                     ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(sourceID, instance);
-                    AHandlingEvent[] evnts = _GetEventHandlers(EventSubTypes.Conditional, null, ((AFlowNode)elem), ropvc);
+                    AHandlingEvent[] evnts = _GetEventHandlers(EventSubTypes.Conditional, null, node, ropvc);
                     foreach (AHandlingEvent ahe in evnts)
                     {
                         ProcessEvent(instance,elem.id, ahe);
@@ -1335,7 +1251,7 @@ namespace Org.Reddragonit.BpmEngine
                     }
                     if (!abort)
                     {
-                        evnts = _GetEventHandlers(EventSubTypes.Timer, null, ((AFlowNode)elem), ropvc);
+                        evnts = _GetEventHandlers(EventSubTypes.Timer, null, node, ropvc);
                         foreach (AHandlingEvent ahe in evnts)
                         {
                             TimeSpan? ts = ahe.GetTimeout(ropvc);
@@ -1349,18 +1265,18 @@ namespace Org.Reddragonit.BpmEngine
                         }
                     }
                 }
-                if (elem is SequenceFlow)
-                    _ProcessSequenceFlow(instance,(SequenceFlow)elem);
-                else if (elem is MessageFlow)
-                    _ProcessMessageFlow(instance, (MessageFlow)elem);
-                else if (elem is AGateway)
-                    _ProcessGateway(instance, sourceID, (AGateway)elem);
-                else if (elem is AEvent)
-                    ProcessEvent(instance, sourceID, (AEvent)elem);
-                else if (elem is ATask)
-                    _ProcessTask(instance, sourceID, (ATask)elem);
-                else if (elem is SubProcess) 
-                    _ProcessSubProcess(instance, sourceID, (SubProcess)elem);
+                if (elem is SequenceFlow sequenceFlow)
+                    _ProcessSequenceFlow(instance,sequenceFlow);
+                else if (elem is MessageFlow messageFlow)
+                    _ProcessMessageFlow(instance, messageFlow);
+                else if (elem is AGateway aGateway)
+                    _ProcessGateway(instance, sourceID, aGateway);
+                else if (elem is AEvent aEvent)
+                    ProcessEvent(instance, sourceID, aEvent);
+                else if (elem is ATask aTask)
+                    _ProcessTask(instance, sourceID, aTask);
+                else if (elem is SubProcess subProcess) 
+                    _ProcessSubProcess(instance, sourceID, subProcess);
             }
         }
 
@@ -1467,14 +1383,11 @@ namespace Org.Reddragonit.BpmEngine
             instance.State.Path.StartEvent(evnt, sourceID);
             instance.StateEvent.Set();
             _TriggerDelegateAsync(instance.Delegates.OnEventStarted, new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
-            if (evnt is BoundaryEvent)
+            if (evnt is BoundaryEvent @event && @event.CancelActivity)
             {
-                if (((BoundaryEvent)evnt).CancelActivity)
-                {
-                    instance.StateEvent.WaitOne();
-                    _AbortStep(instance, sourceID, GetElement(((BoundaryEvent)evnt).AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
-                    instance.StateEvent.Set();
-                }
+                instance.StateEvent.WaitOne();
+                _AbortStep(instance, sourceID, GetElement(@event.AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                instance.StateEvent.Set();
             }
             bool success = true;
             TimeSpan? ts = null;
@@ -1492,11 +1405,11 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 else
                     success = true;
-            }else if (evnt is IntermediateThrowEvent)
+            }else if (evnt is IntermediateThrowEvent event1)
             {
                 if (evnt.SubType.HasValue)
                 {
-                    AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, ((IntermediateThrowEvent)evnt).Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                    AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, event1.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
                     foreach (AHandlingEvent tsk in evnts)
                         ProcessEvent(instance,evnt.id, tsk);
                 }
@@ -1526,34 +1439,31 @@ namespace Org.Reddragonit.BpmEngine
                 instance.State.Path.SucceedEvent(evnt);
                 instance.StateEvent.Set();
                 _TriggerDelegateAsync(instance.Delegates.OnEventCompleted,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
-                if (evnt is EndEvent)
+                if (evnt is EndEvent event1 && event1.IsProcessEnd)
                 {
-                    if (((EndEvent)evnt).IsProcessEnd)
+                    if (!event1.IsTermination)
                     {
-                        if (!((EndEvent)evnt).IsTermination)
+                        SubProcess sp = (SubProcess)event1.SubProcess;
+                        if (sp != null)
                         {
-                            SubProcess sp = (SubProcess)((EndEvent)evnt).SubProcess;
-                            if (sp != null)
-                            {
-                                instance.StateEvent.WaitOne();
-                                instance.State.Path.SucceedSubProcess(sp);
-                                instance.StateEvent.Set();
-                                _TriggerDelegateAsync(instance.Delegates.OnSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
-                            }
-                            else
-                            {
-                                _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
-                                instance.ProcessLock.Set();
-                            }
+                            instance.StateEvent.WaitOne();
+                            instance.State.Path.SucceedSubProcess(sp);
+                            instance.StateEvent.Set();
+                            _TriggerDelegateAsync(instance.Delegates.OnSubProcessCompleted, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
                         }
                         else
                         {
-                            ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(evnt.id, instance);
-                            foreach (string str in instance.State.ActiveSteps)
-                                _AbortStep(instance, evnt.id, GetElement(str), vars);
-                            _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { ((EndEvent)evnt).Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                            _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
                             instance.ProcessLock.Set();
                         }
+                    }
+                    else
+                    {
+                        ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(evnt.id, instance);
+                        foreach (string str in instance.State.ActiveSteps)
+                            _AbortStep(instance, evnt.id, GetElement(str), vars);
+                        _TriggerDelegateAsync(instance.Delegates.OnProcessCompleted, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                        instance.ProcessLock.Set();
                     }
                 }
             }
@@ -1563,9 +1473,9 @@ namespace Org.Reddragonit.BpmEngine
         {
             instance.State.Path.AbortStep(sourceID, element.id);
             _TriggerDelegateAsync(instance.Delegates.OnStepAborted, new object[] { element, GetElement(sourceID), variables });
-            if (element is SubProcess)
+            if (element is SubProcess process)
             {
-                foreach (IElement child in ((SubProcess)element).Children)
+                foreach (IElement child in process.Children)
                 {
                     bool abort = false;
                     switch (instance.State.Path.GetStatus(child.id)) {
@@ -1585,18 +1495,6 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessGateway(ProcessInstance instance,string sourceID,AGateway gw)
         {
-            Definition def = null;
-            foreach (IElement e in _Elements)
-            {
-                if (e is Definition)
-                {
-                    if (((Definition)e).LocateElement(gw.id) != null)
-                    {
-                        def = (Definition)e;
-                        break;
-                    }
-                }
-            }
             instance.StateEvent.WaitOne();
             bool gatewayComplete = false;
             if (gw.IsIncomingFlowComplete(sourceID, instance.State.Path))
@@ -1609,7 +1507,7 @@ namespace Org.Reddragonit.BpmEngine
                 string[] outgoings = null;
                 try
                 {
-                    outgoings = gw.EvaulateOutgoingPaths(def, instance.Delegates.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, instance));
+                    outgoings = gw.EvaulateOutgoingPaths(definition, instance.Delegates.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, instance));
                 }
                 catch (Exception e)
                 {
@@ -1685,8 +1583,8 @@ namespace Org.Reddragonit.BpmEngine
         /// <returns>true if they are the same, false if they are not.</returns>
         public override bool Equals(object obj)
         {
-            if (obj is BusinessProcess)
-                return ((BusinessProcess)obj)._id == _id;
+            if (obj is BusinessProcess process)
+                return process._id == _id;
             return false;
         }
 

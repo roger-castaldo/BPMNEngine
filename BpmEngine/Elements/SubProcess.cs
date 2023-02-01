@@ -7,6 +7,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
+using System.Linq;
 
 namespace Org.Reddragonit.BpmEngine.Elements
 {
@@ -21,37 +22,15 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
         {
-            if (ExtensionElement != null)
-            {
-                ExtensionElements ee = (ExtensionElements)ExtensionElement;
-                if (ee.Children != null)
-                {
-                    foreach (IElement ie in ee.Children)
-                    {
-                        if (ie is ConditionSet)
-                        {
-                            if (!((ConditionSet)ie).Evaluate(variables))
-                                return false;
-                        }
-                    }
-                }
-            }
+            if (ExtensionElement != null&&((ExtensionElements)ExtensionElement).Children
+                    .Any(ie => ie is ConditionSet && !((ConditionSet)ie).Evaluate(variables)))
+                return false;
             return isProcessStartValid(this, variables);
         }
 
-        public StartEvent[] StartEvents
-        {
-            get
-            {
-                List<StartEvent> ret = new List<StartEvent>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is StartEvent)
-                        ret.Add((StartEvent)elem);
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<StartEvent> StartEvents => Children
+                .Where(elem => elem is StartEvent)
+                .Select(elem => (StartEvent)elem);
 
         public override bool IsValid(out string[] err)
         {
@@ -66,14 +45,10 @@ namespace Org.Reddragonit.BpmEngine.Elements
                         hasEnd = true;
                     else if (elem is StartEvent)
                         hasStart = true;
-                    else if (elem is IntermediateCatchEvent)
+                    else if (elem is IntermediateCatchEvent ice && ice.SubType.HasValue)
                     {
-                        IntermediateCatchEvent ice = (IntermediateCatchEvent)elem;
-                        if (ice.SubType.HasValue)
-                        {
-                            hasStart = true;
-                            hasIncoming = true;
-                        }
+                        hasStart = true;
+                        hasIncoming = true;
                     }
                 }
                 if (hasStart && hasEnd && hasIncoming)

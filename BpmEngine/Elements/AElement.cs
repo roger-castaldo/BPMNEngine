@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -10,22 +11,22 @@ namespace Org.Reddragonit.BpmEngine.Elements
 {
     internal abstract class AElement : IElement
     {
-        private AElement _parent;
+        private readonly AElement _parent;
         public AElement Parent { get { return _parent; } }
 
         public Definition Definition
         {
             get
             {
-                if (this is Definition)
-                    return (Definition)this;
+                if (this is Definition definition)
+                    return definition;
                 if (Parent != null)
                     return Parent.Definition;
                 return null;
             }
         }
 
-        private XmlElement _element;
+        private readonly XmlElement _element;
         internal XmlElement Element { get { return _element; } }
 
         private string _cachedID=null;
@@ -79,7 +80,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        private IElement _extensionElement;
+        private readonly IElement _extensionElement;
         public IElement ExtensionElement { get { return _extensionElement; } }
 
         public AElement(XmlElement elem,XmlPrefixMap map,AElement parent)
@@ -89,23 +90,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
             _parent = parent;
             if (SubNodes != null)
             {
-                Type t = typeof(ExtensionElements);
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.Element)
-                    {
-                        foreach (XMLTag xt in Utility.GetTagAttributes(t))
-                        {
-                            if (xt.Matches(map, n.Name))
-                            {
-                                _extensionElement = new ExtensionElements((XmlElement)n,map,this);
-                                break;
-                            }
-                        }
-                        if (_extensionElement != null)
-                            break;
-                    }
-                }
+                var tags = Utility.GetTagAttributes(typeof(ExtensionElements));
+                var extElem = SubNodes
+                    .FirstOrDefault(n => n.NodeType==XmlNodeType.Element && tags.Any(xt => xt.Matches(map, n.Name)));
+                if (extElem!=null)
+                    _extensionElement=new ExtensionElements((XmlElement)extElem, map,this);
             }
         }
 

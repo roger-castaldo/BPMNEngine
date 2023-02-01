@@ -5,6 +5,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -18,41 +19,15 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public Definition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public Diagram[] Diagrams
-        {
-            get
-            {
-                List<Diagram> ret = new List<Diagram>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is Diagram)
-                        ret.Add((Diagram)elem);
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<Diagram> Diagrams => Children
+            .Where(elem=>elem is Diagram)
+            .Select(elem=>(Diagram)elem);
 
-        public MessageFlow[] MessageFlows
-        {
-            get
-            {
-                List<MessageFlow> ret = new List<MessageFlow>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is Collaboration)
-                    {
-                        Collaboration collab = (Collaboration)elem;
-                        foreach (IElement msg in collab.Children)
-                        {
-                            if (msg is MessageFlow)
-                                ret.Add((MessageFlow)msg);
-                        }
-                        break;
-                    }
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<MessageFlow> MessageFlows => Children
+            .Where(elem => elem is Collaboration)
+            .SelectMany(elem => ((Collaboration)elem).Children)
+            .Where(msg => msg is MessageFlow)
+            .Select(msg => (MessageFlow)msg);
 
         public IElement LocateElement(string id)
         {
@@ -64,9 +39,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
             if (elem.id == id)
                 return elem;
             IElement ret = null;
-            if (elem is IParentElement)
+            if (elem is IParentElement element)
             {
-                foreach (IElement selem in ((IParentElement)elem).Children)
+                foreach (IElement selem in element.Children)
                 {
                     ret = _RecurLocateElement(selem, id);
                     if (ret != null)
@@ -84,14 +59,14 @@ namespace Org.Reddragonit.BpmEngine.Elements
         private IElement[] _RecurGetBoundaryElements(IElement elem, string attachedToID)
         {
             List<IElement> ret = new List<IElement>();
-            if (elem is BoundaryEvent)
+            if (elem is BoundaryEvent @event)
             {
-                if (((BoundaryEvent)elem).AttachedToID==attachedToID)
+                if (@event.AttachedToID==attachedToID)
                     ret.Add(elem);
             }
-            if (elem is IParentElement)
+            if (elem is IParentElement element)
             {
-                foreach (IElement selem in ((IParentElement)elem).Children)
+                foreach (IElement selem in element.Children)
                     ret.AddRange(_RecurGetBoundaryElements(selem, attachedToID));
             }
             return ret.ToArray();
@@ -107,9 +82,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
             List<IElement> ret = new List<Interfaces.IElement>();
             if (type.Equals(elem.GetType()))
                 ret.Add(elem);
-            if (elem is IParentElement)
+            if (elem is IParentElement element)
             {
-                foreach (IElement selem in ((IParentElement)elem).Children)
+                foreach (IElement selem in element.Children)
                 {
                     ret.AddRange(_RecurLocateElementsOfType(selem, type));
                 }
@@ -127,58 +102,53 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return base.IsValid(out err);
         }
 
-        private BusinessProcess _owningProcess;
-        internal BusinessProcess OwningProcess
-        {
-            get { return _owningProcess; }
-            set { _owningProcess = value; }
-        }
+        internal BusinessProcess OwningProcess { get; set; }
 
         internal void Debug(IElement element,string message)
         {
-            if (_owningProcess != null) 
-                _owningProcess.WriteLogLine(element, LogLevels.Debug, new StackFrame(2, true), DateTime.Now, message);
+            if (OwningProcess != null) 
+                OwningProcess.WriteLogLine(element, LogLevels.Debug, new StackFrame(2, true), DateTime.Now, message);
         }
 
         internal void Debug(IElement element, string message, object[] pars)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Debug, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Debug, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
         }
         internal void Info(IElement element,string message)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Info, new StackFrame(2, true), DateTime.Now, message);
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Info, new StackFrame(2, true), DateTime.Now, message);
         }
         internal void Info(IElement element, string message, object[] pars)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Info, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Info, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
         }
         internal void Error(IElement element, string message)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Error, new StackFrame(2, true), DateTime.Now, message);
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Error, new StackFrame(2, true), DateTime.Now, message);
         }
         internal void Error(IElement element, string message, object[] pars)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Error, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Error, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
         }
         internal void Fatal(IElement element, string message)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Fatal, new StackFrame(2, true), DateTime.Now, message);
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Fatal, new StackFrame(2, true), DateTime.Now, message);
         }
         internal void Fatal(IElement element, string message, object[] pars)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogLine(element, LogLevels.Fatal, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
+            if (OwningProcess != null)
+                OwningProcess.WriteLogLine(element, LogLevels.Fatal, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
         }
         internal Exception Exception(IElement element, Exception exception)
         {
-            if (_owningProcess != null)
-                _owningProcess.WriteLogException(element, new StackFrame(2, true), DateTime.Now, exception);
+            if (OwningProcess != null)
+                OwningProcess.WriteLogException(element, new StackFrame(2, true), DateTime.Now, exception);
             return exception;
         }
     }

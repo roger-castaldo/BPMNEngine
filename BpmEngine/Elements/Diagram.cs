@@ -84,11 +84,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         private void _RecurLocateEdges(IElement elem, ref List<Edge> edges)
         {
-            if (elem is Edge)
-                edges.Add((Edge)elem);
-            if (elem is IParentElement)
+            if (elem is Edge edge)
+                edges.Add(edge);
+            if (elem is IParentElement element)
             {
-                foreach (IElement celem in ((IParentElement)elem).Children)
+                foreach (IElement celem in element.Children)
                     _RecurLocateEdges(celem, ref edges);
             }
         }
@@ -111,11 +111,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         private void _RecurLocateShapes(IElement elem, ref List<Shape> shapes)
         {
-            if (elem is Shape)
-                shapes.Add((Shape)elem);
-            if (elem is IParentElement)
+            if (elem is Shape shape)
+                shapes.Add(shape);
+            if (elem is IParentElement element)
             {
-                foreach (IElement celem in ((IParentElement)elem).Children)
+                foreach (IElement celem in element.Children)
                     _RecurLocateShapes(celem, ref shapes);
             }
         }

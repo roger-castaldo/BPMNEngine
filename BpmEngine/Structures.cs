@@ -1,4 +1,5 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
+﻿using Org.Reddragonit.BpmEngine.Elements;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -70,6 +71,14 @@ namespace Org.Reddragonit.BpmEngine
             _extension = extension;
             _contentType = contentType;
             _content = content;
+        }
+
+        internal sFile(DefinitionFile file)
+        {
+            _name=file.Name;
+            _extension=file.Extension;
+            _contentType = file.ContentType;
+            _content = file.Content;
         }
 
         internal sFile(XmlElement elem)
