@@ -33,7 +33,6 @@ namespace Org.Reddragonit.BpmEngine
         Byte,
         Null,
         File,
-        Hashtable,
         Guid
     }
     /// <summary>

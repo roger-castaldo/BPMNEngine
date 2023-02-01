@@ -235,22 +235,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestHashtableVariable()
-        {
-            string variableName = "TestHashtable";
-            object variableValue = new Hashtable()
-            {
-                {"part1",1234 },
-                {"part2",5678 }
-            };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
-            Assert.IsNotNull(results);
-            Assert.IsTrue(results.ContainsKey(variableName));
-            Assert.IsTrue(results.Count==1);
-            Assert.IsTrue(Utility.AreHashtablesEqual((Hashtable)variableValue, (Hashtable)(results.ContainsKey(variableName) ? results[variableName] : null)));
-        }
-
-        [TestMethod]
         public void TestArrayVariable()
         {
             string variableName = "TestArray";
@@ -299,12 +283,6 @@ namespace UnitTest
                 {"TestByte", System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345")},
                 {"TestNull",null },
                 { "TestFile",new sFile("start_to_stop","bpmn",data) },
-                {"TestHashtable",new Hashtable()
-                    {
-                        {"part1",1234 },
-                        {"part2",5678 }
-                    }
-                },
                 {"TestArray","This is a test".ToCharArray() },
                 {"TestGuid",new Guid("a4966f14-0108-48ba-a793-8be9982bc411") }
             };
@@ -329,8 +307,6 @@ namespace UnitTest
                 Assert.IsTrue(extracted.ContainsKey(str));
                 if (inputted[str] is DateTime)
                     Assert.AreEqual(inputted[str].ToString(), extracted[str].ToString());
-                else if (inputted[str] is Hashtable)
-                    Assert.IsTrue(Utility.AreHashtablesEqual((Hashtable)inputted[str], (Hashtable)extracted[str]));
                 else if (inputted[str] is byte[])
                     Assert.AreEqual(Convert.ToBase64String((byte[])inputted[str]), Convert.ToBase64String((byte[])extracted[str]));
                 else if (inputted[str] is char[])

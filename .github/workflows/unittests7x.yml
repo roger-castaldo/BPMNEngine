@@ -1,4 +1,4 @@
-name: .NET-Test-3x
+name: .NET-Test-7x
 
 on:
   push:
@@ -17,10 +17,10 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: |
-          3.1.x
+          7.0.x
     - name: Restore dependencies
       run: dotnet restore UnitTest
-    - name: Build-3.1
-      run: dotnet build --framework netcoreapp3.1 --no-restore UnitTest
-    - name: Test-3.1
-      run: dotnet test --framework netcoreapp3.1 --no-build --verbosity normal --filter "ClassName!=UnitTest.ImageTests" UnitTest
+    - name: Build-7.0
+      run: dotnet build --framework net7.0 --no-restore UnitTest
+    - name: Test-7.0
+      run: dotnet test --framework net7.0 --no-build --verbosity normal --filter "ClassName!=UnitTest.ImageTests" UnitTest

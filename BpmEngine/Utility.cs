@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
@@ -426,17 +427,8 @@ namespace Org.Reddragonit.BpmEngine
                 case VariableTypes.Guid:
                     ret = new Guid(text);
                     break;
-                case VariableTypes.Hashtable:
-                    System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    ret = bf.Deserialize(new MemoryStream(Convert.FromBase64String(text)));
-                    break;
             }
             return ret;
-        }
-
-        internal static void EncodeVariableValue(object value, XmlElement variableContainer, XmlDocument doc)
-        {
-            
         }
 
         private static readonly TimeSpan _maxSpan = new TimeSpan(int.MaxValue);

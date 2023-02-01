@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
@@ -131,9 +132,6 @@ namespace Org.Reddragonit.BpmEngine.State
                             case VariableTypes.String:
                                 ret = Array.CreateInstance(typeof(string), elem.ChildNodes.Count);
                                 break;
-                            case VariableTypes.Hashtable:
-                                ret = Array.CreateInstance(typeof(Hashtable), elem.ChildNodes.Count);
-                                break;
                             case VariableTypes.Guid:
                                 ret = Array.CreateInstance(typeof(Guid), elem.ChildNodes.Count);
                                 break;
@@ -253,9 +251,6 @@ namespace Org.Reddragonit.BpmEngine.State
                     case "System.Guid":
                         _SetAttribute(elem, _TYPE, VariableTypes.Guid.ToString());
                         break;
-                    case "System.Collections.Hashtable":
-                        _SetAttribute(elem, _TYPE, VariableTypes.Hashtable.ToString());
-                        break;
                 }
             }
         }
@@ -271,9 +266,6 @@ namespace Org.Reddragonit.BpmEngine.State
                 case "System.Single":
                     text = ((float)value).ToString("R");
                     break;
-                case "System.Collections.Hashtable":
-                    text = _EncodeHashtable((Hashtable)value);
-                    break;
                 case "System.Byte[]":
                     text = Convert.ToBase64String((byte[])value);
                     break;
@@ -282,14 +274,6 @@ namespace Org.Reddragonit.BpmEngine.State
                     break;
             }
             return text;
-        }
-
-        private string _EncodeHashtable(Hashtable hash)
-        {
-            MemoryStream ms = new MemoryStream();
-            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            bf.Serialize(ms, hash);
-            return Convert.ToBase64String(ms.ToArray());
         }
 
         public static Dictionary<string,object> ExtractVariables(XmlDocument doc)

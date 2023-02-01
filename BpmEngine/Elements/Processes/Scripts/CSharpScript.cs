@@ -1,16 +1,9 @@
-﻿#if !NET461
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-#else
-using System.CodeDom.Compiler;
-#endif
-using Microsoft.CSharp;
 using Org.Reddragonit.BpmEngine.Attributes;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Xml;
 
@@ -47,7 +40,6 @@ public class {1} {{
             : base(elem, map, parent)
         { }
 
-#if !NET461
         protected override EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms)
         {
             Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
@@ -65,25 +57,5 @@ public class {1} {{
             CSharpCompilation comp = CSharpCompilation.Create(name, tress,references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             return comp.Emit(ms);
         }
-#else
-        protected override string _GenerateCode(string[] imports,string code)
-        {
-            Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
-            StringBuilder sbUsing = new StringBuilder();
-            foreach (string str in imports)
-                sbUsing.AppendFormat("using {0};\n", str);
-            return string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (_IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
-                sbUsing.ToString(),
-                _ClassName,
-                _FunctionName,
-                code
-            });
-        }
-
-        protected override CodeDomProvider _CodeProvider
-        {
-            get { return new CSharpCodeProvider(); }
-        }
-#endif
     }
 }

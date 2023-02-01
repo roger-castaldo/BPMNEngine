@@ -1,10 +1,6 @@
 ﻿using System;
-#if !NET461
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
-#else
-using System.CodeDom.Compiler;
-#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -93,7 +89,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
-#if !NET461
         protected abstract EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms);
         
         private bool _CompileAssembly(out string errors)
@@ -149,41 +144,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
             return errors == null;
         }
-
-#else
-
-        protected abstract string _GenerateCode(string[] imports,string code);
-        protected abstract CodeDomProvider _CodeProvider { get; }
-        
-        private bool _CompileAssembly(out string errors)
-        {
-            errors = null;
-            lock (this)
-            {
-                if (_assembly == null)
-                {
-                    CompilerParameters compilerParams = new CompilerParameters
-                    {
-                        GenerateInMemory = true,
-                        GenerateExecutable = false,
-                        TreatWarningsAsErrors = false
-                    };
-                    compilerParams.ReferencedAssemblies.AddRange(_Dlls);
-                    CompilerResults results = _CodeProvider.CompileAssemblyFromSource(compilerParams, new string[] { _GenerateCode(_Imports, _Code) });
-                    if (results.Errors.Count > 0)
-                    {
-                        StringBuilder error = new StringBuilder();
-                        foreach (CompilerError ce in results.Errors)
-                            error.AppendLine(ce.ErrorText);
-                        errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
-                        _assembly = null;
-                    }else
-                        _assembly = results.CompiledAssembly;
-                }
-            }
-            return errors == null;
-        }
-#endif
 
         protected sealed override object _Invoke(IVariables variables)
         {

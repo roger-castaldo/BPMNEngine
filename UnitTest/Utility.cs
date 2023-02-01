@@ -31,40 +31,6 @@ namespace UnitTest
             return ret;
         }
 
-        public static bool AreHashtablesEqual(Hashtable left,Hashtable right)
-        {
-            if (
-                (left==null && right!=null)||
-                (left!=null&&right==null)
-               )
-                return false;
-            else if (left==null&&right==null)
-                return true;
-            else if (left.Count!=right.Count)
-                return false;
-            foreach (object key in left.Keys)
-            {
-                if (!right.ContainsKey(key))
-                    return false;
-                else if (
-                    (left[key]==null && right[key]!=null)||
-                    (left[key]!=null && right[key]==null)
-                    )
-                    return false;
-                else if (left[key]!=null&&right[key]!=null)
-                {
-                    if (!left[key].Equals(right[key]))
-                        return false;
-                }
-            }
-            foreach (object key in right.Keys)
-            {
-                if (!left.ContainsKey(key))
-                    return false;
-            }
-            return true;
-        }
-
         public static bool StepCompleted(XmlDocument state,string name)
         {
             return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;

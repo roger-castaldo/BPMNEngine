@@ -2,9 +2,9 @@ name: Jint-3.0.0-beta-1138
 
 on:
   push:
-    branches: [ 'master' ]
+    branches: [ 'Version2' ]
   pull_request:
-    branches: [ 'master' ]
+    branches: [ 'Version2' ]
 
 jobs:
   build:

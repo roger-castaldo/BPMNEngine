@@ -1,4 +1,4 @@
-name: .NET-Test-3x
+name: .NET-Test-7x-SkiaSharp-2.88.0
 
 on:
   push:
@@ -21,6 +21,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore UnitTest
     - name: Build-3.1
-      run: dotnet build --framework netcoreapp3.1 --no-restore UnitTest
+      run: dotnet build --framework net7.0 --no-restore UnitTest
     - name: Test-3.1
-      run: dotnet test --framework netcoreapp3.1 --no-build --verbosity normal --filter "ClassName!=UnitTest.ImageTests" UnitTest
+      run: dotnet test --framework net7.0 --no-build --verbosity normal --filter "ClassName=ImageTests" UnitTest

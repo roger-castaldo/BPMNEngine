@@ -185,15 +185,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                     ret = (BPMIcons)Enum.Parse(typeof(BPMIcons), elem.GetType().Name);
                 else if (elem is ATask)
                 {
-#if !NET461
                     object obj;
                     if (Enum.TryParse(typeof(BPMIcons), elem.GetType().Name, out obj))
                         ret = (BPMIcons)obj;
-#else
-                    BPMIcons obj;
-                    if (Enum.TryParse<BPMIcons>(elem.GetType().Name,true,out obj))
-                        ret=obj;
-#endif
                 }
             }
             return ret;
