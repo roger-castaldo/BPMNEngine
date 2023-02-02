@@ -25,26 +25,28 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 return false;
             else if (left != null && right == null)
                 return false;
+            else if (left==null && right==null)
+                return false;
             else
             {
-                if (left is Array)
+                if (left is Array array)
                 {
-                    foreach (object ol in (Array)left)
+                    foreach (object ol in array)
                     {
-                        if (_Compare(ol, right,variables) == 0)
+                        if (_Compare(ol, right, variables) == 0)
                             return true;
                     }
                 }
-                else if (left is Hashtable)
+                else if (left is Hashtable hashtable)
                 {
-                    foreach (object ol in ((Hashtable)left).Keys)
+                    foreach (object ol in hashtable.Keys)
                     {
-                        if (_Compare(ol, right,variables) == 0)
+                        if (_Compare(ol, right, variables) == 0)
                             return true;
                     }
-                    foreach (object ol in ((Hashtable)left).Values)
+                    foreach (object ol in hashtable.Values)
                     {
-                        if (_Compare(ol, right,variables) == 0)
+                        if (_Compare(ol, right, variables) == 0)
                             return true;
                     }
                 }

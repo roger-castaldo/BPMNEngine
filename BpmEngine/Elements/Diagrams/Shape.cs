@@ -6,6 +6,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,31 +17,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Plane))]
     internal class Shape : ADiagramElement
     {
-        public Rectangle Rectangle
-        {
-            get
-            {
-                foreach (IElement elem in Children)
-                {
-                    if (elem is Bounds)
-                        return ((Bounds)elem).Rectangle;
-                }
-                return new Rectangle(0,0,0,0);
-            }
-        }
+        public Rectangle Rectangle => Children
+            .Where(elem => elem is Bounds)
+            .Select(elem => ((Bounds)elem).Rectangle)
+            .FirstOrDefault() ?? new Rectangle(0, 0, 0, 0);
 
-        public Label Label
-        {
-            get
-            {
-                foreach (IElement elem in Children)
-                {
-                    if (elem is Label)
-                        return (Label)elem;
-                }
-                return null;
-            }
-        }
+        public Label Label => (Label)Children
+            .FirstOrDefault(elem => elem is Label);
 
         public Shape(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

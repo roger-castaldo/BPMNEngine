@@ -12,8 +12,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [ValidParent(typeof(Collaboration))]
     internal class Participant : AElement
     {
-        public string Name { get { return this["name"]; } }
-        public string ProcessRef { get { return this["processRef"]; } }
+        public string Name => this["name"];
+        public string ProcessRef => this["processRef"]; 
 
         public Participant(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)

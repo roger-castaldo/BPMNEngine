@@ -7,6 +7,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -17,19 +18,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Plane))]
     internal class Edge : ADiagramElement
     {
-        public Point[] Points
-        {
-            get
-            {
-                List<Point> ret = new List<Point>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is Waypoint)
-                        ret.Add(((Waypoint)elem).Point);
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<Point> Points => Children
+            .Where(elem => elem is Waypoint)
+            .Select(elem => ((Waypoint)elem).Point);
 
         private Rectangle _rectangle = null;
         public Rectangle Rectangle{
@@ -37,8 +28,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             {
                 if (_rectangle == null)
                 {
-                    for(int x = 0; x<Points.Length-1; x++)
-                        _rectangle = new Rectangle(Points[x], Points[x+1]).Merge(_rectangle);
+                    _rectangle=new Rectangle(0, 0, 0, 0);
+                    Point? previous = null;
+                    foreach (Point p in Points)
+                    {
+                        if (previous!=null)
+                            _rectangle = new Rectangle(previous!, p).Merge(_rectangle);
+                        previous=p;
+                    }
                     Label l = Label;
                     _rectangle = new Rectangle(_rectangle.X-3.5f, _rectangle.Y-3.5f, _rectangle.Width+6.5f, _rectangle.Height+6.5f);
                     if (l != null)
@@ -48,19 +45,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             }
         }
 
-        public Label Label
-        {
-            get
-            {
-                foreach (IElement elem in Children)
-                {
-                    if (elem is Label)
-                        return (Label)elem;
-                }
-                return null;
-            }
-        }
-
+        public Label Label => (Label)Children
+            .FirstOrDefault(elem => elem is Label);
+        
         public Edge(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
@@ -68,11 +55,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         {
             Pen ret = new Pen(brush, Constants.PEN_WIDTH);
             IElement elem = _GetLinkedElement(definition);
-            if (elem != null)
-            {
-                if (elem is Association || elem is MessageFlow)
-                    ret.DashPattern = Constants.DASH_PATTERN;
-            }
+            if (elem != null&&(elem is Association || elem is MessageFlow))
+                ret.DashPattern = Constants.DASH_PATTERN;
             return ret;
         }
 
@@ -82,10 +66,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             IElement elem = _GetLinkedElement(definition);
             if (elem != null)
             {
-                Point[] points = Points;
+                Point[] points = Points.ToArray();
                 if (elem is MessageFlow)
                 {
-                    img.FillEllipse(brush, new Rectangle((float)points[0].X - 0.5f, (float)points[0].Y - 0.5f,1.5f, 1.5f));
+                    img.FillEllipse(brush, new Rectangle(points[0].X - 0.5f, points[0].Y - 0.5f,1.5f, 1.5f));
                     _GenerateTriangle(img, brush, points[points.Length - 1],points[points.Length-2]);
                 }
                 else
@@ -94,19 +78,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                 {
                     string sourceRef = (elem is SequenceFlow ? ((SequenceFlow)elem).sourceRef : ((MessageFlow)elem).sourceRef);
                     IElement gelem = definition.LocateElement(sourceRef);
-                    if (gelem != null)
+                    if ((gelem is AGateway) && (((AGateway)gelem).Default??"")==elem.id)
                     {
-                        if (gelem is AGateway)
-                        {
-                            if ((((AGateway)gelem).Default == null ? "" : ((AGateway)gelem).Default) == elem.id)
-                            {
-                                Point centre = new Point(
-                                    ((0.5f*(float)points[0].X)+(0.5f*(float)points[1].X)),
-                                    ((0.5f * (float)points[0].Y) + (0.5f * (float)points[1].Y))
-                                );
-                                img.DrawLine(p,new Point(centre.X-3f,centre.Y-3f),new Point(centre.X+3f,centre.Y+3f));
-                            }
-                        }
+                        Point centre = new Point(
+                            (0.5f*points[0].X)+(0.5f*points[1].X),
+                            (0.5f * points[0].Y) + (0.5f * points[1].Y)
+                        );
+                        img.DrawLine(p, new Point(centre.X-3f, centre.Y-3f), new Point(centre.X+3f, centre.Y+3f));
                     }
                 }
             }
@@ -118,11 +96,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         {
             float d = (float)Math.Sqrt(Math.Pow((double)end.X - (double)start.X, 2) + Math.Pow((double)end.Y - (double)start.Y, 2));
             float t = _baseTLength / d;
-            Point pc = new Point(((1f - t) * (float)end.X) + (t * (float)start.X), ((1f - t) * (float)end.Y) + (t * (float)start.Y));
-            Point fend = new Point((float)end.X, (float)end.Y);
+            Point pc = new Point(((1f - t) * end.X) + (t * start.X), ((1f - t) * end.Y) + (t * start.Y));
+            Point fend = new Point(end.X, end.Y);
             Point p1 = new Point(pc.X-(fend.Y-pc.Y),(fend.X-pc.X)+pc.Y);
             Point p2 = new Point(fend.Y-pc.Y+pc.X,pc.Y-(fend.X-pc.X));
-            t = _baseTLength / d;
             gp.DrawLine(new Pen(Color.White,Constants.PEN_WIDTH), fend, pc);
             gp.FillPolygon(brush, new Point[] {
                 fend,
@@ -134,7 +111,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 
         public override bool IsValid(out string[] err)
         {
-            if (Points.Length<2)
+            if (Points.Count()<2)
             {
                 err = new string[] { "At least 2 points are required." };
                 return false;

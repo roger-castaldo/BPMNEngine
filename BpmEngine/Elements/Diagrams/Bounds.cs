@@ -20,17 +20,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal class Bounds : AElement
     {
-        public Rectangle Rectangle
-        {
-            get
-            {
-                return new Rectangle(
+        public Rectangle Rectangle => new Rectangle(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]),
                     float.Parse(this["width"]),
                     float.Parse(this["height"]));
-            }
-        }
 
         public Bounds(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

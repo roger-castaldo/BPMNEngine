@@ -13,8 +13,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [ValidParent(typeof(Collaboration))]
     internal class MessageFlow : AElement
     {
-        public string sourceRef { get { return this["sourceRef"]; } }
-        public string targetRef { get { return this["targetRef"]; } }
+        public string sourceRef => this["sourceRef"];
+        public string targetRef => this["targetRef"];
 
         public MessageFlow(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }

@@ -15,13 +15,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         protected override bool _Evaluate(IReadonlyVariables variables)
         {
-            bool ret = true;
-            if (_Conditions != null)
+            foreach (ACondition cond in _Conditions)
             {
-                foreach (ACondition cond in _Conditions)
-                    ret = ret && cond.Evaluate(variables);
+                if (!cond.Evaluate(variables))
+                    return false;
             }
-            return ret;
+            return true;
         }
 
         public override bool IsValid(out string[] err)

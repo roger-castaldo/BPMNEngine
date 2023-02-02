@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -18,7 +19,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         {
             try
             {
-                return _Conditions[0].Evaluate(variables);
+                return _Conditions.First().Evaluate(variables);
             }catch(Exception ex)
             {
                 Error(ex.Message);

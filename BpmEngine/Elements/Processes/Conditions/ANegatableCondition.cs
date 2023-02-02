@@ -9,7 +9,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 {
     internal abstract class ANegatableCondition : ACondition
     {
-        protected bool _negated { get { return (this["negated"]==null ? false : bool.Parse(this["negated"])); } }
+        protected bool _negated => (this["negated"]==null ? false : bool.Parse(this["negated"]));
 
         protected abstract bool _Evaluate(IReadonlyVariables variables);
 

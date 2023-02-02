@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -20,59 +21,35 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         protected object _GetLeft(IReadonlyVariables variables)
         {
-            object left = null;
             if (this["leftVariable"] != null)
-                left = _extractVariable(variables, this["leftVariable"]);
-            else
+                return _extractVariable(variables, this["leftVariable"]);
+            else if (SubNodes!=null)
             {
-                if (SubNodes != null)
-                {
-                    foreach (XmlNode n in SubNodes)
-                    {
-                        if (n.NodeType == XmlNodeType.Element)
-                        {
-                            if (_map.isMatch("exts", "left", n.Name) || n.Name == "left")
-                            {
-                                left = n.InnerText;
-                                break;
-                            }
-                        }
-                    }
-                }
+                return SubNodes
+                    .Where(n => n.NodeType==XmlNodeType.Element && (_map.isMatch("exts", "left", n.Name) || n.Name == "left"))
+                    .Select(n => n.InnerText)
+                    .FirstOrDefault();
             }
-            return left;
+            return null;
         }
 
         protected object _GetRight(IReadonlyVariables variables)
         {
-            object right = null;
             if (this["rightVariable"] != null)
-                right = _extractVariable(variables, this["rightVariable"]);
-            else
+                return _extractVariable(variables, this["rightVariable"]);
+            else if (SubNodes!=null)
             {
-                if (SubNodes != null)
-                {
-                    foreach (XmlNode n in SubNodes)
-                    {
-                        if (n.NodeType == XmlNodeType.Element)
-                        {
-                            if (_map.isMatch("exts", "right", n.Name) || n.Name == "right")
-                            {
-                                right = n.InnerText;
-                                break;
-                            }
-                        }
-                    }
-                }
+                return SubNodes
+                    .Where(n => n.NodeType==XmlNodeType.Element && (_map.isMatch("exts", "right", n.Name) || n.Name == "right"))
+                    .Select(n => n.InnerText)
+                    .FirstOrDefault();
             }
-            return right;
+            return null;
         }
 
         protected int _Compare(IReadonlyVariables variables)
         {
-            object left = _GetLeft(variables);
-            object right = _GetRight(variables);
-            return _Compare(left, right,variables);
+            return _Compare(_GetLeft(variables), _GetRight(variables), variables);
         }
 
         protected int _Compare(object left, object right, IReadonlyVariables variables)
@@ -81,6 +58,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 return -1;
             else if (left != null && right == null)
                 return 1;
+            else if (left==null && right==null)
+                return 0;
             else
             {
                 if (left is string && right is string)
@@ -88,9 +67,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 else
                 {
                     if (left is string && !(right is string))
-                        left = _ConvertToType((string)left, right.GetType(),variables);
+                        left = _ConvertToType((string)left, right.GetType(), variables);
                     else if (!(left is string) && right is string)
-                        right = _ConvertToType((string)right, left.GetType(),variables);
+                        right = _ConvertToType((string)right, left.GetType(), variables);
                     else if (left.GetType() == right.GetType() && left is IComparable)
                         return ((IComparable)left).CompareTo(right);
                     return left.ToString().CompareTo(right.ToString());
@@ -101,28 +80,28 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
         private object _extractVariable(object source, string name)
         {
             object ret = null;
-            if (source is IReadonlyVariables)
+            if (source is IReadonlyVariables readonlyVariables)
             {
                 if (!name.Contains("."))
-                    ret = ((IReadonlyVariables)source)[name];
-                else if (((IReadonlyVariables)source)[name.Substring(0, name.IndexOf("."))] != null)
-                    ret = _extractVariable(((IReadonlyVariables)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
-            } else if (source is IVariables)
+                    ret = readonlyVariables[name];
+                else if (readonlyVariables[name.Substring(0, name.IndexOf("."))] != null)
+                    ret = _extractVariable(readonlyVariables[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+            } else if (source is IVariables variables)
             {
                 if (!name.Contains("."))
-                    ret = ((IVariables)source)[name];
-                else if (((IVariables)source)[name.Substring(0, name.IndexOf("."))] != null)
-                    ret = _extractVariable(((IVariables)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
-            }else if (source is Hashtable)
+                    ret = variables[name];
+                else if (variables[name.Substring(0, name.IndexOf("."))] != null)
+                    ret = _extractVariable(variables[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+            }else if (source is Hashtable hashtable)
             {
                 if (!name.Contains("."))
                 {
-                    if (((Hashtable)source).ContainsKey(name))
-                        ret = ((Hashtable)source)[name];
+                    if (hashtable.ContainsKey(name))
+                        ret = hashtable[name];
                 } else
                 {
-                    if (((Hashtable)source).ContainsKey(name.Substring(0, name.IndexOf("."))))
-                        ret = _extractVariable(((Hashtable)source)[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+                    if (hashtable.ContainsKey(name.Substring(0, name.IndexOf("."))))
+                        ret = _extractVariable(hashtable[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
                 }
             }else if (source is Array)
             {

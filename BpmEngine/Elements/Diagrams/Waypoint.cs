@@ -15,16 +15,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Edge))]
     internal class Waypoint : AElement
     {
-        public Point Point
-        {
-            get
-            {
-                return new Point(
+        public Point Point => new Point(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]));
-            }
-        }
-
         public Waypoint(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
     }

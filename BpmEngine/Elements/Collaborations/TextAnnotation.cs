@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -13,29 +14,17 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     [ValidParent(typeof(IProcess))]
     internal class TextAnnotation : AParentElement
     {
-        public string Content
-        {
-            get
-            {
-                string ret = "";
-                foreach (IElement elem in this.Children)
-                {
-                    if (elem is Text)
-                    {
-                        ret = ((Text)elem).Value;
-                        break;
-                    }
-                }
-                return ret;
-            }
-        }
+        public string Content => Children
+                    .Where(elem=>elem is Text)
+                    .Select(elem=>((Text)elem).Value)
+                    .FirstOrDefault() ?? String.Empty;
 
         public TextAnnotation(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {
-            if (Content=="")
+            if (String.IsNullOrEmpty(Content))
             {
                 err = new string[] { "No content was specified." };
                 return false;

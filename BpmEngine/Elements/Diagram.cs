@@ -9,6 +9,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -240,7 +241,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             Image ret = new Image(edge.Rectangle);
             ret.TranslateTransform(0 - edge.Rectangle.X, 0 - edge.Rectangle.Y);
-            ret.DrawLines(edge.ConstructPen(_GetBrush(status), definition), edge.Points);
+            ret.DrawLines(edge.ConstructPen(_GetBrush(status), definition), edge.Points.ToArray());
             edge.AppendEnds(ret, _GetBrush(status), definition);
             if (edge.Label != null)
             {
