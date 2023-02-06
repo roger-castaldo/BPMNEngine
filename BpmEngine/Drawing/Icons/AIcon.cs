@@ -19,9 +19,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
         protected virtual void _Draw(Image gp, Color color)
         {
             foreach (IIconPart part in _parts)
-            {
                 part.Add(gp,_ImageSize, color);
-            }
         }
 
         public AIcon()

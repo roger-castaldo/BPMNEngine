@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -15,16 +16,11 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         static IconGraphic()
         {
             _icons = new Dictionary<BPMIcons,AIcon>();
-            foreach (Type t in Assembly.GetAssembly(typeof(IconGraphic)).GetTypes())
+            foreach (Type t in Assembly.GetAssembly(typeof(IconGraphic)).GetTypes().Where(t => t.IsSubclassOf(typeof(AIcon))))
             {
-                if (t.IsSubclassOf(typeof(AIcon)))
-                {
-                    object obj = t.GetCustomAttribute(typeof(IconTypeAttribute));
-                    if (obj != null)
-                    {
-                        _icons.Add(((IconTypeAttribute)obj).Icon, (AIcon)Activator.CreateInstance(t));
-                    }
-                }
+                object obj = t.GetCustomAttribute(typeof(IconTypeAttribute));
+                if (obj != null)
+                    _icons.Add(((IconTypeAttribute)obj).Icon, (AIcon)Activator.CreateInstance(t));
             }
         }
 

@@ -178,12 +178,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 
         public override bool IsValid(out string[] err)
         {
-            bool found = false;
-            foreach (IElement elem in Children)
-            {
-                found = found | (elem is Bounds);
-            }
-            if (!found)
+            if (!Children.Any(elem=>elem is Bounds))
             {
                 err = new string[] { "No bounds specified." };
                 return false;

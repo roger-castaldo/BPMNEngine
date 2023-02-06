@@ -19,11 +19,11 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// <summary>
         /// Called to get a list of all process variable names available
         /// </summary>
-        string[] Keys { get; }
+        IEnumerable<string> Keys { get; }
         /// <summary>
         /// Called to get a list of all process variable names available, including process definition constants and runtime constants
         /// </summary>
-        string[] FullKeys { get; }
+        IEnumerable<string> FullKeys { get; }
         /// <summary>
         /// The error that occured, assuming this was passed to an error event delgate this will have a value
         /// </summary>

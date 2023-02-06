@@ -26,16 +26,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             if (elem.Attributes["conditionExpression"]!=null)
                 _conditionExpression=elem.Attributes["conditionExpression"].Value;
             else
-            {
-                foreach (XmlNode xn in elem.ChildNodes)
-                {
-                    if (xn.NodeType==XmlNodeType.Element && map.isMatch("bpmn", "conditionExpression", xn.Name))
-                    {
-                        _conditionExpression=(xn.ChildNodes[0] is XmlCDataSection ? ((XmlCDataSection)xn.ChildNodes[0]).InnerText : xn.InnerText);
-                        break;
-                    }
-                }
-            }
+                _conditionExpression = elem.ChildNodes.Cast<XmlNode>()
+                    .Where(xn => xn.NodeType==XmlNodeType.Element && map.isMatch("bpmn", "conditionExpression", xn.Name))
+                    .Select(xn => xn.ChildNodes[0] is XmlCDataSection ? ((XmlCDataSection)xn.ChildNodes[0]).InnerText : xn.InnerText)
+                    .FirstOrDefault();
         }
 
         public bool IsFlowValid(IsFlowValid isFlowValid, IReadonlyVariables variables)

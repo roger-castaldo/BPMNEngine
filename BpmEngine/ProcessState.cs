@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -33,19 +34,9 @@ namespace Org.Reddragonit.BpmEngine
             _stateChanged();
         }
 
-        internal sStepSuspension[] SuspendedSteps
-        {
-            get
-            {
-                List<sStepSuspension> ret = new List<sStepSuspension>();
-                foreach (sStepSuspension ss in _suspensions.Steps)
-                {
-                    if (_path.IsStepWaiting(ss.Id, ss.StepIndex))
-                        ret.Add(ss);
-                }
-                return ret.ToArray();
-            }
-        }
+        internal IEnumerable<sStepSuspension> SuspendedSteps
+            => _suspensions.Steps
+            .Where(ss => _path.IsStepWaiting(ss.Id, ss.StepIndex));
 
         internal bool IsSuspended { get { return (_stateElement.Attributes["isSuspended"]==null ? false : bool.Parse(_stateElement.Attributes["isSuspended"].Value)); }
             private set
@@ -56,30 +47,12 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        internal IEnumerable<sSuspendedStep> ResumeSteps {
-            get
-            {
-                if (!IsSuspended)
-                    return new sSuspendedStep[] { };
-                return _path.ResumeSteps;
-            }
-        }
+        internal IEnumerable<sSuspendedStep> ResumeSteps
+            => !IsSuspended ? new sSuspendedStep[] { } : _path.ResumeSteps;
 
-        internal IEnumerable<sDelayedStartEvent> DelayedEvents
-        {
-            get
-            {
-                return _path.DelayedEvents;
-            }
-        }
+        internal IEnumerable<sDelayedStartEvent> DelayedEvents => _path.DelayedEvents;
 
-        internal IEnumerable<string> ActiveSteps
-        {
-            get
-            {
-                return _path.ActiveSteps;
-            }
-        }
+        internal IEnumerable<string> ActiveSteps => _path.ActiveSteps;
         
         internal object this[string elementID, string variableName]
         {

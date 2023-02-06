@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -22,19 +23,16 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             if (SubNodes != null)
             {
-                foreach (XmlNode n in SubNodes)
+                foreach (XmlNode n in SubNodes.Where(n => n.NodeType==XmlNodeType.Element))
                 {
-                    if (n.NodeType == XmlNodeType.Element)
+                    IElement subElem = Utility.ConstructElementType((XmlElement)n, ref map, ref cache, this);
+                    if (subElem != null)
                     {
-                        IElement subElem = Utility.ConstructElementType((XmlElement)n, ref map, ref cache, this);
-                        if (subElem != null)
-                        {
-                            _children.Add(subElem);
-                            if (subElem is AParentElement element)
-                                element.LoadChildren(ref map, ref cache);
-                            else
-                                ((AElement)subElem).LoadExtensionElement(ref map, ref cache);
-                        }
+                        _children.Add(subElem);
+                        if (subElem is AParentElement element)
+                            element.LoadChildren(ref map, ref cache);
+                        else
+                            ((AElement)subElem).LoadExtensionElement(ref map, ref cache);
                     }
                 }
             }

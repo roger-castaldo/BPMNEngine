@@ -53,32 +53,12 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        public XmlNode[] SubNodes
-        {
-            get {
-                List<XmlNode> ret = new List<XmlNode>();
-                foreach (XmlNode n in _element.ChildNodes)
-                    ret.Add(n);
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<XmlNode> SubNodes => _element.ChildNodes.Cast<XmlNode>();
 
-        public string this[string attributeName]
-        {
-            get
-            {
-                string value = null;
-                foreach (XmlAttribute att in _element.Attributes)
-                {
-                    if (att.Name.ToLower()==attributeName.ToLower())
-                    {
-                        value = att.Value;
-                        break;
-                    }
-                }
-                return value;
-            }
-        }
+        public string this[string attributeName] => _element.Attributes.Cast<XmlAttribute>()
+                    .Where(att => att.Name.ToLower()==attributeName.ToLower())
+                    .Select(att => att.Value)
+                    .FirstOrDefault()??null;
 
         private readonly IElement _extensionElement;
         public IElement ExtensionElement { get { return _extensionElement; } }

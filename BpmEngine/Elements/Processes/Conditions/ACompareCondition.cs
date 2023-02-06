@@ -162,22 +162,19 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             bool foundLeft = this["leftVariable"]!=null;
             bool foundRight = this["rightVariable"]!=null;
             List<string> errs = new List<string>();
-            foreach (XmlNode n in SubNodes)
+            foreach (var name in SubNodes.Where(n => n.NodeType == XmlNodeType.Element).Select(n=>n.Name))
             {
-                if (n.NodeType == XmlNodeType.Element)
+                if (_map.isMatch("exts", "right", name) || name == "right")
                 {
-                    if (_map.isMatch("exts", "right", n.Name) || n.Name == "right")
-                    {
-                        if (foundRight)
-                            errs.Add("Right value specified more than once.");
-                        foundRight = true;
-                    }
-                    else if (_map.isMatch("exts", "left", n.Name) || n.Name == "left")
-                    {
-                        if (foundLeft)
-                            errs.Add("Left value specified more than once.");
-                        foundLeft = true;
-                    }
+                    if (foundRight)
+                        errs.Add("Right value specified more than once.");
+                    foundRight = true;
+                }
+                else if (_map.isMatch("exts", "left", name) || name == "left")
+                {
+                    if (foundLeft)
+                        errs.Add("Left value specified more than once.");
+                    foundLeft = true;
                 }
             }
             if (!foundRight && !foundLeft)

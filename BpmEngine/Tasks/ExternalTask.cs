@@ -48,7 +48,7 @@ namespace Org.Reddragonit.BpmEngine.Tasks
             get { return _task.id; }
         }
 
-        public XmlNode[] SubNodes
+        public IEnumerable<XmlNode> SubNodes
         {
             get { return _task.SubNodes; }
         }

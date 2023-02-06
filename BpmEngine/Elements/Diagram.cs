@@ -169,22 +169,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         }
 
-        private Shape[] _GetBoundShapes(Definition definition, string elemid)
-        {
-            List<Shape> ret = new List<Shape>();
-            foreach (IElement elem in definition.GetBoundaryElements(elemid))
-            {
-                foreach (Shape shape in _Shapes)
-                {
-                    if (shape.bpmnElement==elem.id)
-                    {
-                        ret.Add(shape);
-                        break;
-                    }
-                }
-            }
-            return ret.ToArray();
-        }
+        private IEnumerable<Shape> _GetBoundShapes(Definition definition, string elemid)
+            => definition.GetBoundaryElements(elemid)
+            .SelectMany(elem => _Shapes.Where(shape => shape.bpmnElement==elem.id));
 
         private Image _Render(ProcessPath path, Definition definition, string elemid)
         {
@@ -197,41 +184,31 @@ namespace Org.Reddragonit.BpmEngine.Elements
             int maxY;
             _CalculateDimensions(out minX, out maxX, out minY, out maxY);
             ret.TranslateTransform(Math.Abs(minX), Math.Abs(minY));
-            foreach (Shape shape in _Shapes)
+            foreach (Shape shape in _Shapes.Where(shape => shape.bpmnElement == (elemid == null ? shape.bpmnElement : elemid)))
             {
-                if (shape.bpmnElement == (elemid == null ? shape.bpmnElement : elemid))
-                {
-                    Rectangle rect;
-                    Image img = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement),_GetBoundShapes(definition, shape.bpmnElement), out rect);
-                    ret.DrawImage(img, rect);
-                }
+                Rectangle rect;
+                Image img = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, shape.bpmnElement), out rect);
+                ret.DrawImage(img, rect);
             }
-            foreach (Edge edge in _Edges)
-            {
-                if (edge.bpmnElement == (elemid == null ? edge.bpmnElement : elemid))
+            foreach (Edge edge in _Edges.Where(edge=> edge.bpmnElement == (elemid == null ? edge.bpmnElement : elemid)))
                     ret.DrawImage(_RenderEdge(edge, path.GetStatus(edge.bpmnElement), definition), edge.Rectangle);
-            }
             return ret;
         }
 
         internal Image RenderElement(ProcessPath path, Definition definition, string elementID,out Rectangle rectangle)
         {
-            foreach (Shape shape in _Shapes)
+            var shape = _Shapes.FirstOrDefault(shape => shape.bpmnElement == elementID);
+            if (shape!=null)
             {
-                if (shape.bpmnElement == elementID)
-                {
-                    Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, elementID), out rectangle);
-                    rectangle = _ShiftRectangle(rectangle);
-                    return ret;
-                }
+                Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, elementID), out rectangle);
+                rectangle = _ShiftRectangle(rectangle);
+                return ret;
             }
-            foreach(Edge edge in _Edges)
+            var edge = _Edges.FirstOrDefault(edge => edge.bpmnElement == elementID);
+            if (edge!=null)
             {
-                if (edge.bpmnElement == elementID)
-                {
-                    rectangle = _ShiftRectangle(edge.Rectangle);
-                    return _RenderEdge(edge, path.GetStatus(edge.bpmnElement), definition);
-                }
+                rectangle = _ShiftRectangle(edge.Rectangle);
+                return _RenderEdge(edge, path.GetStatus(edge.bpmnElement), definition);
             }
             rectangle = null;
             return null;
@@ -255,7 +232,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return ret;
         }
 
-        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,Shape[] boundElements,out Rectangle rect)
+        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,IEnumerable<Shape> boundElements,out Rectangle rect)
         {
             rect = shape.Rectangle.Merge((shape.Label!=null ? shape.Label.Bounds.Rectangle : null));
             Image ret = new Image(rect);

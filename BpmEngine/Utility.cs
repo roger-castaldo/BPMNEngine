@@ -5,8 +5,10 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -45,25 +47,22 @@ namespace Org.Reddragonit.BpmEngine
             _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
             _tagAttributes = new Dictionary<Type, XMLTag[]>();
-            foreach (Type t in Assembly.GetAssembly(typeof(Utility)).GetTypes())
+            foreach (Type t in Assembly.GetAssembly(typeof(Utility)).GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IElement))))
             {
-                if (new List<Type>(t.GetInterfaces()).Contains(typeof(IElement)))
+                XMLTag[] tags = (XMLTag[])t.GetCustomAttributes(typeof(XMLTag), false);
+                if (tags.Length > 0)
                 {
-                    XMLTag[] tags = (XMLTag[])t.GetCustomAttributes(typeof(XMLTag), false);
-                    if (tags.Length > 0)
+                    tmp.Add(t);
+                    _tagAttributes.Add(t, tags);
+                    Dictionary<string, Type> tmpTypes = new Dictionary<string, Type>();
+                    if (_idealMap.ContainsKey(tags[0].Prefix.ToLower()))
                     {
-                        tmp.Add(t);
-                        _tagAttributes.Add(t, tags);
-                        Dictionary<string, Type> tmpTypes = new Dictionary<string, Type>();
-                        if (_idealMap.ContainsKey(tags[0].Prefix.ToLower()))
-                        {
-                            tmpTypes = _idealMap[tags[0].Prefix.ToLower()];
-                            _idealMap.Remove(tags[0].Prefix.ToLower());
-                        }
-                        _xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
-                        tmpTypes.Add(tags[0].Name.ToLower(), t);
-                        _idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
+                        tmpTypes = _idealMap[tags[0].Prefix.ToLower()];
+                        _idealMap.Remove(tags[0].Prefix.ToLower());
                     }
+                    _xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
+                    tmpTypes.Add(tags[0].Name.ToLower(), t);
+                    _idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
                 }
             }
             _xmlChildren = new Dictionary<Type, List<Type>>();
@@ -94,32 +93,26 @@ namespace Org.Reddragonit.BpmEngine
                         globalChildren.Add(t);
                     else if (vpa.Parent.IsAbstract)
                     {
-                        foreach (Type c in tmp)
+                        foreach (Type c in tmp.Where(c => c.IsSubclassOf(vpa.Parent)))
                         {
-                            if (c.IsSubclassOf(vpa.Parent))
-                            {
-                                if (!_xmlChildren.ContainsKey(c))
-                                    _xmlChildren.Add(c, new List<Type>());
-                                List<Type> types = _xmlChildren[c];
-                                _xmlChildren.Remove(c);
-                                types.Add(t);
-                                _xmlChildren.Add(c, types);
-                            }
+                            if (!_xmlChildren.ContainsKey(c))
+                                _xmlChildren.Add(c, new List<Type>());
+                            List<Type> types = _xmlChildren[c];
+                            _xmlChildren.Remove(c);
+                            types.Add(t);
+                            _xmlChildren.Add(c, types);
                         }
                     }
                     else if (vpa.Parent.IsInterface)
                     {
-                        foreach (Type c in tmp)
+                        foreach (Type c in tmp.Where(c => c.GetInterfaces().Contains(vpa.Parent)))
                         {
-                            if (new List<Type>(c.GetInterfaces()).Contains(vpa.Parent))
-                            {
-                                if (!_xmlChildren.ContainsKey(c))
-                                    _xmlChildren.Add(c, new List<Type>());
-                                List<Type> types = _xmlChildren[c];
-                                _xmlChildren.Remove(c);
-                                types.Add(t);
-                                _xmlChildren.Add(c, types);
-                            }
+                            if (!_xmlChildren.ContainsKey(c))
+                                _xmlChildren.Add(c, new List<Type>());
+                            List<Type> types = _xmlChildren[c];
+                            _xmlChildren.Remove(c);
+                            types.Add(t);
+                            _xmlChildren.Add(c, types);
                         }
                     }
                     else
@@ -165,14 +158,9 @@ namespace Org.Reddragonit.BpmEngine
         private static Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
 
 
-        public static bool AllTypesAvailable(string[] assemblies,string[] types)
+        public static bool AllTypesAvailable(string[] assemblies, string[] types)
         {
-            foreach (string str in types)
-            {
-                if (GetType(assemblies, str)==null)
-                    return false;
-            }
-            return true;
+            return !types.Any(str => GetType(assemblies, str)==null);
         }
 
         public static Type GetType(string[] assemblies, string type)
@@ -227,39 +215,15 @@ namespace Org.Reddragonit.BpmEngine
         {
             DateTime start = DateTime.Now;
             Type ret = null;
-            if (parent != null)
+            if (parent != null && _xmlChildren.ContainsKey(parent))
             {
-                if (_xmlChildren.ContainsKey(parent))
-                {
-                    foreach (Type t in _xmlChildren[parent])
-                    {
-                        foreach (XMLTag xt in _tagAttributes[t])
-                        {
-                            if (xt.Matches(map, tagName))
-                            {
-                                ret = t;
-                                break;
-                            }
-                        }
-                        if (ret != null)
-                            break;
-                    }
-                }
+                ret = _xmlChildren[parent]
+                    .FirstOrDefault(t => _tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
+                if (ret!=null)
+                    return ret;
             }
-            foreach (Type t in _globalXMLChildren)
-            {
-                foreach (XMLTag xt in _tagAttributes[t])
-                {
-                    if (xt.Matches(map, tagName))
-                    {
-                        ret = t;
-                        break;
-                    }
-                }
-                if (ret != null)
-                    break;
-            }
-            //Console.WriteLine("Time to translate [{0}] to [{1}] is {2}ms", new object[] { tagName, (ret == null ? null : ret.FullName), DateTime.Now.Subtract(start).TotalMilliseconds });
+            ret = _globalXMLChildren
+                .FirstOrDefault(t => _tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
             return ret;
         }
 
@@ -455,18 +419,11 @@ namespace Org.Reddragonit.BpmEngine
         {
             lock (_events)
             {
-                for(int x = 0; x<_events.Count; x++)
-                {
-                    if (_events[x] is sProcessDelayedEvent)
-                    {
-                        sProcessDelayedEvent spde = (sProcessDelayedEvent)_events[x];
-                        if (spde.Instance.Equals(process) && spde.Event.id==evnt.id && spde.SourceID==sourceID)
-                        {
-                            _events.RemoveAt(x);
-                            break;
-                        }
-                    }
-                }
+                _events.RemoveAll(e =>
+                    e is sProcessDelayedEvent &&
+                    ((sProcessDelayedEvent)e).Instance.Equals(process) &&
+                    ((sProcessDelayedEvent)e).Event.id==evnt.id &&
+                    ((sProcessDelayedEvent)e).SourceID==sourceID);
             }
             _backgroundMREEvent.Set();
         }
@@ -475,18 +432,11 @@ namespace Org.Reddragonit.BpmEngine
         {
             lock (_events)
             {
-                for (int x = 0; x<_events.Count; x++)
-                {
-                    if (_events[x] is sProcessSuspendEvent)
-                    {
-                        sProcessSuspendEvent spse = (sProcessSuspendEvent)_events[x];
-                        if (spse.Instance.Equals(process) && spse.Event.id==id)
-                        {
-                            _events.RemoveAt(x);
-                            break;
-                        }
-                    }
-                }
+                _events.RemoveAll(e =>
+                    e is sProcessSuspendEvent &&
+                    ((sProcessSuspendEvent)e).Instance.Equals(process) &&
+                    ((sProcessSuspendEvent)e).Event.id==id
+                );
             }
             _backgroundMREEvent.Set();
         }
@@ -496,27 +446,12 @@ namespace Org.Reddragonit.BpmEngine
             bool changed = false;
             lock (_events)
             {
-                for (int x = 0; x < _events.Count; x++)
-                {
-                    if (_events[x] is sProcessDelayedEvent)
-                    {
-                        if (((sProcessDelayedEvent)_events[x]).Instance.Process.Equals(process))
-                        {
-                            _events.RemoveAt(x);
-                            x--;
-                            changed=true;
-                        }
-                    }
-                    else if (_events[x] is sProcessSuspendEvent)
-                    {
-                        if (((sProcessSuspendEvent)_events[x]).Instance.Process.Equals(process))
-                        {
-                            _events.RemoveAt(x);
-                            x--;
-                            changed=true;
-                        }
-                    }
-                }
+                changed = _events.RemoveAll(e =>
+                    (e is sProcessDelayedEvent
+                    && ((sProcessDelayedEvent)e).Instance.Process.Equals(process))
+                    ||(e is sProcessSuspendEvent &&
+                    ((sProcessSuspendEvent)e).Instance.Process.Equals(process))
+                )>0;
             }
             if (changed)
                 _backgroundMREEvent.Set();
@@ -526,26 +461,12 @@ namespace Org.Reddragonit.BpmEngine
         {
             bool changed = false;
             lock (_events) {
-                for(int x = 0; x < _events.Count; x++)
-                {
-                    if (_events[x] is sProcessDelayedEvent)
-                    {
-                        if (((sProcessDelayedEvent)_events[x]).Instance.Equals(process))
-                        {
-                            _events.RemoveAt(x);
-                            x--;
-                            changed=true;
-                        }
-                    }else if (_events[x] is sProcessSuspendEvent)
-                    {
-                        if (((sProcessSuspendEvent)_events[x]).Instance.Equals(process))
-                        {
-                            _events.RemoveAt(x);
-                            x--;
-                            changed=true;
-                        }
-                    }
-                }
+                changed = _events.RemoveAll(e =>
+                    (e is sProcessDelayedEvent
+                    && ((sProcessDelayedEvent)e).Instance.Equals(process))
+                    ||(e is sProcessSuspendEvent &&
+                    ((sProcessSuspendEvent)e).Instance.Equals(process))
+                )>0;
             }
             if (changed)
                 _backgroundMREEvent.Set();

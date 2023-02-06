@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -27,34 +28,31 @@ namespace Org.Reddragonit.BpmEngine
         public bool Load(XmlElement element)
         {
             bool changed = false;
-            foreach (XmlAttribute att in element.Attributes)
+            foreach (XmlAttribute att in element.Attributes.Cast<XmlAttribute>().Where(att => att.Name.StartsWith("xmlns:")))
             {
-                if (att.Name.StartsWith("xmlns:"))
+                string prefix = null;
+                if (_regBPMNRef.IsMatch(att.Value))
+                    prefix = "bpmn";
+                else if (_regBPMNDIRef.IsMatch(att.Value))
+                    prefix = "bpmndi";
+                else if (_regDIRef.IsMatch(att.Value))
+                    prefix = "di";
+                else if (_regDCRef.IsMatch(att.Value))
+                    prefix = "dc";
+                else if (_regXSIRef.IsMatch(att.Value))
+                    prefix = "xsi";
+                else if (_regEXTSRef.IsMatch(att.Value))
+                    prefix = "exts";
+                if (prefix != null)
                 {
-                    string prefix=null;
-                    if (_regBPMNRef.IsMatch(att.Value))
-                        prefix = "bpmn";
-                    else if (_regBPMNDIRef.IsMatch(att.Value))
-                        prefix = "bpmndi";
-                    else if (_regDIRef.IsMatch(att.Value))
-                        prefix = "di";
-                    else if (_regDCRef.IsMatch(att.Value))
-                        prefix = "dc";
-                    else if (_regXSIRef.IsMatch(att.Value))
-                        prefix = "xsi";
-                    else if (_regEXTSRef.IsMatch(att.Value))
-                        prefix = "exts";
-                    if (prefix != null)
-                    {
-                        changed = true;
-                        _process.WriteLogLine((string)null,LogLevels.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
-                        if (!_prefixMaps.ContainsKey(prefix))
-                            _prefixMaps.Add(prefix, new List<string>());
-                        List<string> tmp = _prefixMaps[prefix];
-                        tmp.Add(att.Name.Substring(att.Name.IndexOf(':') + 1));
-                        _prefixMaps.Remove(prefix);
-                        _prefixMaps.Add(prefix, tmp);
-                    }
+                    changed = true;
+                    _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
+                    if (!_prefixMaps.ContainsKey(prefix))
+                        _prefixMaps.Add(prefix, new List<string>());
+                    List<string> tmp = _prefixMaps[prefix];
+                    tmp.Add(att.Name.Substring(att.Name.IndexOf(':') + 1));
+                    _prefixMaps.Remove(prefix);
+                    _prefixMaps.Add(prefix, tmp);
                 }
             }
             return changed;

@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -49,7 +50,7 @@ namespace UnitTest
             Thread.Sleep(5*1000);
             IUserTask task = instance.GetUserTask("UserTask_15dj2au");
             Assert.IsNotNull(task);
-            Assert.AreEqual(1, task.Variables.Keys.Length);
+            Assert.AreEqual(1, task.Variables.Keys.Count());
             Assert.AreEqual(_TEST_VARIABLE_VALUE, task.Variables[_TEST_VARIABLE_NAME]);
             task.UserID = _TEST_USER_IDS[0];
             task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUES[0];
@@ -85,7 +86,7 @@ namespace UnitTest
                 IUserTask task = instance.GetUserTask(_TaskNames[idx]);
                 Assert.IsNotNull(task);
                 Assert.IsNull(instance.GetUserTask(_TaskNames[idx+(idx==0 ? 1 : -1)]));
-                Assert.AreEqual(1, task.Variables.Keys.Length);
+                Assert.AreEqual(1, task.Variables.Keys.Count());
                 Assert.AreEqual((idx==0 ? _TEST_VARIABLE_VALUE : _TEST_VARIABLE_VALUES[idx-1]), task.Variables[_TEST_VARIABLE_NAME]);
                 task.UserID = _TEST_USER_IDS[idx];
                 task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUES[idx];

@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -15,12 +16,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         protected override bool _Evaluate(IReadonlyVariables variables)
         {
-            foreach (ACondition cond in _Conditions)
-            {
-                if (cond.Evaluate(variables))
-                    return true;
-            }
-            return false;
+            return _Conditions.Any(cond=>cond.Evaluate(variables));
         }
 
         public override bool IsValid(out string[] err)

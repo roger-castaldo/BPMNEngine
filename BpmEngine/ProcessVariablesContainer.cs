@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
@@ -94,35 +95,23 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        public string[] Keys
+        public IEnumerable<string> Keys
         {
             get
             {
-                List<string> ret = new List<string>();
+                IEnumerable<string> result;
                 lock (_variables)
                 {
-                    ret.AddRange(_variables.Keys);
-                    ret.AddRange(_nulls);
+                    result = _variables.Keys
+                        .Concat(_nulls);
                 }
-                return ret.ToArray();
+                return result;
             }
         }
 
-        public string[] FullKeys
-        {
-            get
-            {
-                List<string> ret = new List<string>(Keys);
-                if (_process!=null)
-                {
-                    foreach (string key in _process.Keys)
-                    {
-                        if (!ret.Contains(key))
-                            ret.Add(key);
-                    }
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<string> FullKeys
+            => Keys.Concat(_process==null ? new string[] { }
+            : _process.Keys)
+            .Distinct();
     }
 }

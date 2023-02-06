@@ -75,8 +75,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 {
                     MemoryStream ms = new MemoryStream();
                     var references = AppDomain.CurrentDomain.GetAssemblies()
-                        .Where(ass => ass.Location != null && ass.Location != "")
-                        .Select(ass => MetadataReference.CreateFromFile(ass.Location))
+                        .Where(ass => GetAssemblyLocation(ass) != null)
+                        .Select(ass => MetadataReference.CreateFromFile(GetAssemblyLocation(ass)))
                         .Concat(
                             _Dlls
                             .Select(d=> MetadataReference.CreateFromFile(d))
@@ -95,6 +95,17 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 }
             }
             return errors == null;
+        }
+
+        protected static string GetAssemblyLocation(Assembly ass)
+        {
+            try
+            {
+                return ass.Location=="" ? null : ass.Location;
+            }catch(Exception ex)
+            {
+                return null;
+            }
         }
 
         protected sealed override object _Invoke(IVariables variables)

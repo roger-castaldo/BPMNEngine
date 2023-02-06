@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// <summary>
         /// The child XMLNodes from the process element
         /// </summary>
-        XmlNode[] SubNodes { get; }
+        IEnumerable<XmlNode> SubNodes { get; }
 
         /// <summary>
         /// This is called to get an attribute value from the process element
