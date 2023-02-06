@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -58,12 +59,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 
         public TimeSpan? GetTimeout(IReadonlyVariables variables)
         {
-            foreach (IElement ie in Children)
-            {
-                if (ie is TimerEventDefinition)
-                    return ((TimerEventDefinition)ie).GetTimeout(variables);
-            }
-            return null;
+            return Children
+                .Where(ie => ie is TimerEventDefinition)
+                .Select(ie => ((TimerEventDefinition)ie).GetTimeout(variables))
+                .FirstOrDefault();
         }
     }
 }

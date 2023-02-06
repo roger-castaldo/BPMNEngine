@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -15,50 +16,39 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
         public ATask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public new string[] Outgoing
+        private static readonly EventSubTypes[] _blockedSubTypes = new EventSubTypes[]
+        {
+            EventSubTypes.Signal,
+            EventSubTypes.Escalation,
+            EventSubTypes.Error,
+            EventSubTypes.Message,
+            EventSubTypes.Link
+        };
+
+        public new IEnumerable<string> Outgoing
         {
             get
             {
-                string[] tmp = base.Outgoing;
-                if (tmp != null)
+                List<string> result = new List<string>();
+                foreach (string str in base.Outgoing)
                 {
-                    List<string> ret = new List<string>();
-                    foreach (string str in tmp)
+                    bool add = true;
+                    IElement afn = this.Definition.LocateElement(str);
+                    string destID = null;
+                    if (afn is MessageFlow messageFlow)
+                        destID = messageFlow.targetRef;
+                    else if (afn is SequenceFlow sequenceFlow)
+                        destID = sequenceFlow.targetRef;
+                    if (destID != null)
                     {
-                        bool add = true;
-                        IElement afn = this.Definition.LocateElement(str);
-                        string destID = null;
-                        if (afn is MessageFlow)
-                            destID = ((MessageFlow)afn).targetRef;
-                        else if (afn is SequenceFlow)
-                            destID = ((SequenceFlow)afn).targetRef;
-                        if (destID != null)
-                        {
-                            IElement ice = this.Definition.LocateElement(destID);
-                            if (ice is IntermediateCatchEvent)
-                            {
-                                IntermediateCatchEvent inter = (IntermediateCatchEvent)ice;
-                                if (inter.SubType.HasValue)
-                                {
-                                    switch(inter.SubType.Value)
-                                    {
-                                        case EventSubTypes.Signal:
-                                        case EventSubTypes.Escalation:
-                                        case EventSubTypes.Error:
-                                        case EventSubTypes.Message:
-                                        case EventSubTypes.Link:
-                                            add=false;
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        if (add)
-                            ret.Add(str);
+                        IElement ice = this.Definition.LocateElement(destID);
+                        if (ice is IntermediateCatchEvent intermediateCatchEvent)
+                            add = !intermediateCatchEvent.SubType.HasValue || !_blockedSubTypes.Contains(intermediateCatchEvent.SubType.Value);
                     }
-                    return (ret.Count == 0 ? null : ret.ToArray());
+                    if (add)
+                        result.Add(str);
                 }
-                return tmp;
+                return result;
             }
         }
     }

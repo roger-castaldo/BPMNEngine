@@ -11,14 +11,14 @@ namespace Org.Reddragonit.BpmEngine.State
 
     internal struct sStepSuspension
     {
-        private string _id;
-        public string id { get { return _id; } }
+        private readonly string _id;
+        public string Id => _id;
 
-        private int _stepIndex;
-        public int StepIndex { get { return _stepIndex; } }
+        private readonly int _stepIndex;
+        public int StepIndex => _stepIndex;
 
-        private DateTime _endTime;
-        public DateTime EndTime { get { return _endTime; } }
+        private readonly DateTime _endTime;
+        public DateTime EndTime => _endTime;
 
         public sStepSuspension(string id, int stepIndex, TimeSpan span)
         {
@@ -38,11 +38,11 @@ namespace Org.Reddragonit.BpmEngine.State
 
     internal struct sSuspendedStep
     {
-        private string _incomingID;
-        public string IncomingID { get { return _incomingID; } }
+        private readonly string _incomingID;
+        public string IncomingID => _incomingID;
 
-        private string _elementID;
-        public string ElementID { get { return _elementID; } }
+        private readonly string _elementID;
+        public string ElementID => _elementID;
 
         public sSuspendedStep(string incomingID, string elementID)
         {
@@ -53,14 +53,14 @@ namespace Org.Reddragonit.BpmEngine.State
 
     internal struct sDelayedStartEvent
     {
-        private string _incomingID;
-        public string IncomingID { get { return _incomingID; } }
+        private readonly string _incomingID;
+        public string IncomingID => _incomingID;
 
-        private string _elementID;
-        public string ElementID { get { return _elementID; } }
-        
-        private DateTime _startTime;
-        public TimeSpan Delay { get { return _startTime.Subtract(DateTime.Now); } }
+        private readonly string _elementID;
+        public string ElementID => _elementID;
+
+        private readonly DateTime _startTime;
+        public TimeSpan Delay => _startTime.Subtract(DateTime.Now);
 
         public sDelayedStartEvent(string incomingID,string elementID,DateTime startTime)
         {

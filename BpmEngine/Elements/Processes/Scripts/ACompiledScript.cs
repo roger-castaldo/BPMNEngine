@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using Org.Reddragonit.BpmEngine.Interfaces;
+using System.Linq;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 {
@@ -17,61 +18,35 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
 
         private static Random _rand;
 
-        private string _className;
+        private readonly string _className;
         protected string _ClassName { get { return _className; } }
-        private string _functionName;
+        private readonly string _functionName;
         protected string _FunctionName { get { return _functionName; } }
 
-        private string[] _Imports
-        {
-            get
-            {
-                List<string> ret = new List<string>(new string[] { "System","Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces" });
-                if (SubNodes.Length > 1)
-                {
-                    foreach (XmlNode n in SubNodes)
-                    {
-                        if (n.NodeType == XmlNodeType.Element)
-                        {
-                            if (n.Name.ToLower() == "using")
-                                ret.Add(n.InnerText);
-                        }
-                    }
-                }
-                return ret.ToArray();
-            }
-        }
+        private IEnumerable<string> _Imports
+            => new string[] { "System", "Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces" }
+            .Concat(SubNodes
+                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="using")
+                .Select(n => n.InnerText)
+            );
 
-        private string[] _Dlls
-        {
-            get
-            {
-                List<string> ret = new List<string>(new string[]{Assembly.GetAssembly(this.GetType()).Location});
-                if (SubNodes.Length > 1)
-                {
-                    foreach (XmlNode n in SubNodes)
-                    {
-                        if (n.NodeType == XmlNodeType.Element)
-                        {
-                            if (n.Name.ToLower() == "dll")
-                                ret.Add(n.InnerText);
-                        }
-                    }
-                }
-                return ret.ToArray();
-            }
-        }
-
+        private IEnumerable<string> _Dlls
+            => new string[] { Assembly.GetAssembly(this.GetType()).Location }
+            .Concat(SubNodes
+                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="dll")
+                .Select(n => n.InnerText)
+            );
+        
         private Assembly _assembly;
 
         private static string _NextName()
         {
-            string ret = "";
-            while (ret.Length < _NAME_LENGTH)
+            StringBuilder result = new StringBuilder();
+            while (result.Length < _NAME_LENGTH)
             {
-                ret += _NAME_CHARS[_rand.Next(_NAME_CHARS.Length - 1)];
+                result.Append(_NAME_CHARS[_rand.Next(_NAME_CHARS.Length - 1)]);
             }
-            return ret;
+            return result.ToString();
         }
 
         static ACompiledScript()
@@ -89,7 +64,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
         }
 
-        protected abstract EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms);
+        protected abstract EmitResult _Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms);
         
         private bool _CompileAssembly(out string errors)
         {
@@ -99,47 +74,24 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 if (_assembly == null)
                 {
                     MemoryStream ms = new MemoryStream();
-                    List<MetadataReference> references = new List<MetadataReference>();
-                    foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+                    var references = AppDomain.CurrentDomain.GetAssemblies()
+                        .Where(ass => ass.Location != null && ass.Location != "")
+                        .Select(ass => MetadataReference.CreateFromFile(ass.Location))
+                        .Concat(
+                            _Dlls
+                            .Select(d=> MetadataReference.CreateFromFile(d))
+                        );
+                    EmitResult res = _Compile(_NextName(), references, _Imports, _Code, ref ms);
+                    if (!res.Success)
                     {
-                        try
-                        {
-                            if (ass.Location != null && ass.Location != "")
-                                references.Add(MetadataReference.CreateFromFile(ass.Location));
-                        }
-                        catch (System.NotSupportedException nse) { Exception(nse); }
-                        catch(Exception e)
-                        {
-                            throw e;
-                        }
+                        StringBuilder error = new StringBuilder();
+                        foreach (Diagnostic diag in res.Diagnostics)
+                            error.AppendLine(diag.ToString());
+                        errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
+                        _assembly = null;
                     }
-                    foreach (string str in _Dlls)
-                    {
-                        try
-                        {
-                            references.Add(MetadataReference.CreateFromFile(str));
-                        }
-                        catch(Exception e)
-                        {
-                            Exception(e);
-                            errors = "Unable to load assembly: " + str;
-                            break;
-                        }
-                    }
-                    if (errors == null)
-                    {
-                        EmitResult res = _Compile(_NextName(), references, _Imports, _Code, ref ms);
-                        if (!res.Success)
-                        {
-                            StringBuilder error = new StringBuilder();
-                            foreach (Diagnostic diag in res.Diagnostics)
-                                error.AppendLine(diag.ToString());
-                            errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
-                            _assembly = null;
-                        }
-                        else
-                            _assembly = Assembly.Load(ms.ToArray());
-                    }
+                    else
+                        _assembly = Assembly.Load(ms.ToArray());
                 }
             }
             return errors == null;

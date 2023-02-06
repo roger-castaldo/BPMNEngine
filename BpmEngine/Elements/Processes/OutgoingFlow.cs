@@ -10,7 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     [ValidParent(typeof(AFlowNode))]
     internal class OutgoingFlow : AElement
     {
-        public string Value { get { return this.Element.InnerText; } }
+        public string Value =>Element.InnerText;
 
         public OutgoingFlow(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {

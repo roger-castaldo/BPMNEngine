@@ -1,8 +1,10 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,11 +18,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 
         public override bool IsValid(out string[] err)
         {
-            if (Outgoing == null)
+            if (!Outgoing.Any())
             {
                 err = new string[] { "Intermediate Catch Events must have an outgoing path." };
                 return false;
-            }else if (Outgoing.Length != 1)
+            }else if (Outgoing.Count() != 1)
             {
                 err = new string[] { "Intermediate Catch Events must have only 1 outgoing path." };
                 return false;
@@ -33,21 +35,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             cost=int.MaxValue;
             bool ret = true;
             SubProcess sb;
-            if (this.Incoming!=null)
+            if (Incoming.Any())
             {
                 ret=false;
-                if (source.Outgoing!=null)
+                if (source.Outgoing.Any(str => Incoming.Contains(str)))
                 {
-                    List<string> inc = new List<string>(this.Incoming);
-                    foreach (string str in source.Outgoing)
-                    {
-                        if (inc.Contains(str))
-                        {
-                            ret=true;
-                            cost=1;
-                            break;
-                        }
-                    }
+                    ret=true;
+                    cost=1;
                 }
             }
             else if (source.SubProcess!=null)

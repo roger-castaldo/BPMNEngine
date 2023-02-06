@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -22,13 +23,12 @@ namespace Org.Reddragonit.BpmEngine.State
         {
         }
 
-        public sStepSuspension[] Steps {
+        public IEnumerable<sStepSuspension> Steps {
             get
             {
-                List<sStepSuspension> ret = new List<sStepSuspension>();
-                foreach (XmlElement elem in ChildNodes)
-                    ret.Add(new sStepSuspension(elem));
-                return ret.ToArray();
+                return ChildNodes.Cast<XmlNode>()
+                    .Where(node=>node.NodeType== XmlNodeType.Element)
+                    .Select(elem => new sStepSuspension((XmlElement)elem));
             }
         }
 

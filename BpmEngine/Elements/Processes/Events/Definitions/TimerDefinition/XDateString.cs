@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -12,25 +13,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.TimerD
     [ValidParent(typeof(ExtensionElements))]
     internal class XDateString : AElement
     {
-        protected string _Code
-        {
-            get
-            {
-                if (this["Code"] != null)
-                    return this["Code"];
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.Text)
-                        return n.Value;
-                }
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.CDATA)
-                        return ((XmlCDataSection)n).InnerText;
-                }
-                return "";
-            }
-        }
+        protected string _Code => this["Code"] ?? 
+            SubNodes.Where(n=>n.NodeType==XmlNodeType.Text).Select(n=>n.Value).FirstOrDefault() ??
+            SubNodes.Where(n=>n.NodeType==XmlNodeType.CDATA).Select(n=>((XmlCDataSection)n).Value).FirstOrDefault() ?? 
+            String.Empty;
 
         public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {
@@ -38,7 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.TimerD
 
         public override bool IsValid(out string[] err)
         {
-            if (_Code == "")
+            if (String.IsNullOrEmpty(_Code))
             {
                 err = new string[] { "No Date String Specified" };
                 return false;
@@ -48,7 +34,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.TimerD
 
         public DateTime GetTime(IReadonlyVariables variables)
         {
-            if (_Code == "")
+            if (String.IsNullOrEmpty(_Code))
                 throw new Exception("Invalid Date String Specified");
             DateString ds = new BpmEngine.DateString(_Code);
             return ds.GetTime(variables);

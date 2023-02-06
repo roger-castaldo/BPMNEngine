@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -9,14 +10,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
     internal abstract class AHandlingEvent : AEvent
     {
-        private List<string> _types=null;
-        private ConditionalEventDefinition _condition=null;
-
         protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) : 
             base(elem, map, parent)
         {}
 
-        
+        private IEnumerable<string> _types => Children
+            .Where(child => child is ErrorEventDefinition || child is MessageEventDefinition || child is SignalEventDefinition)
+            .Select(child => (child is ErrorEventDefinition ?
+                    ((ErrorEventDefinition)child).ErrorTypes :
+                    (child is MessageEventDefinition messageDefinition ?
+                        messageDefinition.MessageTypes :
+                ((SignalEventDefinition)child).SignalTypes)))
+            .FirstOrDefault();
+
+        private ConditionalEventDefinition _condition => (ConditionalEventDefinition)Children
+            .Where(child => child is ConditionalEventDefinition)
+            .FirstOrDefault();
 
         public bool HandlesEvent(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables,out int cost)
         {
@@ -51,23 +60,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 
         public override bool IsValid(out string[] err)
         {
-            if (_types==null&&_condition==null)
-            {
-                _types = new List<string>();
-                foreach (IElement child in Children)
-                {
-                    if (child is ErrorEventDefinition)
-                        _types.AddRange(((ErrorEventDefinition)child).ErrorTypes);
-                    else if (child is MessageEventDefinition)
-                        _types.AddRange(((MessageEventDefinition)child).MessageTypes);
-                    else if (child is SignalEventDefinition)
-                        _types.AddRange(((SignalEventDefinition)child).SignalTypes);
-                    else if (child is ConditionalEventDefinition)
-                        _condition = (ConditionalEventDefinition)child;
-                    if (_types.Count>0||_condition!=null)
-                        break;
-                }
-            }
             if (!SubType.HasValue)
             {
                 err = new string[] { string.Format("{0}s must have a subtype.",new object[] { GetType().Name }) };
@@ -78,7 +70,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                 case EventSubTypes.Message:
                 case EventSubTypes.Signal:
                 case EventSubTypes.Error:
-                    if (_types.Count==0)
+                    if (_types==null || !_types.Any())
                     {
                         err=new string[] { string.Format("A subtype of {0} must define the types to intercept", new object[] { SubType.Value }) };
                         return false;

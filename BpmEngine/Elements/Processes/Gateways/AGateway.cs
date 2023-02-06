@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -14,7 +15,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
         public AGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public abstract string[] EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid, IReadonlyVariables variables);
+        public abstract IEnumerable<string> EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid, IReadonlyVariables variables);
         public abstract bool IsIncomingFlowComplete(string incomingID, ProcessPath path);
 
         public bool IsWaiting(ProcessPath path)
@@ -24,18 +25,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
 
         public string Default { 
             get {
-                if (this.Outgoing!=null && this.Outgoing.Length==1)
-                    return this.Outgoing[0];
-                return this["default"]; 
+                return Outgoing.Any()&&Outgoing.Count()==1 ? Outgoing.First() : this["default"];
             } 
         }
 
         public override bool IsValid(out string[] err)
         {
             List<string> errs = new List<string>();
-            if ((Incoming==null ? new string[0] : Incoming).Length == 0)
+            if (!Incoming.Any())
                 errs.Add("A " + this.GetType().Name + " must have at least 1 incoming path.");
-            if ((Outgoing == null ? new string[0] : Outgoing).Length == 0)
+            if (!Outgoing.Any())
                 errs.Add("A " + this.GetType().Name + " must have at least 1 outgoing path.");
             if (errs.Count > 0)
             {

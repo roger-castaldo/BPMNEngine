@@ -40,7 +40,7 @@ namespace Org.Reddragonit.BpmEngine
                 List<sStepSuspension> ret = new List<sStepSuspension>();
                 foreach (sStepSuspension ss in _suspensions.Steps)
                 {
-                    if (_path.IsStepWaiting(ss.id, ss.StepIndex))
+                    if (_path.IsStepWaiting(ss.Id, ss.StepIndex))
                         ret.Add(ss);
                 }
                 return ret.ToArray();
@@ -56,16 +56,16 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        internal sSuspendedStep[] ResumeSteps {
+        internal IEnumerable<sSuspendedStep> ResumeSteps {
             get
             {
                 if (!IsSuspended)
-                    return null;
+                    return new sSuspendedStep[] { };
                 return _path.ResumeSteps;
             }
         }
 
-        internal sDelayedStartEvent[] DelayedEvents
+        internal IEnumerable<sDelayedStartEvent> DelayedEvents
         {
             get
             {
@@ -73,7 +73,7 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        internal string[] ActiveSteps
+        internal IEnumerable<string> ActiveSteps
         {
             get
             {
@@ -103,7 +103,7 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        internal string[] this[string elementID]
+        internal IEnumerable<string> this[string elementID]
         {
             get
             {
@@ -119,8 +119,8 @@ namespace Org.Reddragonit.BpmEngine
             }
         }
 
-        private OnStateChange _onStateChange;
-        private BusinessProcess _process;
+        private readonly OnStateChange _onStateChange;
+        private readonly BusinessProcess _process;
         internal BusinessProcess Process { get { return _process; } }
 
         internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)

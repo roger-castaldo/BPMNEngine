@@ -14,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
         public EventBasedGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override string[] EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
+        public override IEnumerable<string> EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
         {
             return Outgoing;
         }

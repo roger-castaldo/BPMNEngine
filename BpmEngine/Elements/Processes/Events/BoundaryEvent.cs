@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
+using System.Linq;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 {
@@ -15,29 +16,23 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         public BoundaryEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public string AttachedToID
-        {
-            get { return this["attachedToRef"]; }
-        }
+        public string AttachedToID => this["attachedToRef"]; 
 
-        public bool CancelActivity
-        {
-            get { return (this["cancelActivity"]==null ? true : bool.Parse(this["cancelActivity"])); }
-        }
+        public bool CancelActivity => this["cancelActivity"]==null ? true : bool.Parse(this["cancelActivity"]); 
 
         public override bool IsValid(out string[] err)
         {
-            if (Outgoing == null)
+            if (!Outgoing.Any())
             {
                 err = new string[] { "Boundary Events must have an outgoing path." };
                 return false;
             }
-            if (Outgoing.Length>1)
+            if (Outgoing.Count()>1)
             {
                 err = new string[] { "Boundary Events can only have one outgoing path." };
                 return false;
             }
-            if (Incoming != null)
+            if (Incoming.Any())
             {
                 err = new string[] { "Boundary Events cannot have an incoming path." };
                 return false;

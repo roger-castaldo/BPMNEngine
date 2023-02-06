@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -13,7 +14,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
     [ValidParent(typeof(AConditionSet))]
     internal abstract class AScript : AElement
     {
-        private XmlPrefixMap _map;
+        private readonly XmlPrefixMap _map;
 
         public AScript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
@@ -21,39 +22,29 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 _map = map;
         }
 
-        protected string _Code
-        {
-            get
-            {
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.Text)
-                        return n.Value;
-                }
-                foreach (XmlNode n in SubNodes)
-                {
-                    if (n.NodeType == XmlNodeType.CDATA)
-                        return ((XmlCDataSection)n).InnerText;
-                }
-                return "";
-            }
-        }
+        protected string _Code =>
+            SubNodes
+                .Where(n => n.NodeType==XmlNodeType.Text)
+                .Select(n => n.InnerText)
+                .FirstOrDefault()
+            ??
+            SubNodes
+                .Where(n => n.NodeType==XmlNodeType.CDATA)
+                .Select(n => ((XmlCDataSection)n).InnerText)
+                .FirstOrDefault()
+            ??
+            String.Empty;
 
         protected bool _IsCondition
         {
             get
             {
-                Type t = typeof(ConditionSet);
+                XMLTag[] tags = Utility.GetTagAttributes(typeof(ConditionSet));
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    foreach (XMLTag xt in Utility.GetTagAttributes(t))
-                    {
-                        if (xt.Matches(_map, n.Name))
-                        {
-                            return true;
-                        }
-                    }
+                    if (tags.Any(xt => xt.Matches(_map, n.Name)))
+                        return true;
                     n = n.ParentNode;
                 }
                 return false;
@@ -64,17 +55,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         {
             get
             {
-                Type t = typeof(TimerEventDefinition);
+                XMLTag[] tags = Utility.GetTagAttributes(typeof(TimerEventDefinition));
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    foreach (XMLTag xt in Utility.GetTagAttributes(t))
-                    {
-                        if (xt.Matches(_map, n.Name))
-                        {
-                            return true;
-                        }
-                    }
+                    if (tags.Any(xt => xt.Matches(_map, n.Name)))
+                        return true;
                     n = n.ParentNode;
                 }
                 return false;

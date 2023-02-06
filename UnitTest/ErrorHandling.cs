@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
@@ -164,6 +165,7 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsFalse(instance.WaitForCompletion(1000));
+            Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             Thread.Sleep(5*1000);
             Assert.IsTrue(_EventOccured(guid, "ExclusiveGateway_1nkgv9w"));
             Assert.IsTrue(_EventOccured(guid, "Process_1", "ExclusiveGateway_1nkgv9w"));

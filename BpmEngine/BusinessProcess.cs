@@ -849,7 +849,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             Size sz = diagram.MeasureString("Variables");
             int varHeight = (int)sz.Height + 2;
-            string[] keys = state[null];
+            var keys = state[null];
             foreach (string str in keys)
                 varHeight += (int)diagram.MeasureString(str,null).Height + 2;
             Image ret = new Image(_VARIABLE_IMAGE_WIDTH, varHeight);
@@ -860,10 +860,10 @@ namespace Org.Reddragonit.BpmEngine
             ret.DrawLine(p, new Point(_VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(_VARIABLE_NAME_WIDTH, ret.Size.Height));
             ret.DrawString("Variables",new SolidBrush(Color.Black),new Rectangle((ret.Size.Width - sz.Width) / 2, 2,sz.Width,sz.Height),true);
             float curY = sz.Height + 2;
-            for (int x = 0; x < keys.Length; x++)
+            foreach (var key in keys)
             {
-                string label = keys[x];
-                Size szLabel = ret.MeasureString(keys[x]);
+                string label = key;
+                Size szLabel = ret.MeasureString(label);
                 while (szLabel.Width > _VARIABLE_NAME_WIDTH)
                 {
                     if (label.EndsWith("..."))
@@ -872,37 +872,38 @@ namespace Org.Reddragonit.BpmEngine
                         label = label.Substring(0, label.Length - 1) + "...";
                     szLabel = ret.MeasureString(label);
                 }
-                string val = "";
-                if (state[null, keys[x]] != null)
+                StringBuilder val = new StringBuilder();
+                if (state[null, key] != null)
                 {
-                    if (state[null, keys[x]].GetType().IsArray)
+                    if (state[null, key].GetType().IsArray)
                     {
-                        val = "";
-                        foreach (object o in (IEnumerable)state[null, keys[x]])
-                            val += string.Format("{0},", o);
-                        val = val.Substring(0, val.Length - 1);
+                        foreach (object o in (IEnumerable)state[null, key])
+                            val.AppendFormat("{0},", o);
+                        val.Length=val.Length-1;
                     }
-                    else if (state[null, keys[x]] is Hashtable)
+                    else if (state[null, key] is Hashtable hashtable)
                     {
-                        val = "{";
-                        foreach (string key in ((Hashtable)state[null, keys[x]]).Keys)
-                            val += string.Format("{{\"{0}\":\"{1}\"}},", key, ((Hashtable)state[null, keys[x]])[key]);
-                        val = val.Substring(0, val.Length - 1) + "}";
+                        val.Append("{");
+                        foreach (string k in hashtable.Keys)
+                            val.AppendFormat("{{\"{0}\":\"{1}\"}},", k, hashtable[k]);
+                        val.Length=val.Length-1;
+                        val.Append("}");
                     }
                     else
-                        val = state[null, keys[x]].ToString();
+                        val.Append(state[null, key].ToString());
                 }
-                Size szValue = ret.MeasureString(val);
+                var sval = val.ToString();
+                Size szValue = ret.MeasureString(sval);
                 if (szValue.Width > _VARIABLE_VALUE_WIDTH)
                 {
-                    if (val.EndsWith("..."))
-                        val = val.Substring(0, val.Length - 4) + "...";
+                    if (sval.EndsWith("..."))
+                        sval = sval.Substring(0, sval.Length - 4) + "...";
                     else
-                        val = val.Substring(0, val.Length - 1) + "...";
-                    szValue = ret.MeasureString(val);
+                        sval = sval.Substring(0, sval.Length - 1) + "...";
+                    szValue = ret.MeasureString(sval);
                 }
                 ret.DrawString(label, Color.Black, new Point(2, curY));
-                ret.DrawString(val, Color.Black, new Point(2 + _VARIABLE_NAME_WIDTH, curY));
+                ret.DrawString(sval, Color.Black, new Point(2 + _VARIABLE_NAME_WIDTH, curY));
                 curY += (int)Math.Max(szLabel.Height, szValue.Height) + 2;
                 ret.DrawLine(p, new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
             }
@@ -1499,12 +1500,12 @@ namespace Org.Reddragonit.BpmEngine
             bool gatewayComplete = false;
             if (gw.IsIncomingFlowComplete(sourceID, instance.State.Path))
                 gatewayComplete = true;
-            if (!gw.IsWaiting(instance.State.Path))
+            else if (!gw.IsWaiting(instance.State.Path))
                 instance.State.Path.StartGateway(gw, sourceID);
             if (gatewayComplete)
             {
                 _TriggerDelegateAsync(instance.Delegates.OnGatewayStarted,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
-                string[] outgoings = null;
+                IEnumerable<string> outgoings = null;
                 try
                 {
                     outgoings = gw.EvaulateOutgoingPaths(definition, instance.Delegates.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, instance));
@@ -1515,7 +1516,7 @@ namespace Org.Reddragonit.BpmEngine
                     _TriggerDelegateAsync(instance.Delegates.OnGatewayError,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,e) });
                     outgoings = null;
                 }
-                if (outgoings == null)
+                if (outgoings==null || !outgoings.Any())
                 {
                     instance.State.Path.FailGateway(gw);
                     _TriggerDelegateAsync(instance.Delegates.OnGatewayError, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,new Exception("No valid outgoing path located")) });

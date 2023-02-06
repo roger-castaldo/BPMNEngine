@@ -53,7 +53,7 @@ End Class";
             : base(elem, map, parent)
         { }
 
-        protected override EmitResult _Compile(string name, List<MetadataReference> references, string[] imports, string code, ref MemoryStream ms)
+        protected override EmitResult _Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms)
         {
             Info("Generating VB Code for script compilation for script element {0}", new object[] { id });
             StringBuilder sbUsing = new StringBuilder();

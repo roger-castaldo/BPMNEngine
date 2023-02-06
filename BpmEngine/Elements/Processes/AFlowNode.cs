@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -17,14 +18,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
         {
             get
             {
-                IElement elem = Parent;
-                while (elem != null)
-                {
-                    if (elem is Process)
-                        return elem;
-                    else if (elem is AElement)
-                        elem = ((AElement)elem).Parent;
-                }
+                if (Parent is Process)
+                    return Parent;
+                else if (Parent is AElement element)
+                    return element.Parent;
                 return null;
             }
         }
@@ -33,14 +30,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
         {
             get
             {
-                IElement elem = Parent;
-                while (elem != null)
-                {
-                    if (elem is SubProcess)
-                        return elem;
-                    else if (elem is AElement)
-                        elem = ((AElement)elem).Parent;
-                }
+                if (Parent is SubProcess)
+                    return Parent;
+                else if (Parent is AFlowNode flowNode)
+                    return flowNode.SubProcess;
                 return null;
             }
         }
@@ -50,62 +43,43 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             get
             {
                 Process p = (Process)Process;
-                if (p != null)
-                {
-                    foreach (IElement ie in p.Children)
-                    {
-                        if (ie is LaneSet)
-                        {
-                            foreach (IElement ln in ((LaneSet)ie).Children)
-                            {
-                                if (ln is Lane)
-                                {
-                                    if (new List<string>(((Lane)ln).Nodes).Contains(id))
-                                        return ln;
-                                }
-                            }
-                        }
-                    }
-                }
-                return null;
+                if (p==null)
+                    return null;
+                return p.Children
+                    .Where(ie => ie is LaneSet)
+                    .Select(ie => (LaneSet)ie)
+                    .SelectMany(ls => ls.Children)
+                    .FirstOrDefault(ln => ln is Lane && ((Lane)ln).Nodes.Contains(id));
             }
         }
 
-        public string[] Incoming
+        public IEnumerable<string> Incoming
         {
             get
             {
-                List<string> ret = new List<string>();
-                foreach (IElement elem in this.Children)
-                {
-                    if (elem is IncomingFlow)
-                        ret.Add(((IncomingFlow)elem).Value);
-                }
-                foreach (MessageFlow msgFlow in Definition.MessageFlows)
-                {
-                    if (msgFlow.targetRef == this.id)
-                        ret.Add(msgFlow.id);
-                }
-                return (ret.Count == 0 ? null : ret.ToArray());
+                return new string[] { }
+                    .Concat(Children
+                        .Where(elem => elem is IncomingFlow)
+                        .Select(elem => ((IncomingFlow)elem).Value)
+                    ).Concat(Definition.MessageFlows
+                        .Where(msgFlow => msgFlow.targetRef==this.id)
+                        .Select(msgFlow => msgFlow.id)
+                    );
             }
         }
 
-        public string[] Outgoing
+        public IEnumerable<string> Outgoing
         {
             get
             {
-                List<string> ret = new List<string>();
-                foreach (IElement elem in this.Children)
-                {
-                    if (elem is OutgoingFlow)
-                        ret.Add(((OutgoingFlow)elem).Value);
-                }
-                foreach (MessageFlow msgFlow in Definition.MessageFlows)
-                {
-                    if (msgFlow.sourceRef == this.id)
-                        ret.Add(msgFlow.id);
-                }
-                return (ret.Count == 0 ? null : ret.ToArray());
+                return new string[] { }
+                    .Concat(Children
+                        .Where(elem => elem is OutgoingFlow)
+                        .Select(elem => ((OutgoingFlow)elem).Value)
+                    ).Concat(Definition.MessageFlows
+                        .Where(msgFlow => msgFlow.sourceRef==this.id)
+                        .Select(msgFlow => msgFlow.id)
+                    );
             }
         }
 

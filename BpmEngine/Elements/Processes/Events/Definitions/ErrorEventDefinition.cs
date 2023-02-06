@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,82 +17,40 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         {
         }
 
-        
 
-        public string[] ErrorTypes
-        {
-            get
-            {
-                List<string> ret = new List<string>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is ErrorDefinition)
-                    {
-                        ret.Add((((ErrorDefinition)elem).Type==null ? "*" : ((ErrorDefinition)elem).Type));
-                    }
-                }
-                if (ret.Count==0 && ExtensionElement!=null)
-                {
-                    foreach (IElement elem in ((IParentElement)ExtensionElement).Children)
-                    {
-                        if (elem is ErrorDefinition)
-                        {
-                            ret.Add((((ErrorDefinition)elem).Type == null ? "*" : ((ErrorDefinition)elem).Type));
-                        }
-                    }
-                }
-                if (ret.Count==0)
-                    ret.Add("*");
-                return ret.ToArray();
-            }
-        }
+
+        public IEnumerable<string> ErrorTypes => new string[] {}.Concat(Children
+                    .Where(elem => elem is ErrorDefinition)
+                    .Select(elem => (ErrorDefinition)elem)
+                    .Select(ed => ed.Type ?? "*")
+                ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
+                    ((IParentElement)ExtensionElement).Children
+                    .Where(elem => elem is ErrorDefinition)
+                    .Select(elem => (ErrorDefinition)elem)
+                    .Select(ed => ed.Type ?? "*")
+                ).Distinct()
+                .DefaultIfEmpty("*");
 
         public override bool IsValid(out string[] err)
         {
-            if (ErrorTypes.Length != 0)
+            if (ErrorTypes.Any())
             {
                 List<string> errors = new List<string>();
                 IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
-                    if (ErrorTypes.Length > 1)
+                    if (ErrorTypes.Count() > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
-                    bool found = false;
-                    foreach (IntermediateCatchEvent catcher in elems)
-                    {
-                        foreach (IElement child in catcher.Children)
-                        {
-                            if (child is ErrorEventDefinition)
-                            {
-                                if (new List<string>(((ErrorEventDefinition)child).ErrorTypes).Contains(ErrorTypes[0]))
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (found)
-                            break;
-                    }
-                    if (!found)
-                    {
-                        foreach (IntermediateCatchEvent catcher in elems)
-                        {
-                            foreach (IElement child in catcher.Children)
-                            {
-                                if (child is ErrorEventDefinition)
-                                {
-                                    if (new List<string>(((ErrorEventDefinition)child).ErrorTypes).Contains("*"))
-                                    {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (found)
-                                break;
-                        }
-                    }
+                    bool found = elems
+                        .Select(elem => (IntermediateCatchEvent)elem)
+                        .Any(catcher => catcher.Children
+                            .Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Contains(ErrorTypes.First()))
+                        ) ||
+                        elems
+                        .Select(elem => (IntermediateCatchEvent)elem)
+                        .Any(catcher => catcher.Children
+                            .Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Contains("*"))
+                        );
                     if (!found)
                         errors.Add("A defined error message type needs to have a Catch Event with a corresponding type or all");
                 }

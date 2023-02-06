@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,78 +17,38 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         {
         }
 
-        public string[] SignalTypes
-        {
-            get
-            {
-                List<string> ret = new List<string>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is SignalDefinition)
-                    {
-                        ret.Add((((SignalDefinition)elem).Type == null ? "*" : ((SignalDefinition)elem).Type));
-                    }
-                }
-                if (ret.Count==0 && ExtensionElement!=null)
-                {
-                    foreach (IElement elem in ((IParentElement)ExtensionElement).Children)
-                    {
-                        if (elem is SignalDefinition)
-                        {
-                            ret.Add((((SignalDefinition)elem).Type == null ? "*" : ((SignalDefinition)elem).Type));
-                        }
-                    }
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<string> SignalTypes => new string[] {}.Concat(Children
+                    .Where(elem => elem is SignalDefinition)
+                    .Select(elem => (SignalDefinition) elem)
+                    .Select(ed => ed.Type ?? "*")
+                ).Concat(ExtensionElement==null || ((IParentElement) ExtensionElement).Children==null ? Array.Empty<string>() :
+                    ((IParentElement) ExtensionElement).Children
+                    .Where(elem => elem is SignalDefinition)
+                    .Select(elem => (SignalDefinition) elem)
+                    .Select(ed => ed.Type ?? "*")
+                ).Distinct()
+                .DefaultIfEmpty("*");
 
         public override bool IsValid(out string[] err)
         {
-            if (SignalTypes.Length != 0)
+            if (SignalTypes.Any())
             {
                 List<string> errors = new List<string>();
                 IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
-                    if (SignalTypes.Length > 1)
+                    if (SignalTypes.Count() > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
-                    bool found = false;
-                    foreach (IntermediateCatchEvent catcher in elems)
-                    {
-                        foreach (IElement child in catcher.Children)
-                        {
-                            if (child is SignalEventDefinition)
-                            {
-                                if (new List<string>(((SignalEventDefinition)child).SignalTypes).Contains(SignalTypes[0]))
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (found)
-                            break;
-                    }
-                    if (!found)
-                    {
-                        foreach (IntermediateCatchEvent catcher in elems)
-                        {
-                            foreach (IElement child in catcher.Children)
-                            {
-                                if (child is SignalEventDefinition)
-                                {
-                                    if (new List<string>(((SignalEventDefinition)child).SignalTypes).Contains("*"))
-                                    {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (found)
-                                break;
-                        }
-                    }
+                    bool found = elems
+                            .Select(elem => (IntermediateCatchEvent)elem)
+                            .Any(catcher => catcher.Children
+                            .Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Contains(SignalTypes.First()))
+                        ) ||
+                        elems
+                            .Select(elem => (IntermediateCatchEvent)elem)
+                            .Any(catcher => catcher.Children
+                            .Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Contains("*"))
+                        );
                     if (!found)
                         errors.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");
                 }

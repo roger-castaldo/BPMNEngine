@@ -5,13 +5,12 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Xml;
 using Org.Reddragonit.BpmEngine.Interfaces;
-using System.Threading;
 using System.Globalization;
 using Org.Reddragonit.BpmEngine.Elements;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Org.Reddragonit.BpmEngine.State
 {
@@ -35,9 +34,9 @@ namespace Org.Reddragonit.BpmEngine.State
             }
         }
 
-        private ProcessStepComplete _complete;
-        private ProcessStepError _error;
-        private processStateChanged _stateChanged;
+        private readonly ProcessStepComplete _complete;
+        private readonly ProcessStepError _error;
+        private readonly processStateChanged _stateChanged;
 
         private int _lastStep;
         internal int LastStep { get { return _lastStep; } }
@@ -51,192 +50,90 @@ namespace Org.Reddragonit.BpmEngine.State
             _lastStep = int.MaxValue;
         }
 
-        private string[] _ExtractOutgoing(XmlElement elem)
+        private IEnumerable<string> _ExtractOutgoing(XmlElement elem)
         {
             if (elem.Attributes[_OUTGOING_ID] != null)
                 return new string[] { elem.Attributes[_OUTGOING_ID].Value };
             else
             {
-                List<string> tmp = new List<string>();
-                foreach (XmlNode n in elem.ChildNodes)
-                {
-                    if (n.NodeType == XmlNodeType.Element)
-                    {
-                        if (n.Name == _OUTGOING_ELEM)
-                            tmp.Add(n.Value);
-                    }
-                }
-                return (tmp.Count == 0 ? null : tmp.ToArray());
+                return elem.ChildNodes.Cast<XmlNode>()
+                    .Where(n => n.NodeType==XmlNodeType.Element && n.Name==_OUTGOING_ELEM)
+                    .Select(n => n.Value);
             }
         }
 
-        internal sSuspendedStep[] ResumeSteps
+        internal IEnumerable<sSuspendedStep> ResumeSteps
         {
             get
             {
-                List<sSuspendedStep> ret = new List<sSuspendedStep>();
-                foreach (XmlElement elem in ChildNodes)
-                {
-                    switch ((StepStatuses)Enum.Parse(typeof(StepStatuses),elem.Attributes[_STEP_STATUS].Value))
-                    {
-                        case StepStatuses.Suspended:
-                            bool add = true;
-                            foreach (sSuspendedStep ss in ret)
-                            {
-                                if (ss.ElementID == elem.Attributes[_ELEMENT_ID].Value)
-                                {
-                                    add = false;
-                                    break;
-                                }
-                            }
-                            if (add)
-                                ret.Add(new sSuspendedStep(elem.Attributes[_INCOMING_ID].Value,elem.Attributes[_ELEMENT_ID].Value));
-                            break;
-                        case StepStatuses.Succeeded:
-                        case StepStatuses.Failed:
-                        case StepStatuses.Waiting:
-                        case StepStatuses.Aborted:
-                            for(int x = 0; x < ret.Count; x++)
-                            {
-                                if (ret[x].ElementID == elem.Attributes[_ELEMENT_ID].Value)
-                                {
-                                    ret.RemoveAt(x);
-                                    break;
-                                }
-                            }
-                            string[] outgoing = _ExtractOutgoing(elem);
-                            if (outgoing != null)
-                            {
-                                foreach (string str in outgoing)
-                                {
-                                    bool addNext = true;
-                                    foreach (sSuspendedStep ss in ret)
-                                    {
-                                        if (ss.ElementID == str)
-                                        {
-                                            addNext = false;
-                                            break;
-                                        }
-                                    }
-                                    if (addNext)
-                                        ret.Add(new sSuspendedStep(elem.Attributes[_ELEMENT_ID].Value, str));
-                                }
-                            }
-                            break;
-                    }
-                }
-                return ret.ToArray();
+                return ChildNodes.Cast<XmlNode>()
+                    .GroupBy(elem => elem.Attributes[_ELEMENT_ID].Value)
+                    .Where(grp => (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.Suspended)
+                    .Select(grp => new sSuspendedStep(grp.Last().Attributes[_INCOMING_ID].Value, grp.Last().Attributes[_ELEMENT_ID].Value));
             }
         }
 
-        internal sDelayedStartEvent[] DelayedEvents
+        internal IEnumerable<sDelayedStartEvent> DelayedEvents
         {
             get
             {
-                List<sDelayedStartEvent> ret = new List<sDelayedStartEvent>();
-                foreach (XmlElement elem in ChildNodes)
-                {
-                    switch ((StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes[_STEP_STATUS].Value))
-                    {
-                        case StepStatuses.WaitingStart:
-                            ret.Add(new sDelayedStartEvent(elem.Attributes[_INCOMING_ID].Value, elem.Attributes[_ELEMENT_ID].Value, DateTime.ParseExact((elem.Attributes[_END_TIME]!=null ? elem.Attributes[_END_TIME].Value : elem.Attributes[_START_TIME].Value),Constants.DATETIME_FORMAT,CultureInfo.InvariantCulture)));
-                            break;
-                        case StepStatuses.Succeeded:
-                        case StepStatuses.Failed:
-                        case StepStatuses.Waiting:
-                        case StepStatuses.Aborted:
-                            for (int x = 0; x < ret.Count; x++)
-                            {
-                                if (ret[x].ElementID == elem.Attributes[_ELEMENT_ID].Value)
-                                {
-                                    ret.RemoveAt(x);
-                                    break;
-                                }
-                            }
-                            break;
-                    }
-                }
-                return ret.ToArray();
+                return ChildNodes.Cast<XmlNode>()
+                    .GroupBy(elem => elem.Attributes[_ELEMENT_ID].Value)
+                    .Where(grp => (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.WaitingStart)
+                    .Select(grp => new sDelayedStartEvent(
+                        grp.Last().Attributes[_INCOMING_ID].Value,
+                        grp.Last().Attributes[_ELEMENT_ID].Value, 
+                        DateTime.ParseExact((grp.Last().Attributes[_END_TIME]!=null ? grp.Last().Attributes[_END_TIME].Value : grp.Last().Attributes[_START_TIME].Value), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture))
+                    );
             }
         }
 
-        public string[] ActiveSteps
+        public IEnumerable<string> ActiveSteps
         {
             get
             {
-                List<string> ret = new List<string>();
-                foreach (XmlElement elem in ChildNodes)
-                {
-                    switch ((StepStatuses)Enum.Parse(typeof(StepStatuses), elem.Attributes[_STEP_STATUS].Value))
-                    {
-                        case StepStatuses.WaitingStart:
-                        case StepStatuses.Waiting:
-                            if (!ret.Contains(elem.Attributes[_ELEMENT_ID].Value))
-                                ret.Add(elem.Attributes[_ELEMENT_ID].Value);
-                            break;
-                        case StepStatuses.Succeeded:
-                        case StepStatuses.Failed:
-                        case StepStatuses.Aborted:
-                            ret.Remove(elem.Attributes[_ELEMENT_ID].Value);
-                            break;
-                    }
-                }
-                return ret.ToArray();
+                return ChildNodes.Cast<XmlNode>()
+                    .GroupBy(elem => elem.Attributes[_ELEMENT_ID].Value)
+                    .Where(grp => (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.WaitingStart
+                        || (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.Waiting)
+                    .Select(grp => grp.Key);
             }
         }
 
         internal bool IsStepWaiting(string id, int stepIndex)
         {
-            bool ret = true;
-            XmlElement[] nodes = ChildNodes;
-            for (int x = stepIndex+1; x < nodes.Length; x++)
-            {
-                if (nodes[x].Attributes[_ELEMENT_ID].Value == id)
-                {
-                    if ((StepStatuses)Enum.Parse(typeof(StepStatuses), (nodes[x].Attributes[_STEP_STATUS].Value)) == StepStatuses.Succeeded)
-                    {
-                        ret = false;
-                        break;
-                    }
-                }
-            }
-            return ret;
+            return ChildNodes.Cast<XmlNode>()
+                .Skip(stepIndex)
+                .Where(n => n.Attributes[_ELEMENT_ID].Value==id)
+                .Select(n => n.Attributes[_STEP_STATUS].Value)
+                .DefaultIfEmpty("")
+                .FirstOrDefault() != StepStatuses.Succeeded.ToString();
         }
 
         public StepStatuses GetStatus(string elementid)
         {
-            StepStatuses ret = StepStatuses.NotRun;
-            XmlElement[] nodes = ChildNodes;
-            for (int x = 0; x < Math.Min(nodes.Length,_lastStep);x++ )
-            {
-                if (nodes[x].Attributes[_ELEMENT_ID].Value == elementid)
-                    ret = (StepStatuses)Enum.Parse(typeof(StepStatuses),nodes[x].Attributes[_STEP_STATUS].Value);
-            }
-            return ret;
+            return ChildNodes.Cast<XmlNode>()
+                .Where(n => n.Attributes[_ELEMENT_ID].Value==elementid)
+                .Select(n => (StepStatuses)Enum.Parse(typeof(StepStatuses), n.Attributes[_STEP_STATUS].Value))
+                .DefaultIfEmpty(StepStatuses.NotRun)
+                .LastOrDefault();
         }
 
         public int GetStepSuccessCount(string elementid)
         {
-            int ret = 0;
-            XmlElement[] nodes = ChildNodes;
-            for (int x = 0; x < Math.Min(nodes.Length, _lastStep); x++)
-            {
-                if (nodes[x].Attributes[_ELEMENT_ID].Value == elementid)
-                    ret += ((StepStatuses)Enum.Parse(typeof(StepStatuses), nodes[x].Attributes[_STEP_STATUS].Value) == StepStatuses.Succeeded ? 1 : 0);
-            }
-            return ret;
+            return ChildNodes.Cast<XmlNode>()
+                .Count(n => n.Attributes[_ELEMENT_ID].Value==elementid && (StepStatuses)Enum.Parse(typeof(StepStatuses), n.Attributes[_STEP_STATUS].Value) == StepStatuses.Succeeded);
         }
 
         public int CurrentStepIndex(string elementid)
         {
-            int ret = -1;
-            XmlElement[] nodes = ChildNodes;
-            for (int x = 0; x < Math.Min(nodes.Length, _lastStep); x++)
-            {
-                if (nodes[x].Attributes[_ELEMENT_ID].Value == elementid)
-                    ret = x;
-            }
-            return ret;
+            return ChildNodes.Cast<XmlNode>()
+                .Any(n => n.Attributes[_ELEMENT_ID].Value == elementid)
+                ? ChildNodes.Cast<XmlNode>()
+                    .Select((node, index) => new { node, index })
+                    .Where(pair=>pair.node.Attributes[_ELEMENT_ID].Value == elementid)
+                    .Max(pair=>pair.index)
+                : -1;
         }
 
         internal void StartAnimation()
@@ -271,7 +168,7 @@ namespace Org.Reddragonit.BpmEngine.State
             _addPathEntry(elementID, incomingID, null, status, start, null, null);
         }
 
-        private void _addPathEntry(string elementID, string incomingID, string[] outgoingID, StepStatuses status, DateTime start, DateTime end)
+        private void _addPathEntry(string elementID, string incomingID, IEnumerable<string> outgoingID, StepStatuses status, DateTime start, DateTime end)
         {
             _addPathEntry(elementID, incomingID, outgoingID, status, start, end, null);
         }
@@ -281,7 +178,7 @@ namespace Org.Reddragonit.BpmEngine.State
             _addPathEntry(elementID, incomingID, new string[] { outgoingID }, status, start, end, null);
         }
 
-        private void _addPathEntry(string elementID, string incomingID, string[] outgoingID, StepStatuses status, DateTime start, DateTime? end, string completedBy)
+        private void _addPathEntry(string elementID, string incomingID, IEnumerable<string> outgoingID, StepStatuses status, DateTime start, DateTime? end, string completedBy)
         {
             XmlElement elem = _ProduceElement(_PATH_ENTRY_ELEMENT);
             _SetAttribute(elem, _ELEMENT_ID, elementID);
@@ -295,8 +192,8 @@ namespace Org.Reddragonit.BpmEngine.State
                 _SetAttribute(elem, _COMPLETED_BY, completedBy);
             if (outgoingID != null)
             {
-                if (outgoingID.Length == 1)
-                    _SetAttribute(elem, _OUTGOING_ID, outgoingID[0]);
+                if (outgoingID.Count() == 1)
+                    _SetAttribute(elem, _OUTGOING_ID, outgoingID.First());
                 else
                 {
                     foreach (string str in outgoingID)
@@ -315,14 +212,14 @@ namespace Org.Reddragonit.BpmEngine.State
         {
             start = DateTime.Now;
             incoming = null;
-            XmlElement[] nodes = ChildNodes;
-            for (int x = nodes.Length - 1; x >= 0; x--)
+            var result = ChildNodes.Cast<XmlNode>()
+                .Where(n => n.Attributes[_ELEMENT_ID].Value == elementID && n.Attributes[_STEP_STATUS].Value == StepStatuses.Waiting.ToString())
+                .Select(n => new { incoming = (n.Attributes[_INCOMING_ID]==null ? null : n.Attributes[_INCOMING_ID].Value), start = DateTime.ParseExact(n.Attributes[_START_TIME].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture) })
+                .LastOrDefault();
+            if (result!=null)
             {
-                if (nodes[x].Attributes[_ELEMENT_ID].Value == elementID && nodes[x].Attributes[_STEP_STATUS].Value == StepStatuses.Waiting.ToString())
-                {
-                    incoming = (nodes[x].Attributes[_INCOMING_ID] == null ? null : nodes[x].Attributes[_INCOMING_ID].Value);
-                    start = DateTime.ParseExact(nodes[x].Attributes[_START_TIME].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
-                }
+                start=result.start;
+                incoming=result.incoming;
             }
         }
 
@@ -337,15 +234,9 @@ namespace Org.Reddragonit.BpmEngine.State
             _WriteLogLine(Event.id,LogLevels.Debug,"Starting Event in Process Path");
             _addPathEntry(Event.id,incoming,StepStatuses.Waiting, DateTime.Now);
         }
-        private async void _Complete(string incoming, string outgoing)
-        {
-            await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
-        }
+        private async void Complete(string incoming, string outgoing) => await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
 
-        private async void _Error(IElement step, Exception ex)
-        {
-            await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
-        }
+        private async void Error(IElement step, Exception ex) => await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
 
         internal void SucceedEvent(AEvent Event)
         {
@@ -353,17 +244,16 @@ namespace Org.Reddragonit.BpmEngine.State
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(Event.id, out start, out incoming);
-            string[] outgoing = (Event is IntermediateThrowEvent ? ((IntermediateThrowEvent)Event).Outgoing : Event.Outgoing);
-            if (outgoing == null)
+            if (!Event.Outgoing.Any())
             {
                 _addPathEntry(Event.id,incoming,StepStatuses.Succeeded, start, DateTime.Now);
-                _Complete(Event.id, null);
+                Complete(Event.id, null);
             }
             else
             {
-                _addPathEntry(Event.id, incoming, outgoing, StepStatuses.Succeeded, start, DateTime.Now);
-                foreach (string id in outgoing)
-                    _Complete(Event.id, id);
+                _addPathEntry(Event.id, incoming, Event.Outgoing, StepStatuses.Succeeded, start, DateTime.Now);
+                foreach (string id in Event.Outgoing)
+                    Complete(Event.id, id);
             }
         }
 
@@ -374,7 +264,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(Event.id, out start, out incoming);
             _addPathEntry(Event.id,incoming,StepStatuses.Failed, start, DateTime.Now);
-            _Error(Event, null);
+            Error(Event, null);
         }
 
         internal void StartSubProcess(SubProcess SubProcess, string incoming)
@@ -389,17 +279,17 @@ namespace Org.Reddragonit.BpmEngine.State
             string incoming;
             DateTime start;
             _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
-            string[] outgoing = SubProcess.Outgoing;
-            if (outgoing == null)
+            IEnumerable<string> outgoing = SubProcess.Outgoing;
+            if (!outgoing.Any())
             {
                 _addPathEntry(SubProcess.id, incoming, StepStatuses.Succeeded, start, DateTime.Now);
-                _Complete(SubProcess.id, null);
+                Complete(SubProcess.id, null);
             }
             else
             {
                 _addPathEntry(SubProcess.id, incoming, outgoing, StepStatuses.Succeeded, start, DateTime.Now);
                 foreach (string id in outgoing)
-                    _Complete(SubProcess.id, id);
+                    Complete(SubProcess.id, id);
             }
         }
 
@@ -410,21 +300,21 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
             _addPathEntry(SubProcess.id, incoming, StepStatuses.Failed, start, DateTime.Now);
-            _Error(SubProcess, null);
+            Error(SubProcess, null);
         }
 
         internal void ProcessMessageFlow(MessageFlow flow)
         {
             _WriteLogLine(flow.id, LogLevels.Debug, "Processing Message Flow in Process Path");
             _addPathEntry(flow.id, flow.sourceRef, flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
-            _Complete(flow.id, flow.targetRef);
+            Complete(flow.id, flow.targetRef);
         }
 
         internal void ProcessSequenceFlow(SequenceFlow flow)
         {
             _WriteLogLine(flow.id, LogLevels.Debug, "Processing Sequence Flow in Process Path");
             _addPathEntry(flow.id, flow.sourceRef,  flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
-            _Complete(flow.id, flow.targetRef);
+            Complete(flow.id, flow.targetRef);
         }
 
         internal void StartTask(ATask task, string incoming)
@@ -440,7 +330,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(task.id, out start, out incoming);
             _addPathEntry(task.id,incoming,StepStatuses.Failed, start, DateTime.Now);
-            _Error(task, ex);
+            Error(task, ex);
         }
 
         internal void SucceedTask(UserTask task,string completedByID)
@@ -461,7 +351,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(task.id, out start, out incoming);
             _addPathEntry(task.id, incoming, task.Outgoing, StepStatuses.Succeeded, start, DateTime.Now, (task is UserTask ? completedByID : null));
-            _Complete(task.id, (task.Outgoing == null ? null : task.Outgoing[0]));
+            Complete(task.id, (!task.Outgoing.Any()  ? null : task.Outgoing.First()));
         }
 
         internal void StartGateway(AGateway gateway, string incoming)
@@ -477,10 +367,10 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
             _addPathEntry(gateway.id, incoming, StepStatuses.Failed, start, DateTime.Now);
-            _Error(gateway,null);
+            Error(gateway,null);
         }
 
-        internal void SuccessGateway(AGateway gateway, string[] chosenExits)
+        internal void SuccessGateway(AGateway gateway, IEnumerable<string> chosenExits)
         {
             _WriteLogLine(gateway.id, LogLevels.Debug, "Succeeding Gateway in Process Path");
             string incoming;
@@ -488,7 +378,7 @@ namespace Org.Reddragonit.BpmEngine.State
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
             _addPathEntry(gateway.id, incoming, chosenExits, StepStatuses.Succeeded, start, DateTime.Now);
             foreach (string outgoing in chosenExits)
-                _Complete(gateway.id, outgoing);
+                Complete(gateway.id, outgoing);
         }
 
         internal void SuspendElement(string sourceID, IElement elem)

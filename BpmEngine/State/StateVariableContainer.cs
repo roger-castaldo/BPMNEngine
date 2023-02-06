@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -35,16 +36,9 @@ namespace Org.Reddragonit.BpmEngine.State
         public object this[string variableName,int stepIndex]
         {
             get {
-                object ret = null;
-                foreach (XmlElement elem in ChildNodes)
-                {
-                    if (int.Parse(elem.Attributes[_PATH_STEP_INDEX].Value) <= stepIndex)
-                    {
-                        if (elem.Attributes[_NAME].Value == variableName)
-                            ret = ConvertValue(elem);
-                    }
-                }
-                return ret;
+                return ConvertValue((XmlElement?)ChildNodes.Cast<XmlNode>()
+                    .LastOrDefault(elem => elem.Attributes[_NAME].Value==variableName
+                    && int.Parse(elem.Attributes[_PATH_STEP_INDEX].Value) <= stepIndex));
             }
             set
             {
@@ -63,28 +57,22 @@ namespace Org.Reddragonit.BpmEngine.State
             }
         }
 
-        public string[] this[int stepIndex]
+        public IEnumerable<string> this[int stepIndex]
         {
             get
             {
-                List<string> ret = new List<string>();
-                foreach (XmlElement elem in ChildNodes)
-                {
-                    if (int.Parse(elem.Attributes[_PATH_STEP_INDEX].Value) <= stepIndex)
-                    {
-                        if (((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) == VariableTypes.Null))
-                            ret.Remove(elem.Attributes[_NAME].Value);
-                        else if (!ret.Contains(elem.Attributes[_NAME].Value))
-                            ret.Add(elem.Attributes[_NAME].Value);
-
-                    }
-                }
-                return ret.ToArray();
+                return ChildNodes.Cast<XmlNode>()
+                    .Where(elem => int.Parse(elem.Attributes[_PATH_STEP_INDEX].Value) <= stepIndex)
+                    .GroupBy(elem => elem.Attributes[_NAME].Value)
+                    .Where(grp => (VariableTypes)Enum.Parse(typeof(VariableTypes), grp.Last().Attributes[_TYPE].Value) != VariableTypes.Null)
+                    .Select(grp => grp.Key);
             }
         }
 
-        private static object ConvertValue(XmlElement elem)
+        private static object ConvertValue(XmlElement? elem)
         {
+            if (elem==null)
+                return null;
             object ret = null;
             if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) == VariableTypes.File)
                 ret = new sFile((XmlElement)elem.ChildNodes[0]);
@@ -279,21 +267,12 @@ namespace Org.Reddragonit.BpmEngine.State
         public static Dictionary<string,object> ExtractVariables(XmlDocument doc)
         {
             Dictionary<string, object> ret = new Dictionary<string, object>();
-            foreach (XmlNode node in doc.GetElementsByTagName(_CONTAINER_NAME))
-            {
-                foreach (XmlNode cnode in node.ChildNodes)
-                {
-                    if (cnode.NodeType==XmlNodeType.Element)
-                    {
-                        XmlElement elem = (XmlElement)cnode;
-                        string name = elem.Attributes[_NAME].Value;
-                        object val = ConvertValue(elem);
-                        if (ret.ContainsKey(name))
-                            ret.Remove(name);
-                        ret.Add(name, val);
-                    }
-                }
-            }
+            var grps = doc.GetElementsByTagName(_CONTAINER_NAME).Cast<XmlNode>()
+                .SelectMany(node => node.ChildNodes.Cast<XmlNode>())
+                .Where(cnode => cnode.NodeType==XmlNodeType.Element)
+                .GroupBy(node => node.Attributes[_NAME].Value);
+            foreach (var grp in grps)
+                ret.Add(grp.Key, ConvertValue((XmlElement)grp.Last()));
             return ret;
         }
     }

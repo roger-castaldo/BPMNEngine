@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,21 +17,17 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
 
         internal void ProcessTask(ITask task, ProcessTask processScriptTask)
         {
-            if (ExtensionElement != null)
+            if (ExtensionElement != null && ((ExtensionElements)ExtensionElement).Children!=null)
             {
-                ExtensionElements ee = (ExtensionElements)ExtensionElement;
-                if (ee.Children != null)
+                var script = (AScript)((ExtensionElements)ExtensionElement)
+                    .Children
+                    .Where(ie => ie is AScript)
+                    .FirstOrDefault();
+                if (script != null)
                 {
-                    foreach (IElement ie in ee.Children)
-                    {
-                        if (ie is AScript)
-                        {
-                            IVariables vars = (ProcessVariablesContainer)((AScript)ie).Invoke(task.Variables);
-                            foreach (string str in vars.Keys)
-                               task.Variables[str]=vars[str];
-                            break;
-                        }
-                    }
+                    IVariables vars = (ProcessVariablesContainer)script.Invoke(task.Variables);
+                    foreach (string str in vars.Keys)
+                        task.Variables[str]=vars[str];
                 }
             }
             if (processScriptTask!=null)

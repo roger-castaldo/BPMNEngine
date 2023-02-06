@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,78 +17,38 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         {
         }
 
-        public string[] MessageTypes
-        {
-            get
-            {
-                List<string> ret = new List<string>();
-                foreach (IElement elem in Children)
-                {
-                    if (elem is MessageDefinition)
-                    {
-                        ret.Add((((MessageDefinition)elem).Name == null ? "*" : ((MessageDefinition)elem).Name));
-                    }
-                }
-                if (ret.Count==0 && ExtensionElement!=null)
-                {
-                    foreach (IElement elem in ((IParentElement)ExtensionElement).Children)
-                    {
-                        if (elem is MessageDefinition)
-                        {
-                            ret.Add((((MessageDefinition)elem).Name == null ? "*" : ((MessageDefinition)elem).Name));
-                        }
-                    }
-                }
-                return ret.ToArray();
-            }
-        }
+        public IEnumerable<string> MessageTypes => new string[] { }.Concat(Children
+                    .Where(elem => elem is MessageDefinition)
+                    .Select(elem => (MessageDefinition)elem)
+                    .Select(ed => ed.Name ?? "*")
+                ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
+                    ((IParentElement)ExtensionElement).Children
+                    .Where(elem => elem is MessageDefinition)
+                    .Select(elem => (MessageDefinition)elem)
+                    .Select(ed => ed.Name ?? "*")
+                ).Distinct()
+                .DefaultIfEmpty("*");
 
         public override bool IsValid(out string[] err)
         {
-            if (MessageTypes.Length != 0)
+            if (MessageTypes.Any())
             {
                 List<string> errors = new List<string>();
                 IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
-                    if (MessageTypes.Length > 1)
+                    if (MessageTypes.Count() > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
-                    bool found = false;
-                    foreach (IntermediateCatchEvent catcher in elems)
-                    {
-                        foreach (IElement child in catcher.Children)
-                        {
-                            if (child is MessageEventDefinition)
-                            {
-                                if (new List<string>(((MessageEventDefinition)child).MessageTypes).Contains(MessageTypes[0]))
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (found)
-                            break;
-                    }
-                    if (!found)
-                    {
-                        foreach (IntermediateCatchEvent catcher in elems)
-                        {
-                            foreach (IElement child in catcher.Children)
-                            {
-                                if (child is MessageEventDefinition)
-                                {
-                                    if (new List<string>(((MessageEventDefinition)child).MessageTypes).Contains("*"))
-                                    {
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (found)
-                                break;
-                        }
-                    }
+                    bool found = elems
+                        .Select(elem => (IntermediateCatchEvent)elem)
+                        .Any(catcher => catcher.Children
+                            .Any(child => child is MessageEventDefinition && ((MessageEventDefinition)child).MessageTypes.Contains(MessageTypes.First()))
+                        ) ||
+                        elems
+                        .Select(elem => (IntermediateCatchEvent)elem)
+                        .Any(catcher => catcher.Children
+                            .Any(child => child is MessageEventDefinition && ((MessageEventDefinition)child).MessageTypes.Contains("*"))
+                        );
                     if (!found)
                         errors.Add("A defined message needs to have a Catch Event with a corresponding type or all");
                 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -271,9 +272,9 @@ namespace Org.Reddragonit.BpmEngine
             if (_isSuspended)
             {
                 _isSuspended = false;
-                sSuspendedStep[] resumeSteps = _state.ResumeSteps;
+                var resumeSteps = _state.ResumeSteps;
                 _state.Resume();
-                if (resumeSteps != null)
+                if (resumeSteps.Any())
                 {
                     foreach (sSuspendedStep ss in resumeSteps)
                         _ProcessStepComplete(ss.IncomingID, ss.ElementID);
@@ -281,9 +282,9 @@ namespace Org.Reddragonit.BpmEngine
                 foreach (sStepSuspension ss in _state.SuspendedSteps)
                 {
                     if (DateTime.Now.Ticks < ss.EndTime.Ticks)
-                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), this, (AEvent)_process.GetElement(ss.id));
+                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), this, (AEvent)_process.GetElement(ss.Id));
                     else
-                        CompleteTimedEvent((AEvent)_process.GetElement(ss.id));
+                        CompleteTimedEvent((AEvent)_process.GetElement(ss.Id));
                 }
                 foreach (sDelayedStartEvent sdse in _state.DelayedEvents)
                 {

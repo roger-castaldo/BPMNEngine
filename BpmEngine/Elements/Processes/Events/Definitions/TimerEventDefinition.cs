@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -20,33 +21,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         public TimeSpan? GetTimeout(IReadonlyVariables variables) {
             DateTime now = DateTime.Now;
             DateTime? end = null;
-            foreach (IElement ie in Children)
+            var dtValue = Children.FirstOrDefault(ie => ie is XDateString || ie is AScript);
+            if (dtValue != null)
+                end = (dtValue is XDateString ? ((XDateString)dtValue).GetTime(variables) : (DateTime)((AScript)dtValue).Invoke(variables));
+            if (!end.HasValue && this.ExtensionElement != null && ((ExtensionElements)ExtensionElement).Children!=null)
             {
-                if (ie is XDateString)
-                {
-                    end = ((XDateString)ie).GetTime(variables);
-                    break;
-                }else if (ie is AScript)
-                {
-                    end = (DateTime)((AScript)ie).Invoke(variables);
-                    break;
-                }
-            }
-            if (!end.HasValue && this.ExtensionElement != null)
-            {
-                foreach (IElement ie in ((ExtensionElements)this.ExtensionElement).Children)
-                {
-                    if (ie is XDateString)
-                    {
-                        end = ((XDateString)ie).GetTime(variables);
-                        break;
-                    }
-                    else if (ie is AScript)
-                    {
-                        end = (DateTime)((AScript)ie).Invoke(variables);
-                        break;
-                    }
-                }
+                dtValue = ((ExtensionElements)ExtensionElement).Children.FirstOrDefault(ie => ie is XDateString || ie is AScript);
+                if (dtValue != null)
+                    end = (dtValue is XDateString ? ((XDateString)dtValue).GetTime(variables) : (DateTime)((AScript)dtValue).Invoke(variables));
             }
             return (end.HasValue ? end.Value.Subtract(now) : (TimeSpan?)null);
         }
