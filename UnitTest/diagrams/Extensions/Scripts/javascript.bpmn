@@ -15,7 +15,7 @@
 			<bpmn:extensionElements>
 				<exts:Javascript>
 					<![CDATA[
-				var keys = variables.Keys;
+				var keys = variables.Keys.ToArray();
 				for(var x=0;x<keys.length;x++){
 				    variables[keys[x]+'_plus1'] = variables[keys[x]]+1;
 				}

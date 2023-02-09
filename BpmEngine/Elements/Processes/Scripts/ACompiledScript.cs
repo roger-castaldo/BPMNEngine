@@ -24,7 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         protected string _FunctionName { get { return _functionName; } }
 
         private IEnumerable<string> _Imports
-            => new string[] { "System", "Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces" }
+            => new string[] { "System", "Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces", "System.Linq" }
             .Concat(SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="using")
                 .Select(n => n.InnerText)

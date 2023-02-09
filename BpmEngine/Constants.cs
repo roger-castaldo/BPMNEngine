@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Org.Reddragonit.BpmEngine
 {
+    [ExcludeFromCodeCoverage]
     internal static class Constants
     {
         public const float PEN_WIDTH = 3F;

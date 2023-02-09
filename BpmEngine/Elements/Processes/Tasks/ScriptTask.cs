@@ -26,7 +26,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                 if (script != null)
                 {
                     IVariables vars = (ProcessVariablesContainer)script.Invoke(task.Variables);
-                    foreach (string str in vars.Keys)
+                    var keys = vars.Keys.ToArray();
+                    foreach (string str in keys)
                         task.Variables[str]=vars[str];
                 }
             }

@@ -8,17 +8,17 @@ namespace Org.Reddragonit.BpmEngine
 {
     internal class DelegateContainer
     {
-        private OnElementEvent _onEventStarted;
-        public OnElementEvent OnEventStarted { get { return _onEventStarted; } }
-        private OnElementEvent _onEventCompleted;
-        public OnElementEvent OnEventCompleted { get { return _onEventCompleted; } }
-        private OnElementEvent _onEventError;
-        public OnElementEvent OnEventError { get { return _onEventError; } }
-        private OnElementEvent _onTaskStarted;
-        public OnElementEvent OnTaskStarted { get { return _onTaskStarted; } }
-        private OnElementEvent _onTaskCompleted;
-        public OnElementEvent OnTaskCompleted { get { return _onTaskCompleted; } }
-        private OnElementEvent _onTaskError;
+        private readonly OnElementEvent _onEventStarted;
+        public OnElementEvent OnEventStarted => _onEventStarted;
+        private readonly OnElementEvent _onEventCompleted;
+        public OnElementEvent OnEventCompleted => _onEventCompleted;
+        private readonly OnElementEvent _onEventError;
+        public OnElementEvent OnEventError => _onEventError;
+        private readonly OnElementEvent _onTaskStarted;
+        public OnElementEvent OnTaskStarted => _onTaskStarted;
+        private readonly OnElementEvent _onTaskCompleted;
+        public OnElementEvent OnTaskCompleted => _onTaskCompleted;
+        private readonly OnElementEvent _onTaskError;
         public OnElementEvent OnTaskError { get { return _onTaskError; } }
         private OnProcessEvent _onProcessStarted;
         public OnProcessEvent OnProcessStarted { get { return _onProcessStarted; } }

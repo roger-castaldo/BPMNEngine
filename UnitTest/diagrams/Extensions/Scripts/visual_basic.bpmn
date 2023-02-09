@@ -16,7 +16,7 @@
 				<exts:VBScript>
 					<![CDATA[
 				Dim keys() as String
-				keys = variables.Keys
+				keys = variables.Keys.ToArray()
 				For Each key As String in keys
 				    variables(String.Format("{0}_plus1",key)) = DirectCast(variables(key),Integer)+1
 				Next

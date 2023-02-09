@@ -15,7 +15,7 @@
 		<bpmn:extensionElements>
 			<exts:cSharpScript>
 				<![CDATA[
-				string[] keys = variables.Keys;
+				string[] keys = variables.Keys.ToArray();
 				for(int x=0;x<keys.Length;x++){
 				    variables[string.Format("{0}_plus1",new object[]{keys[x]})] = (int)variables[keys[x]]+1;
 				}
