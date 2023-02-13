@@ -6,6 +6,6 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
 {
     internal interface IParentElement : IElement
     {
-        IElement[] Children { get; }
+        IEnumerable<IElement> Children { get; }
     }
 }

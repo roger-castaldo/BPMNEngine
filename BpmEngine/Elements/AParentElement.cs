@@ -12,12 +12,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
     {
 
         private readonly List<IElement> _children=null;
-        public IElement[] Children
-        {
-            get {   
-                return _children.ToArray();
-            }
-        }
+        public IEnumerable<IElement> Children => _children;
 
         public void LoadChildren(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {

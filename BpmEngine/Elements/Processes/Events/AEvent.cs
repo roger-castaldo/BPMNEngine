@@ -60,8 +60,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
         public TimeSpan? GetTimeout(IReadonlyVariables variables)
         {
             return Children
-                .Where(ie => ie is TimerEventDefinition)
-                .Select(ie => ((TimerEventDefinition)ie).GetTimeout(variables))
+                .OfType<TimerEventDefinition>()
+                .Select(ie => ie.GetTimeout(variables))
                 .FirstOrDefault();
         }
     }

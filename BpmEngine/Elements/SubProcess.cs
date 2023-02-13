@@ -29,8 +29,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         }
 
         public IEnumerable<StartEvent> StartEvents => Children
-                .Where(elem => elem is StartEvent)
-                .Select(elem => (StartEvent)elem);
+                .OfType<StartEvent>();
 
         public override bool IsValid(out string[] err)
         {

@@ -80,7 +80,7 @@ namespace Org.Reddragonit.BpmEngine.State
             {
                 if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) != VariableTypes.Null)
                 {
-                    if ((elem.Attributes[_IS_ARRAY] == null ? false : bool.Parse(elem.Attributes[_IS_ARRAY].Value)))
+                    if ((elem.Attributes[_IS_ARRAY] !=null)&&bool.Parse(elem.Attributes[_IS_ARRAY].Value))
                     {
                         switch ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value))
                         {

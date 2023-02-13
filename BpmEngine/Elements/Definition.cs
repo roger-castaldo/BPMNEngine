@@ -19,15 +19,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public Definition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public IEnumerable<Diagram> Diagrams => Children
-            .Where(elem=>elem is Diagram)
-            .Select(elem=>(Diagram)elem);
+        public IEnumerable<Diagram> Diagrams => Children.OfType<Diagram>();
 
-        public IEnumerable<MessageFlow> MessageFlows => Children
-            .Where(elem => elem is Collaboration)
-            .SelectMany(elem => ((Collaboration)elem).Children)
-            .Where(msg => msg is MessageFlow)
-            .Select(msg => (MessageFlow)msg);
+        public IEnumerable<MessageFlow> MessageFlows => LocateElementsOfType<MessageFlow>();
 
         public IElement LocateElement(string id)
         {
@@ -51,50 +45,27 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return ret;
         }
 
-        public IElement[] GetBoundaryElements(string attachedToID)
+        public IEnumerable<T> LocateElementsOfType<T>() where T: IElement
         {
-            return _RecurGetBoundaryElements(this, attachedToID);
+            return _RecurLocateElementsOfType<T>(this);
         }
 
-        private IElement[] _RecurGetBoundaryElements(IElement elem, string attachedToID)
+        private IEnumerable<T> _RecurLocateElementsOfType<T>(IElement elem) where T : IElement
         {
-            List<IElement> ret = new List<IElement>();
-            if (elem is BoundaryEvent @event)
-            {
-                if (@event.AttachedToID==attachedToID)
-                    ret.Add(elem);
-            }
+            var result = new List<T>();
+            if (typeof(T).Equals(elem.GetType()))
+                result.Add((T)elem);
             if (elem is IParentElement element)
             {
                 foreach (IElement selem in element.Children)
-                    ret.AddRange(_RecurGetBoundaryElements(selem, attachedToID));
+                    result.AddRange(_RecurLocateElementsOfType<T>(selem));
             }
-            return ret.ToArray();
-        }
-
-        public IElement[] LocateElementsOfType(Type type)
-        {
-            return _RecurLocateElementsOfType(this,type);
-        }
-
-        private IElement[] _RecurLocateElementsOfType(IElement elem, Type type)
-        {
-            List<IElement> ret = new List<Interfaces.IElement>();
-            if (type.Equals(elem.GetType()))
-                ret.Add(elem);
-            if (elem is IParentElement element)
-            {
-                foreach (IElement selem in element.Children)
-                {
-                    ret.AddRange(_RecurLocateElementsOfType(selem, type));
-                }
-            }
-            return ret.ToArray();
+            return result;
         }
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length == 0)
+            if (!Children.Any())
             {
                 err = new string[] { "No child elements found." };
                 return false;

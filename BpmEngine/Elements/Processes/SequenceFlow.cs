@@ -12,11 +12,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     [XMLTag("bpmn","sequenceFlow")]
     [RequiredAttribute("id")]
     [ValidParent(typeof(IProcess))]
-    internal class SequenceFlow : AElement,ISequenceFlow
+    internal class SequenceFlow : AFlowElement, ISequenceFlow
     {
-        public string sourceRef =>this["sourceRef"];
-        public string targetRef =>this["targetRef"];
-
         private readonly string _conditionExpression;
         public string conditionExpression =>_conditionExpression;
 

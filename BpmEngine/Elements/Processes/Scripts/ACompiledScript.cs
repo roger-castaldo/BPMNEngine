@@ -102,7 +102,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             try
             {
                 return ass.Location=="" ? null : ass.Location;
-            }catch(Exception ex)
+            }catch(Exception)
             {
                 return null;
             }

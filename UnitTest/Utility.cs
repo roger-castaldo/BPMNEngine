@@ -17,7 +17,7 @@ namespace UnitTest
             {
                 ret = typeof(Utility).Assembly.GetManifestResourceStream("UnitTest.diagrams."+path.Replace("/", "."));
             }
-            catch (Exception ex) { }
+            catch (Exception) { }
             return ret;
         }
 

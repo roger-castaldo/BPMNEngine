@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             new Point(11f,33f)
         };
 
-        private bool _filled;
+        private readonly bool _filled;
         public Bolt(bool filled)
         {
             _filled=filled;

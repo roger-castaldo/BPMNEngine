@@ -32,7 +32,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// <summary>
         /// Called to obtain the names of all process runtime and definition constants
         /// </summary>
-        string[] Keys { get; }
+        IEnumerable<string> Keys { get; }
         /// <summary>
         /// Called to Resume a suspended process.  Will fail if the process is not currently suspended.
         /// </summary>

@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.State;
@@ -44,17 +45,15 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         private void _RecurGetDimensions(IElement elem, ref int minX, ref int maxX, ref int minY, ref int maxY)
         {
-            if (elem is Bounds)
+            if (elem is Bounds b)
             {
-                Bounds b = (Bounds)elem;
                 minX = Math.Min(minX, (int)b.Rectangle.X);
                 maxX = Math.Max(maxX, (int)b.Rectangle.X + (int)b.Rectangle.Width);
                 minY = Math.Min(minY, (int)b.Rectangle.Y);
                 maxY = Math.Max(maxY, (int)b.Rectangle.Y + (int)b.Rectangle.Height);
             }
-            else if (elem is Waypoint)
+            else if (elem is Waypoint w)
             {
-                Waypoint w = (Waypoint)elem;
                 minX = Math.Min(minX, (int)w.Point.X);
                 maxX = Math.Max(maxX, (int)w.Point.X);
                 minY = Math.Min(minY, (int)w.Point.Y);
@@ -67,8 +66,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        private Edge[] _cachedEdges = null;
-        private Edge[] _Edges
+        private IEnumerable<Edge> _cachedEdges = null;
+        private IEnumerable<Edge> _Edges
         {
             get
             {
@@ -77,7 +76,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     List<Edge> ret = new List<Edge>();
                     foreach (IElement elem in Children)
                         _RecurLocateEdges(elem, ref ret);
-                    _cachedEdges=ret.ToArray();
+                    _cachedEdges=ret;
                 }
                 return _cachedEdges;
             }
@@ -94,8 +93,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
             }
         }
 
-        private Shape[] _cachedShapes = null;
-        private Shape[] _Shapes
+        private IEnumerable<Shape> _cachedShapes = null;
+        private IEnumerable<Shape> _Shapes
         {
             get
             {
@@ -104,7 +103,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     List<Shape> ret = new List<Shape>();
                     foreach (IElement elem in Children)
                         _RecurLocateShapes(elem, ref ret);
-                    _cachedShapes = ret.ToArray();
+                    _cachedShapes = ret;
                 }
                 return _cachedShapes;
             }
@@ -170,7 +169,8 @@ namespace Org.Reddragonit.BpmEngine.Elements
         }
 
         private IEnumerable<Shape> _GetBoundShapes(Definition definition, string elemid)
-            => definition.GetBoundaryElements(elemid)
+            => definition.LocateElementsOfType<BoundaryEvent>()
+            .Where(evt=>evt.AttachedToID==elemid)
             .SelectMany(elem => _Shapes.Where(shape => shape.bpmnElement==elem.id));
 
         private Image _Render(ProcessPath path, Definition definition, string elemid)
@@ -343,7 +343,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length == 0)
+            if (!Children.Any())
             {
                 err = new string[] { "No child elements found." };
                 return false;

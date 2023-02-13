@@ -12,17 +12,12 @@ namespace Org.Reddragonit.BpmEngine.State
         protected abstract string _ContainerName { get; }
 
         private ProcessState _state;
-
-        protected ProcessState State { get { return _state; } }
         protected XmlElement[] ChildNodes
         {
             get { return _state.GetChildNodes(_ContainerName); }
         }
 
-        public AStateContainer(ProcessState state)
-        {
-            _state = state;
-        }
+        public AStateContainer(ProcessState state) => _state = state;
 
         protected XmlElement _ProduceElement(string name)
         {

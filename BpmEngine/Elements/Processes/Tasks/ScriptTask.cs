@@ -19,9 +19,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
         {
             if (ExtensionElement != null && ((ExtensionElements)ExtensionElement).Children!=null)
             {
-                var script = (AScript)((ExtensionElements)ExtensionElement)
+                var script = ((ExtensionElements)ExtensionElement)
                     .Children
-                    .Where(ie => ie is AScript)
+                    .OfType<AScript>()
                     .FirstOrDefault();
                 if (script != null)
                 {

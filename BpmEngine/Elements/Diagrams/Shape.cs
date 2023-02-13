@@ -18,8 +18,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     internal class Shape : ADiagramElement
     {
         public Rectangle Rectangle => Children
-            .Where(elem => elem is Bounds)
-            .Select(elem => ((Bounds)elem).Rectangle)
+            .OfType<Bounds>()
+            .Select(elem => elem.Rectangle)
             .FirstOrDefault() ?? new Rectangle(0, 0, 0, 0);
 
         public Label Label => (Label)Children

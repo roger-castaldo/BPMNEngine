@@ -1,6 +1,7 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -16,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 
         public override bool IsValid(out string[] err)
         {
-            if (this.Children.Length == 0)
+            if (!Children.Any())
             {
                 err = new string[] { "No child elements to render." };
                 return false;

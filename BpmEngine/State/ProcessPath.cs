@@ -50,18 +50,6 @@ namespace Org.Reddragonit.BpmEngine.State
             _lastStep = int.MaxValue;
         }
 
-        private IEnumerable<string> _ExtractOutgoing(XmlElement elem)
-        {
-            if (elem.Attributes[_OUTGOING_ID] != null)
-                return new string[] { elem.Attributes[_OUTGOING_ID].Value };
-            else
-            {
-                return elem.ChildNodes.Cast<XmlNode>()
-                    .Where(n => n.NodeType==XmlNodeType.Element && n.Name==_OUTGOING_ELEM)
-                    .Select(n => n.Value);
-            }
-        }
-
         internal IEnumerable<sSuspendedStep> ResumeSteps
         {
             get
@@ -293,28 +281,11 @@ namespace Org.Reddragonit.BpmEngine.State
             }
         }
 
-        internal void FailSubProcess(SubProcess SubProcess)
+        internal void ProcessFlowElement(IFlowElement flowElement)
         {
-            _WriteLogLine(SubProcess.id, LogLevels.Debug, "Failing SubProcess in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
-            _addPathEntry(SubProcess.id, incoming, StepStatuses.Failed, start, DateTime.Now);
-            Error(SubProcess, null);
-        }
-
-        internal void ProcessMessageFlow(MessageFlow flow)
-        {
-            _WriteLogLine(flow.id, LogLevels.Debug, "Processing Message Flow in Process Path");
-            _addPathEntry(flow.id, flow.sourceRef, flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
-            Complete(flow.id, flow.targetRef);
-        }
-
-        internal void ProcessSequenceFlow(SequenceFlow flow)
-        {
-            _WriteLogLine(flow.id, LogLevels.Debug, "Processing Sequence Flow in Process Path");
-            _addPathEntry(flow.id, flow.sourceRef,  flow.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
-            Complete(flow.id, flow.targetRef);
+            _WriteLogLine(flowElement.id, LogLevels.Debug, "Processing Flow Element in Process Path");
+            _addPathEntry(flowElement.id, flowElement.sourceRef, flowElement.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
+            Complete(flowElement.id, flowElement.targetRef);
         }
 
         internal void StartTask(ATask task, string incoming)

@@ -16,10 +16,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
     {
         private readonly XmlPrefixMap _map;
 
-        public AScript(XmlElement elem, XmlPrefixMap map, AElement parent)
+        protected AScript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
-                _map = map;
+            _map = map;
         }
 
         protected string _Code =>
@@ -80,7 +80,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             }
             catch (Exception e) {
                 Exception(e);
-                throw e;
+                throw;
             }
         }
 
@@ -94,7 +94,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             catch (Exception e)
             {
                 Exception(e);
-                throw e;
+                throw;
             }
         }
 

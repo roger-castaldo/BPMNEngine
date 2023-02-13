@@ -58,7 +58,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         _delegates.OnStateChange.Invoke(stateDocument);
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 });
             _stateEvent.Set();
         }
@@ -98,7 +98,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         _delegates.OnEventCompleted.Invoke(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, this));
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 });
         }
 
@@ -116,7 +116,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         _delegates.OnTaskError.Invoke(externalTask, new ReadOnlyProcessVariablesContainer(externalTask.id, this));
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 });
             _process.HandleTaskEmission(this, externalTask, error, EventSubTypes.Error, out isAborted);
         }
@@ -162,7 +162,7 @@ namespace Org.Reddragonit.BpmEngine
                         {
                             _delegates.OnTaskCompleted.Invoke(task, new ReadOnlyProcessVariablesContainer(task.id, this));
                         }
-                        catch (Exception ex) { }
+                        catch (Exception) { }
                     });
                 ATask tsk = _process.GetTask(task.id);
                 if (tsk is UserTask)
@@ -260,7 +260,7 @@ namespace Org.Reddragonit.BpmEngine
 
         object IProcessInstance.this[string name] { get { return _process[name]; } }
 
-        string[] IProcessInstance.Keys { get { return _process.Keys; } }
+        IEnumerable<string> IProcessInstance.Keys { get { return _process.Keys; } }
 
         XmlDocument IProcessInstance.CurrentState { get { return _state.Document; } }
 
@@ -317,7 +317,7 @@ namespace Org.Reddragonit.BpmEngine
                     {
                         _delegates.OnStateChange.Invoke(_state.Document);
                     }
-                    catch (Exception ex) { }
+                    catch (Exception) { }
                 });
         }
 

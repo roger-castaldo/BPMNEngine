@@ -44,12 +44,9 @@ namespace Org.Reddragonit.BpmEngine
         private readonly Definition definition;
 
         internal IElement GetElement(string id) => (_elements.ContainsKey(id) ? _elements[id] : null);
-#pragma warning disable S2365 // Properties should not make collection or array copies
-        private IElement[] _Elements => _components
+        private IEnumerable<IElement> _Elements => _components
             .Where(obj => obj.GetType().GetInterfaces().Contains(typeof(IElement)))
-            .Select(obj => (IElement)obj)
-            .ToArray<IElement>();
-#pragma warning restore S2365 // Properties should not make collection or array copies
+            .Select(obj => (IElement)obj);
 
         private void _RecurAddChildren(IElement parent)
         {
@@ -67,7 +64,7 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         public XmlDocument Document { get { return _doc; } }
 
-        private readonly sProcessRuntimeConstant[] _constants;
+        private readonly SProcessRuntimeConstant[] _constants;
         /// <summary>
         /// This is used to access the values of the process runtime and definition constants
         /// </summary>
@@ -97,35 +94,32 @@ namespace Org.Reddragonit.BpmEngine
         }
 
         
-        internal string[] Keys
+        internal IEnumerable<string> Keys
         {
             get
             {
-                List<string> ret = new List<string>();
-                if (_constants != null)
-                    ret.AddRange(_constants.Select(c => c.Name).ToArray());
                 if (definition==null || definition.ExtensionElement==null)
-                {
-                    return ret.Distinct()
-                        .ToArray();
-                }
-                ret.AddRange(((ExtensionElements)definition.ExtensionElement)
-                    .Children
-                    .Where(c => c is DefinitionVariable)
-                    .Select(d => ((DefinitionVariable)d).Name)
-                    .ToArray());
-                ret.AddRange(((ExtensionElements)definition.ExtensionElement)
-                    .Children
-                    .Where(c => c is DefinitionFile)
-                    .Select(d => ((DefinitionFile)d).Name)
-                    .ToArray());
-                ret.AddRange(((ExtensionElements)definition.ExtensionElement)
-                    .Children
-                    .Where(c => c is DefinitionFile)
-                    .Select(d => string.Format("{0}.{1}", ((DefinitionFile)d).Name, ((DefinitionFile)d).Extension))
-                    .ToArray());
-                return ret.Distinct()
-                    .ToArray();
+                    return _constants==null ? new string[] { } : _constants.Select(c => c.Name);
+                return (_constants==null ? new string[] { } : _constants.Select(c => c.Name))
+                    .Concat(
+                        ((ExtensionElements)definition.ExtensionElement)
+                        .Children
+                        .OfType<DefinitionVariable>()
+                        .Select(d => d.Name)
+                    )
+                    .Concat(
+                        ((ExtensionElements)definition.ExtensionElement)
+                        .Children
+                        .OfType<DefinitionFile>()
+                        .Select(d => d.Name)
+                    )
+                    .Concat(
+                        ((ExtensionElements)definition.ExtensionElement)
+                        .Children
+                        .OfType<DefinitionFile>()
+                        .Select(d => string.Format("{0}.{1}", d.Name,d.Extension))
+                    )
+                    .Distinct();
             }
         }
 
@@ -141,7 +135,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type,out bool isAborted)
         {
-            AHandlingEvent[] events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task.Variables));
+            var events = _GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task.Variables));
             foreach (AHandlingEvent ahe in events)
                 ProcessEvent(instance,task.id, ahe);
             isAborted = instance.State.Path.GetStatus(task.id)==StepStatuses.Aborted;
@@ -570,7 +564,7 @@ namespace Org.Reddragonit.BpmEngine
         /// </code>
         /// </param>
         public BusinessProcess(XmlDocument doc, 
-            sProcessRuntimeConstant[] constants = null,
+            SProcessRuntimeConstant[] constants = null,
             LogLine logLine = null,
             LogException logException = null,
             OnElementEvent onEventStarted = null,
@@ -584,6 +578,7 @@ namespace Org.Reddragonit.BpmEngine
             OnProcessErrorEvent onProcessError=null,
             OnFlowComplete onSequenceFlowCompleted=null,
             OnFlowComplete onMessageFlowCompleted=null,
+            OnFlowComplete onAssociationFlowCompleted=null,
             OnElementEvent onGatewayStarted=null,
             OnElementEvent onGatewayCompleted=null,
             OnElementEvent onGatewayError=null,
@@ -608,7 +603,8 @@ namespace Org.Reddragonit.BpmEngine
         {
             _id = Utility.NextRandomGuid();
             _constants = constants;
-            _delegates = new DelegateContainer(logLine, logException, onEventStarted, onEventCompleted, onEventError, onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError, onSequenceFlowCompleted, onMessageFlowCompleted,
+            _delegates = new DelegateContainer(logLine, logException, onEventStarted, onEventCompleted, onEventError, onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError, 
+                onSequenceFlowCompleted, onMessageFlowCompleted, onAssociationFlowCompleted,
                 onGatewayStarted, onGatewayCompleted, onGatewayError, onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid, isProcessStartValid, isFlowValid, processBusinessRuleTask,
                 beginManualTask, processRecieveTask, processScriptTask, processSendTask, processServiceTask, processTask,callActivity, beginUserTask);
 
@@ -647,9 +643,9 @@ namespace Org.Reddragonit.BpmEngine
                 else
                     _components.Add(n);
             }
-            foreach (IElement elem in _components.Where(o=>o is IElement).Select(i=>(IElement)i))
+            foreach (IElement elem in _components.OfType<IElement>())
                     _RecurAddChildren(elem);
-            if (_Elements.Length== 0)
+            if (!_Elements.Any())
                 exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
             {
@@ -668,8 +664,7 @@ namespace Org.Reddragonit.BpmEngine
                 throw ex;
             }
             _eventHandlers = _elements.Values
-                .Where(e => e is AHandlingEvent)
-                .Select(a => (AHandlingEvent)a)
+                .OfType<AHandlingEvent>()
                 .ToArray();
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
         }
@@ -754,6 +749,7 @@ namespace Org.Reddragonit.BpmEngine
             OnProcessErrorEvent onProcessError = null,
             OnFlowComplete onSequenceFlowCompleted = null,
             OnFlowComplete onMessageFlowCompleted = null,
+            OnFlowComplete onAssociationFlowCompleted=null,
             OnElementEvent onGatewayStarted = null,
             OnElementEvent onGatewayCompleted = null,
             OnElementEvent onGatewayError = null,
@@ -778,7 +774,8 @@ namespace Org.Reddragonit.BpmEngine
         {
             ProcessInstance ret = new ProcessInstance(this, _delegates.Merge(logLine, logException, onEventStarted, onEventCompleted, onEventError,
                 onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError,
-                onSequenceFlowCompleted, onMessageFlowCompleted, onGatewayStarted, onGatewayCompleted, onGatewayError,
+                onSequenceFlowCompleted, onMessageFlowCompleted, onAssociationFlowCompleted, 
+                onGatewayStarted, onGatewayCompleted, onGatewayError,
                 onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid,
                 isProcessStartValid, isFlowValid, processBusinessRuleTask, beginManualTask, processRecieveTask, processScriptTask,
                 processSendTask, processServiceTask, processTask,callActivity, beginUserTask), stateLogLevel);
@@ -1029,6 +1026,7 @@ namespace Org.Reddragonit.BpmEngine
             OnProcessErrorEvent onProcessError = null,
             OnFlowComplete onSequenceFlowCompleted = null,
             OnFlowComplete onMessageFlowCompleted = null,
+            OnFlowComplete onAssociationFlowCompleted=null,
             OnElementEvent onGatewayStarted = null,
             OnElementEvent onGatewayCompleted = null,
             OnElementEvent onGatewayError = null,
@@ -1053,7 +1051,8 @@ namespace Org.Reddragonit.BpmEngine
         {
             ProcessInstance ret = new ProcessInstance(this, _delegates.Merge(logLine, logException, onEventStarted, onEventCompleted, onEventError,
                onTaskStarted, onTaskCompleted, onTaskError, onProcessStarted, onProcessCompleted, onProcessError,
-               onSequenceFlowCompleted, onMessageFlowCompleted, onGatewayStarted, onGatewayCompleted, onGatewayError,
+               onSequenceFlowCompleted, onMessageFlowCompleted, onAssociationFlowCompleted,
+               onGatewayStarted, onGatewayCompleted, onGatewayError,
                onSubProcessStarted, onSubProcessCompleted, onSubProcessError, onStateChange, onElementAborted, isEventStartValid,
                isProcessStartValid, isFlowValid, processBusinessRuleTask, beginManualTask, processRecieveTask, processScriptTask,
                processSendTask, processServiceTask, processTask,callActivity, beginUserTask), stateLogLevel);
@@ -1061,8 +1060,7 @@ namespace Org.Reddragonit.BpmEngine
             ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
             foreach (Elements.Process proc in _elements.Values
-                .Where(e => e is Elements.Process)
-                .Select(e => (Elements.Process)e))
+                .OfType<Elements.Process>())
             {
                 if (proc.IsStartValid(ropvc, ret.Delegates.IsProcessStartValid))
                 {
@@ -1087,65 +1085,18 @@ namespace Org.Reddragonit.BpmEngine
             return null;
         }
 
-        private void _TriggerDelegateAsync(object dgate,object[] pars)
+        private void _TriggerDelegateAsync(Delegate dgate,object[] pars)
         {
             if (dgate!=null)
             {
-                switch (dgate.GetType().Name)
+                System.Threading.Tasks.Task.Run(() =>
                 {
-                    case "OnElementEvent":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((OnElementEvent)dgate).Invoke((IStepElement)pars[0], (IReadonlyVariables)pars[1]);
-                        });
-                        break;
-                    case "OnProcessEvent":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((OnProcessEvent)dgate).Invoke((IElement)pars[0], (IReadonlyVariables)pars[1]);
-                        });
-                        break;
-                    case "OnFlowComplete":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((OnFlowComplete)dgate).Invoke((IElement)pars[0], (IReadonlyVariables)pars[1]);
-                        });
-                        break;
-                    case "OnProcessErrorEvent":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((OnProcessErrorEvent)dgate).Invoke((IElement)pars[0], (IElement)pars[1], (IReadonlyVariables)pars[2]);
-                        });
-                        break;
-                    case "OnStateChange":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((OnStateChange)dgate).Invoke((XmlDocument)pars[0]);
-                        });
-                        break;
-                    case "StartManualTask":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((StartManualTask)dgate).Invoke((IManualTask)pars[0]);
-                        });
-                        break;
-                    case "StartUserTask":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((StartUserTask)dgate).Invoke((IUserTask)pars[0]);
-                        });
-                        break;
-                    case "OnElementAborted":
-                        System.Threading.Tasks.Task.Run(() =>
-                        {
-                            ((OnElementAborted)dgate).Invoke((IElement)pars[0],(IElement)pars[1],(IReadonlyVariables)pars[2]);
-                        });
-                        break;
-                }
+                    dgate.DynamicInvoke(pars);
+                });
             }
         }
 
-        private AHandlingEvent[] _GetEventHandlers(EventSubTypes type,object data, AFlowNode source, IReadonlyVariables variables)
+        private IEnumerable<AHandlingEvent> _GetEventHandlers(EventSubTypes type,object data, AFlowNode source, IReadonlyVariables variables)
         {
             List<AHandlingEvent> ret = new List<AHandlingEvent>();
             int curCost = int.MaxValue;
@@ -1174,7 +1125,7 @@ namespace Org.Reddragonit.BpmEngine
                     break;
             }
 
-            return ret.ToArray();
+            return ret;
         }
 
         internal void ProcessStepComplete(ProcessInstance instance,string sourceID,string outgoingID) {
@@ -1210,8 +1161,8 @@ namespace Org.Reddragonit.BpmEngine
             bool success = false;
             if (step is AFlowNode node)
             {
-                AHandlingEvent[] events = _GetEventHandlers(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.id,instance,ex));
-                if (events.Length>0)
+                var events = _GetEventHandlers(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.id,instance,ex));
+                if (events.Any())
                 {
                     success=true;
                     foreach (AHandlingEvent ahe in events)
@@ -1244,7 +1195,7 @@ namespace Org.Reddragonit.BpmEngine
                 if (elem is AFlowNode node)
                 {
                     ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(sourceID, instance);
-                    AHandlingEvent[] evnts = _GetEventHandlers(EventSubTypes.Conditional, null, node, ropvc);
+                    var evnts = _GetEventHandlers(EventSubTypes.Conditional, null, node, ropvc);
                     foreach (AHandlingEvent ahe in evnts)
                     {
                         ProcessEvent(instance,elem.id, ahe);
@@ -1266,10 +1217,8 @@ namespace Org.Reddragonit.BpmEngine
                         }
                     }
                 }
-                if (elem is SequenceFlow sequenceFlow)
-                    _ProcessSequenceFlow(instance,sequenceFlow);
-                else if (elem is MessageFlow messageFlow)
-                    _ProcessMessageFlow(instance, messageFlow);
+                if (elem is IFlowElement flowElement)
+                    _ProcessFlowElement(instance, flowElement);
                 else if (elem is AGateway aGateway)
                     _ProcessGateway(instance, sourceID, aGateway);
                 else if (elem is AEvent aEvent)
@@ -1410,7 +1359,7 @@ namespace Org.Reddragonit.BpmEngine
             {
                 if (evnt.SubType.HasValue)
                 {
-                    AHandlingEvent[] evnts = _GetEventHandlers(evnt.SubType.Value, event1.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                    var evnts = _GetEventHandlers(evnt.SubType.Value, event1.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
                     foreach (AHandlingEvent tsk in evnts)
                         ProcessEvent(instance,evnt.id, tsk);
                 }
@@ -1530,20 +1479,17 @@ namespace Org.Reddragonit.BpmEngine
             instance.StateEvent.Set();
         }
 
-        private void _ProcessMessageFlow(ProcessInstance instance,MessageFlow mf)
+        private void _ProcessFlowElement(ProcessInstance instance,IFlowElement flowElement)
         {
             instance.StateEvent.WaitOne();
-            instance.State.Path.ProcessMessageFlow(mf);
-            instance.StateEvent.Set(); 
-            _TriggerDelegateAsync(instance.Delegates.OnMessageFlowCompleted,new object[] { mf, new ReadOnlyProcessVariablesContainer(mf.id, instance) });
-        }
-
-        private void _ProcessSequenceFlow(ProcessInstance instance,SequenceFlow sf)
-        {
-            instance.StateEvent.WaitOne();
-            instance.State.Path.ProcessSequenceFlow(sf);
+            instance.State.Path.ProcessFlowElement(flowElement);
             instance.StateEvent.Set();
-            _TriggerDelegateAsync(instance.Delegates.OnSequenceFlowCompleted,new object[] { sf, new ReadOnlyProcessVariablesContainer(sf.id, instance) });
+            Delegate delCall = instance.Delegates.OnSequenceFlowCompleted;
+            if (flowElement is MessageFlow)
+                delCall = instance.Delegates.OnMessageFlowCompleted;
+            else if (flowElement is Association)
+                delCall = instance.Delegates.OnAssociationFlowCompleted;
+            _TriggerDelegateAsync(delCall,new object[] { flowElement, new ReadOnlyProcessVariablesContainer(flowElement.id, instance) });
         }
 
         #region Logging

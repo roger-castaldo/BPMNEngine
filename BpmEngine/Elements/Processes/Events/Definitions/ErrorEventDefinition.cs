@@ -20,13 +20,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
 
 
         public IEnumerable<string> ErrorTypes => new string[] {}.Concat(Children
-                    .Where(elem => elem is ErrorDefinition)
-                    .Select(elem => (ErrorDefinition)elem)
+                    .OfType<ErrorDefinition>()
                     .Select(ed => ed.Type ?? "*")
                 ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
                     ((IParentElement)ExtensionElement).Children
-                    .Where(elem => elem is ErrorDefinition)
-                    .Select(elem => (ErrorDefinition)elem)
+                    .OfType<ErrorDefinition>()
                     .Select(ed => ed.Type ?? "*")
                 ).Distinct()
                 .DefaultIfEmpty("*");
@@ -36,18 +34,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
             if (ErrorTypes.Any())
             {
                 List<string> errors = new List<string>();
-                IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
                     if (ErrorTypes.Count() > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
+                    var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
                     bool found = elems
-                        .Select(elem => (IntermediateCatchEvent)elem)
                         .Any(catcher => catcher.Children
                             .Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Contains(ErrorTypes.First()))
                         ) ||
                         elems
-                        .Select(elem => (IntermediateCatchEvent)elem)
                         .Any(catcher => catcher.Children
                             .Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Contains("*"))
                         );

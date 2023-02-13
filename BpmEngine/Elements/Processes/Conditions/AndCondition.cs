@@ -21,7 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length < 2 )
+            if (Children.Count() < 2 )
             {
                 err = new string[] { "Not enough child elements found" };
                 return false;

@@ -25,18 +25,18 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                     {
                         case EventSubTypes.Signal:
                             return Children
-                                .Where(child => child is SignalEventDefinition)
-                                .Select(child => ((SignalEventDefinition)child).SignalTypes.First())
+                                .OfType<SignalEventDefinition>()
+                                .Select(child => child.SignalTypes.First())
                                 .FirstOrDefault();
                         case EventSubTypes.Error:
                             return Children
-                                .Where(child => child is ErrorEventDefinition)
-                                .Select(child => ((ErrorEventDefinition)child).ErrorTypes.First())
+                                .OfType<ErrorEventDefinition>()
+                                .Select(child => child.ErrorTypes.First())
                                 .FirstOrDefault();
                         case EventSubTypes.Message:
                             return Children
-                                .Where(child => child is MessageEventDefinition)
-                                .Select(child => ((MessageEventDefinition)child).MessageTypes.First())
+                                .OfType<MessageEventDefinition>()
+                                .Select(child => child.MessageTypes.First())
                                 .FirstOrDefault();
                     }
                 }

@@ -29,7 +29,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length > 1)
+            if (Children.Count() > 1)
             {
                 err = new string[] { "Too many children found." };
                 return false;

@@ -14,8 +14,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     internal class Lane : AParentElement
     {
         public IEnumerable<string> Nodes => Children
-            .Where(elem => elem is FlowNodeRef)
-            .Select(elem => ((FlowNodeRef)elem).Value);
+            .OfType<FlowNodeRef>()
+            .Select(elem => elem.Value);
 
         public Lane(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map,parent) { }

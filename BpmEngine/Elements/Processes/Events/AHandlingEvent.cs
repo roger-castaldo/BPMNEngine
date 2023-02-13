@@ -23,8 +23,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                 ((SignalEventDefinition)child).SignalTypes)))
             .FirstOrDefault();
 
-        private ConditionalEventDefinition _condition => (ConditionalEventDefinition)Children
-            .Where(child => child is ConditionalEventDefinition)
+        private ConditionalEventDefinition _condition => Children
+            .OfType<ConditionalEventDefinition>()
             .FirstOrDefault();
 
         public bool HandlesEvent(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables,out int cost)

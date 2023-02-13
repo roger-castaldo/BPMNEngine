@@ -13,27 +13,27 @@ namespace Org.Reddragonit.BpmEngine
     /// <summary>
     /// This structure is used to house a File associated within a process instance.  It is used to both store, encode, decode and retreive File variables inside the process state.
     /// </summary>
-    public struct sFile 
+    public readonly struct sFile 
     {
-        private string _name;
+        private readonly string _name;
         /// <summary>
         /// The name of the File.
         /// </summary>
         public string Name { get { return _name; } }
 
-        private string _extension;
+        private readonly string _extension;
         /// <summary>
         /// The extension of the File.
         /// </summary>
         public string Extension { get { return _extension; } }
 
-        private string _contentType;
+        private readonly string _contentType;
         /// <summary>
         /// The content type tag for the File.  e.g. text/html
         /// </summary>
         public string ContentType { get { return _contentType; } }
 
-        private byte[] _content;
+        private readonly byte[] _content;
         /// <summary>
         /// The binary content of the File.
         /// </summary>
@@ -110,14 +110,23 @@ namespace Org.Reddragonit.BpmEngine
 
         public override bool Equals(object obj)
         {
-            if (obj is sFile)
+            if (obj is sFile fle)
             {
-                sFile fle = (sFile)obj;
                 return fle.Name.Equals(Name) &&
                     fle.Extension.Equals(Extension) &&
                     _dataEquals(fle.Content);
             }
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return string.Format("{0}.{1}:{2}", new object[]
+            {
+                _name,
+                _extension,
+                Convert.ToBase64String(_content)
+            }).GetHashCode();
         }
 
         private bool _dataEquals(byte[] content)
@@ -138,42 +147,42 @@ namespace Org.Reddragonit.BpmEngine
     /// <summary>
     /// This structure is used to specify a Process Runtime Constant.  These Constants are used as a Dynamic Constant, so a read only variable within the process that can be unique to the instance running, only a constant to that specific process instance.
     /// </summary>
-    public struct sProcessRuntimeConstant
+    public readonly struct SProcessRuntimeConstant
     {
-        private string _name;
+        private readonly string _name;
         /// <summary>
         /// The Name of the variable.
         /// </summary>
-        public string Name { get { return _name; } }
+        public string Name => _name;
 
-        private object _value;
+        private readonly object _value;
         /// <summary>
         /// The Value of the variable.
         /// </summary>
-        public object Value { get { return _value; } }
+        public object Value => _value;
 
         /// <summary>
         /// Create a new Process Runtime Constant with the given name and value.
         /// </summary>
         /// <param name="name">Becomes the Name property of the variable.</param>
         /// <param name="value">Becomes the Value property of the variable.</param>
-        public sProcessRuntimeConstant(string name,object value)
+        public SProcessRuntimeConstant(string name,object value)
         {
             _name = name;
             _value = value;
         }
     }
 
-    internal struct sProcessSuspendEvent : IComparable
+    internal readonly struct SProcessSuspendEvent : IComparable
     {
-        private ProcessInstance _instance;
-        public ProcessInstance Instance { get { return _instance; } }
-        private AEvent _event;
-        public AEvent Event { get { return _event; } }
-        private DateTime _endTime;
-        public DateTime EndTime { get { return _endTime; } }
+        private readonly ProcessInstance _instance;
+        public ProcessInstance Instance => _instance;
+        private readonly AEvent _event;
+        public AEvent Event => _event;
+        private readonly DateTime _endTime;
+        public DateTime EndTime => _endTime;
 
-        public sProcessSuspendEvent(ProcessInstance instance,AEvent evnt,TimeSpan time){
+        public SProcessSuspendEvent(ProcessInstance instance,AEvent evnt,TimeSpan time){
             _instance = instance;
             _event = evnt;
             _endTime = DateTime.Now.Add(time);
@@ -182,26 +191,26 @@ namespace Org.Reddragonit.BpmEngine
         public int CompareTo(object obj)
         {
             DateTime compare = DateTime.MaxValue;
-            if (obj is sProcessSuspendEvent)
-                compare = ((sProcessSuspendEvent)obj).EndTime;
-            else if (obj is sProcessDelayedEvent)
-                compare = ((sProcessDelayedEvent)obj).StartTime;
+            if (obj is SProcessSuspendEvent)
+                compare = ((SProcessSuspendEvent)obj).EndTime;
+            else if (obj is SProcessDelayedEvent)
+                compare = ((SProcessDelayedEvent)obj).StartTime;
             return _endTime.CompareTo(compare);
         }
     }
 
-    internal struct sProcessDelayedEvent : IComparable
+    internal readonly struct SProcessDelayedEvent : IComparable
     {
-        private ProcessInstance _instance;
+        private readonly ProcessInstance _instance;
         public ProcessInstance Instance { get { return _instance; } }
-        private BoundaryEvent _event;
+        private readonly BoundaryEvent _event;
         public BoundaryEvent Event { get { return _event; } }
-        private DateTime _startTime;
+        private readonly DateTime _startTime;
         public DateTime StartTime { get { return _startTime; } }
-        private string _sourceID;
+        private readonly string _sourceID;
         public string SourceID { get { return _sourceID; } }
 
-        public sProcessDelayedEvent(ProcessInstance instance, BoundaryEvent evnt, TimeSpan time,string sourceID)
+        public SProcessDelayedEvent(ProcessInstance instance, BoundaryEvent evnt, TimeSpan time,string sourceID)
         {
             _instance = instance;
             _event = evnt;
@@ -212,10 +221,10 @@ namespace Org.Reddragonit.BpmEngine
         public int CompareTo(object obj)
         {
             DateTime compare = DateTime.MaxValue;
-            if (obj is sProcessSuspendEvent)
-                compare = ((sProcessSuspendEvent)obj).EndTime;
-            else if (obj is sProcessDelayedEvent)
-                compare = ((sProcessDelayedEvent)obj).StartTime;
+            if (obj is SProcessSuspendEvent)
+                compare = ((SProcessSuspendEvent)obj).EndTime;
+            else if (obj is SProcessDelayedEvent)
+                compare = ((SProcessDelayedEvent)obj).StartTime;
             return _startTime.CompareTo(compare);
         }
     }

@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -17,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length == 0)
+            if (!Children.Any())
             {
                 err = new string[] { "No child elements found." };
                 return false;

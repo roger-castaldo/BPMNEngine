@@ -103,17 +103,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
                         {"GPDispose",_GraphicsType.GetMethod("Dispose",Type.EmptyTypes) }
                     };
                 }
-                catch (Exception e) {
+                catch (Exception)
+                {
                     CAN_USE=false;
                 }
             }
         }
 
-        private object _bmp;
-        private object _gp;
+        private readonly object _bmp;
+        private readonly object _gp;
 
-        private Size _size;
-        public Size Size { get { return _size; } }
+        private readonly Size _size;
+        public Size Size => _size;
 
         public object DrawingObject
         {
@@ -224,7 +225,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             {
                 Flush();
             }
-            catch (Exception e) { }
+            catch (Exception)
+            {
+                //can ignore exception, attempting to dispose internal objects
+            }
             MemoryStream ms = new MemoryStream();
             _methods["Save"].Invoke(_bmp,new object[] {ms,_imageFormat.GetProperty(type.ToString(),BindingFlags.Public|BindingFlags.Static).GetValue(null)});
             return ms.ToArray();
@@ -232,19 +236,30 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             try
             {
                 if (_gp!=null)
                     _methods["GPDispose"].Invoke(_gp, new object[] { });
             }
-            catch (Exception e) { }
+            catch (Exception) {  
+                //can ignore exception, attempting to dispose internal objects
+            }
 
             try
             {
                 if (_bmp!=null)
                     _methods["BMPDispose"].Invoke(_gp, new object[] { });
             }
-            catch (Exception e) { }
+            catch (Exception)
+            {
+                //can ignore exception, attempting to dispose internal objects
+            }
         }
     }
 }

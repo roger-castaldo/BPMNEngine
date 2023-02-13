@@ -18,13 +18,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         }
 
         public IEnumerable<string> SignalTypes => new string[] {}.Concat(Children
-                    .Where(elem => elem is SignalDefinition)
-                    .Select(elem => (SignalDefinition) elem)
+                    .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")
                 ).Concat(ExtensionElement==null || ((IParentElement) ExtensionElement).Children==null ? Array.Empty<string>() :
-                    ((IParentElement) ExtensionElement).Children
-                    .Where(elem => elem is SignalDefinition)
-                    .Select(elem => (SignalDefinition) elem)
+                    ((IParentElement)ExtensionElement).Children
+                    .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")
                 ).Distinct()
                 .DefaultIfEmpty("*");
@@ -34,18 +32,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
             if (SignalTypes.Any())
             {
                 List<string> errors = new List<string>();
-                IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
                     if (SignalTypes.Count() > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
+                    var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
                     bool found = elems
-                            .Select(elem => (IntermediateCatchEvent)elem)
                             .Any(catcher => catcher.Children
                             .Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Contains(SignalTypes.First()))
                         ) ||
                         elems
-                            .Select(elem => (IntermediateCatchEvent)elem)
                             .Any(catcher => catcher.Children
                             .Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Contains("*"))
                         );

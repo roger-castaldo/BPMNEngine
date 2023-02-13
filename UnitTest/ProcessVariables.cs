@@ -34,7 +34,7 @@ namespace UnitTest
                 inst.WaitForCompletion();
                 return inst.CurrentVariables;
             }
-            catch(Exception ex) { }
+            catch(Exception) { }
             return null;
         }
 

@@ -19,64 +19,66 @@ namespace Org.Reddragonit.BpmEngine
         private readonly OnElementEvent _onTaskCompleted;
         public OnElementEvent OnTaskCompleted => _onTaskCompleted;
         private readonly OnElementEvent _onTaskError;
-        public OnElementEvent OnTaskError { get { return _onTaskError; } }
-        private OnProcessEvent _onProcessStarted;
-        public OnProcessEvent OnProcessStarted { get { return _onProcessStarted; } }
-        private OnProcessEvent _onProcessCompleted;
-        public OnProcessEvent OnProcessCompleted { get { return _onProcessCompleted; } }
-        private OnProcessErrorEvent _onProcessError;
-        public OnProcessErrorEvent OnProcessError { get { return _onProcessError; } }
-        private OnFlowComplete _onSequenceFlowCompleted;
-        public OnFlowComplete OnSequenceFlowCompleted { get { return _onSequenceFlowCompleted; } }
-        private OnFlowComplete _onMessageFlowCompleted;
-        internal OnFlowComplete OnMessageFlowCompleted { get { return _onMessageFlowCompleted; } }
-        private OnElementEvent _onGatewayStarted;
-        public OnElementEvent OnGatewayStarted { get { return _onGatewayStarted; } }
-        private OnElementEvent _onGatewayCompleted;
-        public OnElementEvent OnGatewayCompleted { get { return _onGatewayCompleted; } }
-        private OnElementEvent _onGatewayError;
-        public OnElementEvent OnGatewayError { get { return _onGatewayError; } }
-        private OnElementEvent _onSubProcessStarted;
-        public OnElementEvent OnSubProcessStarted { get { return _onSubProcessStarted; } }
-        private OnElementEvent _onSubProcessCompleted;
-        public OnElementEvent OnSubProcessCompleted { get { return _onSubProcessCompleted; } }
-        private OnElementEvent _onSubProcessError;
-        public OnElementEvent OnSubProcessError { get { return _onSubProcessError; } }
-        private OnElementAborted _onStepAborted;
-        public OnElementAborted OnStepAborted { get { return _onStepAborted; } }
-        private OnStateChange _onStateChange;
-        public OnStateChange OnStateChange { get { return _onStateChange; } }
+        public OnElementEvent OnTaskError => _onTaskError;
+        private readonly OnProcessEvent _onProcessStarted;
+        public OnProcessEvent OnProcessStarted => _onProcessStarted;
+        private readonly OnProcessEvent _onProcessCompleted;
+        public OnProcessEvent OnProcessCompleted => _onProcessCompleted;
+        private readonly OnProcessErrorEvent _onProcessError;
+        public OnProcessErrorEvent OnProcessError => _onProcessError;
+        private readonly OnFlowComplete _onSequenceFlowCompleted;
+        public OnFlowComplete OnSequenceFlowCompleted => _onSequenceFlowCompleted;
+        private readonly OnFlowComplete _onMessageFlowCompleted;
+        internal OnFlowComplete OnMessageFlowCompleted => _onMessageFlowCompleted;
+        private readonly OnFlowComplete _onAssociationFlowCompleted;
+        internal OnFlowComplete OnAssociationFlowCompleted => _onAssociationFlowCompleted;
+        private readonly OnElementEvent _onGatewayStarted;
+        public OnElementEvent OnGatewayStarted => _onGatewayStarted;
+        private readonly OnElementEvent _onGatewayCompleted;
+        public OnElementEvent OnGatewayCompleted => _onGatewayCompleted;
+        private readonly OnElementEvent _onGatewayError;
+        public OnElementEvent OnGatewayError => _onGatewayError;
+        private readonly OnElementEvent _onSubProcessStarted;
+        public OnElementEvent OnSubProcessStarted => _onSubProcessStarted;
+        private readonly OnElementEvent _onSubProcessCompleted;
+        public OnElementEvent OnSubProcessCompleted => _onSubProcessCompleted;
+        private readonly OnElementEvent _onSubProcessError;
+        public OnElementEvent OnSubProcessError => _onSubProcessError;
+        private readonly OnElementAborted _onStepAborted;
+        public OnElementAborted OnStepAborted => _onStepAborted;
+        private readonly OnStateChange _onStateChange;
+        public OnStateChange OnStateChange => _onStateChange;
         private static bool _DefaultEventStartValid(IElement Event, IReadonlyVariables variables) { return true; }
-        private IsEventStartValid _isEventStartValid;
-        public IsEventStartValid IsEventStartValid { get { return _isEventStartValid; } }
+        private readonly IsEventStartValid _isEventStartValid;
+        public IsEventStartValid IsEventStartValid => _isEventStartValid;
         private static bool _DefaultProcessStartValid(IElement Event, IReadonlyVariables variables) { return true; }
-        private IsProcessStartValid _isProcessStartValid;
-        public IsProcessStartValid IsProcessStartValid { get { return _isProcessStartValid; } }
+        private readonly IsProcessStartValid _isProcessStartValid;
+        public IsProcessStartValid IsProcessStartValid => _isProcessStartValid;
         private static bool _DefaultFlowValid(IElement flow, IReadonlyVariables variables) { return true; }
-        private IsFlowValid _isFlowValid;
-        public IsFlowValid IsFlowValid { get { return _isFlowValid; } }
-        private ProcessTask _processBusinessRuleTask;
-        public ProcessTask ProcessBusinessRuleTask { get { return _processBusinessRuleTask; } }
-        private StartManualTask _beginManualTask;
-        public StartManualTask BeginManualTask { get { return _beginManualTask; } }
-        private ProcessTask _processRecieveTask;
-        public ProcessTask ProcessRecieveTask { get { return _processRecieveTask;} }
-        private ProcessTask _processScriptTask;
-        public ProcessTask ProcessScriptTask { get { return _processScriptTask; } }
-        private ProcessTask _processSendTask;
-        public ProcessTask ProcessSendTask { get { return _processSendTask;} }
-        private ProcessTask _processServiceTask;
-        public ProcessTask ProcessServiceTask { get { return _processServiceTask;} }
-        private ProcessTask _processTask;
-        public ProcessTask ProcessTask { get { return _processTask; } }
-        private ProcessTask _callActivity;
-        public ProcessTask CallActivity { get { return _callActivity; } }
-        private StartUserTask _beginUserTask;
-        public StartUserTask BeginUserTask { get { return _beginUserTask; } }
-        private LogLine _logLine;
-        public LogLine LogLine { get { return _logLine; } }
-        private LogException _logException;
-        public LogException LogException { get { return _logException; } } 
+        private readonly IsFlowValid _isFlowValid;
+        public IsFlowValid IsFlowValid => _isFlowValid;
+        private readonly ProcessTask _processBusinessRuleTask;
+        public ProcessTask ProcessBusinessRuleTask => _processBusinessRuleTask;
+        private readonly StartManualTask _beginManualTask;
+        public StartManualTask BeginManualTask => _beginManualTask;
+        private readonly ProcessTask _processRecieveTask;
+        public ProcessTask ProcessRecieveTask => _processRecieveTask;
+        private readonly ProcessTask _processScriptTask;
+        public ProcessTask ProcessScriptTask => _processScriptTask;
+        private readonly ProcessTask _processSendTask;
+        public ProcessTask ProcessSendTask => _processSendTask;
+        private readonly ProcessTask _processServiceTask;
+        public ProcessTask ProcessServiceTask => _processServiceTask;
+        private readonly ProcessTask _processTask;
+        public ProcessTask ProcessTask => _processTask;
+        private readonly ProcessTask _callActivity;
+        public ProcessTask CallActivity => _callActivity;
+        private readonly StartUserTask _beginUserTask;
+        public StartUserTask BeginUserTask => _beginUserTask;
+        private readonly LogLine _logLine;
+        public LogLine LogLine => _logLine;
+        private readonly LogException _logException;
+        public LogException LogException => _logException;
 
         public DelegateContainer(LogLine logLine,
             LogException logException,
@@ -91,6 +93,7 @@ namespace Org.Reddragonit.BpmEngine
             OnProcessErrorEvent onProcessError,
             OnFlowComplete onSequenceFlowCompleted,
             OnFlowComplete onMessageFlowCompleted,
+            OnFlowComplete onAssociationFlowCompleted,
             OnElementEvent onGatewayStarted,
             OnElementEvent onGatewayCompleted,
             OnElementEvent onGatewayError,
@@ -124,6 +127,7 @@ namespace Org.Reddragonit.BpmEngine
             _onProcessCompleted=onProcessCompleted;
             _onProcessError = onProcessError;
             _onSequenceFlowCompleted=onSequenceFlowCompleted;
+            _onAssociationFlowCompleted=onAssociationFlowCompleted;
             _onMessageFlowCompleted=onMessageFlowCompleted;
             _onGatewayStarted=onGatewayStarted;
             _onGatewayCompleted=onGatewayCompleted;
@@ -160,6 +164,7 @@ namespace Org.Reddragonit.BpmEngine
             OnProcessErrorEvent onProcessError,
             OnFlowComplete onSequenceFlowCompleted,
             OnFlowComplete onMessageFlowCompleted,
+            OnFlowComplete onAssociationFlowCompleted,
             OnElementEvent onGatewayStarted,
             OnElementEvent onGatewayCompleted,
             OnElementEvent onGatewayError,
@@ -195,6 +200,7 @@ namespace Org.Reddragonit.BpmEngine
                 (onProcessError==null ? _onProcessError : onProcessError),
                 (onSequenceFlowCompleted==null ? _onSequenceFlowCompleted : onSequenceFlowCompleted),
                 (onMessageFlowCompleted==null ? _onMessageFlowCompleted : onMessageFlowCompleted),
+                (onAssociationFlowCompleted==null ? _onAssociationFlowCompleted : onAssociationFlowCompleted),
                 (onGatewayStarted==null ? _onGatewayStarted : onGatewayStarted),
                 (onGatewayCompleted==null ? _onGatewayCompleted : onGatewayCompleted),
                 (onGatewayError==null ? _onGatewayError : onGatewayError),

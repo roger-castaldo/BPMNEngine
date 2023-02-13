@@ -15,8 +15,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
     internal class TextAnnotation : AParentElement
     {
         public string Content => Children
-                    .Where(elem=>elem is Text)
-                    .Select(elem=>((Text)elem).Value)
+                    .OfType<Text>()
+                    .Select(elem=>elem.Value)
                     .FirstOrDefault() ?? String.Empty;
 
         public TextAnnotation(XmlElement elem, XmlPrefixMap map, AElement parent)

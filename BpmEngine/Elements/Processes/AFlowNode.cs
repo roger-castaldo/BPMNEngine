@@ -46,8 +46,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
                 if (p==null)
                     return null;
                 return p.Children
-                    .Where(ie => ie is LaneSet)
-                    .Select(ie => (LaneSet)ie)
+                    .OfType<LaneSet>()
                     .SelectMany(ls => ls.Children)
                     .FirstOrDefault(ln => ln is Lane && ((Lane)ln).Nodes.Contains(id));
             }
@@ -59,8 +58,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             {
                 return new string[] { }
                     .Concat(Children
-                        .Where(elem => elem is IncomingFlow)
-                        .Select(elem => ((IncomingFlow)elem).Value)
+                        .OfType<IncomingFlow>()
+                        .Select(elem => elem.Value)
                     ).Concat(Definition.MessageFlows
                         .Where(msgFlow => msgFlow.targetRef==this.id)
                         .Select(msgFlow => msgFlow.id)
@@ -74,8 +73,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
             {
                 return new string[] { }
                     .Concat(Children
-                        .Where(elem => elem is OutgoingFlow)
-                        .Select(elem => ((OutgoingFlow)elem).Value)
+                        .OfType<OutgoingFlow>()
+                        .Select(elem => elem.Value)
                     ).Concat(Definition.MessageFlows
                         .Where(msgFlow => msgFlow.sourceRef==this.id)
                         .Select(msgFlow => msgFlow.id)

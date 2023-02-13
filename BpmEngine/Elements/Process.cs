@@ -19,12 +19,10 @@ namespace Org.Reddragonit.BpmEngine.Elements
         public bool isExecutable { get { return (this["isExecutable"] == null ? false : bool.Parse(this["isExecutable"])); } }
 
         public IEnumerable<StartEvent> StartEvents => Children
-            .Where(elem => elem is StartEvent)
-            .Select(elem => (StartEvent)elem);
+            .OfType<StartEvent>();
 
         public IEnumerable<BoundaryEvent> BoundaryEvents => Children
-            .Where(elem=>elem is BoundaryEvent)
-            .Select(elem=>(BoundaryEvent)elem);
+            .OfType<BoundaryEvent>();
         
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -40,7 +38,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length == 0)
+            if (!Children.Any())
             {
                 err = new string[] { "No child elements found." };
                 return false;

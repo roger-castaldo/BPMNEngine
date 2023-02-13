@@ -347,13 +347,13 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
             {
                 if (_gp!=null)
                     ((IDisposable)_gp).Dispose();
-            }catch(Exception e) { }
+            }catch(Exception) { }
             try
             {
                 if (_bmp!=null)
                     ((IDisposable)_bmp).Dispose();
             }
-            catch (Exception e) { }
+            catch (Exception) { }
         }
     }
 }

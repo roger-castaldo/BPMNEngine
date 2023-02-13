@@ -19,7 +19,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
 
         public override bool IsValid(out string[] err)
         {
-            if (Children.Length == 0)
+            if (!Children.Any())
             {
                 err = new string[] { "No child elements found." };
                 return false;

@@ -25,7 +25,7 @@ namespace Org.Reddragonit.BpmEngine
             _variables = variables;
         }
 
-        public object this[string name] { get { return _variables[name]; } set { throw new Exception("Unable to change variable values in readonly process variables container."); } }
+        public object this[string name] { get => _variables[name];  set => throw new Exception("Unable to change variable values in readonly process variables container."); }
 
         public IEnumerable<string> Keys => _variables.Keys; 
 

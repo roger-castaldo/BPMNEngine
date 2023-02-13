@@ -7,14 +7,10 @@ using System.Xml;
 namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
 {
     [XMLTag("bpmn","messageFlow")]
-    [RequiredAttribute("sourceRef")]
-    [RequiredAttribute("targetRef")]
     [RequiredAttribute("id")]
     [ValidParent(typeof(Collaboration))]
-    internal class MessageFlow : AElement
+    internal class MessageFlow : AFlowElement
     {
-        public string sourceRef => this["sourceRef"];
-        public string targetRef => this["targetRef"];
 
         public MessageFlow(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }

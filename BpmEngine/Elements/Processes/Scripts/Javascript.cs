@@ -25,7 +25,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
             try
             {
                 _jintAssembly = Assembly.Load("Jint");
-            }catch(Exception e)
+            }catch(Exception)
             {
                 _jintAssembly = null;
             }
@@ -35,7 +35,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                 {
                     _jintAssembly = Assembly.LoadFile(typeof(Javascript).Assembly.Location.Replace("BpmEngine.dll", "Jint.dll"));
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     _jintAssembly = null;
                 }
@@ -114,18 +114,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                     if (ex.InnerException != null)
                     {
                         if (ex.InnerException.Message.Contains("Illegal return statement"))
-                        {
-                            try
-                            {
-                                _execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) });
-                            }catch(Exception ecx)
-                            {
-                                throw ecx;
-                            }
-                        }else
-                            throw ex;
-                    }else
-                        throw ex;
+                            _execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) });
+                        else
+                            throw;
+                    }
+                    else
+                        throw;
                 }
             }
             catch(Exception e)

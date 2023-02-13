@@ -18,7 +18,7 @@ namespace UnitTest
             {
                 BusinessProcess proc = new BusinessProcess(doc);
                 loaded=true;
-            }catch(Exception e)
+            }catch(Exception)
             {
             }
             Assert.IsFalse(loaded);
@@ -34,7 +34,7 @@ namespace UnitTest
                 BusinessProcess proc = new BusinessProcess(doc);
                 loaded=true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
             Assert.IsTrue(loaded);
@@ -51,7 +51,7 @@ namespace UnitTest
                 proc = new BusinessProcess(doc);
                 loaded=true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
             Assert.IsTrue(loaded);

@@ -20,6 +20,22 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
 
         public bool CancelActivity => this["cancelActivity"]==null ? true : bool.Parse(this["cancelActivity"]); 
 
+        public new IEnumerable<string> Outgoing
+        {
+            get
+            {
+                var result = base.Outgoing;
+                if (Children.Any(c => c is CompensationEventDefinition))
+                {
+                    var association = Definition.LocateElementsOfType<Association>()
+                        .FirstOrDefault(asc => asc.sourceRef==id);
+                    if (association!=null)  
+                        result = result.Concat(new string[] {association.id});
+                }
+                return result;
+            }
+        }
+
         public override bool IsValid(out string[] err)
         {
             if (!Outgoing.Any())

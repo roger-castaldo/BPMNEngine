@@ -17,14 +17,13 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
         {
         }
 
-        public IEnumerable<string> MessageTypes => new string[] { }.Concat(Children
-                    .Where(elem => elem is MessageDefinition)
-                    .Select(elem => (MessageDefinition)elem)
+        public IEnumerable<string> MessageTypes => new string[] { }.Concat(
+                Children
+                    .OfType<MessageDefinition>()
                     .Select(ed => ed.Name ?? "*")
                 ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
                     ((IParentElement)ExtensionElement).Children
-                    .Where(elem => elem is MessageDefinition)
-                    .Select(elem => (MessageDefinition)elem)
+                    .OfType<MessageDefinition>()
                     .Select(ed => ed.Name ?? "*")
                 ).Distinct()
                 .DefaultIfEmpty("*");
@@ -34,18 +33,16 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
             if (MessageTypes.Any())
             {
                 List<string> errors = new List<string>();
-                IElement[] elems = Definition.LocateElementsOfType((Parent is IntermediateThrowEvent ? typeof(IntermediateCatchEvent) : typeof(IntermediateThrowEvent)));
                 if (Parent is IntermediateThrowEvent)
                 {
                     if (MessageTypes.Count() > 1)
                         errors.Add("A throw event can only have one error to be thrown.");
+                    var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
                     bool found = elems
-                        .Select(elem => (IntermediateCatchEvent)elem)
                         .Any(catcher => catcher.Children
                             .Any(child => child is MessageEventDefinition && ((MessageEventDefinition)child).MessageTypes.Contains(MessageTypes.First()))
                         ) ||
                         elems
-                        .Select(elem => (IntermediateCatchEvent)elem)
                         .Any(catcher => catcher.Children
                             .Any(child => child is MessageEventDefinition && ((MessageEventDefinition)child).MessageTypes.Contains("*"))
                         );

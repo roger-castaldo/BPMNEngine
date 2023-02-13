@@ -24,13 +24,13 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         public static readonly Color GoldenYellow = new Color(255, 255, 184, 28);
         public static readonly Color Orange = new Color(255, 255, 165, 0);
 
-        private int _a;
+        private readonly int _a;
         public int A { get { return _a; } }
-        private int _r;
+        private readonly int _r;
         public int R { get { return _r; } }
-        private int _g;
+        private readonly int _g;
         public int G { get { return _g; } }
-        private int _b;
+        private readonly int _b;
         public int B { get { return _b; } }
 
         private Color(int a,int r,int g,int b)
@@ -90,12 +90,16 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         public override bool Equals(object obj)
         {
-            if (obj is Color)
+            if (obj is Color c)
             {
-                Color c = (Color)obj;
                 return c.A==_a && c.R==_r && c.G==_g && c.B==_b;
             }
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return string.Format("{0}:{1}:{2}:{3}", new object[]{_a,_r,_g,_b}).GetHashCode();
         }
 
         public int HowClose(Color c)

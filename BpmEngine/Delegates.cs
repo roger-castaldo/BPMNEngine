@@ -87,7 +87,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     /// </code>
     /// </example>
-    public delegate void OnFlowComplete(IElement element, IReadonlyVariables variables);
+    public delegate void OnFlowComplete(IFlowElement element, IReadonlyVariables variables);
 
     /// <summary>
     /// This delegate is implemented to get triggered when a Process has an Error

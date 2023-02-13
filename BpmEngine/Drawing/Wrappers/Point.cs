@@ -16,10 +16,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         private static readonly ConstructorInfo _drawingConstructor = (_DrawingType==null ? null : _DrawingType.GetConstructor(new Type[] { typeof(float), typeof(float) }));
         private static readonly ConstructorInfo _skiaConstructor = (_SkiaType==null ? null : _SkiaType.GetConstructor(new Type[] { typeof(float), typeof(float) }));
 
-        private float _x;
-        public float X { get { return _x; } }
-        private float _y;
-        public float Y { get { return _y; } }
+        private readonly float _x;
+        public float X => _x;
+        private readonly float _y;
+        public float Y => _y;
 
         public Point(float x,float y)
         {
@@ -39,12 +39,16 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
 
         public override bool Equals(object obj)
         {
-            if (obj is Point)
+            if (obj is Point p)
             {
-                Point p = (Point)obj;
                 return _x==p.X&&_y==p.Y;
             }
             return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return string.Format("{0},{1}", _x, _y).GetHashCode();
         }
     }
 }

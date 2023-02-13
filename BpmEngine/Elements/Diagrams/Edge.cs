@@ -19,8 +19,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     internal class Edge : ADiagramElement
     {
         public IEnumerable<Point> Points => Children
-            .Where(elem => elem is Waypoint)
-            .Select(elem => ((Waypoint)elem).Point);
+            .OfType<Waypoint>()
+            .Select(elem => elem.Point);
 
         private Rectangle _rectangle = null;
         public Rectangle Rectangle{
@@ -29,7 +29,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                 if (_rectangle == null)
                 {
                     _rectangle=new Rectangle(0, 0, 0, 0);
-                    Point? previous = null;
+                    Point previous = null;
                     foreach (Point p in Points)
                     {
                         if (previous!=null)
@@ -66,7 +66,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             IElement elem = _GetLinkedElement(definition);
             if (elem != null)
             {
-                Point[] points = Points.ToArray();
+                var points = Points.ToArray();
                 if (elem is MessageFlow)
                 {
                     img.FillEllipse(brush, new Rectangle(points[0].X - 0.5f, points[0].Y - 0.5f,1.5f, 1.5f));

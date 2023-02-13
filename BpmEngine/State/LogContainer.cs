@@ -33,7 +33,7 @@ namespace Org.Reddragonit.BpmEngine.State
         public void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
         {
             StringBuilder sb = new StringBuilder();
-            if (exception is InvalidProcessDefinitionException)
+            if (exception is InvalidProcessDefinitionException exception1)
             {
                 sb.AppendLine(string.Format(@"MESSAGE:{0}
 STACKTRACE:{1}", new object[]
@@ -41,7 +41,7 @@ STACKTRACE:{1}", new object[]
                 exception.Message,
                 exception.StackTrace
                 }));
-                foreach (Exception e in ((InvalidProcessDefinitionException)exception).ProcessExceptions)
+                foreach (Exception e in exception1.ProcessExceptions)
                 {
                     sb.AppendLine(string.Format(@"MESSAGE:{0}
 STACKTRACE:{1}", new object[]
