@@ -261,7 +261,7 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="onSequenceFlowCompleted">
         /// The OnSequenceFlowCompleted delegate called when a sequence flow completes
         /// <code>
-        /// public void OnSequenceFlowCompleted(IElement flow, IReadonlyVariables variables){
+        /// public void OnSequenceFlowCompleted(IFlowElement flow, IReadonlyVariables variables){
         ///         Console.WriteLine("Sequence Flow {0} has been completed with the following variables:",flow.id);
         ///         foreach (string key in variables.FullKeys){
         ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
@@ -272,8 +272,19 @@ namespace Org.Reddragonit.BpmEngine
         /// <param name="onMessageFlowCompleted">
         /// The OnMessageFlowCompleted delegate called when a message flow completes
         /// <code>
-        /// public void OnMessageFlowCompleted(IElement flow, IReadonlyVariables variables){
+        /// public void OnMessageFlowCompleted(IFlowElement flow, IReadonlyVariables variables){
         ///         Console.WriteLine("Message Flow {0} has been completed with the following variables:",flow.id);
+        ///         foreach (string key in variables.FullKeys){
+        ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
+        ///         }
+        ///     }
+        /// </code>
+        /// </param>
+        /// /// <param name="onAssociationFlowCompleted">
+        /// The OnAssociationFlowCompleted delegate called when an association flow completes
+        /// <code>
+        /// public void onAssociationFlowCompleted(IFlowElement flow, IReadonlyVariables variables){
+        ///         Console.WriteLine("Association Flow {0} has been completed with the following variables:",flow.id);
         ///         foreach (string key in variables.FullKeys){
         ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);
         ///         }

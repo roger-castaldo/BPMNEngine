@@ -36,7 +36,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         private const string _SIZE_TYPE = "System.Drawing.SizeF";
         private const string _IMAGE_FORMAT_TYPE = "System.Drawing.Imaging.ImageFormat";
 
-        public static readonly bool CAN_USE = Utility.AllTypesAvailable(_ASSEMBLY_NAME, new string[] { _GRAPHICS_TYPE,_BITMAP_TYPE,_FONT_TYPE, _FONT_FAMILY_TYPE, _FONT_STYLE_TYPE, _GRAPHICS_UNIT_TYPE, _STRING_ALIGNMENT_TYPE, _IMAGE_TYPE, _STRING_FORMAT_TYPE,_BRUSH_TYPE, _SIZE_TYPE, _IMAGE_FORMAT_TYPE, Color.DRAWING_TYPE,GraphicsPath.DRAWING_TYPE,Pen.DRAWING_TYPE,Point.DRAWING_TYPE,Rectangle.DRAWING_TYPE,RoundRectangle.DRAWING_TYPE,Size.DRAWING_TYPE})
+        public static readonly bool CAN_USE = Utility.AllTypesAvailable(_ASSEMBLY_NAME, new string[] { _GRAPHICS_TYPE,_BITMAP_TYPE,_FONT_TYPE, _FONT_FAMILY_TYPE, _FONT_STYLE_TYPE, _GRAPHICS_UNIT_TYPE, _STRING_ALIGNMENT_TYPE, _IMAGE_TYPE, _STRING_FORMAT_TYPE,_BRUSH_TYPE, _SIZE_TYPE, _IMAGE_FORMAT_TYPE, Color.DRAWING_TYPE,Pen.DRAWING_TYPE,Point.DRAWING_TYPE,Rectangle.DRAWING_TYPE,RoundRectangle.DRAWING_TYPE,Size.DRAWING_TYPE})
             && Utility.AllTypesAvailable(_ASSEMBLY_NAME,SolidBrush.DRAWING_TYPES);
 
         private static readonly Type _GraphicsType = LocateType(_GRAPHICS_TYPE);

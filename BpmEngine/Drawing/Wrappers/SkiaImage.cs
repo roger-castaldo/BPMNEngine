@@ -32,7 +32,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Wrappers
         private const string _PATH_TYPE = "SkiaSharp.SKPath";
         private const string _IMAGE_FORMAT_TYPE = "SkiaSharp.SKEncodedImageFormat";
 
-        public static readonly bool CAN_USE = Utility.AllTypesAvailable(_ASSEMBLY_NAME, new string[] { _CANVAS_TYPE, _BITMAP_TYPE,_IMAGE_TYPE,_PAINT_TYPE,_FILTER_QUALITY_TYPE,_PATH_TYPE,Color.SKIA_TYPE,GraphicsPath.SKIA_TYPE,Pen.SKIA_TYPE,Point.SKIA_TYPE,Rectangle.SKIA_TYPE,RoundRectangle.SKIA_TYPE,Size.SKIA_TYPE })
+        public static readonly bool CAN_USE = Utility.AllTypesAvailable(_ASSEMBLY_NAME, new string[] { _CANVAS_TYPE, _BITMAP_TYPE,_IMAGE_TYPE,_PAINT_TYPE,_FILTER_QUALITY_TYPE,_PATH_TYPE,Color.SKIA_TYPE,Pen.SKIA_TYPE,Point.SKIA_TYPE,Rectangle.SKIA_TYPE,RoundRectangle.SKIA_TYPE,Size.SKIA_TYPE })
             && Utility.AllTypesAvailable(_ASSEMBLY_NAME,SolidBrush.SKIA_TYPES);
 
 
