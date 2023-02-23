@@ -1,5 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Attributes;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal class Bounds : AElement
     {
-        public Rectangle Rectangle => new Rectangle(
+        public Rect Rectangle => new Rect(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]),
                     float.Parse(this["width"]),

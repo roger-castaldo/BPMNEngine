@@ -1,5 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +28,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
             _cache= new Dictionary<Color, Image>();
         }
 
-        public void Draw(Rectangle container, Image gp, Color color)
+        public void Draw(Rect container, Image gp, Color color)
         {
             lock (_cache)
             {
@@ -35,7 +36,6 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
                 {
                     Image g = new Image(_ImageSize, _ImageSize);
                     _Draw(g, color);
-                    g.Flush();
                     _cache.Add(color, g);
                 }
                 gp.DrawImage(_cache[color], container);

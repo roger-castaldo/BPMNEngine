@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using System;
 using System.Collections.Generic;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
@@ -18,7 +20,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             new Point(11F,18f)
         };
 
-        private bool _fill;
+        private readonly bool _fill;
         public RightArrow(bool fill)
         {
             _fill = fill;
@@ -27,7 +29,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         public void Add(Image gp, int iconSize, Color color)
         {
             if (_fill)
-                gp.FillPolygon(new SolidBrush(color), _POINTS);
+                gp.FillPolygon(color, _POINTS);
             else
                 gp.DrawLines(new Pen(color, 1f), _POINTS);
         }

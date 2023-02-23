@@ -1,6 +1,7 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Drawing;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
@@ -125,7 +126,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return _Render(path, definition, null);
         }     
 
-        private Rectangle _ShiftRectangle(Rectangle rectangle)
+        private Rect _ShiftRectangle(Rect rectangle)
         {
             if (rectangle!=null) {
                 int minX;
@@ -133,7 +134,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 int maxX;
                 int maxY;
                 _CalculateDimensions(out minX,out maxX,out minY,out maxY);
-                return new Rectangle(Math.Abs(minX) + rectangle.X, Math.Abs(minY) + rectangle.Y, rectangle.Width, rectangle.Height);
+                return new Rect(Math.Abs(minX) + rectangle.X, Math.Abs(minY) + rectangle.Y, rectangle.Width, rectangle.Height);
             }
             return rectangle;
         }
@@ -177,7 +178,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             Image ret = new Image(Size);
             if (elemid==null)
-                ret.Clear(Color.White);
+                ret.Clear(Image.White);
             int minX;
             int minY;
             int maxX;
@@ -186,7 +187,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             ret.TranslateTransform(Math.Abs(minX), Math.Abs(minY));
             foreach (Shape shape in _Shapes.Where(shape => shape.bpmnElement == (elemid == null ? shape.bpmnElement : elemid)))
             {
-                Rectangle rect;
+                Rect rect;
                 Image img = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, shape.bpmnElement), out rect);
                 ret.DrawImage(img, rect);
             }
@@ -195,13 +196,14 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return ret;
         }
 
-        internal Image RenderElement(ProcessPath path, Definition definition, string elementID,out Rectangle rectangle)
+        internal Image RenderElement(ProcessPath path, Definition definition, string elementID,out Rect? rectangle)
         {
             var shape = _Shapes.FirstOrDefault(shape => shape.bpmnElement == elementID);
             if (shape!=null)
             {
-                Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, elementID), out rectangle);
-                rectangle = _ShiftRectangle(rectangle);
+                Rect r;
+                Image ret = _RenderShape(shape, path.GetStatus(shape.bpmnElement), shape.GetIcon(definition), definition.LocateElement(shape.bpmnElement), _GetBoundShapes(definition, elementID), out r);
+                rectangle = _ShiftRectangle(r);
                 return ret;
             }
             var edge = _Edges.FirstOrDefault(edge => edge.bpmnElement == elementID);
@@ -218,25 +220,25 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             Image ret = new Image(edge.Rectangle);
             ret.TranslateTransform(0 - edge.Rectangle.X, 0 - edge.Rectangle.Y);
-            ret.DrawLines(edge.ConstructPen(_GetBrush(status), definition), edge.Points.ToArray());
-            edge.AppendEnds(ret, _GetBrush(status), definition);
+            ret.DrawLines(edge.ConstructPen(_GetColor(status), definition), edge.Points.ToArray());
+            edge.AppendEnds(ret, _GetColor(status), definition);
             if (edge.Label != null)
             {
                 IElement elem = definition.LocateElement(edge.bpmnElement);
                 if (elem != null)
                 {
                     Size sf = ret.MeasureString(elem.ToString(), new Size((int)edge.Label.Bounds.Rectangle.Width, (int)edge.Label.Bounds.Rectangle.Height));
-                    ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(edge.Label.Bounds.Rectangle.X+Image.EdgeLabelHorizontalShift, edge.Label.Bounds.Rectangle.Y+Image.EdgeLabelVerticalShift, Math.Max(edge.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(edge.Label.Bounds.Rectangle.Height, sf.Height)),true);
+                    ret.DrawString(elem.ToString(), _GetColor(status), new Rect(edge.Label.Bounds.Rectangle.X+Image.EdgeLabelHorizontalShift, edge.Label.Bounds.Rectangle.Y+Image.EdgeLabelVerticalShift, Math.Max(edge.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(edge.Label.Bounds.Rectangle.Height, sf.Height)),true);
                 }
             }
             return ret;
         }
 
-        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,IEnumerable<Shape> boundElements,out Rectangle rect)
+        private Image _RenderShape(Shape shape, StepStatuses status, BPMIcons? icon,IElement elem,IEnumerable<Shape> boundElements,out Rect rect)
         {
-            rect = shape.Rectangle.Merge((shape.Label!=null ? shape.Label.Bounds.Rectangle : null));
+            rect = Image.MergeRectangle(shape.Rectangle,(shape.Label!=null ? shape.Label.Bounds.Rectangle : null));
             Image ret = new Image(rect);
-            ret.TranslateTransform(0 - rect.X, 0 - rect.Y);
+            ret.TranslateTransform(0 - (float)rect.X, 0 - (float)rect.Y);
             if (icon.HasValue)
             {
                 switch (icon.Value)
@@ -249,7 +251,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     case BPMIcons.ServiceTask:
                     case BPMIcons.ScriptTask:
                     case BPMIcons.BusinessRuleTask:
-                        IconGraphic.AppendIcon(new Rectangle(shape.Rectangle.X + 5, shape.Rectangle.Y + 5, 15, 15), icon.Value, ret, _GetColor(status));
+                        IconGraphic.AppendIcon(new Rect(shape.Rectangle.X + 5, shape.Rectangle.Y + 5, 15, 15), icon.Value, ret, _GetColor(status));
                         break;
                     default:
                         IconGraphic.AppendIcon(shape.Rectangle, icon.Value, ret, _GetColor(status));
@@ -259,34 +261,34 @@ namespace Org.Reddragonit.BpmEngine.Elements
             if (elem != null)
             {
                 if (elem is TextAnnotation)
-                    ret.DrawLines(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new Point[]{
+                    ret.DrawLines(new Pen(_GetColor(status), Constants.PEN_WIDTH), new Point[]{
                             new Point(shape.Rectangle.X+20,shape.Rectangle.Y),
                             new Point(shape.Rectangle.X,shape.Rectangle.Y),
                             new Point(shape.Rectangle.X,shape.Rectangle.Y+shape.Rectangle.Height),
                             new Point(shape.Rectangle.X+20,shape.Rectangle.Y+shape.Rectangle.Height)
                         });
                 else if (elem is Lane || elem is Participant)
-                    ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH),new RoundRectangle(shape.Rectangle,_LANE_CORNER_RADIUS));
+                    ret.DrawRoundRectangle(new Pen(_GetColor(status), Constants.PEN_WIDTH),shape.Rectangle,_LANE_CORNER_RADIUS);
                 else if (elem is SubProcess)
-                    ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new RoundRectangle(shape.Rectangle,_SUB_PROCESS_CORNER_RADIUS));
+                    ret.DrawRoundRectangle(new Pen(_GetColor(status), Constants.PEN_WIDTH), shape.Rectangle,_SUB_PROCESS_CORNER_RADIUS);
                 else if (elem is ATask)
                 {
                     if (elem is CallActivity)
-                        ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.WIDE_PEN_WIDTH), new RoundRectangle(shape.Rectangle, _WIDE_TASK_CORNER_RADIUS));
+                        ret.DrawRoundRectangle(new Pen(_GetColor(status), Constants.WIDE_PEN_WIDTH), shape.Rectangle, _WIDE_TASK_CORNER_RADIUS);
                     else
-                        ret.DrawRoundRectangle(new Pen(_GetBrush(status), Constants.PEN_WIDTH), new RoundRectangle(shape.Rectangle, _TASK_CORNER_RADIUS));
+                        ret.DrawRoundRectangle(new Pen(_GetColor(status), Constants.PEN_WIDTH), shape.Rectangle, _TASK_CORNER_RADIUS);
                 }
                 if (boundElements!=null)
                 {
                     foreach (Shape be in boundElements)
-                        ret.FillEllipse(new SolidBrush(Color.White), be.Rectangle);
+                        ret.FillEllipse(Image.White, be.Rectangle);
                 }
                 if (elem.ToString() != "")
                 {
                     if (shape.Label != null)
                     {
                         Size sf = ret.MeasureString(elem.ToString(), new Size(shape.Label.Bounds.Rectangle.Width, (float)int.MaxValue));
-                        ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(shape.Label.Bounds.Rectangle.X, shape.Label.Bounds.Rectangle.Y, Math.Max(shape.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(shape.Label.Bounds.Rectangle.Height, sf.Height)),true);
+                        ret.DrawString(elem.ToString(), _GetColor(status), new Rect(shape.Label.Bounds.Rectangle.X, shape.Label.Bounds.Rectangle.Y, Math.Max(shape.Label.Bounds.Rectangle.Width, sf.Width), Math.Max(shape.Label.Bounds.Rectangle.Height, sf.Height)),true);
                     }
                     else
                     {
@@ -296,15 +298,14 @@ namespace Org.Reddragonit.BpmEngine.Elements
                             if (elem is Lane || elem is LaneSet || elem is Participant)
                             {
                                 Image g = new Image((int)size.Height * 2, (int)size.Width);
-                                g.TranslateTransform(g.Size.Width / 2, g.Size.Height);
+                                g.TranslateTransform((float)g.Size.Width / 2f, (float)g.Size.Height);
                                 g.RotateTransform(-90);
                                 g.TranslateTransform(0, 0);
                                 g.DrawString(elem.ToString(),_GetColor(status), new Point(0, 0));
-                                g.Flush();
                                 ret.DrawImage(g, new Point(shape.Rectangle.X + Image.VerticalTextShift, shape.Rectangle.Y + ((shape.Rectangle.Height - g.Size.Height) / 2)));
                             }
                             else
-                                ret.DrawString(elem.ToString(), _GetBrush(status), new Rectangle(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f),true);
+                                ret.DrawString(elem.ToString(), _GetColor(status), new Rect(shape.Rectangle.X + 0.5f, shape.Rectangle.Y + 15, shape.Rectangle.Width - 1, shape.Rectangle.Height - 15.5f),true);
                         }
                     }
                 }
@@ -314,31 +315,26 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         private Color _GetColor(StepStatuses status)
         {
-            Color ret = Color.Black;
+            Color ret = Image.Black;
             switch (status)
             {
                 case StepStatuses.Failed:
-                    ret = Color.Red;
+                    ret = Image.Red;
                     break;
                 case StepStatuses.Succeeded:
-                    ret = Color.Green;
+                    ret = Image.Green;
                     break;
                 case StepStatuses.Waiting:
-                    ret = Color.Blue;
+                    ret = Image.Blue;
                     break;
                 case StepStatuses.WaitingStart:
-                    ret=Color.GoldenYellow;
+                    ret=Image.GoldenYellow;
                     break;
                 case StepStatuses.Aborted:
-                    ret=Color.Orange;
+                    ret=Image.Orange;
                     break;
             }
             return ret;
-        }
-
-        private SolidBrush _GetBrush(StepStatuses status)
-        {
-            return new SolidBrush(_GetColor(status));
         }
 
         public override bool IsValid(out string[] err)

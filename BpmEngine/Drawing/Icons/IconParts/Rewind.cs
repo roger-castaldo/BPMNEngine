@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Microsoft.Maui.Graphics;
+using System;
 using System.Collections.Generic;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
@@ -20,7 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 
         public void Add(Image gp, int iconSize, Color color)
         {
-            gp.FillPolygon(new SolidBrush(color), _POINTS);
+            gp.FillPolygon(color, _POINTS);
         }
     }
 }

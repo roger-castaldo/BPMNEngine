@@ -1,4 +1,5 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using Org.Reddragonit.BpmEngine.State;
@@ -397,7 +398,7 @@ namespace Org.Reddragonit.BpmEngine
         Dictionary<string, object> IProcessInstance.CurrentVariables { get { return StateVariableContainer.ExtractVariables(((IProcessInstance)this).CurrentState); } }
         #endregion
 
-        byte[] IProcessInstance.Diagram(bool outputVariables,ImageOuputTypes type) { return _process.Diagram(outputVariables, _state, type); }
+        byte[] IProcessInstance.Diagram(bool outputVariables,ImageFormat type) { return _process.Diagram(outputVariables, _state, type); }
 
         byte[] IProcessInstance.Animate(bool outputVariables) { return _process.Animate(outputVariables, _state); }
 

@@ -1,5 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Gif;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Gif;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
     /// </summary>
     internal class GifEncoder : IDisposable
     {
-        private static readonly Color _TransparentColor = Color.White;
+        private static readonly Color _TransparentColor = Image.White;
 
         private struct sGif
         {
@@ -41,13 +42,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                 _canvasHeight = (short)img.Size.Height;
                 _transparentColorIndex = 0;
                 List<Color> colors = new List<Color>();
-                _data = new byte[img.Size.Width*img.Size.Height];
+                _data = new byte[(int)(img.Size.Width*img.Size.Height)];
                 if (!isFirstFrame)
                 {
                     Image g = new Image(img.Size);
-                    g.FillRectangle(new SolidBrush(_TransparentColor), new Rectangle(0f, 0f, (float)img.Size.Width, (float)img.Size.Height));
+                    g.FillRectangle(_TransparentColor, new RectF(0f, 0f, (float)img.Size.Width, (float)img.Size.Height));
                     g.DrawImage(img, new Point(0, 0));
-                    g.Flush();
                     img=g;
                     colors.Add(_TransparentColor);
                 }
@@ -64,7 +64,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                             else
                                 colors.Add(c);
                         }
-                        _data[(y*img.Size.Width)+x]=(byte)colors.IndexOf(c);
+                        _data[(y*(int)img.Size.Width)+x]=(byte)colors.IndexOf(c);
                     }
                 }
 
@@ -76,16 +76,21 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                 int idx = 0;
                 foreach (Color c in colors)
                 {
-                    _colorTable[idx]=(byte)c.R;
-                    _colorTable[idx+1]=(byte)c.G;
-                    _colorTable[idx+2]=(byte)c.B;
+                    _colorTable[idx]=(byte)c.Red;
+                    _colorTable[idx+1]=(byte)c.Green;
+                    _colorTable[idx+2]=(byte)c.Blue;
                     idx+=3;
                 }
 
                 MemoryStream ms = new MemoryStream();
-                new LZWEncoder(img.Size.Width, img.Size.Height, _data, 8).Encode(ms);
+                new LZWEncoder((int)img.Size.Width, (int)img.Size.Height, _data, 8).Encode(ms);
 
                 _data=ms.ToArray();
+            }
+
+            private static int _HowClose(Color a,Color c)
+            {
+                return (int)(Math.Abs(c.Red-a.Red)+Math.Abs(c.Green-a.Green)+Math.Abs(c.Blue-a.Blue)+Math.Abs(c.Alpha-a.Alpha));
             }
 
             private static Color _FindClosest(List<Color> colors, Color c)
@@ -94,7 +99,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                 int cc = int.MaxValue;
                 foreach (Color col in colors)
                 {
-                    int hc = c.HowClose(col);
+                    int hc = _HowClose(col,c);
                     if (hc<cc)
                     {
                         ret=col;

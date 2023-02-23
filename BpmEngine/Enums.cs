@@ -61,18 +61,4 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         Debug = 0x04
     }
-    /// <summary>
-    /// This enumartor is used to specify the format of the diagram image to output
-    /// </summary>
-    public enum ImageOuputTypes
-    {
-        /// <summary>
-        /// JPEG
-        /// </summary>
-        Jpeg,
-        /// <summary>
-        /// PNG
-        /// </summary>
-        Png
-    }
 }

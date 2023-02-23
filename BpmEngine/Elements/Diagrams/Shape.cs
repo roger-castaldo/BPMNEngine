@@ -1,5 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Attributes;
+
 using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
@@ -17,10 +18,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Plane))]
     internal class Shape : ADiagramElement
     {
-        public Rectangle Rectangle => Children
+        public Rect Rectangle => Children
             .OfType<Bounds>()
             .Select(elem => elem.Rectangle)
-            .FirstOrDefault() ?? new Rectangle(0, 0, 0, 0);
+            .FirstOrDefault(new Rect(0, 0, 0, 0));
 
         public Label Label => (Label)Children
             .FirstOrDefault(elem => elem is Label);
@@ -160,6 +161,9 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                                 break;
                             case EventSubTypes.Error:
                                 ret=BPMIcons.InteruptingErrorBoundaryEvent;
+                                break;
+                            case EventSubTypes.Compensation:
+                                ret=BPMIcons.InteruptingCompensationBoundaryEvent;
                                 break;
                         }
                     }

@@ -1,5 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Icons;
+
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
@@ -24,13 +25,13 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             }
         }
 
-        public static void AppendIcon(Rectangle destination,BPMIcons icon,Image gp,Color color)
+        public static void AppendIcon(Rect destination,BPMIcons icon,Image gp,Color color)
         {
             lock (_icons)
             {
                 if (_icons.ContainsKey(icon))
                 {
-                    _icons[icon].Draw(destination, gp, color); 
+                    _icons[icon].Draw(destination, gp, color);
                 }
             }
         }

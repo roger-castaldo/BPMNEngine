@@ -1,5 +1,7 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,8 +24,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
         protected override void _Draw(Image gp, Color color)
         {
             base._Draw(gp, color);
-            gp.DrawEllipse(new Pen(color, 1f), new Rectangle(16, 16, 30, 30));
-            gp.DrawEllipse(new Pen(color, 1f), new Rectangle(19, 19, 24, 24));
+            gp.DrawEllipse(new Pen(color, 1f), new Rect(16, 16, 30, 30));
+            gp.DrawEllipse(new Pen(color, 1f), new Rect(19, 19, 24, 24));
             gp.DrawLines(new Pen(color, 1f), _POINTS);
         }
     }

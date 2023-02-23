@@ -1,5 +1,7 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+
 using System;
 using System.Collections.Generic;
 using System.Text;

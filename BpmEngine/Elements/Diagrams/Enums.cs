@@ -48,6 +48,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         InteruptingConditionalBoundaryEvent,
         InteruptingErrorBoundaryEvent,
         InteruptingSignalBoundaryEvent,
+        InteruptingCompensationBoundaryEvent,
         NonInteruptingMessageBoundaryEvent,
         NonInteruptingTimerBoundaryEvent,
         NonInteruptingEscalationBoundaryEvent,

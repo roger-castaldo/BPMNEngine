@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using System;
 using System.Collections.Generic;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class OuterCircle : IIconPart
     {
-        private bool _dashed;
+        private readonly bool _dashed;
 
         public OuterCircle()
             : this(false) { }
@@ -18,7 +20,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 
         public void Add(Image gp, int iconSize, Color color)
         {
-            gp.DrawEllipse(new Pen(color, 1f, (_dashed ? Constants.DASH_PATTERN : null)), new Rectangle(0,0,AIcon.IMAGE_SIZE-1,AIcon.IMAGE_SIZE-1));
+            gp.DrawEllipse(new Pen(color, 1f, (_dashed ? Constants.DASH_PATTERN : null)), new Rect(0,0,AIcon.IMAGE_SIZE-1,AIcon.IMAGE_SIZE-1));
         }
     }
 }

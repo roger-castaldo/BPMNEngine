@@ -1,4 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+﻿
+using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,10 +46,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         public void Add(Image gp, int iconSize, Color color)
         {
             Pen p = new Pen(color, 1f);
-            Rectangle rect = new Rectangle(8f,8f,30f,30f);
+            Rect rect = new Rect(8f,8f,30f,30f);
             Point c = new Point(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
             gp.DrawEllipse(p, rect);
-            float rad = rect.Width / 2f;
+            float rad = (float)rect.Width / 2f;
             foreach (sAngleFactorPair angle in _ANGLES)
             {
                 gp.DrawLine(p,

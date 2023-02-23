@@ -28,18 +28,42 @@
     <DocumentationMarkdown>..\BPMEngine.Wiki\BpmEngine.md</DocumentationMarkdown>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Drawing\Icons\IconParts\resources\CenterPlus.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\CenterStar.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\CenterX.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Cog.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Hand.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Person.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Script.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\CenterPlus.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\CenterStar.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\CenterX.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Cog.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Hand.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Person.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Script.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Table.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="7.0.59" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="7.0.59" />
     <PackageReference Include="Vsxmd" Version="1.4.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CodeDom" Version="6.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.0.1" />
+    <PackageReference Include="System.CodeDom" Version="7.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.4.0" />
 	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 </Project>

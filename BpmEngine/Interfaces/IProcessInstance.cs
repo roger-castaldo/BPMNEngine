@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maui.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -43,7 +44,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// <param name="outputVariables">Set true to include outputting variables into the image</param>
         /// <param name="type">The image format to encode the diagram in</param>
         /// <returns>A Bitmap containing a rendered image of the process at its current state</returns>
-        byte[] Diagram(bool outputVariables, ImageOuputTypes type);
+        byte[] Diagram(bool outputVariables, ImageFormat type);
         /// <summary>
         /// Called to render an animated version of the process (output in GIF format).  This will animate each step of the process using the current state.
         /// </summary>

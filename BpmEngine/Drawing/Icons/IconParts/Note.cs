@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Maui.Graphics;
+using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using System;
 using System.Collections.Generic;
-using Org.Reddragonit.BpmEngine.Drawing.Wrappers;
+
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
@@ -14,7 +16,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         public void Add(Image gp, int iconSize, Color color)
         {
             Pen p = new Pen(color, 1f);
-            gp.DrawRectangle(p, new Rectangle(13f, 11f, 19f, 23f));
+            gp.DrawRectangle(p, new Rect(13f, 11f, 19f, 23f));
             float y = 11f + _Y_SHIFT;
             for(int x = 0; x < 5; x++)
             {
