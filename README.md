@@ -5,8 +5,6 @@ task objects.  Thanks to our authorized private software [HRForms.App](https://w
 
 Current Test Status:
 
-[![.NET-Test-3x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml)\
-[![.NET-Test-3x-SkiaSharp-2.88.0](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x-Skia.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x-Skia.yml)\
 [![.NET-Test-6x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml)\
 [![.NET-Test-6x-SkiaSharp-2.88.0](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x-Skia.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x-Skia.yml)\
 [![.NET-Test-7x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests7x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests7x.yml)\

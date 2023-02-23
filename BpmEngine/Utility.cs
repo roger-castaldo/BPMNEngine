@@ -33,15 +33,9 @@ namespace Org.Reddragonit.BpmEngine
         private static List<object> _events;
         private static ManualResetEvent _backgroundMREEvent;
 
-#if NETCOREAPP3_1
-        private static readonly RNGCryptoServiceProvider _rand;
-#endif
 
         static Utility()
         {
-#if NETCOREAPP3_1
-            _rand = new RNGCryptoServiceProvider();
-#endif
             _backgroundMREEvent = new ManualResetEvent(true);
             _events = new List<object>();
             _backgroundThread = new Thread(new ThreadStart(BackgroundStart));
@@ -141,17 +135,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public static byte[] NextRandomBytes(int length)
         {
-#if NETCOREAPP3_1
-            byte[] ret = new byte[length];
-            lock (_rand)
-            {
-                _rand.GetBytes(ret);
-            }
-            return ret;
-#else
             return RandomNumberGenerator.GetBytes(length);
-#endif
-
         }
 
         public static Guid NextRandomGuid()
