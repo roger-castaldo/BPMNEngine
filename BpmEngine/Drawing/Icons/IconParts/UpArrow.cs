@@ -9,6 +9,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class UpArrow : IIconPart
     {
+        private const float _PEN_SIZE = 1.0f;
+
         private static readonly Point[] _POINTS = new Point[] {
             new Point(23f,9f),
             new Point(33f,34f),
@@ -17,18 +19,36 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             new Point(23f,9f)
         };
 
+        private static readonly PathF _PATH;
+
+        static UpArrow()
+        {
+            _PATH = new PathF(_POINTS[0]);
+            for (int idx = 1; idx<_POINTS.Length; idx++)
+                _PATH.LineTo(_POINTS[idx]);
+            _PATH.Close();
+        }
+
         private bool _filled;
         public UpArrow(bool filled)
         {
             _filled=filled;
         }
 
-        public void Add(Image gp, int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
             if (_filled)
-                gp.FillPolygon(color, _POINTS);
+            {
+                surface.FillColor=color;
+                surface.FillPath(_PATH);
+            }
             else
-                gp.DrawLines(new Pen(color, 1F), _POINTS);
+            {
+                surface.StrokeColor=color;
+                surface.StrokeSize = _PEN_SIZE;
+                surface.StrokeDashPattern=null;
+                surface.DrawPath(_PATH);
+            }
         }
     }
 }

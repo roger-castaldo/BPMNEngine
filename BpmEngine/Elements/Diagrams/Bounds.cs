@@ -21,7 +21,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal class Bounds : AElement
     {
-        public Rect Rectangle => new Rect(
+        public RectF Rectangle => new RectF(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]),
                     float.Parse(this["width"]),

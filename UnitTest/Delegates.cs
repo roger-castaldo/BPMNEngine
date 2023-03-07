@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace UnitTest
@@ -162,7 +163,9 @@ namespace UnitTest
             Guid guid = new Guid("8782dc9a-915a-40af-ac39-b7d808fda926");
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            var finished = instance.WaitForCompletion(30*1000);
+            System.Diagnostics.Debug.WriteLine(instance.CurrentState.OuterXml);
+            Assert.IsTrue(finished);
             System.Threading.Thread.Sleep(5000);
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Completed"));

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Graphics;
 using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
@@ -10,6 +11,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
     internal class OuterCircle : IIconPart
     {
         private readonly bool _dashed;
+        private const float _PEN_SIZE = 2f;
 
         public OuterCircle()
             : this(false) { }
@@ -18,9 +20,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             _dashed=dashed;
         }
 
-        public void Add(Image gp, int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
-            gp.DrawEllipse(new Pen(color, 1f, (_dashed ? Constants.DASH_PATTERN : null)), new Rect(0,0,AIcon.IMAGE_SIZE-1,AIcon.IMAGE_SIZE-1));
+            surface.StrokeColor = color;
+            surface.StrokeSize = _PEN_SIZE;
+            surface.StrokeDashPattern = _dashed ? Constants.DASH_PATTERN : null;
+            surface.DrawEllipse(new Rect(0,0,AIcon.IMAGE_SIZE-1,AIcon.IMAGE_SIZE-1));
         }
     }
 }

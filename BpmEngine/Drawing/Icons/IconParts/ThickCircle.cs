@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Graphics;
 using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
@@ -9,9 +10,15 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class ThickCircle : IIconPart
     {
-        public void Add(Image gp, int iconSize, Color color)
+        private const float _PEN_SIZE = 4.0f;
+
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
-            gp.DrawEllipse(new Pen(color, 4f),new Rect(2,2,AIcon.IMAGE_SIZE-5,AIcon.IMAGE_SIZE-5));
+            surface.StrokeColor= color;
+            surface.StrokeDashPattern=null;
+            surface.StrokeSize= _PEN_SIZE;
+
+            surface.DrawEllipse(new Rect(2,2,AIcon.IMAGE_SIZE-5,AIcon.IMAGE_SIZE-5));
         }
     }
 }

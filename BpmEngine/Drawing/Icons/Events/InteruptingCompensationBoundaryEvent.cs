@@ -11,7 +11,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Events
         private static readonly IIconPart[] _PARTS = new IIconPart[] {
             new OuterCircle(),
             new InnerCircle(),
-            new Rewind()
+            new Rewind(false)
         };
 
         protected override IIconPart[] _parts

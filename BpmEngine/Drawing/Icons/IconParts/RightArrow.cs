@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Graphics;
 using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
@@ -9,6 +10,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class RightArrow : IIconPart
     {
+        private const float _PEN_SIZE = 1.0f;
+
         private static readonly Point[] _POINTS = new Point[] {
             new Point(11F,18f),
             new Point(26F,18f),
@@ -20,18 +23,36 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             new Point(11F,18f)
         };
 
-        private readonly bool _fill;
-        public RightArrow(bool fill)
+        private static readonly PathF _PATH;
+
+        static RightArrow()
         {
-            _fill = fill;
+            _PATH = new PathF(_POINTS[0]);
+            for (int idx = 1; idx<_POINTS.Length; idx++)
+                _PATH.LineTo(_POINTS[idx]);
+            _PATH.Close();
         }
 
-        public void Add(Image gp, int iconSize, Color color)
+        private readonly bool _filled;
+        public RightArrow(bool filled)
         {
-            if (_fill)
-                gp.FillPolygon(color, _POINTS);
+            _filled = filled;
+        }
+
+        public void Add(ICanvas surface, int iconSize, Color color)
+        {
+            if (_filled)
+            {
+                surface.FillColor=color;
+                surface.FillPath(_PATH);
+            }
             else
-                gp.DrawLines(new Pen(color, 1f), _POINTS);
+            {
+                surface.StrokeColor=color;
+                surface.StrokeSize = _PEN_SIZE;
+                surface.StrokeDashPattern=null;
+                surface.DrawPath(_PATH);
+            }
         }
     }
 }

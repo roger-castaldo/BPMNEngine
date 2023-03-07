@@ -10,6 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
     internal class InnerCircle : IIconPart
     {
         private readonly bool _dashed;
+        private const float _PEN_SIZE = 2f;
 
         public InnerCircle()
             : this(false) { }
@@ -18,9 +19,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             _dashed=dashed;
         }
 
-        public void Add(Image gp, int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
-            gp.DrawEllipse(new Pen(color, 1f,(_dashed ? Constants.DASH_PATTERN : null)), new Rect(4, 4, AIcon.IMAGE_SIZE - 8, AIcon.IMAGE_SIZE- 8));
+            surface.StrokeColor = color;
+            surface.StrokeSize = _PEN_SIZE;
+            surface.StrokeDashPattern = _dashed ? Constants.DASH_PATTERN : null;
+            surface.DrawEllipse(new Rect(4, 4, AIcon.IMAGE_SIZE - 8, AIcon.IMAGE_SIZE- 8));
         }
     }
 }

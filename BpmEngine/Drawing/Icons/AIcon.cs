@@ -1,9 +1,8 @@
 ﻿using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Graphics.Skia;
 using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-
-using System;
+using Org.Reddragonit.BpmEngine.Elements;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons
 {
@@ -11,34 +10,37 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
     {
         public const int IMAGE_SIZE = 46;
 
-        private Dictionary<Color, Image> _cache;
+        private Dictionary<Microsoft.Maui.Graphics.Color, SkiaBitmapExportContext> _cache;
 
         protected virtual int _ImageSize { get { return IMAGE_SIZE; } }
 
         protected virtual IIconPart[] _parts { get { return new IIconPart[0]; } }
 
-        protected virtual void _Draw(Image gp, Color color)
+        protected virtual void _Draw(ICanvas surface, Color color)
         {
             foreach (IIconPart part in _parts)
-                part.Add(gp,_ImageSize, color);
+                part.Add(surface,_ImageSize, color);
         }
 
         public AIcon()
         {
-            _cache= new Dictionary<Color, Image>();
+            _cache= new Dictionary<Color, SkiaBitmapExportContext>();
         }
 
-        public void Draw(Rect container, Image gp, Color color)
+        public void Draw(RectF container, ICanvas surface, Color color)
         {
             lock (_cache)
             {
                 if (!_cache.ContainsKey(color))
                 {
-                    Image g = new Image(_ImageSize, _ImageSize);
-                    _Draw(g, color);
-                    _cache.Add(color, g);
+                    var image  = Diagram.ProduceImage(_ImageSize, _ImageSize);
+                    var canvas = image.Canvas;
+                    canvas.FillColor = Colors.White;
+                    canvas.FillRectangle(0,0,_ImageSize, _ImageSize);
+                    _Draw(canvas, color);
+                    _cache.Add(color, image);
                 }
-                gp.DrawImage(_cache[color], container);
+                surface.DrawImage(_cache[color].Image, container.X,container.Y,container.Width,container.Height);
             }
         }
     }

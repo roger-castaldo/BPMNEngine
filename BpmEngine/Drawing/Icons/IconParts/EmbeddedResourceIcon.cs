@@ -1,5 +1,8 @@
 ﻿
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Graphics.Skia;
+using Org.Reddragonit.BpmEngine.Elements;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,29 +16,28 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
     {
         protected abstract string _resourceName { get; }
 
-        public void Add(Image gp,int iconSize, Color color)
+        public void Add(ICanvas surface,int iconSize, Color color)
         {
-            Image img = Image.FromStream(GetType().GetTypeInfo().Assembly.GetManifestResourceStream(string.Format("Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts.resources.{0}",_resourceName)));
-            if (color!=Image.Black)
+            var icon = SKImage.FromEncodedData(GetType().GetTypeInfo().Assembly.GetManifestResourceStream(string.Format("Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts.resources.{0}", _resourceName)));
+            var bmp = SKBitmap.FromImage(icon);
+            var image = Diagram.ProduceImage(icon.Width,icon.Height);
+            for(int x = 0; x<bmp.Width; x++)
             {
-                Image g = new Image(img.Size);
-                g.DrawImage(img,new Rect(0,0,img.Size.Width,img.Size.Height));
-                for (int x = 0; x<g.Size.Width; x++)
+                for(int y = 0; y<bmp.Height; y++)
                 {
-                    for (int y = 0; y<g.Size.Height; y++)
+                    var c = bmp.GetPixel(x, y);
+                    if (c.AsColor()!=Colors.White)
                     {
-                        Color c = g.GetPixel(x, y);
-                        g.SetPixel(x, y, new Color(
-                            Math.Min(255, c.Red+color.Red),
-                            Math.Min(255, c.Green+color.Green),
-                            Math.Min(255, c.Blue+color.Blue),
+                        image.Bitmap.SetPixel(x,y,new Color(
+                            Math.Min(c.Red+color.Red,byte.MaxValue),
+                            Math.Min(c.Green+color.Green,byte.MaxValue),
+                            Math.Min(c.Blue+color.Blue,byte.MaxValue),
                             c.Alpha
-                        ));
+                        ).AsSKColor());
                     }
                 }
-                img=g;
             }
-            gp.DrawImage(img, new Rect(0, 0, iconSize,iconSize));
+            surface.DrawImage(image.Image,0,0,iconSize,iconSize);
         }
     }
 }

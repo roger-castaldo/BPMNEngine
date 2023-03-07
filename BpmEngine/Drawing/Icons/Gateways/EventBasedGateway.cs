@@ -11,6 +11,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.EventBasedGateway)]
     internal class EventBasedGateway : AGateway
     {
+        private const float _CIRCLE_PEN_SIZE = 1.0f;
+
         private static readonly Point[] _POINTS = new Point[]
         {
             new Point(23f,26f),
@@ -21,12 +23,19 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
             new Point(23f,26f)
         };
 
-        protected override void _Draw(Image gp, Color color)
+        protected override void _Draw(ICanvas surface, Color color)
         {
-            base._Draw(gp, color);
-            gp.DrawEllipse(new Pen(color, 1f), new Rect(16, 16, 30, 30));
-            gp.DrawEllipse(new Pen(color, 1f), new Rect(19, 19, 24, 24));
-            gp.DrawLines(new Pen(color, 1f), _POINTS);
+            base._Draw(surface, color);
+
+            for (int idx = 1; idx<_POINTS.Length; idx++)
+                surface.DrawLine(_POINTS[idx-1], _POINTS[idx]);
+
+            surface.DrawLine(_POINTS[_POINTS.Length-1], _POINTS[0]);
+
+            surface.StrokeSize = _CIRCLE_PEN_SIZE;
+
+            surface.DrawEllipse(new Rect(16, 16, 30, 30));
+            surface.DrawEllipse(new Rect(19, 19, 24, 24));
         }
     }
 }

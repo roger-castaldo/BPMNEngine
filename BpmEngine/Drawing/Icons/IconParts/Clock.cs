@@ -9,6 +9,9 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class Clock : IIconPart
     {
+        private const float _PEN_SIZE = 2.0f;
+        private const float _TICK_SIZE = 1.0f;
+
         private struct sAngleFactorPair
         {
             private float _x;
@@ -43,27 +46,34 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         private static readonly sAngleFactorPair _HOUR_HAND = new sAngleFactorPair(15);
         private static readonly sAngleFactorPair _MINUTE_HAND = new sAngleFactorPair(290);
 
-        public void Add(Image gp, int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
-            Pen p = new Pen(color, 1f);
             Rect rect = new Rect(8f,8f,30f,30f);
             Point c = new Point(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
-            gp.DrawEllipse(p, rect);
+
+            surface.StrokeColor = color;
+            surface.StrokeDashPattern=null;
+            surface.StrokeSize = _TICK_SIZE;
+
             float rad = (float)rect.Width / 2f;
             foreach (sAngleFactorPair angle in _ANGLES)
             {
-                gp.DrawLine(p,
+                surface.DrawLine(
                     new Point(c.X + (rad * angle.X), c.Y + (rad * angle.Y)),
                     new Point(c.X + ((rad-3) * angle.X), c.Y + ((rad - 3) * angle.Y))
                 );
             }
-            gp.DrawLine(p,
+
+            surface.StrokeSize = _PEN_SIZE;
+            surface.DrawEllipse(rect);
+
+            surface.DrawLine(
                 new Point(c.X, c.Y),
                 new Point(c.X + ((rad - 2) * _MINUTE_HAND.X), c.Y + ((rad - 2) * _MINUTE_HAND.Y))
             );
-            gp.DrawLine(p,
-                new Point(c.X, c.Y),
-                new Point(c.X + ((rad - 5) * _HOUR_HAND.X), c.Y + ((rad - 5) * _HOUR_HAND.Y))
+            surface.DrawLine(
+                new Point(c.X, c.Y), 
+                new Point(c.X +((rad - 5) * _HOUR_HAND.X), c.Y +((rad - 5) * _HOUR_HAND.Y))
             );
         }
     }

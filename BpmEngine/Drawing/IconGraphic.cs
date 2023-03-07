@@ -25,13 +25,13 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             }
         }
 
-        public static void AppendIcon(Rect destination,BPMIcons icon,Image gp,Color color)
+        public static void AppendIcon(Rect destination,BPMIcons icon, ICanvas surface,Color color)
         {
             lock (_icons)
             {
                 if (_icons.ContainsKey(icon))
                 {
-                    _icons[icon].Draw(destination, gp, color);
+                    _icons[icon].Draw(destination, surface, color);
                 }
             }
         }

@@ -8,9 +8,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class FilledCircle : IIconPart
     {
-        public void Add(Image gp, int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
-            gp.FillEllipse(color, new Rect(10, 10, AIcon.IMAGE_SIZE-20, AIcon.IMAGE_SIZE-20));
+            surface.FillColor= color;
+            surface.FillEllipse(new Rect(10, 10, AIcon.IMAGE_SIZE-20, AIcon.IMAGE_SIZE-20));
         }
     }
 }

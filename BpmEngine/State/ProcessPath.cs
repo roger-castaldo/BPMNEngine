@@ -101,6 +101,7 @@ namespace Org.Reddragonit.BpmEngine.State
         public StepStatuses GetStatus(string elementid)
         {
             return ChildNodes.Cast<XmlNode>()
+                .Take((_lastStep==int.MaxValue ? ChildNodes.Length : _lastStep+1))
                 .Where(n => n.Attributes[_ELEMENT_ID].Value==elementid)
                 .Select(n => (StepStatuses)Enum.Parse(typeof(StepStatuses), n.Attributes[_STEP_STATUS].Value))
                 .DefaultIfEmpty(StepStatuses.NotRun)

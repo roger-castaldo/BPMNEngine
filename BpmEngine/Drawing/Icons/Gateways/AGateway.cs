@@ -10,6 +10,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
 {
     internal abstract class AGateway : AIcon
     {
+        private const float _PEN_SIZE = 2.0f;
         public new const int IMAGE_SIZE = 63;
 
         private static readonly Point[] _POINTS = new Point[] {
@@ -25,10 +26,18 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
             get { return IMAGE_SIZE; }
         }
 
-        protected override void _Draw(Image gp, Color color)
+        protected override void _Draw(ICanvas surface, Color color)
         {
-            base._Draw(gp, color);
-            gp.DrawLines(new Pen(color, 2f), _POINTS);
+            base._Draw(surface, color);
+
+            surface.StrokeColor=color;
+            surface.StrokeDashPattern=null;
+            surface.StrokeSize = _PEN_SIZE;
+
+            for (int idx = 1; idx<_POINTS.Length; idx++)
+                surface.DrawLine(_POINTS[idx-1], _POINTS[idx]);
+
+            surface.DrawLine(_POINTS[_POINTS.Length-1], _POINTS[0]);
         }
     }
 }

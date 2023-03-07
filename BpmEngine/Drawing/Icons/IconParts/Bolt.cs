@@ -3,22 +3,35 @@ using Microsoft.Maui.Graphics;
 using Org.Reddragonit.BpmEngine.Drawing.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 {
     internal class Bolt : IIconPart
     {
-        private static readonly Point[] _POINTS = new Point[]
+        private const float _PEN_SIZE = 1.0f;
+
+        private static readonly PointF[] _POINTS = new PointF[]
         {
-            new Point(11f,33f),
-            new Point(18f,12f),
-            new Point(27f,23f),
-            new Point(34f,11f),
-            new Point(28f,32f),
-            new Point(19f,22f),
-            new Point(11f,33f)
+            new PointF(11f,33f),
+            new PointF(18f,12f),
+            new PointF(27f,23f),
+            new PointF(34f,11f),
+            new PointF(28f,32f),
+            new PointF(19f,22f),
+            new PointF(11f,33f)
         };
+
+        private static readonly PathF _PATH;
+
+        static Bolt()
+        {
+            _PATH = new PathF(_POINTS[0]);
+            for (int x = 1; x<_POINTS.Length; x++)
+                _PATH.LineTo(_POINTS[x]);
+            _PATH.Close();
+        }
 
         private readonly bool _filled;
         public Bolt(bool filled)
@@ -26,12 +39,20 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             _filled=filled;
         }
 
-        public void Add(Image gp, int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
             if (_filled)
-                gp.FillPolygon(color, _POINTS);
+            {
+                surface.FillColor= color;
+                surface.FillPath(_PATH);
+            }
             else
-                gp.DrawLines(new Pen(color, 1F), _POINTS);
+            {
+                surface.StrokeColor=color;
+                surface.StrokeDashPattern=null;
+                surface.StrokeSize = _PEN_SIZE;
+                surface.DrawPath(_PATH);
+            }
         }
     }
 }
