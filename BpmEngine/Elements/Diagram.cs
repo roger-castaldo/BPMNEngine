@@ -2,7 +2,7 @@
 using Microsoft.Maui.Graphics.Skia;
 using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Drawing;
-using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Diagrams;
 using Org.Reddragonit.BpmEngine.Elements.Processes;

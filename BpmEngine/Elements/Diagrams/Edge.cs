@@ -1,7 +1,7 @@
 ﻿using Microsoft.Maui.Graphics;
 using Org.Reddragonit.BpmEngine.Attributes;
 using Org.Reddragonit.BpmEngine.Drawing;
-using Org.Reddragonit.BpmEngine.Drawing.Extensions;
+
 using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Elements.Processes;
 using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
