@@ -2,6 +2,7 @@
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Xml;
 
@@ -58,49 +59,54 @@ namespace Org.Reddragonit.BpmEngine.Tasks
             get { return _task.ExtensionElement; }
         }
 
+        private void WriteLogLine(LogLevels level,string message)
+        {
+            _businessProcess.WriteLogLine(_task, level, new StackFrame(2, true), DateTime.Now, message);
+        }
+
         public void Debug(string message)
         {
-            _task.Debug(message);
+            WriteLogLine(LogLevels.Debug, message);
         }
 
         public void Debug(string message, object[] pars)
         {
-            _task.Debug(message, pars);
+            WriteLogLine(LogLevels.Debug, string.Format(message,pars));
         }
 
         public void Error(string message)
         {
-            _task.Error(message);
+            WriteLogLine(LogLevels.Error, message);
         }
 
         public void Error(string message, object[] pars)
         {
-            _task.Error(message, pars);
+            WriteLogLine(LogLevels.Error, string.Format(message, pars));
         }
 
         public Exception Exception(Exception exception)
         {
-            return _task.Exception(exception);
+            return _businessProcess.WriteLogException(_task,new StackFrame(1),DateTime.Now,exception);
         }
 
         public void Fatal(string message)
         {
-            _task.Fatal(message);
+            WriteLogLine(LogLevels.Fatal, message);
         }
 
         public void Fatal(string message, object[] pars)
         {
-            _task.Fatal(message, pars);
+            WriteLogLine(LogLevels.Fatal, string.Format(message, pars));
         }
 
         public void Info(string message)
         {
-            _task.Info(message);
+            WriteLogLine(LogLevels.Info, message);
         }
 
         public void Info(string message, object[] pars)
         {
-            _task.Info(message, pars);
+            WriteLogLine(LogLevels.Info, string.Format(message, pars));
         }
         #endregion
 

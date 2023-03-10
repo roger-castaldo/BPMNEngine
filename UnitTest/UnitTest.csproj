@@ -21,6 +21,8 @@
     <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
     <None Remove="diagrams\Extensions\Custom\custom_extension.bpmn" />
+    <None Remove="diagrams\Extensions\definition_file.bpmn" />
+    <None Remove="diagrams\Extensions\definition_variable.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
@@ -52,9 +54,11 @@
     <EmbeddedResource Include="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\definition_file.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\definition_variable.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\all_icons.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -72,6 +76,7 @@
 
   <ItemGroup>
     <PackageReference Include="Jint" Version="3.0.0-beta-1138" />
+    <PackageReference Include="Moq" Version="4.18.4" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
