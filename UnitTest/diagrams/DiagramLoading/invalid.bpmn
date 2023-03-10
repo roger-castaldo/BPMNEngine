@@ -8,7 +8,7 @@
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="268" y="191" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="241" y="227" width="90" height="20" />
+          <dc:Bounds y="227abc" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

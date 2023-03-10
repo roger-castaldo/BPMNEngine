@@ -73,6 +73,9 @@ namespace Org.Reddragonit.BpmEngine
     {
         internal MultipleOutgoingPathsException(ExclusiveGateway gateway)
             : base(string.Format("The Exclusive Gateway {0} has evaluated the outgoing paths and determine more than 1 result", new object[] { gateway.id })) { }
+
+        internal MultipleOutgoingPathsException(EventBasedGateway gateway)
+            : base(string.Format("The Event Gateway {0} has evaluated the outgoing paths and determine more than 1 result", new object[] { gateway.id })) { }
     }
 
     /// <summary>

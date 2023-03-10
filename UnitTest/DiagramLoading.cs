@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Org.Reddragonit.BpmEngine;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
+using System.Reflection;
 using System.Xml;
 
 namespace UnitTest
@@ -12,16 +14,19 @@ namespace UnitTest
         [TestMethod]
         public void LoadInvalidDiagram()
         {
+            var logExceptionMoq = new Mock<LogException>();
+
             XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/invalid.bpmn");
             bool loaded = false;
             try
             {
-                BusinessProcess proc = new BusinessProcess(doc);
+                BusinessProcess proc = new BusinessProcess(doc,logException:logExceptionMoq.Object);
                 loaded=true;
             }catch(Exception)
             {
             }
             Assert.IsFalse(loaded);
+            logExceptionMoq.Verify(x => x.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<Exception>()), Times.AtLeastOnce());
         }
 
         [TestMethod]
@@ -51,7 +56,7 @@ namespace UnitTest
                 proc = new BusinessProcess(doc);
                 loaded=true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
             }
             Assert.IsTrue(loaded);

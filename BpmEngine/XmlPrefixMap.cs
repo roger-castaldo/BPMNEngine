@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,13 +17,13 @@ namespace Org.Reddragonit.BpmEngine
         private static readonly Regex _regXSIRef = new Regex(".+www\\.w3\\.org/.+/XMLSchema-instance", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
         private static readonly Regex _regEXTSRef = new Regex(".+raw\\.githubusercontent\\.com/roger-castaldo/BPMEngine/.+/Extensions", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
 
-        private Dictionary<string, List<string>> _prefixMaps;
-        private BusinessProcess _process;
+        private readonly ConcurrentDictionary<string, IEnumerable<string>> _prefixMaps;
+        private readonly BusinessProcess _process;
 
         public XmlPrefixMap(BusinessProcess process)
         {
             _process = process;
-            _prefixMaps = new Dictionary<string, List<string>>();
+            _prefixMaps = new ConcurrentDictionary<string, IEnumerable<string>>();
         }
 
         public bool Load(XmlElement element)
@@ -48,43 +49,28 @@ namespace Org.Reddragonit.BpmEngine
                     changed = true;
                     _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
                     if (!_prefixMaps.ContainsKey(prefix))
-                        _prefixMaps.Add(prefix, new List<string>());
-                    List<string> tmp = _prefixMaps[prefix];
-                    tmp.Add(att.Name.Substring(att.Name.IndexOf(':') + 1));
-                    _prefixMaps.Remove(prefix);
-                    _prefixMaps.Add(prefix, tmp);
+                        _prefixMaps.TryAdd(prefix, Array.Empty<string>());
+                    IEnumerable<string> current;
+                    _prefixMaps.TryGetValue(prefix, out current);
+                    _prefixMaps.TryUpdate(prefix, current.Append(att.Name.Substring(att.Name.IndexOf(':') + 1)), current);
                 }
             }
             return changed;
         }
 
-        public List<string> Translate(string prefix)
+        public IEnumerable<string> Translate(string prefix)
         {
             _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Attempting to translate xml prefix {0}", new object[] { prefix }));
-            List<string> ret = new List<string>();
-            lock (_prefixMaps)
-            {
-                if (_prefixMaps.ContainsKey(prefix))
-                {
-                    _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Translation for XML Prefix {0} located", new object[] { prefix }));
-                    ret.AddRange(_prefixMaps[prefix].ToArray());
-                }
-            }
+            IEnumerable<string> ret;
+            _prefixMaps.TryGetValue(prefix, out ret);
             return ret;
         }
 
         internal bool isMatch(string prefix, string tag, string nodeName)
         {
-            _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}",new object[] { nodeName,prefix,tag }));
-            if (string.Format("{0}:{1}", prefix, tag).ToLower() == nodeName.ToLower())
-                return true;
-            foreach (string str in Translate(prefix))
-            {
-                _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName,str,tag}));
-                if (string.Format("{0}:{1}", str, tag).ToLower() == nodeName.ToLower())
-                    return true;
-            }
-            return false;
+            _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName, prefix, tag }));
+            return string.Equals($"{prefix}:{tag}", nodeName, StringComparison.InvariantCultureIgnoreCase)
+                ||Translate(prefix).Any(str => string.Equals($"{prefix}:{str}", nodeName, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

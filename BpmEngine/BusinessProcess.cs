@@ -1533,7 +1533,14 @@ namespace Org.Reddragonit.BpmEngine
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
             if (_delegates.LogException != null)
+            {
                 _delegates.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+                if (exception is InvalidProcessDefinitionException processDefinitionException)
+                {
+                    foreach (Exception e in processDefinitionException.ProcessExceptions)
+                        _delegates.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, e);
+                }
+            }
             return exception;
         }
         #endregion

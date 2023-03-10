@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine
@@ -34,8 +35,8 @@ namespace Org.Reddragonit.BpmEngine
             Dictionary<string, Dictionary<string, Type>> ideals = Utility.IdealMap;
             foreach (string prefix in ideals.Keys)
             {
-                List<string> tmp = map.Translate(prefix);
-                if (tmp.Count > 0)
+                IEnumerable<string> tmp = map.Translate(prefix);
+                if (tmp!=null && tmp.Any())
                 {
                     foreach (string trans in tmp)
                     {

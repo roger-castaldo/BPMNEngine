@@ -32,43 +32,31 @@ namespace Org.Reddragonit.BpmEngine.State
 
         public void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
         {
-            StringBuilder sb = new StringBuilder();
-            if (exception is InvalidProcessDefinitionException exception1)
+            LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(exception));
+            if (exception is InvalidProcessDefinitionException processDefinitionException)
             {
-                sb.AppendLine(string.Format(@"MESSAGE:{0}
+                foreach (Exception e in processDefinitionException.ProcessExceptions)
+                    LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(e));
+            }
+        }
+
+        private string _GenerateExceptionLine(Exception exception)
+        {
+            var sb = new StringBuilder();
+            bool isInner = false;
+            while (exception != null)
+            {
+                sb.AppendLine(string.Format(@"{2}MESSAGE:{0}
 STACKTRACE:{1}", new object[]
-                {
+            {
                 exception.Message,
-                exception.StackTrace
-                }));
-                foreach (Exception e in exception1.ProcessExceptions)
-                {
-                    sb.AppendLine(string.Format(@"MESSAGE:{0}
-STACKTRACE:{1}", new object[]
-                {
-                e.Message,
-                e.StackTrace
-                }));
-                }
-            }
-            else
-            {
-                Exception ex = exception;
-                bool isInner = false;
-                while (ex != null)
-                {
-                    sb.AppendLine(string.Format(@"{2}MESSAGE:{0}
-STACKTRACE:{1}", new object[]
-                {
-                ex.Message,
-                ex.StackTrace,
+                exception.StackTrace,
                 (isInner ? "INNER_EXCEPTION:" : "")
-                }));
-                    isInner = true;
-                    ex = ex.InnerException;
-                }
+            }));
+                isInner = true;
+                exception = exception.InnerException;
             }
-            LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, sb.ToString());
+            return sb.ToString();
         }
-        }
+    }
 }

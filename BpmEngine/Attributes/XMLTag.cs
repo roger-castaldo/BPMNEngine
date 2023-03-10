@@ -13,10 +13,6 @@ namespace Org.Reddragonit.BpmEngine.Attributes
         private string _prefix;
         public string Prefix { get { return _prefix; } }
 
-        public XMLTag(string name)
-            : this(null, name)
-        { }
-
         public XMLTag(string prefix,string name)
         {
             _name = name;

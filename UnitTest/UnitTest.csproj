@@ -60,7 +60,7 @@
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\definition_variable.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\all_icons.bpmn" />
-    <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn"/>
+    <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\vacation_state.xml" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_end.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
