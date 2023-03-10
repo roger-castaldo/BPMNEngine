@@ -65,5 +65,8 @@
     <PackageReference Include="System.CodeDom" Version="7.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.4.0" />
 	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
+	<PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.3" />
+	<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.3" />
   </ItemGroup>
 </Project>
