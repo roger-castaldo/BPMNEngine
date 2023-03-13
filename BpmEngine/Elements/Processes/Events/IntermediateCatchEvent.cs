@@ -30,19 +30,14 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             return base.IsValid(out err);
         }
 
-        protected override bool _HandlesEvent(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables, out int cost)
+        protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)
         {
-            cost=int.MaxValue;
-            bool ret = true;
+            var cost=int.MaxValue;
             SubProcess sb;
             if (Incoming.Any())
             {
-                ret=false;
                 if (source.Outgoing.Any(str => Incoming.Contains(str)))
-                {
-                    ret=true;
                     cost=1;
-                }
             }
             else if (source.SubProcess!=null)
             {
@@ -65,7 +60,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                         cost+=2;
                     }
                     if (sb==null)
-                        ret=false;
+                        cost=int.MaxValue;
                 }
             }
             else if (this.SubProcess!=null)
@@ -80,7 +75,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             }
             else
                 cost=2;
-            return ret;
+            return cost;
         }
     }
 }

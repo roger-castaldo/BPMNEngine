@@ -41,18 +41,18 @@ namespace Org.Reddragonit.BpmEngine
 
         private readonly Guid _id;
         private readonly List<object> _components;
-        private readonly Dictionary<string, IElement> _elements;
-        private readonly AHandlingEvent[] _eventHandlers = null;
+        private readonly List<IElement> _elements;
+        private readonly IEnumerable<AHandlingEvent> _eventHandlers = null;
         private readonly Definition definition;
 
-        internal IElement GetElement(string id) => (_elements.ContainsKey(id) ? _elements[id] : null);
+        internal IElement GetElement(string id) => _elements.FirstOrDefault(elem=>elem.id==id);
         private IEnumerable<IElement> _Elements => _components
             .Where(obj => obj.GetType().GetInterfaces().Contains(typeof(IElement)))
             .Select(obj => (IElement)obj);
 
         private void _RecurAddChildren(IElement parent)
         {
-            _elements.Add(parent.id, parent);
+            _elements.Add(parent);
             if (parent is IParentElement element)
             {
                 foreach (IElement elem in element.Children)
@@ -622,14 +622,14 @@ namespace Org.Reddragonit.BpmEngine
                 beginManualTask, processRecieveTask, processScriptTask, processSendTask, processServiceTask, processTask,callActivity, beginUserTask);
 
 
-            List<Exception> exceptions = new List<Exception>();
+            IEnumerable<Exception> exceptions = Array.Empty<Exception>();
             _doc = new XmlDocument();
             _doc.LoadXml(doc.OuterXml);
             BpmEngine.ElementTypeCache elementMapCache = new BpmEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
             WriteLogLine((IElement)null,LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
-            _elements = new Dictionary<string, Interfaces.IElement>();
+            _elements = new List<IElement>();
             XmlPrefixMap map = new XmlPrefixMap(this);
             foreach (XmlNode n in doc.ChildNodes)
             {
@@ -659,52 +659,55 @@ namespace Org.Reddragonit.BpmEngine
             foreach (IElement elem in _components.OfType<IElement>())
                     _RecurAddChildren(elem);
             if (!_Elements.Any())
-                exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
+                exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
             {
                 if (definition==null)
-                    exceptions.Add(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
+                    exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             }
-            if (exceptions.Count == 0)
+            if (!exceptions.Any())
             {
                 foreach (IElement elem in _Elements)
-                    _ValidateElement((AElement)elem, ref exceptions);
+                    exceptions = exceptions.Concat(_ValidateElement((AElement)elem));
             }
-            if (exceptions.Count != 0)
+            if (exceptions.Any())
             {
                 Exception ex = new InvalidProcessDefinitionException(exceptions);
                 WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
-            _eventHandlers = _elements.Values
-                .OfType<AHandlingEvent>()
-                .ToArray();
+            _eventHandlers = _elements
+                .OfType<AHandlingEvent>();
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
         }
 
-        private void _ValidateElement(AElement elem,ref List<Exception> exceptions)
+        private IEnumerable<Exception> _ValidateElement(AElement elem)
         {
             WriteLogLine(elem,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.id }));
-            foreach (RequiredAttribute ra in Utility.GetCustomAttributesForClass(elem.GetType(),typeof(RequiredAttribute)))
-            {
-               if (elem[ra.Name]==null)
-                    exceptions.Add(new MissingAttributeException(elem.Definition,elem.Element,ra));
-            }
-            foreach (AttributeRegex ar in Utility.GetCustomAttributesForClass(elem.GetType(), typeof(AttributeRegex)))
-            {
-                if (!ar.IsValid(elem))
-                    exceptions.Add(new InvalidAttributeValueException(elem.Definition,elem.Element, ar));
-            }
+            IEnumerable<Exception> result = Array.Empty<Exception>();
+            result = result.Concat(
+                elem.GetType().GetCustomAttributes(true).OfType<RequiredAttribute>()
+                .Where(ra => elem[ra.Name]==null)
+                .Select(ra=> new MissingAttributeException(elem.Definition, elem.Element, ra))
+            );
+            result = result.Concat(
+                elem.GetType().GetCustomAttributes(true).OfType<AttributeRegex>()
+                .Where(ar => !ar.IsValid(elem))
+                .Select(ar => new InvalidAttributeValueException(elem.Definition, elem.Element, ar))
+            );
             string[] err;
             if (!elem.IsValid(out err))
-                exceptions.Add(new InvalidElementException(elem.Definition,elem.Element, err));
+                result.Append(new InvalidElementException(elem.Definition,elem.Element, err));
             if (elem.ExtensionElement != null)
-                _ValidateElement((ExtensionElements)elem.ExtensionElement, ref exceptions);
+                result = result.Concat(_ValidateElement((ExtensionElements)elem.ExtensionElement));
             if (elem is AParentElement element)
-            {
-                foreach (AElement e in element.Children)
-                    _ValidateElement(e,ref exceptions);
-            }
+                result = result.Concat(
+                    element.Children
+                    .OfType<AElement>()
+                    .Select(e=>_ValidateElement(e))
+                    .SelectMany(res=>res)
+                );
+            return result;
         }
 
         /// <summary>
@@ -823,11 +826,8 @@ namespace Org.Reddragonit.BpmEngine
             double height = 0;
             if (definition!=null)
             {
-                foreach (Size s in definition.Diagrams.Select(d=>d.Size))
-                {
-                    width = Math.Max(width, s.Width + _DEFAULT_PADDING);
-                    height += _DEFAULT_PADDING + s.Height;
-                }
+                width = definition.Diagrams.Max(d => d.Size.Width+_DEFAULT_PADDING);
+                height = definition.Diagrams.Sum(d => d.Size.Height+_DEFAULT_PADDING);
             }
             IImage ret = null;
             try
@@ -967,16 +967,12 @@ namespace Org.Reddragonit.BpmEngine
                         double padding = _DEFAULT_PADDING / 2;
                         if (definition!=null)
                         {
-                            foreach (Diagram d in definition.Diagrams)
+                            var diagram = definition.Diagrams.FirstOrDefault(d => d.RendersElement(nxtStep));
+                            if (diagram!=null)
                             {
-                                if (d.RendersElement(nxtStep))
-                                {
-                                    var rect = d.GetElementRectangle(nxtStep);
-                                    IImage img = d.Render(state.Path, definition, nxtStep);
-                                    apng.AddFrame(img,(int)Math.Ceiling((_DEFAULT_PADDING / 2)+rect.X)+3, (int)Math.Ceiling(padding+rect.Y)+3);
-                                    break;
-                                }
-                                padding += d.Size.Height + _DEFAULT_PADDING;
+                                var rect = diagram.GetElementRectangle(nxtStep);
+                                IImage img = diagram.Render(state.Path, definition, nxtStep);
+                                apng.AddFrame(img, (int)Math.Ceiling((_DEFAULT_PADDING / 2)+rect.X)+3, (int)Math.Ceiling(padding+rect.Y)+3);
                             }
                         }
                         if (outputVariables)
@@ -1081,26 +1077,21 @@ namespace Org.Reddragonit.BpmEngine
             ProcessVariablesContainer variables = new ProcessVariablesContainer(pars,this,ret);
             ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
-            foreach (Elements.Process proc in _elements.Values
-                .OfType<Elements.Process>())
+            var proc = _elements.OfType<Elements.Process>().FirstOrDefault(p => p.IsStartValid(ropvc, ret.Delegates.IsProcessStartValid));
+            if (proc != null)
             {
-                if (proc.IsStartValid(ropvc, ret.Delegates.IsProcessStartValid))
+                var start = proc.StartEvents.FirstOrDefault(se => se.IsEventStartValid(ropvc, ret.Delegates.IsEventStartValid));
+                if (start!=null)
                 {
-                    foreach (StartEvent se in proc.StartEvents)
-                    {
-                        if (se.IsEventStartValid(ropvc, ret.Delegates.IsEventStartValid))
-                        {
-                            ret.WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", se.id));
-                            _TriggerDelegateAsync(ret.Delegates.OnProcessStarted, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
-                            _TriggerDelegateAsync(ret.Delegates.OnEventStarted, new object[] { se, new ReadOnlyProcessVariablesContainer(variables) });
-                            ret.State.Path.StartEvent(se, null);
-                            foreach (string str in variables.Keys)
-                                ret.State[se.id, str]=variables[str];
-                            ret.State.Path.SucceedEvent(se);
-                            _TriggerDelegateAsync(ret.Delegates.OnEventCompleted, new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, ret) });
-                            return ret;
-                        }
-                    }
+                    ret.WriteLogLine(start, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.id));
+                    _TriggerDelegateAsync(ret.Delegates.OnProcessStarted, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
+                    _TriggerDelegateAsync(ret.Delegates.OnEventStarted, new object[] { start, new ReadOnlyProcessVariablesContainer(variables) });
+                    ret.State.Path.StartEvent(start, null);
+                    foreach (string str in variables.Keys)
+                        ret.State[start.id, str]=variables[str];
+                    ret.State.Path.SucceedEvent(start);
+                    _TriggerDelegateAsync(ret.Delegates.OnEventCompleted, new object[] { start, new ReadOnlyProcessVariablesContainer(start.id, ret) });
+                    return ret;
                 }
             }
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
@@ -1120,34 +1111,21 @@ namespace Org.Reddragonit.BpmEngine
 
         private IEnumerable<AHandlingEvent> _GetEventHandlers(EventSubTypes type,object data, AFlowNode source, IReadonlyVariables variables)
         {
-            List<AHandlingEvent> ret = new List<AHandlingEvent>();
-            int curCost = int.MaxValue;
-
-            int cost;
-
-            foreach (AHandlingEvent handler in _eventHandlers) {
-                if (handler.HandlesEvent(type,data,source,variables,out cost))
-                {
-                    if (cost==curCost)
-                        ret.Add(handler);
-                    else if (cost<curCost)
-                    {
-                        ret = new List<AHandlingEvent>(new AHandlingEvent[] { handler });
-                        curCost=cost;
-                    }
-                }
-            }
+            var handlerGroup = _eventHandlers
+                .GroupBy(handler => handler.EventCost(type, data, source, variables))
+                .OrderBy(grp => grp.Key)
+                .First();
 
             switch (type)
             {
                 case EventSubTypes.Conditional:
                 case EventSubTypes.Timer:
-                    if (curCost>0)
-                        ret.Clear();
+                    if (handlerGroup.Key>0)
+                        return Array.Empty<AHandlingEvent>();
                     break;
             }
 
-            return ret;
+            return (handlerGroup.Key==int.MaxValue ? Array.Empty<AHandlingEvent>() : handlerGroup.ToList());
         }
 
         internal void ProcessStepComplete(ProcessInstance instance,string sourceID,string outgoingID) {

@@ -13,16 +13,16 @@ namespace Org.Reddragonit.BpmEngine
     /// </summary>
     public class InvalidProcessDefinitionException : Exception
     {
-        private Exception[] _processExceptions;
+        private IEnumerable<Exception> _processExceptions;
         /// <summary>
         /// The Exception(s) thrown during the validation process.
         /// </summary>
-        public Exception[] ProcessExceptions { get { return _processExceptions; } }
+        public IEnumerable<Exception> ProcessExceptions { get { return _processExceptions; } }
 
-        internal InvalidProcessDefinitionException(List<Exception> children)
+        internal InvalidProcessDefinitionException(IEnumerable<Exception> children)
             : base("The process failed validation.  The property ProcessExceptions contains the list of details.")
         {
-            _processExceptions = children.ToArray();
+            _processExceptions = children;
         }
     }
 

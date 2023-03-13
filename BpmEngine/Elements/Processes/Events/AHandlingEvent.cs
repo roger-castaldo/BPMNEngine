@@ -27,34 +27,30 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             .OfType<ConditionalEventDefinition>()
             .FirstOrDefault();
 
-        public bool HandlesEvent(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables,out int cost)
+        public int EventCost(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
         {
-            bool ret = false;
+            bool handlesEvent = false;
             if (SubType.Value==evnt)
             {
-                ret=true;
+                handlesEvent=true;
                 switch (SubType.Value)
                 {
                     case EventSubTypes.Message:
                     case EventSubTypes.Signal:
-                        ret = _types.Contains((string)data)||_types.Contains("*");
+                        handlesEvent = _types.Contains((string)data)||_types.Contains("*");
                         break;
                     case EventSubTypes.Error:
                         Exception ex = (Exception)data;
-                        ret = _types.Contains(ex.Message)||_types.Contains(ex.GetType().Name)||_types.Contains("*");
+                        handlesEvent = _types.Contains(ex.Message)||_types.Contains(ex.GetType().Name)||_types.Contains("*");
                         break;
                     case EventSubTypes.Conditional:
-                        ret=_condition.IsValid(variables);
+                        handlesEvent=_condition.IsValid(variables);
                         break;
                 }
             }
-            if (ret)
-                return _HandlesEvent(evnt, source, variables, out cost);
-            else
-            {
-                cost=int.MaxValue;
-                return ret;
-            }
+            if (handlesEvent)
+                return GetEventCost(evnt, source, variables);
+            return int.MaxValue;
         }
 
 
@@ -86,7 +82,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             }
             return base.IsValid(out err);
         }
-        protected abstract bool _HandlesEvent(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables, out int cost);
+        protected abstract int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables);
 
     }
 }
