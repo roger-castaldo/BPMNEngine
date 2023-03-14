@@ -57,8 +57,7 @@ End Class";
         {
             Info("Generating VB Code for script compilation for script element {0}", new object[] { id });
             StringBuilder sbUsing = new StringBuilder();
-            foreach (string str in imports)
-                sbUsing.AppendFormat("Imports {0}\n", str);
+            imports.ForEach(str => sbUsing.AppendFormat("Imports {0}\n", str));
             string ccode = string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (_IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
                 sbUsing.ToString(),
                 _ClassName,

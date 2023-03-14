@@ -85,8 +85,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
                     if (!res.Success)
                     {
                         StringBuilder error = new StringBuilder();
-                        foreach (Diagnostic diag in res.Diagnostics)
-                            error.AppendLine(diag.ToString());
+                        res.Diagnostics.ForEach(diag => error.AppendLine(diag.ToString()));
                         errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
                         _assembly = null;
                     }

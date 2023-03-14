@@ -35,12 +35,12 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
                 {
                     _rectangle=new RectF(0, 0, 0, 0);
                     Point? previous = null;
-                    foreach (Point p in Points)
+                    Points.ForEach(p =>
                     {
                         if (previous!=null)
-                            _rectangle = MergeRectangle(ProduceRectangle(previous.Value, p),_rectangle);
+                            _rectangle = MergeRectangle(ProduceRectangle(previous.Value, p), _rectangle);
                         previous=p;
-                    }
+                    });
                     Label l = Label;
                     _rectangle = new RectF(_rectangle.Value.X-3.5f, _rectangle.Value.Y-3.5f, _rectangle.Value.Width+6.5f, _rectangle.Value.Height+6.5f);
                     if (l != null)

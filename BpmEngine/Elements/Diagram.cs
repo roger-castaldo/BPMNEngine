@@ -81,8 +81,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
             else
             {
                 surface.Translate(0-Children.OfType<ADiagramElement>().Min(ade => ade.Rectangle.X), 0-Children.OfType<ADiagramElement>().Min(ade => ade.Rectangle.Y));
-                foreach (IRenderingElement ire in Children.OfType<IRenderingElement>())
-                    ire.Render(surface, path, definition);
+                Children.OfType<IRenderingElement>().ForEach(ire => { ire.Render(surface, path, definition); });
             }
 
             return image.Image;

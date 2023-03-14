@@ -24,10 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
             get
             {
                 if (_rectangle==null)
-                {
-                    foreach (ADiagramElement ade in Children.OfType<ADiagramElement>())
-                        _rectangle=MergeRectangle(ade.Rectangle, _rectangle);
-                }
+                    Children.OfType<ADiagramElement>().ForEach(ade => _rectangle=MergeRectangle(ade.Rectangle, _rectangle));
                 return _rectangle.Value;
             }
         }
@@ -44,8 +41,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
 
         public void Render(ICanvas surface, ProcessPath path, Definition definition)
         {
-            foreach (IRenderingElement ire in Children.OfType<IRenderingElement>())
-                ire.Render(surface, path, definition);
+            Children.OfType<IRenderingElement>().ForEach(ire => ire.Render(surface, path, definition));
         }
     }
 }

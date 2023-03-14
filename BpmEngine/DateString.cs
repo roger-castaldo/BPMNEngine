@@ -27,7 +27,7 @@ namespace Org.Reddragonit.BpmEngine
             bool isFirst = true;
             string buffer = "";
             Match m;
-            foreach (char c in _value)
+            _value.ForEach(c =>
             {
                 switch (c)
                 {
@@ -39,7 +39,8 @@ namespace Org.Reddragonit.BpmEngine
                         }
                         if (isFirst)
                         {
-                            switch (buffer.ToLower()) {
+                            switch (buffer.ToLower())
+                            {
                                 case "now":
                                 case "today":
                                     buffer = "";
@@ -63,19 +64,19 @@ namespace Org.Reddragonit.BpmEngine
                             if (_basicRelativeRegex.IsMatch(buffer))
                             {
                                 m = _basicRelativeRegex.Match(buffer);
-                                ret = _AddOffset(variables,m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
+                                ret = _AddOffset(variables, m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
                                 buffer = "";
                             }
                             else if (_simpleRelativeRegex.IsMatch(buffer))
                             {
                                 m = _simpleRelativeRegex.Match(buffer);
-                                ret = _AddOffset(variables,m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
+                                ret = _AddOffset(variables, m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
                                 buffer = "";
                             }
                             else if (_completeRelativeRegex.IsMatch(buffer))
                             {
                                 m = _completeRelativeRegex.Match(buffer);
-                                ret = _AddOffset(variables,m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
+                                ret = _AddOffset(variables, m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
                                 buffer = "";
                             }
                             else if (isFirst)
@@ -86,7 +87,8 @@ namespace Org.Reddragonit.BpmEngine
                                     isFirst = false;
                                     buffer = "";
                                     ret = tmp;
-                                }else
+                                }
+                                else
                                     buffer += c;
                             }
                             else
@@ -97,7 +99,7 @@ namespace Org.Reddragonit.BpmEngine
                         buffer += c;
                         break;
                 }
-            }
+            });
             if (buffer != "")
             {
                 throw new Exception(string.Format("Invalid Date String Specified [{0}]", buffer));

@@ -56,13 +56,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
             surface.StrokeSize = _TICK_SIZE;
 
             float rad = (float)rect.Width / 2f;
-            foreach (sAngleFactorPair angle in _ANGLES)
-            {
+            _ANGLES.ForEach(angle => {
                 surface.DrawLine(
                     new Point(c.X + (rad * angle.X), c.Y + (rad * angle.Y)),
                     new Point(c.X + ((rad-3) * angle.X), c.Y + ((rad - 3) * angle.Y))
                 );
-            }
+            });
 
             surface.StrokeSize = _PEN_SIZE;
             surface.DrawEllipse(rect);

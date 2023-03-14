@@ -44,14 +44,14 @@ namespace Org.Reddragonit.BpmEngine.State
             {
                 XmlElement elem = _EncodeVariable(variableName, stepIndex, value);
                 bool add = true;
-                foreach (XmlElement e in ChildNodes)
+                ChildNodes.ForEach(e =>
                 {
                     if (int.Parse(e.Attributes[_PATH_STEP_INDEX].Value) >= stepIndex)
                     {
                         add = false;
                         _InsertBefore(elem, e);
                     }
-                }
+                });
                 if (add)
                     _AppendElement(elem);
             }
@@ -157,19 +157,19 @@ namespace Org.Reddragonit.BpmEngine.State
                     _SetTypeAttribute(elem, value);
                     if (value.GetType().GetElementType().FullName == typeof(sFile).FullName)
                     {
-                        foreach (sFile sf in (IEnumerable)value)
+                        ((IEnumerable)value).Cast<sFile>().ForEach(sf =>
                         {
                             elem.AppendChild(_ProduceElement(_VALUE));
                             elem.ChildNodes[elem.ChildNodes.Count-1].AppendChild(_EncodeFile(sf));
-                        }
+                        });
                     }
                     else
                     {
-                        foreach (object val in (IEnumerable)value)
+                        ((IEnumerable)value).Cast<object>().ForEach(val =>
                         {
                             elem.AppendChild(_ProduceElement(_VALUE));
                             elem.ChildNodes[elem.ChildNodes.Count-1].AppendChild(_EncodeCData(_EncodeValue(val)));
-                        }
+                        });
                     }
                 }
                 else
@@ -271,8 +271,7 @@ namespace Org.Reddragonit.BpmEngine.State
                 .SelectMany(node => node.ChildNodes.Cast<XmlNode>())
                 .Where(cnode => cnode.NodeType==XmlNodeType.Element)
                 .GroupBy(node => node.Attributes[_NAME].Value);
-            foreach (var grp in grps)
-                ret.Add(grp.Key, ConvertValue((XmlElement)grp.Last()));
+            grps.ForEach(grp => ret.Add(grp.Key, ConvertValue((XmlElement)grp.Last())));
             return ret;
         }
     }

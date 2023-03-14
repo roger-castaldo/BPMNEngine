@@ -46,7 +46,7 @@ namespace Org.Reddragonit.BpmEngine
             _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
             _tagAttributes = new Dictionary<Type, XMLTag[]>();
-            foreach (Type t in Assembly.GetAssembly(typeof(Utility)).GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IElement))))
+            Assembly.GetAssembly(typeof(Utility)).GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IElement))).ForEach(t =>
             {
                 XMLTag[] tags = (XMLTag[])t.GetCustomAttributes(typeof(XMLTag), false);
                 if (tags.Length > 0)
@@ -63,7 +63,7 @@ namespace Org.Reddragonit.BpmEngine
                     tmpTypes.Add(tags[0].Name.ToLower(), t);
                     _idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
                 }
-            }
+            });
             _xmlChildren = new Dictionary<Type, List<Type>>();
             List<Type> globalChildren = new List<Type>();
             for (int x = 0; x < tmp.Count; x++)
@@ -86,13 +86,13 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 else
                     atts.AddRange((ValidParentAttribute[])t.GetCustomAttributes(typeof(ValidParentAttribute), false));
-                foreach (Type parent in atts.Select(vpa=>vpa.Parent))
+                atts.Select(vpa => vpa.Parent).ForEach(parent =>
                 {
                     if (parent == null)
                         globalChildren.Add(t);
                     else if (parent.IsAbstract)
                     {
-                        foreach (Type c in tmp.Where(c => c.IsSubclassOf(parent)))
+                        tmp.Where(c => c.IsSubclassOf(parent)).ForEach(c =>
                         {
                             if (!_xmlChildren.ContainsKey(c))
                                 _xmlChildren.Add(c, new List<Type>());
@@ -100,11 +100,11 @@ namespace Org.Reddragonit.BpmEngine
                             _xmlChildren.Remove(c);
                             types.Add(t);
                             _xmlChildren.Add(c, types);
-                        }
+                        });
                     }
                     else if (parent.IsInterface)
                     {
-                        foreach (Type c in tmp.Where(c => c.GetInterfaces().Contains(parent)))
+                        tmp.Where(c => c.GetInterfaces().Contains(parent)).ForEach(c =>
                         {
                             if (!_xmlChildren.ContainsKey(c))
                                 _xmlChildren.Add(c, new List<Type>());
@@ -112,7 +112,7 @@ namespace Org.Reddragonit.BpmEngine
                             _xmlChildren.Remove(c);
                             types.Add(t);
                             _xmlChildren.Add(c, types);
-                        }
+                        });
                     }
                     else
                     {
@@ -123,7 +123,7 @@ namespace Org.Reddragonit.BpmEngine
                         types.Add(t);
                         _xmlChildren.Add(parent, types);
                     }
-                }
+                });
             }
             _globalXMLChildren = globalChildren.ToArray();
         }
@@ -267,36 +267,12 @@ namespace Org.Reddragonit.BpmEngine
                 definition.Debug("Locating Element Index for element {0}", new object[] { element.Name });
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
-            {
                 return 1;
-            }
             XmlElement parent = (XmlElement)parentNode;
-            int index = 1;
-            foreach (XmlNode candidate in parent.ChildNodes)
-            {
-                if (candidate is XmlElement && candidate.Name == element.Name)
-                {
-                    if (candidate == element)
-                        return index;
-                    index++;
-                }
-            }
+            var result = parent.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().IndexOf(e=>e.Name == element.Name);
+            if (result!=-1)
+                return result;
             throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(new ArgumentException("Couldn't find element within parent")));
-        }
-
-        internal static object[] GetCustomAttributesForClass(Type clazz, Type attributeType)
-        {
-            List<object> ret = new List<object>(clazz.GetCustomAttributes(attributeType, false));
-            Type parent = clazz.BaseType;
-            if (parent != typeof(object))
-            {
-                foreach (object obj in GetCustomAttributesForClass(parent, attributeType))
-                {
-                    if (!ret.Contains(obj))
-                        ret.Add(obj);
-                }
-            }
-            return ret.ToArray();
         }
 
         internal static object ExtractVariableValue(VariableTypes type, string text)
@@ -437,22 +413,20 @@ namespace Org.Reddragonit.BpmEngine
                 int sleep = -1;
                 lock (_events)
                 {
-                    foreach (object obj in _events)
+                    if (_events.Any())
                     {
-                        DateTime compare = DateTime.MaxValue;
-                        if (obj is SProcessSuspendEvent)
-                            compare = ((SProcessSuspendEvent)obj).EndTime;
-                        else if (obj is SProcessDelayedEvent)
-                            compare = ((SProcessDelayedEvent)obj).StartTime;
-                        if (compare.Ticks < DateTime.Now.Ticks)
+                        sleep = _events.Select(obj =>
                         {
-                            sleep = 0;
-                            break;
-                        }
-                        else if (sleep == -1)
-                            sleep = (int)Math.Min(compare.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue);
-                        else
-                            sleep = Math.Min(sleep, (int)Math.Min(compare.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue));
+                            DateTime compare = DateTime.MaxValue;
+                            if (obj is SProcessSuspendEvent)
+                                compare = ((SProcessSuspendEvent)obj).EndTime;
+                            else if (obj is SProcessDelayedEvent)
+                                compare = ((SProcessDelayedEvent)obj).StartTime;
+                            if (compare.Ticks < DateTime.Now.Ticks)
+                                return 0;
+                            else
+                                return (int)Math.Min(compare.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue);
+                        }).Min();
                     }
                 }
                 if (sleep != 0)

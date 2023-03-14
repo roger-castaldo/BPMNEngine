@@ -18,8 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons
 
         protected virtual void _Draw(ICanvas surface, Color color)
         {
-            foreach (IIconPart part in _parts)
-                part.Add(surface,_ImageSize, color);
+            _parts.ForEach(part => { part.Add(surface, _ImageSize, color); });
         }
 
         public AIcon()

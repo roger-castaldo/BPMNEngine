@@ -17,12 +17,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         static IconGraphic()
         {
             _icons = new Dictionary<BPMIcons,AIcon>();
-            foreach (Type t in Assembly.GetAssembly(typeof(IconGraphic)).GetTypes().Where(t => t.IsSubclassOf(typeof(AIcon))))
+            Assembly.GetAssembly(typeof(IconGraphic)).GetTypes().Where(t => t.IsSubclassOf(typeof(AIcon))).ForEach(t =>
             {
                 object obj = t.GetCustomAttribute(typeof(IconTypeAttribute));
                 if (obj != null)
                     _icons.Add(((IconTypeAttribute)obj).Icon, (AIcon)Activator.CreateInstance(t));
-            }
+            });
         }
 
         public static void AppendIcon(Rect destination,BPMIcons icon, ICanvas surface,Color color)

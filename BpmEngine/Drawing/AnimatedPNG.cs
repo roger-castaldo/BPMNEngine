@@ -87,13 +87,12 @@ namespace Org.Reddragonit.BpmEngine.Drawing
 
                     var idx = 0;
                     int chunkSequenceNumber = 0;
-                    foreach (var part in _parts)
+                    _parts.ForEach(part =>
                     {
-                        WriteFrameHeader(memoryStream, part,ref chunkSequenceNumber);
-                        WriteFrame(memoryStream, idx, part,ref chunkSequenceNumber);
+                        WriteFrameHeader(memoryStream, part, ref chunkSequenceNumber);
+                        WriteFrame(memoryStream, idx, part, ref chunkSequenceNumber);
                         idx++;
-                    }
-
+                    });
                     Write(memoryStream, IEND);
 
                     result = memoryStream.ToArray();
@@ -112,7 +111,8 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                 Write(output, part.IDAT.SelectMany(c=>c));
             else
             {
-                foreach (var idat in part.IDAT)
+                var sequenceNumber = chunkSequenceNumber;
+                part.IDAT.ForEach(idat =>
                 {
                     if (idat != null)
                     {
@@ -122,7 +122,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                             var length = idat.Count() - 8;
                             Write(memoryStream, length);
                             Write(memoryStream, "fdAT");
-                            Write(memoryStream, chunkSequenceNumber);
+                            Write(memoryStream, sequenceNumber);
 
                             Write(memoryStream, idat.Take(idat.Count()-4).Skip(8));
 
@@ -132,9 +132,10 @@ namespace Org.Reddragonit.BpmEngine.Drawing
                             WriteCRC(output, data);
                         }
 
-                        chunkSequenceNumber++;
+                        sequenceNumber++;
                     }
-                }
+                });
+                chunkSequenceNumber=sequenceNumber;
             }
         }
 

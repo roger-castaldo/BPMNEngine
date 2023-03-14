@@ -29,7 +29,7 @@ namespace Org.Reddragonit.BpmEngine
         public bool Load(XmlElement element)
         {
             bool changed = false;
-            foreach (XmlAttribute att in element.Attributes.Cast<XmlAttribute>().Where(att => att.Name.StartsWith("xmlns:")))
+            element.Attributes.Cast<XmlAttribute>().Where(att => att.Name.StartsWith("xmlns:")).ForEach(att =>
             {
                 string prefix = null;
                 if (_regBPMNRef.IsMatch(att.Value))
@@ -54,7 +54,7 @@ namespace Org.Reddragonit.BpmEngine
                     _prefixMaps.TryGetValue(prefix, out current);
                     _prefixMaps.TryUpdate(prefix, current.Append(att.Name.Substring(att.Name.IndexOf(':') + 1)), current);
                 }
-            }
+            });
             return changed;
         }
 

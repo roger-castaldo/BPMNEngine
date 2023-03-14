@@ -34,10 +34,7 @@ namespace Org.Reddragonit.BpmEngine.State
         {
             LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(exception));
             if (exception is InvalidProcessDefinitionException processDefinitionException)
-            {
-                foreach (Exception e in processDefinitionException.ProcessExceptions)
-                    LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(e));
-            }
+                processDefinitionException.ProcessExceptions.ForEach(e => LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(e)));
         }
 
         private string _GenerateExceptionLine(Exception exception)

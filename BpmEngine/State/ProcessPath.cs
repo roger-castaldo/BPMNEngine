@@ -185,11 +185,11 @@ namespace Org.Reddragonit.BpmEngine.State
                     _SetAttribute(elem, _OUTGOING_ID, outgoingID.First());
                 else
                 {
-                    foreach (string str in outgoingID)
+                    outgoingID.ForEach(str =>
                     {
                         elem.AppendChild(_ProduceElement(_OUTGOING_ELEM));
                         elem.ChildNodes[elem.ChildNodes.Count - 1].InnerText = str;
-                    }
+                    });
                 }
             }
             //Console.WriteLine(string.Format("Adding Path Entry for {0}-{1}", elementID,status));
@@ -241,8 +241,7 @@ namespace Org.Reddragonit.BpmEngine.State
             else
             {
                 _addPathEntry(Event.id, incoming, Event.Outgoing, StepStatuses.Succeeded, start, DateTime.Now);
-                foreach (string id in Event.Outgoing)
-                    Complete(Event.id, id);
+                Event.Outgoing.ForEach(id => Complete(Event.id, id));
             }
         }
 
@@ -277,8 +276,7 @@ namespace Org.Reddragonit.BpmEngine.State
             else
             {
                 _addPathEntry(SubProcess.id, incoming, outgoing, StepStatuses.Succeeded, start, DateTime.Now);
-                foreach (string id in outgoing)
-                    Complete(SubProcess.id, id);
+                outgoing.ForEach(id => Complete(SubProcess.id, id));
             }
         }
 
@@ -349,8 +347,7 @@ namespace Org.Reddragonit.BpmEngine.State
             DateTime start;
             _GetIncomingIDAndStart(gateway.id, out start, out incoming);
             _addPathEntry(gateway.id, incoming, chosenExits, StepStatuses.Succeeded, start, DateTime.Now);
-            foreach (string outgoing in chosenExits)
-                Complete(gateway.id, outgoing);
+            chosenExits.ForEach(outgoing => Complete(gateway.id, outgoing));
         }
 
         internal void SuspendElement(string sourceID, IElement elem)

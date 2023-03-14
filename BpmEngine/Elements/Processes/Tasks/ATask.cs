@@ -29,8 +29,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
         {
             get
             {
-                List<string> result = new List<string>();
-                foreach (string str in base.Outgoing)
+                return base.Outgoing.Where(str =>
                 {
                     bool add = true;
                     IElement afn = this.Definition.LocateElement(str);
@@ -45,10 +44,8 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
                         if (ice is IntermediateCatchEvent intermediateCatchEvent)
                             add = !intermediateCatchEvent.SubType.HasValue || !_blockedSubTypes.Contains(intermediateCatchEvent.SubType.Value);
                     }
-                    if (add)
-                        result.Add(str);
-                }
-                return result;
+                    return add;
+                });
             }
         }
     }

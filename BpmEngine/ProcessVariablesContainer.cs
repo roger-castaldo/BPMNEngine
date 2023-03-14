@@ -34,11 +34,11 @@ namespace Org.Reddragonit.BpmEngine
             _stepIndex = processInstance.State.Path.CurrentStepIndex(elementID);
             _nulls = new List<string>();
             _variables = new Dictionary<string, object>();
-            foreach (string str in processInstance.State[elementID])
+            processInstance.State[elementID].ForEach(key =>
             {
-                _process.WriteLogLine(elementID, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { str,elementID }));
-                _variables.Add(str, processInstance.State[elementID, str]);
-            }
+                _process.WriteLogLine(elementID, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
+                _variables.Add(key, processInstance.State[elementID, key]);
+            });
         }
 
         internal void WriteLogLine(LogLevels level,string message)

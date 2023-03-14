@@ -17,7 +17,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
             get
             {
                 EventSubTypes? ret = null;
-                foreach (IElement ie in this.Children)
+                Children.ForEach(ie =>
                 {
                     switch (ie.GetType().Name)
                     {
@@ -49,7 +49,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
                             ret = EventSubTypes.Terminate;
                             break;
                     }
-                }
+                });
                 return ret;
             }
         }

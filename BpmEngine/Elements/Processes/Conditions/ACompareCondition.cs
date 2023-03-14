@@ -106,8 +106,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             }else if (source is Array)
             {
                 ArrayList al = new ArrayList();
-                foreach (object o in (IEnumerable)source)
-                    al.Add(_extractVariable(o, name));
+                ((IEnumerable)source).Cast<object>().ForEach(o => al.Add(_extractVariable(o, name)));
                 if (al.Count > 0)
                 {
                     ret = Array.CreateInstance(al[0].GetType(), al.Count);
@@ -162,7 +161,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             bool foundLeft = this["leftVariable"]!=null;
             bool foundRight = this["rightVariable"]!=null;
             List<string> errs = new List<string>();
-            foreach (var name in SubNodes.Where(n => n.NodeType == XmlNodeType.Element).Select(n=>n.Name))
+            SubNodes.Where(n => n.NodeType == XmlNodeType.Element).Select(n => n.Name).ForEach(name =>
             {
                 if (_map.isMatch("exts", "right", name) || name == "right")
                 {
@@ -176,7 +175,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                         errs.Add("Left value specified more than once.");
                     foundLeft = true;
                 }
-            }
+            });
             if (!foundRight && !foundLeft)
                 errs.Add("Right and Left value missing.");
             else if (!foundRight)

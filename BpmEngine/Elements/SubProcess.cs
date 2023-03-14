@@ -38,7 +38,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                 bool hasStart = false;
                 bool hasEnd = false;
                 bool hasIncoming = this.Incoming!=null;
-                foreach (IElement elem in Children)
+                Children.ForEach(elem =>
                 {
                     if (elem is EndEvent)
                         hasEnd = true;
@@ -49,7 +49,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                         hasStart = true;
                         hasIncoming = true;
                     }
-                }
+                });
                 if (hasStart && hasEnd && hasIncoming)
                     return true;
                 List<string> terr = new List<string>();

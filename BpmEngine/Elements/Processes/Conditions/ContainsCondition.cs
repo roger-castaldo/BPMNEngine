@@ -3,6 +3,7 @@ using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -30,26 +31,10 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             else
             {
                 if (left is Array array)
-                {
-                    foreach (object ol in array)
-                    {
-                        if (_Compare(ol, right, variables) == 0)
-                            return true;
-                    }
-                }
+                    return array.OfType<object>().Any(ol => _Compare(ol, right, variables)==0);
                 else if (left is Hashtable hashtable)
-                {
-                    foreach (object ol in hashtable.Keys)
-                    {
-                        if (_Compare(ol, right, variables) == 0)
-                            return true;
-                    }
-                    foreach (object ol in hashtable.Values)
-                    {
-                        if (_Compare(ol, right, variables) == 0)
-                            return true;
-                    }
-                }
+                    return hashtable.Keys.OfType<object>().Any(ol => _Compare(ol, right, variables)==0)
+                        || hashtable.Values.OfType<object>().Any(ol => _Compare(ol, right, variables)==0);
                 else if (left.ToString().Contains(right.ToString()))
                     return true;
             }

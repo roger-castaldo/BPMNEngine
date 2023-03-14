@@ -18,9 +18,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             if (SubNodes != null)
             {
-                foreach (XmlNode n in SubNodes.Where(n => n.NodeType==XmlNodeType.Element))
+                foreach (XmlElement elem in SubNodes.OfType<XmlElement>())
                 {
-                    IElement subElem = Utility.ConstructElementType((XmlElement)n, ref map, ref cache, this);
+                    IElement subElem = Utility.ConstructElementType(elem, ref map, ref cache, this);
                     if (subElem != null)
                     {
                         _children.Add(subElem);

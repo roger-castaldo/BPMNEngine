@@ -185,43 +185,25 @@ namespace Org.Reddragonit.BpmEngine
         #region StateContainerDelegates
         private XmlElement _FindContainer(string containerName)
         {
-            foreach (XmlNode n in _doc.ChildNodes)
+            XmlElement result = _doc.ChildNodes.Cast<XmlNode>()
+                .Traverse(n=>n.ChildNodes.Cast<XmlNode>())
+                .OfType<XmlElement>()
+                .FirstOrDefault(elem=>elem.Name == containerName);
+            if (result==null)
             {
-                XmlElement tmp = _FindContainer(containerName, n);
-                if (tmp != null)
-                    return tmp;
+                result = _doc.CreateElement(containerName);
+                _stateElement.AppendChild(result);
             }
-            XmlElement ret = _doc.CreateElement(containerName);
-            _stateElement.AppendChild(ret);
-            return ret;
-        }
-        private XmlElement _FindContainer(string containerName,XmlNode parent)
-        {
-            if (parent.NodeType == XmlNodeType.Element)
-            {
-                if (parent.Name == containerName)
-                    return (XmlElement)parent;
-            }
-            foreach (XmlNode n in parent.ChildNodes)
-            {
-                XmlElement tmp = _FindContainer(containerName, n);
-                if (tmp != null)
-                    return tmp;
-            }
-            return null;
+            return result;
         }
         internal XmlElement[] GetChildNodes(string containerName)
         {
-            List<XmlElement> ret = new List<XmlElement>();
+            var result = Array.Empty<XmlElement>();
             _evnt.WaitOne();
             XmlElement cont = _FindContainer(containerName);
-            foreach (XmlNode n in cont.ChildNodes)
-            {
-                if (n.NodeType == XmlNodeType.Element)
-                    ret.Add((XmlElement)n);
-            }
+            result = cont.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().ToArray();
             _evnt.Set();
-            return ret.ToArray();
+            return result;
         }
         internal void InsertBefore(string containerName, XmlElement element,XmlElement child)
         {

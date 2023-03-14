@@ -25,42 +25,14 @@ namespace Org.Reddragonit.BpmEngine.Elements
 
         public IElement LocateElement(string id)
         {
-            return _RecurLocateElement(this, id);
-        }
-
-        private IElement _RecurLocateElement(IElement elem, string id)
-        {
-            if (elem.id == id)
-                return elem;
-            IElement ret = null;
-            if (elem is IParentElement element)
-            {
-                foreach (IElement selem in element.Children)
-                {
-                    ret = _RecurLocateElement(selem, id);
-                    if (ret != null)
-                        break;
-                }
-            }
-            return ret;
+            return (this.id==id
+                ? this
+                : Children.Traverse(ielem => (ielem is AParentElement ? ((AParentElement)ielem).Children : Array.Empty<IElement>())).FirstOrDefault(elem => elem.id==id));
         }
 
         public IEnumerable<T> LocateElementsOfType<T>() where T: IElement
         {
-            return _RecurLocateElementsOfType<T>(this);
-        }
-
-        private IEnumerable<T> _RecurLocateElementsOfType<T>(IElement elem) where T : IElement
-        {
-            var result = new List<T>();
-            if (typeof(T).Equals(elem.GetType()))
-                result.Add((T)elem);
-            if (elem is IParentElement element)
-            {
-                foreach (IElement selem in element.Children)
-                    result.AddRange(_RecurLocateElementsOfType<T>(selem));
-            }
-            return result;
+            return Children.Traverse(ielem => (ielem is AParentElement ? ((AParentElement)ielem).Children : Array.Empty<IElement>())).OfType<T>();
         }
 
         public override bool IsValid(out string[] err)

@@ -148,13 +148,13 @@ namespace Org.Reddragonit.BpmEngine
                 WriteLogLine(task, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, (task is IUserTask ? ((IUserTask)task).UserID : null) }));
                 _stateEvent.WaitOne();
                 IVariables vars = task.Variables;
-                foreach (string str in vars.Keys)
+                vars.Keys.ForEach(key =>
                 {
-                    object left = vars[str];
-                    object right = _state[task.id, str];
+                    object left = vars[key];
+                    object right = _state[task.id, key];
                     if (!_IsVariablesEqual(left, right))
-                        _state[task.id, str] = left;
-                }
+                        _state[task.id, key] = left;
+                });
                 _InvokeElementEventDelegate(_delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.id, this));
                 ATask tsk = _process.GetTask(task.id);
                 if (tsk is UserTask)
@@ -195,28 +195,19 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 else if (left is Hashtable)
                 {
-                    if (!(right is Hashtable))
-                        return false;
-                    else
+                    if (right is Hashtable)
                     {
                         Hashtable hleft = (Hashtable)left;
                         Hashtable hright = (Hashtable)right;
                         if (hleft.Count != hright.Count)
                             return false;
-                        foreach (object key in hleft.Keys)
-                        {
-                            if (!hright.ContainsKey(key))
-                                return false;
-                            else if (!_IsVariablesEqual(hleft[key], hright[key]))
-                                return false;
-                        }
-                        foreach (object key in hright.Keys)
-                        {
-                            if (!hleft.ContainsKey(key))
-                                return false;
-                        }
+                        if (hleft.Keys.Cast<object>().Any(key => !hright.ContainsKey(key) || !_IsVariablesEqual(hleft[key], hright[key])))
+                            return false;
+                        if (hright.Keys.Cast<object>().Any(key => !hleft.Contains(key)))
+                            return false;
                         return true;
                     }
+                    return false;
                 }
                 else
                 {
@@ -266,25 +257,21 @@ namespace Org.Reddragonit.BpmEngine
                 _isSuspended = false;
                 var resumeSteps = _state.ResumeSteps;
                 _state.Resume();
-                if (resumeSteps.Any())
-                {
-                    foreach (sSuspendedStep ss in resumeSteps)
-                        _ProcessStepComplete(ss.IncomingID, ss.ElementID);
-                }
-                foreach (sStepSuspension ss in _state.SuspendedSteps)
+                resumeSteps.ForEach(ss => _ProcessStepComplete(ss.IncomingID, ss.ElementID));
+                _state.SuspendedSteps.ForEach(ss =>
                 {
                     if (DateTime.Now.Ticks < ss.EndTime.Ticks)
                         Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), this, (AEvent)_process.GetElement(ss.Id));
                     else
                         CompleteTimedEvent((AEvent)_process.GetElement(ss.Id));
-                }
-                foreach (sDelayedStartEvent sdse in _state.DelayedEvents)
+                });
+                _state.DelayedEvents.ForEach(sdse =>
                 {
                     if (sdse.Delay.Ticks<0)
                         _process.ProcessEvent(this, sdse.IncomingID, (AEvent)_process.GetElement(sdse.ElementID));
                     else
                         Utility.DelayStart(sdse.Delay, this, (BoundaryEvent)_process.GetElement(sdse.ElementID), sdse.IncomingID);
-                }
+                });
                 WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
             }
             else
