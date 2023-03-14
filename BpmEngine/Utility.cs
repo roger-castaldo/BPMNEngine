@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -66,9 +67,8 @@ namespace Org.Reddragonit.BpmEngine
             });
             _xmlChildren = new Dictionary<Type, List<Type>>();
             List<Type> globalChildren = new List<Type>();
-            for (int x = 0; x < tmp.Count; x++)
+            tmp.ForEach(t =>
             {
-                Type t = tmp[x];
                 List<ValidParentAttribute> atts = new List<Attributes.ValidParentAttribute>();
                 if (t.GetCustomAttributes(typeof(ValidParentAttribute), false).Length == 0)
                 {
@@ -124,7 +124,7 @@ namespace Org.Reddragonit.BpmEngine
                         _xmlChildren.Add(parent, types);
                     }
                 });
-            }
+            });
             _globalXMLChildren = globalChildren.ToArray();
         }
 
@@ -439,36 +439,36 @@ namespace Org.Reddragonit.BpmEngine
                 _backgroundMREEvent.Reset();
                 lock (_events)
                 {
-                    for (int x = 0; x < _events.Count; x++)
+                    var now = DateTime.Now;
+                    IEnumerable<object> toRemove = Array.Empty<object>();
+
+                    _events.OfType<SProcessSuspendEvent>().ForEach(spse =>
                     {
-                        if (_events[x] is SProcessSuspendEvent)
+                        if (spse.EndTime.Ticks<now.Ticks)
                         {
-                            SProcessSuspendEvent spe = (SProcessSuspendEvent)_events[x];
-                            if (spe.EndTime.Ticks < DateTime.Now.Ticks)
+                            try
                             {
-                                try
-                                {
-                                    spe.Instance.CompleteTimedEvent(spe.Event);
-                                    _events.RemoveAt(x);
-                                    x--;
-                                }
-                                catch (Exception e) { spe.Instance.WriteLogException(spe.Event, new StackFrame(1, true), DateTime.Now, e); }
+                                spse.Instance.CompleteTimedEvent(spse.Event);
+                                toRemove = toRemove.Append(spse);
                             }
-                        }else if (_events[x] is SProcessDelayedEvent)
-                        {
-                            SProcessDelayedEvent sde = (SProcessDelayedEvent)_events[x];
-                            if (sde.StartTime.Ticks < DateTime.Now.Ticks)
-                            {
-                                try
-                                {
-                                    sde.Instance.StartTimedEvent(sde.Event, sde.SourceID);
-                                    _events.RemoveAt(x);
-                                    x--;
-                                }
-                                catch (Exception e) { sde.Instance.WriteLogException(sde.Event, new StackFrame(1, true), DateTime.Now, e); }
-                            }
+                            catch (Exception e) { spse.Instance.WriteLogException(spse.Event, new StackFrame(1, true), DateTime.Now, e); }
                         }
-                    }
+                    });
+
+                    _events.OfType<SProcessDelayedEvent>().ForEach(spde =>
+                    {
+                        if (spde.StartTime.Ticks<now.Ticks)
+                        {
+                            try
+                            {
+                                spde.Instance.StartTimedEvent(spde.Event, spde.SourceID);
+                                toRemove = toRemove.Append(spde);
+                            }
+                            catch (Exception e) { spde.Instance.WriteLogException(spde.Event, new StackFrame(1, true), DateTime.Now, e); }
+                        }
+                    });
+
+                    _events.RemoveAll(o=>toRemove.Contains(o));
                 }
             }
         }

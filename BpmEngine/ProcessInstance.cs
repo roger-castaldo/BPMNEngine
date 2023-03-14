@@ -185,12 +185,7 @@ namespace Org.Reddragonit.BpmEngine
                         Array aright = (Array)right;
                         if (aleft.Length != aright.Length)
                             return false;
-                        for (int x = 0; x < aleft.Length; x++)
-                        {
-                            if (!_IsVariablesEqual(aleft.GetValue(x), aright.GetValue(x)))
-                                return false;
-                        }
-                        return true;
+                        return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => _IsVariablesEqual(ival.val, aright.GetValue(ival.index)));
                     }
                 }
                 else if (left is Hashtable)

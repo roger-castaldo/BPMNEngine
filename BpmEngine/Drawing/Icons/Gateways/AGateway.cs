@@ -4,6 +4,7 @@ using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways

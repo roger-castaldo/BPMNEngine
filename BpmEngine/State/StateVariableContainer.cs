@@ -124,11 +124,11 @@ namespace Org.Reddragonit.BpmEngine.State
                                 ret = Array.CreateInstance(typeof(Guid), elem.ChildNodes.Count);
                                 break;
                         }
-                        for (int x = 0; x < elem.ChildNodes.Count; x++)
+                        elem.ChildNodes.Cast<XmlNode>().Select((n, i) => new { node = n, index = i }).ForEach(inode =>
                         {
-                            string text = ((XmlCDataSection)elem.ChildNodes[x].ChildNodes[0]).InnerText;
-                            ((Array)ret).SetValue(Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value), text), x);
-                        }
+                            string text = ((XmlCDataSection)inode.node.ChildNodes[0]).InnerText;
+                            ((Array)ret).SetValue(Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value), text), inode.index);
+                        });
                     }
                     else
                     {

@@ -110,8 +110,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
                 if (al.Count > 0)
                 {
                     ret = Array.CreateInstance(al[0].GetType(), al.Count);
-                    for (int x = 0; x < al.Count; x++)
-                        ((Array)ret).SetValue(al[x], x);
+                    al.Cast<object>().Select((v, i) => new { value = v, index = i }).ForEach(o => ((Array)ret).SetValue(o.value, o.index));
                 }
             }
             return ret;

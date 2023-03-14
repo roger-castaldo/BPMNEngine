@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -132,14 +133,7 @@ namespace Org.Reddragonit.BpmEngine
         private bool _dataEquals(byte[] content)
         {
             if (_content.Length==content.Length)
-            {
-                for(int x=0;x<content.Length; x++)
-                {
-                    if (_content[x]!=content[x])
-                        return false;
-                }
-                return true;
-            }
+                return !_content.Select((b, i) => new { val = b, index = i }).Any(o => content[o.index]!=o.val);
             return false;
         }
     }
