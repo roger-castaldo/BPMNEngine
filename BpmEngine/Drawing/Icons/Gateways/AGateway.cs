@@ -1,7 +1,7 @@
 ﻿using Microsoft.Maui.Graphics;
 
 using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-
+using Org.Reddragonit.BpmEngine.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,8 +35,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
             surface.StrokeDashPattern=null;
             surface.StrokeSize = _PEN_SIZE;
 
-            for (int idx = 1; idx<_POINTS.Length; idx++)
-                surface.DrawLine(_POINTS[idx-1], _POINTS[idx]);
+            Diagram.DrawLines(surface, _POINTS);
 
             surface.DrawLine(_POINTS[_POINTS.Length-1], _POINTS[0]);
         }

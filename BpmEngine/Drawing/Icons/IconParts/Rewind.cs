@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
@@ -26,8 +27,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         static Rewind()
         {
             _PATH = new PathF(_POINTS[0]);
-            for (int idx = 1; idx<_POINTS.Length; idx++)
-                _PATH.LineTo(_POINTS[idx]);
+            _POINTS.Skip(1).ForEach(p => _PATH.LineTo(p));
             _PATH.Close();
         }
 

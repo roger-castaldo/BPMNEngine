@@ -117,6 +117,19 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return ret;
         }
 
+        public static void DrawLines(ICanvas surface, Point[] points)
+        {
+            var prev = points.First();
+            points.Skip(1)
+                .Select((p,i) => {
+                    var result = new { start = prev, end = p };
+                    prev=p;
+                    return result;
+                })
+                .ForEach(pair => surface.DrawLine(pair.start, pair.end));
+        }
+        
+
         public override bool IsValid(out string[] err)
         {
             if (!Children.Any())

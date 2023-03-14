@@ -3,6 +3,7 @@ using Microsoft.Maui.Graphics;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 
@@ -28,8 +29,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
         static Bolt()
         {
             _PATH = new PathF(_POINTS[0]);
-            for (int x = 1; x<_POINTS.Length; x++)
-                _PATH.LineTo(_POINTS[x]);
+            _POINTS.Skip(1).ForEach(p=>_PATH.LineTo(p));
             _PATH.Close();
         }
 

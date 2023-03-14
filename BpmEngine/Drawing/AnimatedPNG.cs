@@ -70,7 +70,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
 
         public void AddFrame(IImage image,int x,int y,TimeSpan? delay=null)
         {
-            _parts.Add(new AnimatedFrame(image,x,y,delay=delay));
+            _parts.Add(new AnimatedFrame(image,x,y,delay:delay));
         }
 
         private static readonly byte[] SIGNATURE = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };

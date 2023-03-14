@@ -92,10 +92,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
         {
             var points = Points.ToArray();
             var polyPath = new PathF(points[0]);
-            for(var idx=1;idx<points.Length;idx++)
-            {
-                polyPath.LineTo(points[idx]);
-            }
+            points.Skip(1).ForEach(p => polyPath.LineTo(p));
             
             var color = Diagram.GetColor(path.GetStatus(bpmnElement));
 
