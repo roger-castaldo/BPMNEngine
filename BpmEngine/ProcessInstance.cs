@@ -52,12 +52,12 @@ namespace Org.Reddragonit.BpmEngine
         private void _StateChange(XmlDocument stateDocument)
         {
             _stateEvent.WaitOne();
-            if (_delegates.OnStateChange!=null)
+            if (_delegates.Events.OnStateChange!=null)
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     try
                     {
-                        _delegates.OnStateChange.Invoke(stateDocument);
+                        _delegates.Events.OnStateChange.Invoke(stateDocument);
                     }
                     catch (Exception) { }
                 });
@@ -87,20 +87,27 @@ namespace Org.Reddragonit.BpmEngine
             _process.ProcessStepError(this, step, ex);
         }
 
+        private static void _InvokeElementEventDelegate(Delegate @delegate,IElement element,IReadonlyVariables variables)
+        {
+            if (@delegate!=null)
+            {
+                System.Threading.Tasks.Task.Run(() =>
+                {
+                    try
+                    {
+                        @delegate.DynamicInvoke(element, variables);
+                    }
+                    catch (Exception) { }
+                });
+            }
+        }
+
         internal void CompleteTimedEvent(AEvent evnt)
         {
             _stateEvent.WaitOne();
             _state.Path.SucceedEvent(evnt);
             _stateEvent.Set();
-            if (_delegates.OnEventCompleted!=null)
-                System.Threading.Tasks.Task.Run(() =>
-                {
-                    try
-                    {
-                        _delegates.OnEventCompleted.Invoke(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, this));
-                    }
-                    catch (Exception) { }
-                });
+            _InvokeElementEventDelegate(_delegates.Events.Events.Completed, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, this));
         }
 
         internal void StartTimedEvent(BoundaryEvent evnt, string sourceID)
@@ -110,15 +117,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void EmitTaskError(Tasks.ExternalTask externalTask, Exception error, out bool isAborted)
         {
-            if (_delegates.OnTaskError!=null)
-                System.Threading.Tasks.Task.Run(() =>
-                {
-                    try
-                    {
-                        _delegates.OnTaskError.Invoke(externalTask, new ReadOnlyProcessVariablesContainer(externalTask.id, this));
-                    }
-                    catch (Exception) { }
-                });
+            _InvokeElementEventDelegate(_delegates.Events.Tasks.Error, externalTask, new ReadOnlyProcessVariablesContainer(externalTask.id, this));
             _process.HandleTaskEmission(this, externalTask, error, EventSubTypes.Error, out isAborted);
         }
 
@@ -156,15 +155,7 @@ namespace Org.Reddragonit.BpmEngine
                     if (!_IsVariablesEqual(left, right))
                         _state[task.id, str] = left;
                 }
-                if (_delegates.OnTaskCompleted!=null)
-                    System.Threading.Tasks.Task.Run(() =>
-                    {
-                        try
-                        {
-                            _delegates.OnTaskCompleted.Invoke(task, new ReadOnlyProcessVariablesContainer(task.id, this));
-                        }
-                        catch (Exception) { }
-                    });
+                _InvokeElementEventDelegate(_delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.id, this));
                 ATask tsk = _process.GetTask(task.id);
                 if (tsk is UserTask)
                     _state.Path.SucceedTask((UserTask)tsk, ((IUserTask)task).UserID);
@@ -311,12 +302,12 @@ namespace Org.Reddragonit.BpmEngine
             _state.Suspend();
             _mreSuspend.WaitOne(5000);
             Utility.UnloadProcess(this);
-            if (_delegates.OnStateChange!=null)
+            if (_delegates.Events.OnStateChange!=null)
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     try
                     {
-                        _delegates.OnStateChange.Invoke(_state.Document);
+                        _delegates.Events.OnStateChange.Invoke(_state.Document);
                     }
                     catch (Exception) { }
                 });
@@ -355,8 +346,8 @@ namespace Org.Reddragonit.BpmEngine
         {
             if ((int)level <= (int)_stateLogLevel && _state!=null)
                 _state.LogLine((element==null ? null : element.id), sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
-            if (_delegates.LogLine != null)
-                _delegates.LogLine.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
+            if (_delegates.Logging.LogLine != null)
+                _delegates.Logging.LogLine.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
 
         internal Exception WriteLogException(string elementID, StackFrame sf, DateTime timestamp, Exception exception)
@@ -368,8 +359,8 @@ namespace Org.Reddragonit.BpmEngine
         {
             if ((int)LogLevels.Error <= (int)_stateLogLevel)
                 _state.LogException((element==null ? null : element.id), sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
-            if (_delegates.LogException != null)
-                _delegates.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+            if (_delegates.Logging.LogException != null)
+                _delegates.Logging.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             return exception;
         }
         #endregion

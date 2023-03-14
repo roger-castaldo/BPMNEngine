@@ -25,9 +25,16 @@ namespace UnitTest
             var logger = new Mock<LogLine>();
             var exceptionLogger = new Mock<LogException>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
-                logLine:logger.Object, 
-                logException:exceptionLogger.Object,
-                beginUserTask: new StartUserTask(_StartUserTask));
+                logging: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessLogging()
+                {
+                    LogLine=logger.Object,
+                    LogException=exceptionLogger.Object
+                },
+                tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+                {
+                    BeginUserTask=new StartUserTask(_StartUserTask)
+                }
+            );
 
             Assert.IsNotNull(process);
 

@@ -21,9 +21,9 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), processTask: new ProcessTask(_ProcessTask));
-            _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), processTask: new ProcessTask(_ProcessTask));
-            _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), processTask: new ProcessTask(_ProcessTask));
+            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(_ProcessTask)});
+            _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
+            _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
         }
 
         [ClassCleanup]

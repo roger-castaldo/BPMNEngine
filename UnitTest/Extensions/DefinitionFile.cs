@@ -20,7 +20,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestDefinitionVariableUsage()
         {
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_file.bpmn"), beginUserTask: new StartUserTask(_StartUserTask));
+            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_file.bpmn"), tasks:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { BeginUserTask= new StartUserTask(_StartUserTask) });
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_FILE_NAME]);
             Assert.IsInstanceOfType(process[_FILE_NAME], typeof(sFile));

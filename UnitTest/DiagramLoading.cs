@@ -20,7 +20,11 @@ namespace UnitTest
             bool loaded = false;
             try
             {
-                BusinessProcess proc = new BusinessProcess(doc,logException:logExceptionMoq.Object);
+                BusinessProcess proc = new BusinessProcess(doc,
+                    logging: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessLogging() {
+                        LogException=logExceptionMoq.Object
+                    }
+                );
                 loaded=true;
             }catch(Exception)
             {

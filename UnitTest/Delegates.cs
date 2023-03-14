@@ -27,52 +27,112 @@ namespace UnitTest
         {
             _cache = new ConcurrentQueue<string>();
             _startCompleteProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/start_complete_triggers.bpmn"),
-                onEventStarted:new OnElementEvent(_elementStarted),
-                onEventCompleted:new OnElementEvent(_elementCompleted),
-                onGatewayStarted:new OnElementEvent(_elementStarted),
-                onGatewayCompleted:new OnElementEvent(_elementCompleted),
-                onSequenceFlowCompleted:new OnFlowComplete(_flowCompleted),
-                onMessageFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onSubProcessCompleted:new OnElementEvent(_elementCompleted),
-                onSubProcessStarted:new OnElementEvent(_elementStarted),
-                onTaskCompleted:new OnElementEvent(_elementCompleted),
-                onTaskStarted:new OnElementEvent(_elementStarted)
+                events:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                {
+                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Flows=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    {
+                        SequenceFlow=new OnFlowComplete(_flowCompleted),
+                        MessageFlow=new OnFlowComplete(_flowCompleted)
+                    }
+                }
             );
             _pathChecksProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/path_valid_checks.bpmn"),
-                onEventStarted: new OnElementEvent(_elementStarted),
-                onEventCompleted: new OnElementEvent(_elementCompleted),
-                onGatewayStarted: new OnElementEvent(_elementStarted),
-                onGatewayCompleted: new OnElementEvent(_elementCompleted),
-                onSequenceFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onMessageFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onSubProcessCompleted: new OnElementEvent(_elementCompleted),
-                onSubProcessStarted: new OnElementEvent(_elementStarted),
-                onTaskCompleted: new OnElementEvent(_elementCompleted),
-                onTaskStarted: new OnElementEvent(_elementStarted),
-                isFlowValid: new IsFlowValid(_isFlowValid),
-                isProcessStartValid:new IsProcessStartValid(_isProcessStartValid),
-                isEventStartValid:new IsEventStartValid(_isEventStartValid)
+                events: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                {
+                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Flows=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    {
+                        SequenceFlow=new OnFlowComplete(_flowCompleted),
+                        MessageFlow=new OnFlowComplete(_flowCompleted)
+                    }
+                },
+                validations:new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+                {
+                    IsFlowValid= new IsFlowValid(_isFlowValid),
+                    IsProcessStartValid=new IsProcessStartValid(_isProcessStartValid),
+                    IsEventStartValid=new IsEventStartValid(_isEventStartValid)
+                }
             );
             _taskCallsProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/task_checks.bpmn"),
-                onEventStarted: new OnElementEvent(_elementStarted),
-                onEventCompleted: new OnElementEvent(_elementCompleted),
-                onGatewayStarted: new OnElementEvent(_elementStarted),
-                onGatewayCompleted: new OnElementEvent(_elementCompleted),
-                onSequenceFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onMessageFlowCompleted: new OnFlowComplete(_flowCompleted),
-                onSubProcessCompleted: new OnElementEvent(_elementCompleted),
-                onSubProcessStarted: new OnElementEvent(_elementStarted),
-                onTaskCompleted: new OnElementEvent(_elementCompleted),
-                onTaskStarted: new OnElementEvent(_elementStarted),
-                processBusinessRuleTask: new ProcessTask(_processTask),
-                processRecieveTask: new ProcessTask(_processTask),
-                processScriptTask: new ProcessTask(_processTask),
-                processSendTask: new ProcessTask(_processTask),
-                processServiceTask: new ProcessTask(_processTask),
-                processTask: new ProcessTask(_processTask),
-                callActivity: new ProcessTask(_processTask),
-                beginManualTask: new StartManualTask(_startManualTask),
-                beginUserTask: new StartUserTask(_startUserTask)
+                events: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                {
+                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started=new OnElementEvent(_elementStarted),
+                        Completed=new OnElementEvent(_elementCompleted)
+                    },
+                    Flows=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    {
+                        SequenceFlow=new OnFlowComplete(_flowCompleted),
+                        MessageFlow=new OnFlowComplete(_flowCompleted)
+                    }
+                },
+                tasks:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+                {
+                    ProcessBusinessRuleTask= new ProcessTask(_processTask),
+                    ProcessRecieveTask= new ProcessTask(_processTask),
+                    ProcessScriptTask= new ProcessTask(_processTask),
+                    ProcessSendTask= new ProcessTask(_processTask),
+                    ProcessServiceTask= new ProcessTask(_processTask),
+                    ProcessTask= new ProcessTask(_processTask),
+                    CallActivity= new ProcessTask(_processTask),
+                    BeginManualTask= new StartManualTask(_startManualTask),
+                    BeginUserTask= new StartUserTask(_startUserTask)
+                }
             );
         }
 

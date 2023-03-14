@@ -21,7 +21,7 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), processTask: new ProcessTask(_ProcessTask));
+            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(_ProcessTask) });
         }
 
         [ClassCleanup]
