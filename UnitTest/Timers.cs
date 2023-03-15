@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace UnitTest
@@ -66,6 +67,53 @@ namespace UnitTest
             Assert.AreEqual(60, (int)Math.Floor(ts.Value.TotalSeconds));
         }
 
+        [TestMethod]
+        public void TestCatchTimerDefinitionWithSuspension()
+        {
+            IProcessInstance instance = _process.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            Task.Delay(1000).Wait();
+            instance.Suspend();
+            Task.Delay(5000).Wait();
+            var doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.OuterXml);
+            instance.Dispose();
+            instance = _process.LoadState(doc);
+            Assert.IsNotNull(instance);
+            instance.Resume();
+            Assert.IsTrue(instance.WaitForCompletion(5*60*1000));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
+            TimeSpan? ts = GetStepDuration(instance.CurrentState, "IntermediateCatchEvent_1tm2fi4");
+            Assert.IsNotNull(ts);
+            Assert.AreEqual(60, (int)Math.Floor(ts.Value.TotalSeconds));
+        }
+
+        [TestMethod]
+        public void TestCatchTimerDefinitionWithResumeAfterEnd()
+        {
+            IProcessInstance instance = _process.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            Task.Delay(1000).Wait();
+            instance.Suspend();
+            Task.Delay(5000).Wait();
+            var doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.OuterXml);
+            instance.Dispose();
+            instance = _process.LoadState(doc);
+            Assert.IsNotNull(instance);
+            Task.Delay(60000).Wait();
+            instance.Resume();
+            Assert.IsTrue(instance.WaitForCompletion(5*60*1000));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
+            TimeSpan? ts = GetStepDuration(instance.CurrentState, "IntermediateCatchEvent_1tm2fi4");
+            Assert.IsNotNull(ts);
+            Assert.IsTrue((int)Math.Floor(ts.Value.TotalSeconds)>60);
+        }
+
 
         [TestMethod]
         public void TestNonInteruptingTimerDefinition()
@@ -97,6 +145,57 @@ namespace UnitTest
             TimeSpan? ts = GetStepDuration(instance.CurrentState, "BoundaryEvent_14c0tw1");
             Assert.IsNotNull(ts);
             Assert.AreEqual(45, (int)Math.Floor(ts.Value.TotalSeconds));
+        }
+
+        [TestMethod]
+        public void TestDelayStartEventWithSuspension()
+        {
+            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>(){
+                { _DELAY_ID,(int)46*1000}
+            });
+            Assert.IsNotNull(instance);
+            Task.Delay(1000).Wait();
+            instance.Suspend();
+            Task.Delay(5000).Wait();
+            var doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.OuterXml);
+            instance.Dispose();
+            instance = _process.LoadState(doc);
+            Assert.IsNotNull(instance);
+            instance.Resume();
+            Assert.IsTrue(instance.WaitForCompletion(5*60*1000));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
+            TimeSpan? ts = GetStepDuration(instance.CurrentState, "BoundaryEvent_14c0tw1");
+            Assert.IsNotNull(ts);
+            Assert.AreEqual(45, (int)Math.Floor(ts.Value.TotalSeconds));
+        }
+
+        [TestMethod]
+        public void TestDelayStartEventWithResumeAfterStart()
+        {
+            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>(){
+                { _DELAY_ID,(int)30*1000}
+            });
+            Assert.IsNotNull(instance);
+            Task.Delay(1000).Wait();
+            instance.Suspend();
+            Task.Delay(5000).Wait();
+            var doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.OuterXml);
+            instance.Dispose();
+            instance = _process.LoadState(doc);
+            Assert.IsNotNull(instance);
+            Task.Delay(30000).Wait();
+            instance.Resume();
+            Assert.IsTrue(instance.WaitForCompletion(5*60*1000));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
+            TimeSpan? ts = GetStepDuration(instance.CurrentState, "BoundaryEvent_14c0tw1");
+            Assert.IsNotNull(ts);
+            Assert.IsTrue((int)Math.Floor(ts.Value.TotalSeconds)>30);
         }
     }
 }

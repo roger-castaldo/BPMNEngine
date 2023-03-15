@@ -18,8 +18,8 @@
       <bpmn:outgoing>SequenceFlow_0u6v9q5</bpmn:outgoing>
 		<bpmn:extensionElements>
 			<exts:ConditionSet>
-				<exts:isEqualCondition leftVariable="canstart" negated="true">
-					<exts:right>True</exts:right>
+				<exts:isEqualCondition rightVariable="canstart" negated="true">
+					<exts:left>True</exts:left>
 				</exts:isEqualCondition>
 			</exts:ConditionSet>
 		</bpmn:extensionElements>

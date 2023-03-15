@@ -160,7 +160,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
             bool foundLeft = this["leftVariable"]!=null;
             bool foundRight = this["rightVariable"]!=null;
             List<string> errs = new List<string>();
-            SubNodes.Where(n => n.NodeType == XmlNodeType.Element).Select(n => n.Name).ForEach(name =>
+            SubNodes.OfType<XmlElement>().Select(n => n.Name).ForEach(name =>
             {
                 if (_map.isMatch("exts", "right", name) || name == "right")
                 {
