@@ -15,6 +15,13 @@ namespace Org.Reddragonit.BpmEngine.DelegateContainers
     /// </summary>
     public class StepValidations
     {
+        private static readonly StepValidations _DEFAULT_VALIDATOR = new StepValidations()
+        {
+            IsEventStartValid=new IsEventStartValid(_DefaultEventStartValid),
+            IsProcessStartValid= new IsProcessStartValid(_DefaultProcessStartValid),
+            IsFlowValid= new IsFlowValid(_DefaultFlowValid)
+        };
+
         /// <summary>
         /// A delegate called to validate if an event can start
         /// <code>
@@ -43,7 +50,7 @@ namespace Org.Reddragonit.BpmEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsEventStartValid IsEventStartValid { get; init; } = new IsEventStartValid(_DefaultEventStartValid);
+        public IsEventStartValid IsEventStartValid { get; init; }
         /// <summary>
         /// A delegate called to validate if a process is valid to start
         /// <code>
@@ -72,7 +79,7 @@ namespace Org.Reddragonit.BpmEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsProcessStartValid IsProcessStartValid { get; init; } = new IsProcessStartValid(_DefaultProcessStartValid);
+        public IsProcessStartValid IsProcessStartValid { get; init; }
         /// <summary>
         /// A delegate called to validate if a flow is valid to run
         /// <code>
@@ -100,7 +107,7 @@ namespace Org.Reddragonit.BpmEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsFlowValid IsFlowValid {get; init; } = new IsFlowValid(_DefaultFlowValid);
+        public IsFlowValid IsFlowValid {get; init; }
 
         private static bool _DefaultEventStartValid(IElement Event, IReadonlyVariables variables) { return true; }
         private static bool _DefaultProcessStartValid(IElement Event, IReadonlyVariables variables) { return true; }
@@ -108,14 +115,14 @@ namespace Org.Reddragonit.BpmEngine.DelegateContainers
 
         internal static StepValidations Merge(StepValidations source, StepValidations append)
         {
-            if (source==null&&append==null) return new StepValidations();
-            if (source==null) return append;
-            if (append==null) return source;
+            if (source==null&&append==null) return Merge(_DEFAULT_VALIDATOR, null);
+            if (source==null) return Merge(_DEFAULT_VALIDATOR,append);
+            if (append==null) return Merge(_DEFAULT_VALIDATOR,source);
             return new StepValidations()
             {
-                IsEventStartValid = append.IsEventStartValid??source.IsEventStartValid??new IsEventStartValid(_DefaultEventStartValid),
-                IsProcessStartValid = append.IsProcessStartValid??source.IsProcessStartValid??new IsProcessStartValid(_DefaultProcessStartValid),
-                IsFlowValid = append.IsFlowValid??source.IsFlowValid??new IsFlowValid(_DefaultFlowValid)
+                IsEventStartValid = append.IsEventStartValid??(source.IsEventStartValid??new IsEventStartValid(_DefaultEventStartValid)),
+                IsProcessStartValid = append.IsProcessStartValid??(source.IsProcessStartValid??new IsProcessStartValid(_DefaultProcessStartValid)),
+                IsFlowValid = append.IsFlowValid??(source.IsFlowValid ?? new IsFlowValid(_DefaultFlowValid))
             };
         }
     }

@@ -25,12 +25,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
 
         private Stream _data;
 
-        public byte[] IHDR {
-            get
-            {
-                return  find("IHDR")?[0];
-            }
-        }
+        public byte[] IHDR =>find("IHDR")?[0];
 
         public List<byte[]> IDAT => find("IDAT");
 
