@@ -76,26 +76,19 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             byte[] result = null;
             using (var memoryStream = new MemoryStream())
             {
-                try
-                {
-                    WriteHeader(memoryStream);
+                WriteHeader(memoryStream);
 
-                    var idx = 0;
-                    int chunkSequenceNumber = 0;
-                    _parts.ForEach(part =>
-                    {
-                        WriteFrameHeader(memoryStream, part, ref chunkSequenceNumber);
-                        WriteFrame(memoryStream, idx, part, ref chunkSequenceNumber);
-                        idx++;
-                    });
-                    Write(memoryStream, IEND);
-
-                    result = memoryStream.ToArray();
-                }
-                catch (Exception)
+                var idx = 0;
+                int chunkSequenceNumber = 0;
+                _parts.ForEach(part =>
                 {
-                    throw;
-                }
+                    WriteFrameHeader(memoryStream, part, ref chunkSequenceNumber);
+                    WriteFrame(memoryStream, idx, part, ref chunkSequenceNumber);
+                    idx++;
+                });
+                Write(memoryStream, IEND);
+
+                result = memoryStream.ToArray();
             }
             return result;
         }

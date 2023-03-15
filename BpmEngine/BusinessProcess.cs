@@ -43,21 +43,13 @@ namespace Org.Reddragonit.BpmEngine
 
         private readonly Guid _id;
         private readonly List<object> _components;
-        private readonly List<IElement> _elements;
         private readonly IEnumerable<AHandlingEvent> _eventHandlers = null;
         private readonly Definition definition;
 
-        internal IElement GetElement(string id) => _elements.FirstOrDefault(elem=>elem.id==id);
+        internal IElement GetElement(string id) => _Elements.FirstOrDefault(elem=>elem.id==id);
         private IEnumerable<IElement> _Elements => _components
-            .Where(obj => obj.GetType().GetInterfaces().Contains(typeof(IElement)))
-            .Select(obj => (IElement)obj);
-
-        private void _RecurAddChildren(IElement parent)
-        {
-            _elements.Add(parent);
-            if (parent is IParentElement element)
-                element.Children.ForEach(elem => { _RecurAddChildren(elem); });
-        }
+            .OfType<IElement>()
+            .Traverse(elem => (elem is IParentElement ? ((IParentElement)elem).Children : Array.Empty<IElement>()));
 
         private readonly XmlDocument _doc;
         /// <summary>
@@ -183,7 +175,6 @@ namespace Org.Reddragonit.BpmEngine
             DateTime start = DateTime.Now;
             WriteLogLine((IElement)null,LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
-            _elements = new List<IElement>();
             XmlPrefixMap map = new XmlPrefixMap(this);
             doc.ChildNodes.Cast<XmlNode>().ForEach(n =>
             {
@@ -208,7 +199,6 @@ namespace Org.Reddragonit.BpmEngine
                     _components.Add(n);
             });
             definition = _components.OfType<Definition>().FirstOrDefault();
-            _components.OfType<IElement>().ForEach(elem => _RecurAddChildren(elem));
             if (!_Elements.Any())
                 exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
@@ -224,7 +214,7 @@ namespace Org.Reddragonit.BpmEngine
                 WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
-            _eventHandlers = _elements
+            _eventHandlers = _Elements
                 .OfType<AHandlingEvent>();
             WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
         }
@@ -501,7 +491,7 @@ namespace Org.Reddragonit.BpmEngine
             ProcessVariablesContainer variables = new ProcessVariablesContainer(pars,this,ret);
             ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new ReadOnlyProcessVariablesContainer(variables);
-            var proc = _elements.OfType<Elements.Process>().FirstOrDefault(p => p.IsStartValid(ropvc, ret.Delegates.Validations.IsProcessStartValid));
+            var proc = _Elements.OfType<Elements.Process>().FirstOrDefault(p => p.IsStartValid(ropvc, ret.Delegates.Validations.IsProcessStartValid));
             if (proc != null)
             {
                 var start = proc.StartEvents.FirstOrDefault(se => se.IsEventStartValid(ropvc, ret.Delegates.Validations.IsEventStartValid));

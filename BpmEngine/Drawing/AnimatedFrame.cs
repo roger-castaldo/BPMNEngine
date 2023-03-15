@@ -28,8 +28,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         public byte[] IHDR {
             get
             {
-                var result = find("IHDR");
-                return (result==null ? null : result[0]);
+                return  find("IHDR")?[0];
             }
         }
 

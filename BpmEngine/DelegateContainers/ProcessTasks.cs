@@ -158,33 +158,15 @@ namespace Org.Reddragonit.BpmEngine.DelegateContainers
             if(append==null) return source;
             return new ProcessTasks()
             {
-                ProcessBusinessRuleTask = (source.ProcessBusinessRuleTask!=null&&append.ProcessBusinessRuleTask!=null ?
-                                source.ProcessBusinessRuleTask+append.ProcessBusinessRuleTask
-                                : source.ProcessBusinessRuleTask ?? append.ProcessBusinessRuleTask),
-                BeginManualTask = (source.BeginManualTask!=null&&append.BeginManualTask!=null ?
-                                source.BeginManualTask+append.BeginManualTask
-                                : source.BeginManualTask??append.BeginManualTask),
-                ProcessRecieveTask = (source.ProcessRecieveTask!=null&&append.ProcessRecieveTask!=null ?
-                                source.ProcessRecieveTask+append.ProcessRecieveTask
-                                : source.ProcessRecieveTask??append.ProcessRecieveTask),
-                ProcessScriptTask = (source.ProcessScriptTask!=null&&append.ProcessScriptTask!=null ?
-                                source.ProcessScriptTask+append.ProcessScriptTask
-                                : source.ProcessScriptTask??append.ProcessScriptTask),
-                ProcessSendTask = (source.ProcessSendTask!=null&&append.ProcessSendTask!=null ?
-                                source.ProcessSendTask+append.ProcessSendTask
-                                : source.ProcessSendTask ?? append.ProcessSendTask),
-                ProcessServiceTask = (source.ProcessServiceTask!=null&&append.ProcessServiceTask!=null ?
-                                source.ProcessServiceTask+append.ProcessServiceTask
-                                : source.ProcessServiceTask ?? append.ProcessServiceTask),
-                ProcessTask = (source.ProcessTask!=null&&append.ProcessTask!=null ?
-                                source.ProcessTask+append.ProcessTask
-                                : source.ProcessTask ?? append.ProcessTask),
-                CallActivity = (source.CallActivity!=null&&append.CallActivity!=null ?
-                                source.CallActivity+append.CallActivity
-                                : source.CallActivity ?? append.CallActivity),
-                BeginUserTask = (source.BeginUserTask!=null&&append.BeginUserTask!=null ?
-                                source.BeginUserTask+append.BeginUserTask
-                                : source.BeginUserTask ?? append.BeginUserTask)
+                ProcessBusinessRuleTask = append.ProcessBusinessRuleTask??source.ProcessBusinessRuleTask,
+                BeginManualTask = append.BeginManualTask??source.BeginManualTask,
+                ProcessRecieveTask = append.ProcessRecieveTask ?? source.ProcessRecieveTask,
+                ProcessScriptTask = append.ProcessScriptTask ?? source.ProcessScriptTask,
+                ProcessSendTask = append.ProcessSendTask ?? source.ProcessSendTask,
+                ProcessServiceTask = append.ProcessServiceTask ?? source.ProcessServiceTask,
+                ProcessTask = append.ProcessTask ?? source.ProcessTask,
+                CallActivity = append.CallActivity ?? source.CallActivity,
+                BeginUserTask = append.BeginUserTask ?? source.BeginUserTask
             };
         }
     }

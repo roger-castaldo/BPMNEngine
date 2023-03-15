@@ -11,15 +11,7 @@ namespace Org.Reddragonit.BpmEngine
 
         public ElementTypeCache() { _cachedMaps = new Dictionary<string, Type>(); }
 
-        public Type this[string xmlTag]
-        {
-            get
-            {
-                if (_cachedMaps.ContainsKey(xmlTag.ToLower()))
-                    return _cachedMaps[xmlTag.ToLower()];
-                return null;
-            }
-        }
+        public Type this[string xmlTag] => (_cachedMaps.ContainsKey(xmlTag.ToLower()) ? _cachedMaps[xmlTag.ToLower()] : null);
 
         public bool IsCached(string xmlTag)
         {
