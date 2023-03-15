@@ -80,5 +80,31 @@ namespace UnitTest
             instance.Resume();
             Assert.IsTrue(instance.WaitForCompletion(1000));
         }
+
+        [TestMethod]
+        public void TestNotSuspended()
+        {
+            IProcessInstance instance = _timerProcess.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            System.Threading.Thread.Sleep(5*1000);
+            instance.Suspend();
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.InnerXml);
+            instance.Dispose();
+            instance = _timerProcess.LoadState(doc);
+            Assert.IsNotNull(instance);
+            Exception exception = null;
+            instance.Resume();
+            try
+            {
+                instance.Resume();
+            }catch(Exception e)
+            {
+                exception=e;
+            }
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(NotSuspendedException));
+        }
     }
 }

@@ -57,10 +57,5 @@ namespace Org.Reddragonit.BpmEngine.State
         {
             _state.Process.WriteLogLine(elementID, level, new System.Diagnostics.StackFrame(2, true), DateTime.Now, message);
         }
-
-        protected void _WriteException(string elementID,Exception exception)
-        {
-            _state.Process.WriteLogException(elementID, new System.Diagnostics.StackFrame(2, true), DateTime.Now, exception);
-        }
     }
 }

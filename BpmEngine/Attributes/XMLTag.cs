@@ -26,13 +26,9 @@ namespace Org.Reddragonit.BpmEngine.Attributes
 
         internal bool Matches(XmlPrefixMap map, string tagName)
         {
-            if (tagName.ToLower() == ToString().ToLower())
-                return true;
-            else if (tagName.ToLower() == _name.ToLower())
-                return true;
-            else if (_prefix != null)
-                return map.isMatch(_prefix, _name, tagName);
-            return false;
+            return (tagName.ToLower() == ToString().ToLower())
+                ||(tagName.ToLower() == _name.ToLower())
+                ||(_prefix != null && map.isMatch(_prefix, _name, tagName));
         }
     }
 }

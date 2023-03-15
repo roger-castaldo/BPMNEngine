@@ -463,6 +463,7 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 state.Path.FinishAnimation();
                 result = apng.ToBinary();
+                apng.Dispose();
             }
             catch (Exception e)
             {

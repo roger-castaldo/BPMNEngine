@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Org.Reddragonit.BpmEngine.Drawing
 {
-    internal class AnimatedPNG
+    internal class AnimatedPNG : IDisposable
     {
         internal class CrcCalculator
         {
@@ -61,11 +61,6 @@ namespace Org.Reddragonit.BpmEngine.Drawing
             {
                 new AnimatedFrame(g.Image)
             };
-        }
-
-        public void AddFrame(IImage image)
-        {
-            AddFrame(image, 0, 0);
         }
 
         public void AddFrame(IImage image,int x,int y,TimeSpan? delay=null)
@@ -221,6 +216,16 @@ namespace Org.Reddragonit.BpmEngine.Drawing
         private void WriteCRC(Stream output,string value)
         {
             WriteCRC(output, value.ToCharArray().Select(c => (byte)c).ToArray());
+        }
+
+        public void Dispose()
+        {
+            while (_parts.Count>0)
+            {
+                var part = _parts[0];
+                part.Dispose();
+                _parts.RemoveAt(0);
+            }
         }
     }
 }

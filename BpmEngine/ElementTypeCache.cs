@@ -19,10 +19,6 @@ namespace Org.Reddragonit.BpmEngine
                     return _cachedMaps[xmlTag.ToLower()];
                 return null;
             }
-            set
-            {
-                _cachedMaps.Add(xmlTag.ToLower(), value);
-            }
         }
 
         public bool IsCached(string xmlTag)

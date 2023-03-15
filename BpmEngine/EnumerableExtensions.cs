@@ -28,18 +28,9 @@ namespace Org.Reddragonit.BpmEngine
 
         public static int IndexOf<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
-
-            var index = 0;
-            foreach (var item in source)
-            {
-                if (predicate.Invoke(item))
-                {
-                    return index;
-                }
-                index++;
-            }
-
-            return -1;
+            var grp = source.Select((v, i) => new { value = v, index = i })
+                .FirstOrDefault(g => predicate.Invoke(g.value));
+            return grp==null ? -1 : grp.index;
         }
     }
 }

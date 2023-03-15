@@ -167,7 +167,7 @@ namespace Org.Reddragonit.BpmEngine
         }
     }
 
-    internal readonly struct SProcessSuspendEvent : IComparable
+    internal readonly struct SProcessSuspendEvent
     {
         private readonly ProcessInstance _instance;
         public ProcessInstance Instance => _instance;
@@ -176,24 +176,15 @@ namespace Org.Reddragonit.BpmEngine
         private readonly DateTime _endTime;
         public DateTime EndTime => _endTime;
 
-        public SProcessSuspendEvent(ProcessInstance instance,AEvent evnt,TimeSpan time){
+        public SProcessSuspendEvent(ProcessInstance instance, AEvent evnt, TimeSpan time)
+        {
             _instance = instance;
             _event = evnt;
             _endTime = DateTime.Now.Add(time);
         }
-
-        public int CompareTo(object obj)
-        {
-            DateTime compare = DateTime.MaxValue;
-            if (obj is SProcessSuspendEvent)
-                compare = ((SProcessSuspendEvent)obj).EndTime;
-            else if (obj is SProcessDelayedEvent)
-                compare = ((SProcessDelayedEvent)obj).StartTime;
-            return _endTime.CompareTo(compare);
-        }
     }
 
-    internal readonly struct SProcessDelayedEvent : IComparable
+    internal readonly struct SProcessDelayedEvent
     {
         private readonly ProcessInstance _instance;
         public ProcessInstance Instance { get { return _instance; } }
@@ -204,22 +195,12 @@ namespace Org.Reddragonit.BpmEngine
         private readonly string _sourceID;
         public string SourceID { get { return _sourceID; } }
 
-        public SProcessDelayedEvent(ProcessInstance instance, BoundaryEvent evnt, TimeSpan time,string sourceID)
+        public SProcessDelayedEvent(ProcessInstance instance, BoundaryEvent evnt, TimeSpan time, string sourceID)
         {
             _instance = instance;
             _event = evnt;
             _startTime = DateTime.Now.Add(time);
             _sourceID=sourceID;
-        }
-
-        public int CompareTo(object obj)
-        {
-            DateTime compare = DateTime.MaxValue;
-            if (obj is SProcessSuspendEvent)
-                compare = ((SProcessSuspendEvent)obj).EndTime;
-            else if (obj is SProcessDelayedEvent)
-                compare = ((SProcessDelayedEvent)obj).StartTime;
-            return _startTime.CompareTo(compare);
         }
     }
 }
