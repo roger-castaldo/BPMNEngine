@@ -187,24 +187,7 @@ namespace Org.Reddragonit.BpmEngine
                             return false;
                         return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => _IsVariablesEqual(ival.val, aright.GetValue(ival.index)));
                     }
-                }
-                else if (left is Hashtable)
-                {
-                    if (right is Hashtable)
-                    {
-                        Hashtable hleft = (Hashtable)left;
-                        Hashtable hright = (Hashtable)right;
-                        if (hleft.Count != hright.Count)
-                            return false;
-                        if (hleft.Keys.Cast<object>().Any(key => !hright.ContainsKey(key) || !_IsVariablesEqual(hleft[key], hright[key])))
-                            return false;
-                        if (hright.Keys.Cast<object>().Any(key => !hleft.Contains(key)))
-                            return false;
-                        return true;
-                    }
-                    return false;
-                }
-                else
+                }else
                 {
                     try { return left.Equals(right); }
                     catch (Exception e) { WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, e); return false; }

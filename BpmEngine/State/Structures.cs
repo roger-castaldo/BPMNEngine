@@ -20,13 +20,6 @@ namespace Org.Reddragonit.BpmEngine.State
         private readonly DateTime _endTime;
         public DateTime EndTime => _endTime;
 
-        public sStepSuspension(string id, int stepIndex, TimeSpan span)
-        {
-            _id = id;
-            _stepIndex = stepIndex;
-            _endTime = DateTime.Now.Add(span);
-        }
-
         public sStepSuspension(XmlElement elem)
         {
             _id = elem.Attributes["id"].Value;

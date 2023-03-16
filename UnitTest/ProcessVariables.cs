@@ -168,8 +168,8 @@ namespace UnitTest
         public void TestUnsignedLongVariable()
         {
             var variableName = "TestUnsignedLong";
-            var variableValue = long.MinValue;
-            var variableArray = new long[] { variableValue, variableValue };
+            var variableValue = ulong.MaxValue;
+            var variableArray = new ulong[] { variableValue, variableValue };
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
@@ -336,7 +336,7 @@ namespace UnitTest
             byte[] data = new byte[str.Length];
             str.Read(data,0, data.Length);
             str.Close();
-            var variableValue = new sFile("start_to_stop","bpmn",data);
+            var variableValue = new sFile("start_to_stop","bpmn","text/xml",data);
             var variableArray = new sFile[] { variableValue, variableValue };
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);

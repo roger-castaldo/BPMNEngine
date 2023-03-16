@@ -49,6 +49,29 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void TestSuspensionWithActiveSteps()
+        {
+            IProcessInstance instance = _userProcess.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            instance.Suspend();
+            System.Threading.Thread.Sleep(1000);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.InnerXml);
+            instance.Dispose();
+
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']"));
+
+            instance = _userProcess.LoadState(doc);
+            Assert.IsNotNull(instance);
+            instance.Resume();
+            System.Threading.Thread.Sleep(4*1000);
+            IUserTask task = instance.GetUserTask("UserTask_07o8pvs");
+            Assert.IsNotNull(task);
+            task.MarkComplete();
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+        }
+
+        [TestMethod]
         public void TestTimerSuspension()
         {
             IProcessInstance instance = _timerProcess.BeginProcess(null);

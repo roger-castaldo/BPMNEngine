@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Org.Reddragonit.BpmEngine;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
@@ -70,9 +71,14 @@ namespace UnitTest
         [TestMethod]
         public void TestCatchTimerDefinitionWithSuspension()
         {
-            IProcessInstance instance = _process.BeginProcess(null);
+            var stateChangeMock = new Mock<OnStateChange>();
+            IProcessInstance instance = _process.BeginProcess(null, events: new()
+            {
+                OnStateChange=stateChangeMock.Object
+            });
             Assert.IsNotNull(instance);
             Task.Delay(1000).Wait();
+            stateChangeMock.Reset();
             instance.Suspend();
             Task.Delay(5000).Wait();
             var doc = new XmlDocument();
@@ -88,6 +94,8 @@ namespace UnitTest
             TimeSpan? ts = GetStepDuration(instance.CurrentState, "IntermediateCatchEvent_1tm2fi4");
             Assert.IsNotNull(ts);
             Assert.AreEqual(60, (int)Math.Floor(ts.Value.TotalSeconds));
+
+            stateChangeMock.Verify(x => x.Invoke(It.IsAny<XmlDocument>()), Times.Once());
         }
 
         [TestMethod]

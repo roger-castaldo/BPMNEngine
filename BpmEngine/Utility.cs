@@ -101,20 +101,7 @@ namespace Org.Reddragonit.BpmEngine
                             types.Add(t);
                             _xmlChildren.Add(c, types);
                         });
-                    }
-                    else if (parent.IsInterface)
-                    {
-                        tmp.Where(c => c.GetInterfaces().Contains(parent)).ForEach(c =>
-                        {
-                            if (!_xmlChildren.ContainsKey(c))
-                                _xmlChildren.Add(c, new List<Type>());
-                            List<Type> types = _xmlChildren[c];
-                            _xmlChildren.Remove(c);
-                            types.Add(t);
-                            _xmlChildren.Add(c, types);
-                        });
-                    }
-                    else
+                    }else
                     {
                         if (!_xmlChildren.ContainsKey(parent))
                             _xmlChildren.Add(parent, new List<Type>());
@@ -141,63 +128,6 @@ namespace Org.Reddragonit.BpmEngine
         public static Guid NextRandomGuid()
         {
             return new Guid(NextRandomBytes(GUID_ID_LENGTH));
-        }
-
-        private static Dictionary<string, Assembly> _cache = new Dictionary<string, Assembly>();
-        private static Dictionary<string, Type> _typeCache = new Dictionary<string, Type>();
-
-
-        public static bool AllTypesAvailable(string[] assemblies, string[] types)
-        {
-            return !types.Any(str => GetType(assemblies, str)==null);
-        }
-
-        public static Type GetType(string[] assemblies, string type)
-        {
-            Assembly ass = null;
-            Type ret = null;
-            bool search = true;
-            lock (_typeCache)
-            {
-                if (_typeCache.ContainsKey(type))
-                {
-                    search=false;
-                    ret=_typeCache[type];
-                }
-            }
-            if (search)
-            {
-                foreach (string assembly in assemblies)
-                {
-                    lock (_cache)
-                    {
-                        if (_cache.ContainsKey(assembly))
-                            ass=_cache[assembly];
-                        else
-                        {
-                            try
-                            {
-                                ass = Assembly.Load(assembly);
-                            }
-                            catch (Exception)
-                            {
-                                ass=null;
-                            }
-                            _cache.Add(assembly, ass);
-                        }
-                    }
-                    if (ass!=null)
-                        ret = ass.GetType(type, false);
-                    if (ret!=null)
-                        break;
-                }
-                lock (_typeCache)
-                {
-                    if (!_typeCache.ContainsKey(type))
-                        _typeCache.Add(type, ret);
-                }
-            }
-            return ret;
         }
 
         public static Type LocateElementType(Type parent, string tagName, XmlPrefixMap map)

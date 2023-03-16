@@ -113,7 +113,6 @@ namespace UnitTest.Delegates
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
             Assert.IsNotNull(instance);
             var finished = instance.WaitForCompletion(30*1000);
-            System.Diagnostics.Debug.WriteLine(instance.CurrentState.OuterXml);
             Assert.IsTrue(finished);
             System.Threading.Thread.Sleep(5000);
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));
@@ -191,7 +190,6 @@ namespace UnitTest.Delegates
                 });
             Assert.IsNotNull(instance);
             var finished = instance.WaitForCompletion(30*1000);
-            System.Diagnostics.Debug.WriteLine(instance.CurrentState.OuterXml);
             Assert.IsTrue(finished);
             System.Threading.Thread.Sleep(5000);
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));

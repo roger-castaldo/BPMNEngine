@@ -80,7 +80,7 @@ namespace UnitTest
                 {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
             });
             Assert.IsNotNull(instance);
-            Thread.Sleep(5*1000);
+            Thread.Sleep(6*1000);
             while (idx<3)
             {
                 IUserTask task = instance.GetUserTask(_TaskNames[idx]);
