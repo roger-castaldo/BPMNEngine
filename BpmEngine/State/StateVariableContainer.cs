@@ -74,71 +74,82 @@ namespace Org.Reddragonit.BpmEngine.State
             if (elem==null)
                 return null;
             object ret = null;
-            if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) == VariableTypes.File)
-                ret = new sFile((XmlElement)elem.ChildNodes[0]);
-            else
+            if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) != VariableTypes.Null)
             {
-                if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) != VariableTypes.Null)
+                if ((elem.Attributes[_IS_ARRAY] !=null)&&bool.Parse(elem.Attributes[_IS_ARRAY].Value))
                 {
-                    if ((elem.Attributes[_IS_ARRAY] !=null)&&bool.Parse(elem.Attributes[_IS_ARRAY].Value))
+                    switch ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value))
                     {
-                        switch ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value))
-                        {
-                            case VariableTypes.Boolean:
-                                ret = Array.CreateInstance(typeof(bool), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Byte:
-                                ret = Array.CreateInstance(typeof(byte[]), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Char:
-                                ret = Array.CreateInstance(typeof(char), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.DateTime:
-                                ret = Array.CreateInstance(typeof(DateTime), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Decimal:
-                                ret = Array.CreateInstance(typeof(decimal), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Double:
-                                ret = Array.CreateInstance(typeof(double), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.File:
-                                ret = Array.CreateInstance(typeof(sFile), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Float:
-                                ret = Array.CreateInstance(typeof(float), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Integer:
-                                ret = Array.CreateInstance(typeof(int), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Long:
-                                ret = Array.CreateInstance(typeof(long), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Short:
-                                ret = Array.CreateInstance(typeof(short), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.String:
-                                ret = Array.CreateInstance(typeof(string), elem.ChildNodes.Count);
-                                break;
-                            case VariableTypes.Guid:
-                                ret = Array.CreateInstance(typeof(Guid), elem.ChildNodes.Count);
-                                break;
-                        }
-                        elem.ChildNodes.Cast<XmlNode>().Select((n, i) => new { node = n, index = i }).ForEach(inode =>
+                        case VariableTypes.Boolean:
+                            ret = Array.CreateInstance(typeof(bool), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Byte:
+                            ret = Array.CreateInstance(typeof(byte[]), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Char:
+                            ret = Array.CreateInstance(typeof(char), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.DateTime:
+                            ret = Array.CreateInstance(typeof(DateTime), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Decimal:
+                            ret = Array.CreateInstance(typeof(decimal), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Double:
+                            ret = Array.CreateInstance(typeof(double), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.File:
+                            ret = Array.CreateInstance(typeof(sFile), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Float:
+                            ret = Array.CreateInstance(typeof(float), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Integer:
+                            ret = Array.CreateInstance(typeof(int), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Long:
+                            ret = Array.CreateInstance(typeof(long), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Short:
+                            ret = Array.CreateInstance(typeof(short), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.String:
+                            ret = Array.CreateInstance(typeof(string), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.Guid:
+                            ret = Array.CreateInstance(typeof(Guid), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.UnsignedShort:
+                            ret = Array.CreateInstance(typeof(ushort), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.UnsignedInteger:
+                            ret = Array.CreateInstance(typeof(uint), elem.ChildNodes.Count);
+                            break;
+                        case VariableTypes.UnsignedLong:
+                            ret = Array.CreateInstance(typeof(ulong), elem.ChildNodes.Count);
+                            break;
+                    }
+                    elem.ChildNodes.Cast<XmlNode>().Select((n, i) => new { node = n, index = i }).ForEach(inode =>
+                    {
+                        if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value)==VariableTypes.File)
+                            ((Array)ret).SetValue(new sFile((XmlElement)inode.node.ChildNodes[0]),inode.index);
+                        else
                         {
                             string text = ((XmlCDataSection)inode.node.ChildNodes[0]).InnerText;
                             ((Array)ret).SetValue(Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value), text), inode.index);
-                        });
-                    }
-                    else
-                    {
-                        string text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
-                        ret = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value), text);
-                    }
+                        }
+                    });
                 }
+                else if ((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value) == VariableTypes.File)
+                    ret = new sFile((XmlElement)elem.ChildNodes[0]);
                 else
-                    ret = null;
+                {
+                    string text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
+                    ret = Utility.ExtractVariableValue((VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value), text);
+                }
             }
+            else
+                ret = null;
             return ret;
         }
 
