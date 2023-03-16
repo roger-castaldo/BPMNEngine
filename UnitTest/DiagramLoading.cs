@@ -60,9 +60,7 @@ namespace UnitTest
                 proc = new BusinessProcess(doc);
                 loaded=true;
             }
-            catch (Exception e)
-            {
-            }
+            catch (Exception){}
             Assert.IsTrue(loaded);
             if (loaded)
             {

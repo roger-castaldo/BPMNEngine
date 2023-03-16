@@ -185,16 +185,16 @@ namespace Org.Reddragonit.BpmEngine
                     case XmlNodeType.Document:
                         return builder.ToString();
                     default:
-                        throw (definition == null ? new ArgumentException("Only elements and attributes are supported") : definition.Exception(new ArgumentException("Only elements and attributes are supported")));
+                        throw (definition == null ? new ArgumentException("Only elements and attributes are supported") : definition.Exception(null,new ArgumentException("Only elements and attributes are supported")));
                 }
             }
-            throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(new ArgumentException("Node was not in a document")));
+            throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(null,new ArgumentException("Node was not in a document")));
         }
 
         public static int FindElementIndex(Definition definition, XmlElement element)
         {
             if (definition!=null)
-                definition.Debug("Locating Element Index for element {0}", new object[] { element.Name });
+                definition.Debug(null,"Locating Element Index for element {0}", new object[] { element.Name });
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
                 return 1;
@@ -202,7 +202,7 @@ namespace Org.Reddragonit.BpmEngine
             var result = parent.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().IndexOf(e=>e.Name == element.Name);
             if (result!=-1)
                 return result;
-            throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(new ArgumentException("Couldn't find element within parent")));
+            throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(null,new ArgumentException("Couldn't find element within parent")));
         }
 
         internal static object ExtractVariableValue(VariableTypes type, string text)

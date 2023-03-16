@@ -41,22 +41,6 @@ namespace Org.Reddragonit.BpmEngine
             });
         }
 
-        internal void WriteLogLine(LogLevels level,string message)
-        {
-            if (_processInstance != null)
-                _processInstance.WriteLogLine(_elementID, level, new StackFrame(2, true), DateTime.Now, message);
-            else if (_process != null)
-                _process.WriteLogLine(_elementID, level, new StackFrame(2, true), DateTime.Now, message);
-        }
-
-        internal void WriteLogLine(LogLevels level,StackFrame stack, DateTime stamp, string message)
-        {
-            if (_processInstance!=null)
-                _processInstance.WriteLogLine(_elementID, level, stack, stamp, message);
-            else if (_process!= null)
-                _process.WriteLogLine(_elementID, level, stack, stamp, message);
-        }
-
         public object this[string name]
         {
             get

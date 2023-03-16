@@ -20,13 +20,21 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestDefinitionVariableUsage()
         {
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"), tasks:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { BeginUserTask=new StartUserTask(_StartUserTask) });
+            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_VARIABLE_NAME]);
             Assert.IsInstanceOfType(process[_VARIABLE_NAME], typeof(string));
 
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
+
+            Task.Delay(TimeSpan.FromSeconds(1)).Wait();
+            var task = instance.GetUserTask("UserTask_15dj2au");
+            Assert.IsNotNull(task);
+            Assert.IsTrue(task.Variables.FullKeys.Contains(_VARIABLE_NAME));
+            task.Variables[_RESULT_VARIABLE_NAME] = string.Format(_RESULT_FORMAT, task.Variables[_VARIABLE_NAME]);
+            task.MarkComplete();
+
             Assert.IsTrue(instance.WaitForCompletion(30*1000));
             
             Dictionary<string, object> variables = instance.CurrentVariables;
@@ -34,12 +42,6 @@ namespace UnitTest.Extensions
             Assert.IsFalse(variables.ContainsKey(_VARIABLE_NAME));
             Assert.IsTrue(variables.ContainsKey(_RESULT_VARIABLE_NAME));
             Assert.AreEqual(string.Format(_RESULT_FORMAT, process[_VARIABLE_NAME]), variables[_RESULT_VARIABLE_NAME]);
-        }
-
-        private void _StartUserTask(IUserTask task)
-        {
-            task.Variables[_RESULT_VARIABLE_NAME] = string.Format(_RESULT_FORMAT, task.Variables[_VARIABLE_NAME]);
-            task.MarkComplete();
         }
     }
 }

@@ -91,47 +91,22 @@ namespace Org.Reddragonit.BpmEngine.Elements
             return true;
         }
 
-        public void Debug(string message)
-        {
-            Definition.Debug(this,message);
-        }
-
-        public void Debug(string message, object[] pars)
+        protected void Debug(string message, object[] pars)
         {
             Definition.Debug(this, message, pars);
         }
 
-        public void Info(string message)
-        {
-            Definition.Info(this, message);
-        }
-
-        public void Info(string message, object[] pars)
+        protected void Info(string message, object[] pars)
         {
             Definition.Info(this, message, pars);
         }
 
-        public void Error(string message)
+        protected void Error(string message)
         {
             Definition.Error(this, message);
         }
 
-        public void Error(string message, object[] pars)
-        {
-            Definition.Error(this, message, pars);
-        }
-
-        public void Fatal(string message)
-        {
-            Definition.Fatal(this, message);
-        }
-
-        public void Fatal(string message, object[] pars)
-        {
-            Definition.Fatal(this, message, pars);
-        }
-
-        public Exception Exception(Exception exception)
+        protected Exception Exception(Exception exception)
         {
             return Definition.Exception(this, exception);
         }
