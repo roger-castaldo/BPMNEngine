@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Esprima.Ast;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Org.Reddragonit.BpmEngine;
 using Org.Reddragonit.BpmEngine.Interfaces;
@@ -38,7 +39,7 @@ namespace UnitTest
 
             Assert.IsNotNull(process);
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { },stateLogLevel:LogLevels.Fatal);
+            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { },stateLogLevel:LogLevels.Debug);
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(30*1000));
 
@@ -49,10 +50,10 @@ namespace UnitTest
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Debug, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
 
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Error, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Debug, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
+            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Error, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
 
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Fatal, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Debug, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
+            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Fatal, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
 
             exceptionLogger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), _EXCEPTION), Times.Once);
 
@@ -60,7 +61,13 @@ namespace UnitTest
 
             Assert.AreEqual(1, nodes.Count);
 
-            Assert.IsTrue(nodes[0].InnerText.Split("\r\n").Length>2);
+            var logs = nodes[0].InnerText.Trim();
+
+            Assert.IsTrue(logs.Contains("|Info|"));
+            Assert.IsTrue(logs.Contains("|Debug|"));
+            Assert.IsTrue(logs.Contains("|Error|"));
+            Assert.IsTrue(logs.Contains("|Fatal|"));
+            Assert.IsTrue(logs.Contains("STACKTRACE:"));
         }
 
         private void _StartUserTask(IUserTask task)

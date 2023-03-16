@@ -16,16 +16,11 @@ namespace Org.Reddragonit.BpmEngine.Elements
     [ValidParent(typeof(Definition))]
     internal class Process : AParentElement,IProcess
     {
-        public bool isExecutable { get { return (this["isExecutable"] == null ? false : bool.Parse(this["isExecutable"])); } }
-
         public IEnumerable<StartEvent> StartEvents => Children
             .OfType<StartEvent>();
-
-        public IEnumerable<BoundaryEvent> BoundaryEvents => Children
-            .OfType<BoundaryEvent>();
         
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+            : base(elem, map, parent) {}
 
         public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
         {

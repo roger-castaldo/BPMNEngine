@@ -104,5 +104,37 @@ namespace UnitTest
             Assert.IsNotNull(instance.CurrentState.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded'][@CompletedByID='{1}']", new object[] { _TaskNames[1], _TEST_USER_IDS[1] })));
             Assert.IsNotNull(instance.CurrentState.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded'][@CompletedByID='{1}']", new object[] { _TaskNames[2], _TEST_USER_IDS[2] })));
         }
+
+        [TestMethod()]
+        public void TestUserTaskElementPropertiesAccess()
+        {
+            IProcessInstance instance = _singleTaskProcess.BeginProcess(new Dictionary<string, object>()
+            {
+                {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
+            });
+            Assert.IsNotNull(instance);
+            Thread.Sleep(5*1000);
+            IUserTask task = instance.GetUserTask("UserTask_15dj2au");
+            Assert.IsNotNull(task);
+
+            Assert.AreEqual("UserTask_15dj2au", task.id);
+            Assert.AreEqual(task.id, task["id"]);
+
+            Assert.IsTrue(task.SubNodes.Any());
+            Assert.AreEqual(2, task.SubNodes.Count());
+
+            Assert.IsNull(task.ExtensionElement);
+            Assert.IsNull(task.SubProcess);
+            
+            Assert.IsNotNull(task.Lane);
+            Assert.AreEqual("Lane_0z6k1d4", task.Lane.id);
+            
+            Assert.IsNotNull(task.Process);
+            Assert.AreEqual("Process_1", task.Process.id);
+
+            task.MarkComplete();
+
+            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+        }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Collaborations;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.Elements.Processes
@@ -12,8 +10,6 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes
     [RequiredAttribute("id")]
     internal abstract class AFlowNode : AParentElement, IStepElement
     {
-        public string name { get { return this["name"]; } }
-
         public IElement Process
         {
             get

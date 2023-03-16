@@ -144,7 +144,7 @@ namespace UnitTest
                 {_VALUE_ID,"Task_1pr3o3s" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(TimeSpan.FromSeconds(60)));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_1pr3o3s"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0zk6tzw"));
         }

@@ -84,7 +84,6 @@ namespace Org.Reddragonit.BpmEngine
 
         internal sFile(XmlElement elem)
         {
-            System.Diagnostics.Debug.WriteLine(elem.OuterXml);
             _name = elem.Attributes["Name"].Value;
             _extension = elem.Attributes["Extension"].Value;
             _contentType = (elem.Attributes["ContentType"] == null ? null : elem.Attributes["ContentType"].Value);

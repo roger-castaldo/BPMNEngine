@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace UnitTest.Delegates
 {
     [TestClass]
-    public class Events
+    public class ElementProperties
     {
         private static ConcurrentQueue<string> _cache;
         private static BusinessProcess _startCompleteProcess;

@@ -35,21 +35,9 @@ namespace Org.Reddragonit.BpmEngine.Elements
         {
             if (base.IsValid(out err))
             {
-                bool hasStart = false;
-                bool hasEnd = false;
-                bool hasIncoming = this.Incoming!=null;
-                Children.ForEach(elem =>
-                {
-                    if (elem is EndEvent)
-                        hasEnd = true;
-                    else if (elem is StartEvent)
-                        hasStart = true;
-                    else if (elem is IntermediateCatchEvent ice && ice.SubType.HasValue)
-                    {
-                        hasStart = true;
-                        hasIncoming = true;
-                    }
-                });
+                bool hasStart = Children.Any(elem => elem is StartEvent || (elem is IntermediateCatchEvent ice && ice.SubType.HasValue));
+                bool hasEnd = Children.Any(elem=>elem is EndEvent);
+                bool hasIncoming = this.Incoming!=null || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
                 if (hasStart && hasEnd && hasIncoming)
                     return true;
                 List<string> terr = new List<string>();

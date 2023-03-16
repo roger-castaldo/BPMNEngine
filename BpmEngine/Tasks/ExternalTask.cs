@@ -36,7 +36,7 @@ namespace Org.Reddragonit.BpmEngine.Tasks
 
         public IElement SubProcess
         {
-            get { return _task.Process; }
+            get { return _task.SubProcess; }
         }
 
         public IElement Lane
