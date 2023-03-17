@@ -112,8 +112,7 @@ namespace UnitTest.Delegates
             Guid guid = Guid.NewGuid();
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
             Assert.IsNotNull(instance);
-            var finished = instance.WaitForCompletion(30*1000);
-            Assert.IsTrue(finished);
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             System.Threading.Thread.Sleep(5000);
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Completed"));
@@ -189,8 +188,7 @@ namespace UnitTest.Delegates
                     }
                 });
             Assert.IsNotNull(instance);
-            var finished = instance.WaitForCompletion(30*1000);
-            Assert.IsTrue(finished);
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             System.Threading.Thread.Sleep(5000);
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started"));
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Completed"));

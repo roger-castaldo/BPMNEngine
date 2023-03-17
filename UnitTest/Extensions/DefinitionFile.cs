@@ -36,7 +36,7 @@ namespace UnitTest.Extensions
             task.Variables[_RESULT_VARIABLE_NAME] = System.Text.ASCIIEncoding.ASCII.GetString(file.Content);
             task.MarkComplete();
 
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.AreEqual(1,variables.Count);

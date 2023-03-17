@@ -64,7 +64,7 @@ namespace UnitTest.Extensions
                 vars.Add(key,variables[key]);
             IProcessInstance processInstance = _pathProcess.BeginProcess(vars);
             Assert.IsNotNull(processInstance);
-            Assert.IsTrue(processInstance.WaitForCompletion(30*1000));
+            Assert.IsTrue(processInstance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             return processInstance.CurrentState;
         }
 
@@ -163,7 +163,7 @@ namespace UnitTest.Extensions
         {
             IProcessInstance instance = _startProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             instance = _startProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", false } });
             Assert.IsNull(instance);
         }
@@ -173,12 +173,12 @@ namespace UnitTest.Extensions
         {
             IProcessInstance instance = _eventProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
             Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Default"));
             instance = _eventProcess.BeginProcess(null);
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
             Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Default"));
         }

@@ -13,6 +13,7 @@ namespace UnitTest
     [TestClass]
     public class ErrorHandling
     {
+        private static readonly TimeSpan PROCESS_TIMEOUT = TimeSpan.FromSeconds(1);
         private static ConcurrentQueue<string> _cache;
         private static BusinessProcess _noErrorHandlingProcess;
         private static BusinessProcess _errorHandlingProcess;
@@ -165,7 +166,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "IntermediateCatchEvent_036z13e" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(instance.WaitForCompletion(1000));
+            Assert.IsFalse(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(_EventOccured(guid, "IntermediateCatchEvent_036z13e"));
             Assert.IsTrue(_EventOccured(guid, "Process_1", "IntermediateCatchEvent_036z13e"));
@@ -181,7 +182,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_1t5xv8f" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(instance.WaitForCompletion(1000));
+            Assert.IsFalse(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(_EventOccured(guid, "Task_1t5xv8f"));
             Assert.IsTrue(_EventOccured(guid, "Process_1", "Task_1t5xv8f"));
@@ -197,7 +198,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_0e0f0l0" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(instance.WaitForCompletion(1000));
+            Assert.IsFalse(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(_EventOccured(guid, "SubProcess_1mqrot2"));
         }
@@ -212,7 +213,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "SequenceFlow_096t69k", "SequenceFlow_1io01r8" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(instance.WaitForCompletion(1000));
+            Assert.IsFalse(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             Thread.Sleep(5*1000);
             Assert.IsTrue(_EventOccured(guid, "ExclusiveGateway_1nkgv9w"));
@@ -223,7 +224,7 @@ namespace UnitTest
                 {_TEST_ID_NAME, guid}
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(instance.WaitForCompletion(1000));
+            Assert.IsFalse(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(_EventOccured(guid, "ExclusiveGateway_1nkgv9w"));
             Assert.IsTrue(_EventOccured(guid, "Process_1", "ExclusiveGateway_1nkgv9w"));
@@ -239,7 +240,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_11szmyl" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Assert.IsNotNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1as7z3k'][@status='Succeeded']"));
         }
 
@@ -253,7 +254,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_067gf16" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Assert.IsNotNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1r5p299'][@status='Succeeded']"));
         }
 
@@ -268,7 +269,7 @@ namespace UnitTest
                 {_ERROR_MESSAGE_NAME,_DEFINED_ERROR_MESSAGE }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(PROCESS_TIMEOUT));
             Assert.IsNotNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='BoundaryEvent_0hxboq6'][@status='Succeeded']"));
             Assert.IsNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='SequenceFlow_08tdtwz'][@status='Succeeded']"));
         }

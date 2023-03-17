@@ -46,7 +46,7 @@ namespace UnitTest
             }
             task.MarkComplete();
 
-            inst.WaitForCompletion();
+            Assert.IsTrue(inst.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             return inst.CurrentVariables;
         }
 
@@ -411,7 +411,7 @@ namespace UnitTest
                 taskVariables.Add(key, task.Variables[key]);
             task.MarkComplete();
 
-            Assert.IsTrue(inst.WaitForCompletion(30*1000));
+            Assert.IsTrue(inst.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
             Assert.IsFalse(taskVariables.ContainsKey("TestNull"));
 

@@ -68,7 +68,7 @@ namespace UnitTest.Extensions
         private void _CheckResults(IProcessInstance instance)
         {
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion());
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(2, variables.Count);

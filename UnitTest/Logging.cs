@@ -41,7 +41,7 @@ namespace UnitTest
 
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { },stateLogLevel:LogLevels.Debug);
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Info, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevels.Info, It.IsAny<DateTime>(), string.Format(_LOG_LINE,_FORMAT_INPUT)), Times.Once);

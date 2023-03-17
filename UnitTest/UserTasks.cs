@@ -55,7 +55,7 @@ namespace UnitTest
             task.UserID = _TEST_USER_IDS[0];
             task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUES[0];
             task.MarkComplete();
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count);
@@ -94,7 +94,7 @@ namespace UnitTest
                 Thread.Sleep(5*1000);
                 idx++;
             }
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count);
@@ -134,7 +134,7 @@ namespace UnitTest
 
             task.MarkComplete();
 
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
         }
     }
 }

@@ -25,7 +25,7 @@ namespace UnitTest.Extensions
                 {_VARIABLE_NAME,_VARIABLE_VALUE }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_VARIABLE_NAME));
@@ -33,7 +33,7 @@ namespace UnitTest.Extensions
 
             instance = process.BeginProcess(new Dictionary<string, object>(){});
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
             variables = instance.CurrentVariables;
             Assert.AreEqual(0, variables.Count);
             Assert.IsFalse(variables.ContainsKey(_VARIABLE_NAME));

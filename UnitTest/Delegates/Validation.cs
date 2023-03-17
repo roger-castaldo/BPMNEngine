@@ -81,7 +81,7 @@ namespace UnitTest.Delegates
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
@@ -111,7 +111,7 @@ namespace UnitTest.Delegates
                 IsEventStartValid=new IsEventStartValid(_instanceIsEventStartValid)
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
@@ -144,7 +144,7 @@ namespace UnitTest.Delegates
                 IsFlowValid=new IsFlowValid(_instanceIsFlowValid)
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
@@ -168,7 +168,7 @@ namespace UnitTest.Delegates
                 IsProcessStartValid=new IsProcessStartValid(_instanceIsProcessStartValid)
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
             Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
