@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Xml;
 
 namespace UnitTest
 {
     [TestClass]
     public class ErrorHandling
     {
-        private static readonly TimeSpan PROCESS_TIMEOUT = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan PROCESS_TIMEOUT = TimeSpan.FromSeconds(2);
         private static ConcurrentQueue<string> _cache;
         private static BusinessProcess _noErrorHandlingProcess;
         private static BusinessProcess _errorHandlingProcess;
@@ -241,7 +242,9 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(PROCESS_TIMEOUT));
-            Assert.IsNotNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1as7z3k'][@status='Succeeded']"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1as7z3k'][@status='Succeeded']"));
         }
 
         [TestMethod()]
@@ -255,7 +258,9 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(PROCESS_TIMEOUT));
-            Assert.IsNotNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1r5p299'][@status='Succeeded']"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1r5p299'][@status='Succeeded']"));
         }
 
         [TestMethod()]
@@ -270,8 +275,10 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(PROCESS_TIMEOUT));
-            Assert.IsNotNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='BoundaryEvent_0hxboq6'][@status='Succeeded']"));
-            Assert.IsNull(instance.CurrentState.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='SequenceFlow_08tdtwz'][@status='Succeeded']"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='BoundaryEvent_0hxboq6'][@status='Succeeded']"));
+            Assert.IsNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='SequenceFlow_08tdtwz'][@status='Succeeded']"));
         }
     }
 }

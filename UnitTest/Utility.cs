@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.Reddragonit.BpmEngine.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,14 +32,18 @@ namespace UnitTest
             return ret;
         }
 
-        public static bool StepCompleted(XmlDocument state,string name)
+        public static bool StepCompleted(IState state,string name)
         {
-            return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(state.AsXMLDocument);
+            return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
         }
 
-        public static bool StepAborted(XmlDocument state, string name)
+        public static bool StepAborted(IState state, string name)
         {
-            return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(state.AsXMLDocument);
+            return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
         }
     }
 }

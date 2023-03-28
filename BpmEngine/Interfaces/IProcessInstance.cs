@@ -19,7 +19,7 @@ namespace Org.Reddragonit.BpmEngine.Interfaces
         /// <summary>
         /// The Process State of this instance
         /// </summary>
-        XmlDocument CurrentState { get; }
+        IState CurrentState { get; }
         /// <summary>
         /// The log level to use inside the state document for logging
         /// </summary>

@@ -138,7 +138,7 @@ namespace Org.Reddragonit.BpmEngine
         /// </summary>
         /// <param name="doc">The State XML Document file to extract the values from</param>
         /// <returns>The variables extracted from the Process State Document</returns>
-        public static Dictionary<string,object> ExtractProcessVariablesFromStateDocument(XmlDocument doc) { return StateVariableContainer.ExtractVariables(doc); }
+        public static Dictionary<string,object> ExtractProcessVariablesFromStateDocument(XmlDocument doc) { return ProcessVariables.ExtractVariables(doc); }
 
         /// <summary>
         /// Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
@@ -500,9 +500,9 @@ namespace Org.Reddragonit.BpmEngine
                     ret.WriteLogLine(start, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.id));
                     _TriggerDelegateAsync(ret.Delegates.Events.Processes.Started, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
                     _TriggerDelegateAsync(ret.Delegates.Events.Events.Started, new object[] { start, new ReadOnlyProcessVariablesContainer(variables) });
-                    ret.State.Path.StartEvent(start, null);
+                    ret.State.Path.StartFlowNode(start, null);
                     variables.Keys.ForEach(key => ret.State[start.id, key] = variables[key]);
-                    ret.State.Path.SucceedEvent(start);
+                    ret.State.Path.SucceedFlowNode(start);
                     _TriggerDelegateAsync(ret.Delegates.Events.Events.Completed, new object[] { start, new ReadOnlyProcessVariablesContainer(start.id, ret) });
                     return ret;
                 }
@@ -553,9 +553,7 @@ namespace Org.Reddragonit.BpmEngine
                         if (instance.State.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
                         {
                             Utility.AbortDelayedEvent(instance, (BoundaryEvent)ahe, sourceID);
-                            instance.StateEvent.WaitOne();
                             _AbortStep(instance, sourceID, ahe, vars);
-                            instance.StateEvent.Set();
                         }
                     });
                 }
@@ -621,9 +619,7 @@ namespace Org.Reddragonit.BpmEngine
                             TimeSpan? ts = ahe.GetTimeout(ropvc);
                             if (ts.HasValue)
                             {
-                                instance.StateEvent.WaitOne();
                                 instance.State.Path.DelayEventStart(ahe, elem.id, ts.Value);
-                                instance.StateEvent.Set();
                                 Utility.DelayStart(ts.Value, instance, (BoundaryEvent)ahe, elem.id);
                             }
                         });
@@ -652,13 +648,11 @@ namespace Org.Reddragonit.BpmEngine
                     if (se.IsEventStartValid(variables, instance.Delegates.Validations.IsEventStartValid))
                     {
                         instance.WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
-                        instance.StateEvent.WaitOne();
-                        instance.State.Path.StartSubProcess(esp, sourceID);
-                        instance.StateEvent.Set();
+                        instance.State.Path.StartFlowNode(esp, sourceID);
                         _TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Started, new object[] { esp, variables });
                         _TriggerDelegateAsync(instance.Delegates.Events.Events.Started, new object[] { se, variables });
-                        instance.State.Path.StartEvent(se, null);
-                        instance.State.Path.SucceedEvent(se);
+                        instance.State.Path.StartFlowNode(se, null);
+                        instance.State.Path.SucceedFlowNode(se);
                         _TriggerDelegateAsync(instance.Delegates.Events.Events.Completed, new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, instance) });
                     }
                 });
@@ -667,9 +661,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessTask(ProcessInstance instance,string sourceID, ATask tsk)
         {
-            instance.StateEvent.WaitOne();
-            instance.State.Path.StartTask(tsk, sourceID);
-            instance.StateEvent.Set();
+            instance.State.Path.StartFlowNode(tsk, sourceID);
             _TriggerDelegateAsync(instance.Delegates.Events.Tasks.Started,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, instance) });
             try
             {
@@ -727,9 +719,7 @@ namespace Org.Reddragonit.BpmEngine
             {
                 instance.WriteLogException(tsk, new StackFrame(1, true), DateTime.Now, e);
                 _TriggerDelegateAsync(instance.Delegates.Events.Tasks.Error,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, instance, e) });
-                instance.StateEvent.WaitOne();
-                instance.State.Path.FailTask(tsk, e);
-                instance.StateEvent.Set();
+                instance.State.Path.FailFlowNode(tsk, error:e);
             }
         }
 
@@ -739,27 +729,19 @@ namespace Org.Reddragonit.BpmEngine
             {
                 SubProcess sp = (SubProcess)evnt.SubProcess;
                 if (sp != null)
-                    instance.State.Path.StartSubProcess(sp, sourceID);
+                    instance.State.Path.StartFlowNode(sp, sourceID);
             }
-            instance.StateEvent.WaitOne();
-            instance.State.Path.StartEvent(evnt, sourceID);
-            instance.StateEvent.Set();
+            instance.State.Path.StartFlowNode(evnt, sourceID);
             _TriggerDelegateAsync(instance.Delegates.Events.Events.Started, new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
             if (evnt is BoundaryEvent @event && @event.CancelActivity)
-            {
-                instance.StateEvent.WaitOne();
                 _AbortStep(instance, sourceID, GetElement(@event.AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
-                instance.StateEvent.Set();
-            }
             bool success = true;
             TimeSpan? ts = null;
             if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
                 ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, instance));
             if (ts.HasValue)
             {
-                instance.StateEvent.WaitOne();
-                instance.State.SuspendStep(evnt.id, ts.Value);
-                instance.StateEvent.Set();
+                instance.State.SuspendStep(sourceID,evnt.id, ts.Value);
                 if (ts.Value.TotalMilliseconds > 0)
                 {
                     Utility.Sleep(ts.Value, instance, evnt);
@@ -787,16 +769,12 @@ namespace Org.Reddragonit.BpmEngine
             }
             if (!success)
             {
-                instance.StateEvent.WaitOne();
-                instance.State.Path.FailEvent(evnt);
-                instance.StateEvent.Set();
+                instance.State.Path.FailFlowNode(evnt);
                 _TriggerDelegateAsync(instance.Delegates.Events.Events.Error,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
             }
             else
             {
-                instance.StateEvent.WaitOne();
-                instance.State.Path.SucceedEvent(evnt);
-                instance.StateEvent.Set();
+                instance.State.Path.SucceedFlowNode(evnt);
                 _TriggerDelegateAsync(instance.Delegates.Events.Events.Completed,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
                 if (evnt is EndEvent event1 && event1.IsProcessEnd)
                 {
@@ -805,9 +783,7 @@ namespace Org.Reddragonit.BpmEngine
                         SubProcess sp = (SubProcess)event1.SubProcess;
                         if (sp != null)
                         {
-                            instance.StateEvent.WaitOne();
-                            instance.State.Path.SucceedSubProcess(sp);
-                            instance.StateEvent.Set();
+                            instance.State.Path.SucceedFlowNode(sp);
                             _TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Completed, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
                         }
                         else
@@ -819,7 +795,7 @@ namespace Org.Reddragonit.BpmEngine
                     else
                     {
                         ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(evnt.id, instance);
-                        instance.State.ActiveSteps.ForEach(str => { _AbortStep(instance, evnt.id, GetElement(str), vars); });
+                        instance.State.AbortableSteps.ForEach(str => { _AbortStep(instance, evnt.id, GetElement(str), vars); });
                         _TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
                         instance.ProcessLock.Set();
                     }
@@ -843,6 +819,7 @@ namespace Org.Reddragonit.BpmEngine
                             Utility.AbortSuspendedElement(instance, child.id);
                             break;
                         case StepStatuses.Waiting:
+                        case StepStatuses.Started:
                             abort=true;
                             break;
                     }
@@ -854,12 +831,11 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessGateway(ProcessInstance instance,string sourceID,AGateway gw)
         {
-            instance.StateEvent.WaitOne();
             bool gatewayComplete = false;
             if (gw.IsIncomingFlowComplete(sourceID, instance.State.Path))
                 gatewayComplete = true;
             else if (!gw.IsWaiting(instance.State.Path))
-                instance.State.Path.StartGateway(gw, sourceID);
+                instance.State.Path.StartFlowNode(gw, sourceID);
             if (gatewayComplete)
             {
                 _TriggerDelegateAsync(instance.Delegates.Events.Gateways.Started,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
@@ -876,23 +852,20 @@ namespace Org.Reddragonit.BpmEngine
                 }
                 if (outgoings==null || !outgoings.Any())
                 {
-                    instance.State.Path.FailGateway(gw);
+                    instance.State.Path.FailFlowNode(gw);
                     _TriggerDelegateAsync(instance.Delegates.Events.Gateways.Error, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,new Exception("No valid outgoing path located")) });
                 }
                 else
                 {
-                    instance.State.Path.SuccessGateway(gw, outgoings);
+                    instance.State.Path.SucceedFlowNode(gw, outgoing:outgoings);
                     _TriggerDelegateAsync(instance.Delegates.Events.Gateways.Completed, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
                 }
             }
-            instance.StateEvent.Set();
         }
 
         private void _ProcessFlowElement(ProcessInstance instance,IFlowElement flowElement)
         {
-            instance.StateEvent.WaitOne();
             instance.State.Path.ProcessFlowElement(flowElement);
-            instance.StateEvent.Set();
             Delegate delCall = instance.Delegates.Events.Flows.SequenceFlow;
             if (flowElement is MessageFlow)
                 delCall = instance.Delegates.Events.Flows.MessageFlow;

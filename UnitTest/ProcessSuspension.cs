@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Esprima;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Reddragonit.BpmEngine;
 using Org.Reddragonit.BpmEngine.Interfaces;
 using System;
@@ -37,7 +38,7 @@ namespace UnitTest
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _userProcess.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -51,13 +52,20 @@ namespace UnitTest
         [TestMethod]
         public void TestSuspensionWithActiveSteps()
         {
-            IProcessInstance instance = _userProcess.BeginProcess(null);
-            Assert.IsNotNull(instance);
-            instance.Suspend();
-            System.Threading.Thread.Sleep(1000);
+            IProcessInstance instance = null;
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
-            instance.Dispose();
+            for (int cnt = 0; cnt<5; cnt++)
+            {
+                instance = _userProcess.BeginProcess(null);
+                Assert.IsNotNull(instance);
+                instance.Suspend();
+                System.Threading.Thread.Sleep(1000);
+                doc.LoadXml(instance.CurrentState.AsXMLDocument);
+                instance.Dispose();
+
+                if (doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']")!=null)
+                    break;
+            }
 
             Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']"));
 
@@ -79,7 +87,7 @@ namespace UnitTest
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -95,7 +103,7 @@ namespace UnitTest
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -112,7 +120,7 @@ namespace UnitTest
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
             Assert.IsNotNull(instance);

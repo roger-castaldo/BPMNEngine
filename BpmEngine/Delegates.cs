@@ -121,7 +121,7 @@ namespace Org.Reddragonit.BpmEngine
     ///     }
     /// </code>
     /// </example>
-    public delegate void OnStateChange(XmlDocument stateDocument);
+    public delegate void OnStateChange(IState currentState);
     internal delegate void processStateChanged();
     #endregion
 

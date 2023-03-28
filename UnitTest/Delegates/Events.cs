@@ -16,6 +16,7 @@ namespace UnitTest.Delegates
         private static ConcurrentQueue<string> _cache;
         private static BusinessProcess _startCompleteProcess;
         private const string _TEST_ID_NAME = "TestID";
+        private const int STEP_COUNTS = 38;
 
         private static void _flowCompleted(IElement element, IReadonlyVariables variables)
         {
@@ -53,11 +54,24 @@ namespace UnitTest.Delegates
             _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
         }
 
+        private static bool _isProcessStartValid(IElement process, IReadonlyVariables variables)
+        {
+            if (process.id=="Process_1" && !_EventOccured((Guid)variables[_TEST_ID_NAME], "StartEvent_1", "Started"))
+                return true;
+            else if ((process.id=="Process_1vk3guw"||process.id=="SubProcess_1fk97di") && _EventOccured((Guid)variables[_TEST_ID_NAME], "StartEvent_1", "Started"))
+                return true;
+            return false;
+        }
+
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
             _cache = new ConcurrentQueue<string>();
             _startCompleteProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/start_complete_triggers.bpmn"),
+                validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+                {
+                    IsProcessStartValid=new IsProcessStartValid(_isProcessStartValid)
+                },
                 events: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
                 {
                     Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
@@ -134,6 +148,12 @@ namespace UnitTest.Delegates
             Assert.IsTrue(_EventOccured(guid, "EndEvent_0exopsv", "Started"));
             Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Started"));
             Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Event_0gtdmdg", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Event_0gtdmdg", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Activity_1iw9xdd", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Activity_1iw9xdd", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Event_1oltx11", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Event_1oltx11", "Completed"));
 
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1fnfz4x", "Completed"));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1qrw9p3", "Completed"));
@@ -144,6 +164,10 @@ namespace UnitTest.Delegates
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_09hc5op", "Completed"));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1w3bfnx", "Completed"));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_0zrlx9l", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Flow_10gw13c", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Flow_06vbv76", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Flow_0q597g1", "Completed"));
+            
 
             int cnt = 0;
             foreach (string str in _cache)
@@ -151,7 +175,7 @@ namespace UnitTest.Delegates
                 if (str.StartsWith(guid.ToString()+"_"))
                     cnt++;
             }
-            Assert.AreEqual(29, cnt);
+            Assert.AreEqual(STEP_COUNTS, cnt);
         }
 
         [TestMethod]
@@ -210,6 +234,12 @@ namespace UnitTest.Delegates
             Assert.IsTrue(_EventOccured(guid, "EndEvent_0exopsv", "Started"));
             Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Started"));
             Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Event_0gtdmdg", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Event_0gtdmdg", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Activity_1iw9xdd", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Activity_1iw9xdd", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Event_1oltx11", "Started"));
+            Assert.IsTrue(_EventOccured(guid, "Event_1oltx11", "Completed"));
 
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1fnfz4x", "Completed"));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1qrw9p3", "Completed"));
@@ -220,6 +250,9 @@ namespace UnitTest.Delegates
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_09hc5op", "Completed"));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1w3bfnx", "Completed"));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_0zrlx9l", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Flow_10gw13c", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Flow_06vbv76", "Completed"));
+            Assert.IsTrue(_EventOccured(guid, "Flow_0q597g1", "Completed"));
 
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Started",instanceVersion:true));
             Assert.IsTrue(_EventOccured(guid, "StartEvent_1", "Completed", instanceVersion: true));
@@ -241,6 +274,12 @@ namespace UnitTest.Delegates
             Assert.IsTrue(_EventOccured(guid, "EndEvent_0exopsv", "Started", instanceVersion: true));
             Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Started", instanceVersion: true));
             Assert.IsTrue(_EventOccured(guid, "Task_12seef8", "Completed", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Event_0gtdmdg", "Started", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Event_0gtdmdg", "Completed", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Activity_1iw9xdd", "Started", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Activity_1iw9xdd", "Completed", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Event_1oltx11", "Started", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Event_1oltx11", "Completed", instanceVersion: true));
 
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1fnfz4x", "Completed", instanceVersion: true));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1qrw9p3", "Completed", instanceVersion: true));
@@ -251,6 +290,9 @@ namespace UnitTest.Delegates
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_09hc5op", "Completed", instanceVersion: true));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_1w3bfnx", "Completed", instanceVersion: true));
             Assert.IsTrue(_EventOccured(guid, "SequenceFlow_0zrlx9l", "Completed", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Flow_10gw13c", "Completed", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Flow_06vbv76", "Completed", instanceVersion: true));
+            Assert.IsTrue(_EventOccured(guid, "Flow_0q597g1", "Completed", instanceVersion: true));
 
             int cnt = 0;
             foreach (string str in _cache)
@@ -258,7 +300,7 @@ namespace UnitTest.Delegates
                 if (str.StartsWith(guid.ToString()+"_"))
                     cnt++;
             }
-            Assert.AreEqual(29, cnt);
+            Assert.AreEqual(STEP_COUNTS, cnt);
 
             cnt = 0;
             foreach (string str in _cache)
@@ -266,7 +308,7 @@ namespace UnitTest.Delegates
                 if (str.StartsWith("Instance_"+guid.ToString()+"_"))
                     cnt++;
             }
-            Assert.AreEqual(29, cnt);
+            Assert.AreEqual(STEP_COUNTS, cnt);
         }
     }
 }

@@ -4,10 +4,10 @@
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0xusmz3</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_0peqa8k">
+    <bpmn:userTask id="Task_0peqa8k">
       <bpmn:incoming>SequenceFlow_0xusmz3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0fq51im</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_0xusmz3" sourceRef="StartEvent_1" targetRef="Task_0peqa8k" />
     <bpmn:boundaryEvent id="BoundaryEvent_14c0tw1" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_0i45gta</bpmn:outgoing>

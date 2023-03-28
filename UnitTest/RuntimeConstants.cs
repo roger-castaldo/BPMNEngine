@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace UnitTest
 {
@@ -44,7 +45,10 @@ namespace UnitTest
             Assert.IsTrue(variables.ContainsKey(RESULT_VARIABLE_NAME));
             Assert.AreEqual(VARIABLE_VALUE, variables[RESULT_VARIABLE_NAME]);
 
-            variables = BusinessProcess.ExtractProcessVariablesFromStateDocument(instance.CurrentState);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+
+            variables = BusinessProcess.ExtractProcessVariablesFromStateDocument(doc);
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(RESULT_VARIABLE_NAME));

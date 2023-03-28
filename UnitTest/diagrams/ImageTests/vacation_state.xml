@@ -41,7 +41,4 @@
     <sVariableEntry pathStepIndex="0" name="test" type="UnsignedLong" isArray="False"><![CDATA[0]]></sVariableEntry>
     <sVariableEntry pathStepIndex="3" name="approved" type="String" isArray="False"><![CDATA[Y]]></sVariableEntry>
   </ProcessVariables>
-  <SuspendedSteps>
-    <sStepSuspension id="IntermediateThrowEvent_03o2ijn" stepIndex="9" endTime="20220419094731611" />
-  </SuspendedSteps>
 </ProcessState>

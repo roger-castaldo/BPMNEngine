@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace UnitTest
 {
@@ -57,7 +58,10 @@ namespace UnitTest
 
             exceptionLogger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), _EXCEPTION), Times.Once);
 
-            var nodes = instance.CurrentState.GetElementsByTagName("ProcessLog");
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+
+            var nodes = doc.GetElementsByTagName("ProcessLog");
 
             Assert.AreEqual(1, nodes.Count);
 

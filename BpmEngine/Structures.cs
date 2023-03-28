@@ -70,7 +70,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             _name = name;
             _extension = extension;
-            _contentType = contentType;
+            _contentType = (contentType==String.Empty ? null : contentType);
             _content = content;
         }
 
@@ -80,33 +80,6 @@ namespace Org.Reddragonit.BpmEngine
             _extension=file.Extension;
             _contentType = file.ContentType;
             _content = file.Content;
-        }
-
-        internal sFile(XmlElement elem)
-        {
-            _name = elem.Attributes["Name"].Value;
-            _extension = elem.Attributes["Extension"].Value;
-            _contentType = (elem.Attributes["ContentType"] == null ? null : elem.Attributes["ContentType"].Value);
-            _content = new byte[0];
-            if (elem.ChildNodes.Count > 0)
-                _content = Convert.FromBase64String(((XmlCDataSection)elem.ChildNodes[0]).InnerText);
-        }
-
-        internal XmlElement ToElement(XmlDocument doc)
-        {
-            XmlElement ret = doc.CreateElement("sFile");
-            ret.Attributes.Append(doc.CreateAttribute("Name"));
-            ret.Attributes["Name"].Value = _name;
-            ret.Attributes.Append(doc.CreateAttribute("Extension"));
-            ret.Attributes["Extension"].Value = _extension;
-            if (_contentType != null)
-            {
-                ret.Attributes.Append(doc.CreateAttribute("ContentType"));
-                ret.Attributes["ContentType"].Value = _contentType;
-            }
-            if (_content.Length > 0)
-                ret.AppendChild(doc.CreateCDataSection(Convert.ToBase64String(_content)));
-            return ret;
         }
 
         public override bool Equals(object obj)

@@ -1,4 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.State;
+﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
+using Org.Reddragonit.BpmEngine.Interfaces;
+using Org.Reddragonit.BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,60 +8,221 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine
 {
-    internal sealed class ProcessState
+    internal sealed class ProcessState : IDisposable
     {
-        private const string _BASE_STATE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><ProcessState isSuspended=\"False\"></ProcessState>";
-
         private const string _PROCESS_STATE_ELEMENT = "ProcessState";
+        private const string _PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
 
-        private AutoResetEvent _evnt;
-        private XmlDocument _doc;
-        private XmlElement _stateElement;
-        private LogContainer _log;
-        private SuspendedStepContainer _suspensions;
-        private StateVariableContainer _variables;
+        internal delegate void delTriggerStateChange();
 
-        private ProcessPath _path;
-        internal ProcessPath Path { get { return _path; } }
-
-        internal void SuspendStep(string elementID, TimeSpan span)
+        private class ReadOnlyProcessState : IState
         {
-            _process.WriteLogLine(elementID, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
-            _suspensions.SuspendStep(elementID, _path.CurrentStepIndex(elementID), span);
-            _stateChanged();
-        }
+            private readonly bool _isSuspended;
+            private readonly IReadOnlyStateVariablesContainer _variables;
+            private readonly IReadOnlyStateContainer _path;
+            private readonly IReadOnlyStateContainer _log;
 
-        internal IEnumerable<sStepSuspension> SuspendedSteps
-            => _suspensions.Steps
-            .Where(ss => _path.IsStepWaiting(ss.Id, ss.StepIndex));
-
-        internal bool IsSuspended { get { return (_stateElement.Attributes["isSuspended"]==null ? false : bool.Parse(_stateElement.Attributes["isSuspended"].Value)); }
-            private set
+            public ReadOnlyProcessState(ProcessState state)
             {
-                if (_stateElement.Attributes["isSuspended"] != null)
-                    _stateElement.Attributes.Append(_doc.CreateAttribute("isSuspended"));
-                _stateElement.Attributes["isSuspended"].Value = value.ToString();
+                state._stateEvent.EnterReadLock();
+                _isSuspended=state.IsSuspended;
+                _variables=(IReadOnlyStateVariablesContainer)state._variables.Clone();
+                _path=state._path.Clone();
+                _log=state._log.Clone();
+                state._stateEvent.ExitReadLock();
+            }
+            public object this[string name] => _variables[name];
+
+            public IEnumerable<string> Keys => _variables.Keys;
+
+            private IEnumerable<IReadOnlyStateContainer> _Components => new IReadOnlyStateContainer[] {_path,_variables,_log};
+
+            public string AsXMLDocument
+            {
+                get
+                {
+                    using(var ms = new MemoryStream())
+                    {
+                        var writer = XmlWriter.Create(ms);
+                        writer.WriteStartDocument();
+                        writer.WriteStartElement(_PROCESS_STATE_ELEMENT);
+                        writer.WriteAttributeString(_PROCESS_SUSPENDED_ATTRIBUTE, _isSuspended.ToString());
+
+                        _Components.ForEach(comp =>
+                        {
+                            writer.WriteStartElement(comp.GetType().Name.Replace("ReadOnly",""));
+                            comp.Append(writer);
+                            writer.WriteEndElement();
+                        });
+
+                        writer.WriteEndElement();
+                        writer.Flush();
+
+                        ms.Position=0;
+                        var result = new StreamReader(ms).ReadToEnd();
+                        return result;
+                    }
+                }
+            }
+
+            public string AsJSONDocument
+            {
+                get
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        var writer = new Utf8JsonWriter(ms);
+                        writer.WriteStartObject();
+                        writer.WritePropertyName(_PROCESS_SUSPENDED_ATTRIBUTE);
+                        writer.WriteBooleanValue(_isSuspended);
+
+                        _Components.ForEach(comp =>
+                        {
+                            writer.WritePropertyName(comp.GetType().Name.Replace("ReadOnly", ""));
+                            comp.Append(writer);
+                        });
+
+                        writer.WriteEndObject();
+                        writer.Flush();
+
+                        ms.Position=0;
+                        var result = new StreamReader(ms).ReadToEnd();
+                        return result;
+                    }
+                }
             }
         }
+
+        private ProcessLog _log;
+        private ProcessVariables _variables;
+        private ProcessPath _path;
+        internal ProcessPath Path { get { return _path; } }
+        private ReaderWriterLockSlim _stateEvent = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+
+        internal bool IsSuspended { get; set; }
+        private readonly OnStateChange _onStateChange;
+        private readonly BusinessProcess _process;
+        internal BusinessProcess Process { get { return _process; } }
+
+        internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
+        {
+            _process = process;
+            _log = new ProcessLog(_stateEvent);
+            _variables = new ProcessVariables(_stateEvent);
+            _path = new ProcessPath(complete, error,process,_stateEvent,new delTriggerStateChange(_stateChanged));
+            _onStateChange = onStateChange;
+        }
+
+        public void Dispose()
+        {
+            _log.Dispose();
+            _variables.Dispose();
+            _path.Dispose();
+            _stateEvent.EnterReadLock();
+            while (_stateEvent.CurrentReadCount>1)
+            {
+                System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
+            }
+            _stateEvent.ExitReadLock();
+            _stateEvent.EnterWriteLock();
+            while (_stateEvent.WaitingWriteCount>0)
+            {
+                _stateEvent.ExitWriteLock();
+                System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
+                _stateEvent.EnterWriteLock();
+            }
+            _stateEvent.ExitWriteLock();
+            try
+            {
+                _stateEvent.Dispose();
+            }
+            catch (Exception) { }
+        }
+
+        internal bool Load(XmlDocument doc)
+        {
+            if (doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT).Count == 0)
+                return false;
+            var result = true;
+            _stateEvent.EnterWriteLock();
+            var reader = XmlReader.Create(new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(doc.OuterXml)));
+            while(reader.NodeType!=XmlNodeType.Element)
+            {
+                if(!reader.Read())
+                    return false;
+            }
+            if (reader.NodeType ==XmlNodeType.Element && reader.Name==_PROCESS_STATE_ELEMENT)
+            {
+                IsSuspended = bool.Parse(reader.GetAttribute(_PROCESS_SUSPENDED_ATTRIBUTE));
+                reader.Read();
+                try
+                {
+                    while(!reader.EOF)
+                    {
+                        if (reader.NodeType==XmlNodeType.Element)
+                        {
+                            switch (reader.Name)
+                            {
+                                case "ProcessLog":
+                                    _log.Load(reader);
+                                    break;
+                                case "ProcessPath":
+                                    _path.Load(reader);
+                                    break;
+                                case "ProcessVariables":
+                                    _variables.Load(reader);
+                                    break;
+                                default:
+                                    throw new Exception("Reading error...");
+                                    break;
+                            }
+                            if (reader.NodeType==XmlNodeType.EndElement)
+                                reader.Read();
+                        }
+                        else
+                            reader.Read();
+                    }
+                }
+                catch (Exception e)
+                {
+                    result=false;
+                }
+            }
+            else
+                result=false;
+            reader.Close();
+            _stateEvent.ExitWriteLock();
+            return result;
+        }
+
 
         internal IEnumerable<sSuspendedStep> ResumeSteps
             => !IsSuspended ? new sSuspendedStep[] { } : _path.ResumeSteps;
 
         internal IEnumerable<sDelayedStartEvent> DelayedEvents => _path.DelayedEvents;
 
+        internal IEnumerable<string> AbortableSteps => _path.AbortableSteps;
+
         internal IEnumerable<string> ActiveSteps => _path.ActiveSteps;
-        
+
+        internal void MergeVariables(ITask task, IVariables vars)
+        {
+            int stepIndex = _path.CurrentStepIndex(task.id);
+            _variables.MergeVariables(stepIndex, vars);
+        }
+
         internal object this[string elementID, string variableName]
         {
             get
             {
                 object ret = null;
-                int stepIndex =-1;
+                int stepIndex = -1;
                 if (elementID == null)
                     stepIndex = _path.LastStep;
                 else
@@ -72,7 +235,6 @@ namespace Org.Reddragonit.BpmEngine
             set
             {
                 _variables[variableName, _path.CurrentStepIndex(elementID)] = value;
-                _stateChanged();
             }
         }
 
@@ -80,7 +242,7 @@ namespace Org.Reddragonit.BpmEngine
         {
             get
             {
-                List<string> ret = new List<string>();
+                IEnumerable<string> result = Array.Empty<string>();
                 int stepIndex = -1;
                 if (elementID == null)
                     stepIndex = _path.LastStep;
@@ -88,70 +250,32 @@ namespace Org.Reddragonit.BpmEngine
                     stepIndex = _path.CurrentStepIndex(elementID);
                 if (elementID!=null && stepIndex==-1)
                     stepIndex=_path.LastStep;
-                return _variables[stepIndex];
+                result = _variables[stepIndex];
+                return result;
             }
         }
 
-        private readonly OnStateChange _onStateChange;
-        private readonly BusinessProcess _process;
-        internal BusinessProcess Process { get { return _process; } }
-
-        internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
+        internal void SuspendStep(string sourceID,string elementID, TimeSpan span)
         {
-            _process = process;
-            _evnt = new AutoResetEvent(true);
-            _doc = new XmlDocument();
-            _doc.LoadXml(_BASE_STATE);
-            _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
-            _log = new LogContainer(this);
-            _variables = new StateVariableContainer(this);
-            _suspensions = new SuspendedStepContainer(this);
-            _path = new ProcessPath(complete, error, new processStateChanged(_stateChanged),this);
-            _onStateChange = onStateChange;
-        }
-
-        internal bool Load(XmlDocument doc)
-        {
-            if (doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT).Count == 0)
-                return false;
-            _evnt.WaitOne();
-            try
-            {
-                _doc.LoadXml(doc.OuterXml);
-                _stateElement = (XmlElement)_doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT)[0];
-            }catch(Exception e)
-            {
-                _process.WriteLogException((string)null,new StackFrame(1,true),DateTime.Now,e);
-                _evnt.Set();
-                return false;
-            }
-            _evnt.Set();
+            _process.WriteLogLine(elementID, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
+            _path.SuspendElement(sourceID, elementID, span);
             _stateChanged();
-            return true;
         }
 
-        public XmlDocument Document
-        {
-            get
-            {
-                XmlDocument ret = new XmlDocument();
-                _evnt.WaitOne();
-                ret.LoadXml(_doc.OuterXml);
-                _evnt.Set();
-                return ret;
-            }
-        }
+        internal IEnumerable<sStepSuspension> SuspendedSteps
+            => _path.SuspendedSteps;
+
+        public IState CurrentState => new ReadOnlyProcessState(this);
 
         private void _stateChanged()
         {
             if (_onStateChange != null)
             {
-                XmlDocument doc = this.Document;
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     try
                     {
-                        _onStateChange(doc);
+                        _onStateChange(CurrentState);
                     }catch(Exception ex)
                     {
                         _process.WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, ex);
@@ -166,10 +290,40 @@ namespace Org.Reddragonit.BpmEngine
             IsSuspended = true;
         }
 
-        internal void Resume()
+        internal void Resume(ProcessInstance instance,Action<string,string> processStepComplete,Action<AEvent> completeTimedEvent)
         {
             _process.WriteLogLine((string)null, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
+            var resumes = ResumeSteps.ToArray();
+            var suspendedSteps = SuspendedSteps.ToArray();
+            var delayedEvents = DelayedEvents.ToArray();
+            _stateEvent.EnterWriteLock();
             IsSuspended = false;
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                resumes.ForEach(ss => processStepComplete(ss.IncomingID, ss.ElementID));
+            });
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                suspendedSteps.ForEach(ss =>
+                {
+                    if (DateTime.Now.Ticks < ss.EndTime.Ticks)
+                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), instance, (AEvent)_process.GetElement(ss.Id));
+                    else
+                        completeTimedEvent((AEvent)_process.GetElement(ss.Id));
+                });
+            });
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                delayedEvents.ForEach(sdse =>
+                {
+                    if (sdse.Delay.Ticks<0)
+                        _process.ProcessEvent(instance, sdse.IncomingID, (AEvent)_process.GetElement(sdse.ElementID));
+                    else
+                        Utility.DelayStart(sdse.Delay, instance, (BoundaryEvent)_process.GetElement(sdse.ElementID), sdse.IncomingID);
+                });
+            });
+            _stateEvent.ExitWriteLock();
+            _stateChanged();
         }
 
         internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
@@ -181,75 +335,5 @@ namespace Org.Reddragonit.BpmEngine
         {
             _log.LogException(elementID, assembly, fileName, lineNumber, timestamp, exception);
         }
-
-        #region StateContainerDelegates
-        private XmlElement _FindContainer(string containerName)
-        {
-            XmlElement result = _doc.ChildNodes.Cast<XmlNode>()
-                .Traverse(n=>n.ChildNodes.Cast<XmlNode>())
-                .OfType<XmlElement>()
-                .FirstOrDefault(elem=>elem.Name == containerName);
-            if (result==null)
-            {
-                result = _doc.CreateElement(containerName);
-                _stateElement.AppendChild(result);
-            }
-            return result;
-        }
-        internal XmlElement[] GetChildNodes(string containerName)
-        {
-            var result = Array.Empty<XmlElement>();
-            _evnt.WaitOne();
-            XmlElement cont = _FindContainer(containerName);
-            result = cont.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().ToArray();
-            _evnt.Set();
-            return result;
-        }
-        internal void InsertBefore(string containerName, XmlElement element,XmlElement child)
-        {
-            _evnt.WaitOne();
-            _FindContainer(containerName).InsertBefore(element, child);
-            _evnt.Set();
-        }
-        internal void SetAttribute(XmlElement elem, string name, string value)
-        {
-            XmlAttribute att = _doc.CreateAttribute(name);
-            att.Value = value;
-            elem.Attributes.Append(att);
-        }
-        internal void AppendElement(string ContainerName, XmlElement element)
-        {
-            _evnt.WaitOne();
-            _FindContainer(ContainerName).AppendChild(element);
-            _evnt.Set();
-        }
-        internal XmlElement CreateElement(string elementName)
-        {
-            return _doc.CreateElement(elementName);
-        }
-        internal XmlElement EncodeFile(sFile file)
-        {
-            return file.ToElement(_doc);
-        }
-        internal XmlCDataSection EncodeCData(string content)
-        {
-            return _doc.CreateCDataSection(content);
-        }
-        internal void AppendValue(string containerName, string value)
-        {
-            _evnt.WaitOne();
-            XmlElement elem = _FindContainer(containerName);
-            if (elem.ChildNodes.Count > 0)
-            {
-                value = ((XmlCDataSection)elem.ChildNodes[0]).Data + value;
-                elem.RemoveChild(elem.ChildNodes[0]);
-            }
-            
-            XmlCDataSection cda = _doc.CreateCDataSection(value);
-            elem.AppendChild(cda);
-            _evnt.Set();
-        }
-
-        #endregion
     }
 }

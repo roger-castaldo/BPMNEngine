@@ -323,8 +323,8 @@ namespace UnitTest
             object variableValue = null;
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
-            Assert.IsTrue(results.ContainsKey(variableName));
-            Assert.IsTrue(results.Count==1);
+            Assert.IsFalse(results.ContainsKey(variableName));
+            Assert.AreEqual(0,results.Count);
             _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
         }
 
@@ -404,6 +404,8 @@ namespace UnitTest
             IProcessInstance inst = _process.BeginProcess(variables);
             Assert.IsNotNull(inst);
 
+            variables.Remove("TestNull");
+
             Thread.Sleep(1000);
             IUserTask task = inst.GetUserTask("UserTask_15dj2au");
             Assert.IsNotNull(task);
@@ -415,12 +417,10 @@ namespace UnitTest
 
             Assert.IsFalse(taskVariables.ContainsKey("TestNull"));
 
-            taskVariables.Add("TestNull", null);
-
             _CompareVariableSets(variables, taskVariables);
 
             XmlDocument doc = new XmlDocument();
-            doc.LoadXml(inst.CurrentState.InnerXml);
+            doc.LoadXml(inst.CurrentState.AsXMLDocument);
 
             _CompareVariableSets(variables, BusinessProcess.ExtractProcessVariablesFromStateDocument(doc));
 
@@ -431,7 +431,7 @@ namespace UnitTest
 
         private void _CompareVariableSets(Dictionary<string, object> inputted, Dictionary<string, object> extracted)
         {
-            Assert.AreEqual(inputted.Count, extracted.Count);
+            Assert.AreEqual(inputted.Count(), extracted.Count);
             foreach (string str in inputted.Keys)
             {
                 Assert.IsTrue(extracted.ContainsKey(str));

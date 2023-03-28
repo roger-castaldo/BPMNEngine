@@ -11,11 +11,145 @@ using System.Globalization;
 using Org.Reddragonit.BpmEngine.Elements;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Threading;
+using SkiaSharp;
+using System.Collections.Immutable;
+using System.Linq.Expressions;
 
 namespace Org.Reddragonit.BpmEngine.State
 {
-    internal sealed class ProcessPath : AStateContainer
+    internal sealed class ProcessPath : IStateContainer
     {
+        private readonly struct SPathEntry
+        {
+            public string ElementID { get; init; }
+            public StepStatuses Status { get; init; }
+            public DateTime StartTime { get; init; }
+            public string IncomingID { get; init; }
+            public DateTime? EndTime { get; init; }
+            public string CompletedBy { get; init; }
+            public IEnumerable<string> OutgoingID { get; init; }
+        }
+
+        private class ReadOnlyProcessPath : IReadOnlyStateContainer
+        {
+            private ProcessPath _path;
+            private int _stepCount;
+
+            public ReadOnlyProcessPath(ProcessPath path,int stepCount)
+            {
+                _path = path;
+                _stepCount = stepCount;
+            }
+
+            private IEnumerable<SPathEntry> steps
+                => _path.RunQuery<SPathEntry>((IEnumerable<SPathEntry> Steps) =>
+                {
+                    return Steps.Take(_stepCount);
+                });
+
+            public void Append(XmlWriter writer)
+            {
+                steps.ForEach(step =>
+                {
+                    writer.WriteStartElement(_PATH_ENTRY_ELEMENT);
+                    writer.WriteAttributeString(_ELEMENT_ID, step.ElementID);
+                    writer.WriteAttributeString(_STEP_STATUS, step.Status.ToString());
+                    writer.WriteAttributeString(_START_TIME, step.StartTime.ToString(Constants.DATETIME_FORMAT));
+                    if (step.IncomingID!=null)
+                        writer.WriteAttributeString(_INCOMING_ID, step.IncomingID);
+                    if (step.EndTime.HasValue)
+                        writer.WriteAttributeString(_END_TIME, step.EndTime.Value.ToString(Constants.DATETIME_FORMAT));
+                    if (step.CompletedBy!=null)
+                        writer.WriteAttributeString(_COMPLETED_BY, step.CompletedBy);
+                    if (step.OutgoingID!=null)
+                    {
+                        if (step.OutgoingID.Count()==1)
+                            writer.WriteAttributeString(_OUTGOING_ID, step.OutgoingID.First());
+                        else
+                            step.OutgoingID.ForEach(outid =>
+                            {
+                                writer.WriteStartElement(_OUTGOING_ELEM);
+                                writer.WriteValue(outid);
+                                writer.WriteEndElement();
+                            });
+                    }
+                    writer.WriteEndElement();
+                });
+            }
+
+            public void Append(Utf8JsonWriter writer)
+            {
+                writer.WriteStartArray();
+                steps.ForEach(step =>
+                {
+                    writer.WriteStartObject();
+                    writer.WritePropertyName(_ELEMENT_ID);
+                    writer.WriteStringValue(step.ElementID);
+                    writer.WritePropertyName(_STEP_STATUS);
+                    writer.WriteStringValue(step.Status.ToString());
+                    writer.WritePropertyName(_STEP_STATUS);
+                    writer.WriteStringValue(step.StartTime.ToString(Constants.DATETIME_FORMAT));
+                    if (step.IncomingID!=null)
+                    {
+                        writer.WritePropertyName(_INCOMING_ID);
+                        writer.WriteStringValue(step.IncomingID);
+                    }
+                    if (step.EndTime.HasValue)
+                    {
+                        writer.WritePropertyName(_END_TIME);
+                        writer.WriteStringValue(step.EndTime.Value.ToString(Constants.DATETIME_FORMAT));
+                    }
+                    if (step.CompletedBy!=null)
+                    {
+                        writer.WritePropertyName(_COMPLETED_BY);
+                        writer.WriteStringValue(step.CompletedBy);
+                    }
+                    if (step.OutgoingID!=null)
+                    {
+                        writer.WritePropertyName(_OUTGOING_ID);
+                        if (step.OutgoingID.Count()==1)
+                            writer.WriteStringValue(step.OutgoingID.First());
+                        else
+                        {
+                            writer.WriteStartArray();
+                            step.OutgoingID.ForEach(outid =>
+                            {
+                                writer.WriteStringValue(outid);
+                            });
+                            writer.WriteEndArray();
+                        }
+                    }
+                    writer.WriteEndObject();
+                });
+                writer.WriteEndArray();
+            }
+        }
+
+        private List<SPathEntry> _steps = new List<SPathEntry>();
+
+        private readonly ProcessStepComplete _complete;
+        private readonly ProcessStepError _error;
+
+        private int _lastStep;
+        internal int LastStep { get { return _lastStep; } }
+
+        private readonly ReaderWriterLockSlim _stateLock;
+        private readonly BusinessProcess _process;
+        private readonly ProcessState.delTriggerStateChange _triggerChange;
+
+        public ProcessPath(ProcessStepComplete complete, ProcessStepError error, BusinessProcess process,ReaderWriterLockSlim stateLock, ProcessState.delTriggerStateChange triggerChange)
+        {
+            _complete = complete;
+            _error = error;
+            _lastStep = int.MaxValue;
+            _process=process;
+            _stateLock=stateLock;
+            _triggerChange=triggerChange;
+        }
+
+        #region IStateContainer
         private const string _PATH_ENTRY_ELEMENT = "sPathEntry";
         private const string _STEP_STATUS = "status";
         private const string _ELEMENT_ID = "elementID";
@@ -26,103 +160,229 @@ namespace Org.Reddragonit.BpmEngine.State
         private const string _OUTGOING_ELEM = "outgoing";
         private const string _COMPLETED_BY = "CompletedByID";
 
-        protected override string _ContainerName
+        public void Load(XmlReader reader)
         {
-            get
+            _steps.Clear();
+            reader.Read();
+            while (reader.NodeType==XmlNodeType.Element && reader.Name==_PATH_ENTRY_ELEMENT)
             {
-                return "ProcessPath";
+                var elementID = reader.GetAttribute(_ELEMENT_ID);
+                var stepStatus = (StepStatuses)Enum.Parse(typeof(StepStatuses), reader.GetAttribute(_STEP_STATUS));
+                var startTime = DateTime.ParseExact(reader.GetAttribute(_START_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
+                var incomingID = reader.GetAttribute(_INCOMING_ID);
+                var endTime = (reader.GetAttribute(_END_TIME)==null ? (DateTime?)null : DateTime.ParseExact(reader.GetAttribute(_END_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture));
+                IEnumerable<string> outgoing = null;
+                if (reader.GetAttribute(_OUTGOING_ID)==null)
+                {
+                    outgoing = new List<string>();
+                    reader.Read();
+                    while (reader.NodeType==XmlNodeType.Element && reader.Name==_OUTGOING_ELEM)
+                    {
+                        reader.Read();
+                        ((List<string>)outgoing).Add(reader.Value);
+                        reader.Read();
+                        if (reader.NodeType==XmlNodeType.EndElement && reader.Name==_OUTGOING_ELEM)
+                            reader.Read();
+                    }
+                    if (reader.NodeType==XmlNodeType.EndElement && reader.Name==_PATH_ENTRY_ELEMENT)
+                        reader.Read();
+                }
+                else
+                {
+                    outgoing = new string[] { reader.GetAttribute(_OUTGOING_ID) };
+                    reader.Read();
+                }
+                _steps.Add(new SPathEntry()
+                {
+                    ElementID=elementID,
+                    Status=stepStatus,
+                    StartTime=startTime,
+                    EndTime=endTime,
+                    IncomingID=incomingID,
+                    OutgoingID=outgoing
+                });
             }
         }
 
-        private readonly ProcessStepComplete _complete;
-        private readonly ProcessStepError _error;
-        private readonly processStateChanged _stateChanged;
-
-        private int _lastStep;
-        internal int LastStep { get { return _lastStep; } }
-
-        public ProcessPath(ProcessStepComplete complete, ProcessStepError error, processStateChanged stateChanged, ProcessState state)
-            : base(state)
+        public void Load(Utf8JsonReader reader)
         {
-            _complete = complete;
-            _error = error;
-            _stateChanged = stateChanged;
-            _lastStep = int.MaxValue;
+            _steps.Clear();
+            reader.Read();
+            while (reader.TokenType!=JsonTokenType.EndArray)
+            {
+                if (reader.TokenType==JsonTokenType.StartObject)
+                {
+                    var elementID = string.Empty;
+                    var stepStatus = StepStatuses.NotRun;
+                    var startTime = DateTime.MinValue;
+                    var incomingID = String.Empty;
+                    var endTime = (DateTime?)null;
+                    IEnumerable<string> outgoing = null;
+
+                    while (reader.TokenType!=JsonTokenType.EndObject)
+                    {
+                        reader.Read();
+                        var propName = reader.GetString();
+                        reader.Read();
+                        switch (propName)
+                        {
+                            case _ELEMENT_ID:
+                                elementID=reader.GetString();
+                                break;
+                            case _STEP_STATUS:
+                                stepStatus = (StepStatuses)Enum.Parse(typeof(StepStatuses), reader.GetString());
+                                break;
+                            case _INCOMING_ID:
+                                incomingID=reader.GetString();
+                                break;
+                            case _START_TIME:
+                                startTime = DateTime.ParseExact(reader.GetString(), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
+                                break;
+                            case _END_TIME:
+                                endTime = DateTime.ParseExact(reader.GetString(), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
+                                break;
+                            case _OUTGOING_ID:
+                                outgoing = new List<string>();
+                                reader.Read();
+                                while (reader.TokenType!=JsonTokenType.EndArray)
+                                {
+                                    ((List<string>)outgoing).Add(reader.GetString());
+                                    reader.Read();
+                                }
+                                break;
+                        }
+                    }
+
+                    _steps.Add(new SPathEntry()
+                    {
+                        ElementID=elementID,
+                        Status=stepStatus,
+                        StartTime=startTime,
+                        EndTime=endTime,
+                        IncomingID=incomingID,
+                        OutgoingID=outgoing
+                    });
+                }
+                reader.Read();
+            }
+            if (reader.TokenType==JsonTokenType.EndArray)
+                reader.Read();
         }
+
+        private IEnumerable<T> RunQuery<T>(Func<IEnumerable<SPathEntry>,IEnumerable<T>> filter)
+        {
+            _stateLock.EnterReadLock();
+            var results = filter(_steps).ToImmutableList();
+            _stateLock.ExitReadLock();
+            return results;
+        }
+
+        public IReadOnlyStateContainer Clone()
+        {
+            return new ReadOnlyProcessPath(this, _steps.Count());
+        }
+
+        public void Dispose()
+        {
+            _steps.Clear();
+        }
+        #endregion
 
         internal IEnumerable<sSuspendedStep> ResumeSteps
-        {
-            get
-            {
-                return ChildNodes.Cast<XmlNode>()
-                    .GroupBy(elem => elem.Attributes[_ELEMENT_ID].Value)
-                    .Where(grp => (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.Suspended)
-                    .Select(grp => new sSuspendedStep(grp.Last().Attributes[_INCOMING_ID].Value, grp.Last().Attributes[_ELEMENT_ID].Value));
-            }
-        }
+            => RunQuery<sSuspendedStep>((IEnumerable<SPathEntry> steps)=> {
+                return steps
+                            .GroupBy(step => step.ElementID)
+                            .Where(grp => grp.Last().Status==StepStatuses.Suspended && !grp.Last().EndTime.HasValue)
+                            .Select(grp => new sSuspendedStep()
+                            {
+                                IncomingID=grp.Last().IncomingID,
+                                ElementID=grp.Last().ElementID
+                            });
+            });
 
         internal IEnumerable<sDelayedStartEvent> DelayedEvents
+        => RunQuery<sDelayedStartEvent>((IEnumerable<SPathEntry> steps) =>
         {
-            get
-            {
-                return ChildNodes.Cast<XmlNode>()
-                    .GroupBy(elem => elem.Attributes[_ELEMENT_ID].Value)
-                    .Where(grp => (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.WaitingStart)
-                    .Select(grp => new sDelayedStartEvent(
-                        grp.Last().Attributes[_INCOMING_ID].Value,
-                        grp.Last().Attributes[_ELEMENT_ID].Value, 
-                        DateTime.ParseExact((grp.Last().Attributes[_END_TIME]!=null ? grp.Last().Attributes[_END_TIME].Value : grp.Last().Attributes[_START_TIME].Value), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture))
-                    );
-            }
-        }
+            return steps
+                .GroupBy(step => step.ElementID)
+                    .Where(grp => grp.Last().Status==StepStatuses.WaitingStart)
+                    .Select(grp => new sDelayedStartEvent()
+                    {
+                        IncomingID=grp.Last().IncomingID,
+                        ElementID=grp.Last().ElementID,
+                        StartTime=grp.Last().EndTime.Value
+                    });
+        });
+
+        public IEnumerable<string> AbortableSteps
+        => RunQuery<string>((IEnumerable<SPathEntry> steps) =>
+        {
+            return steps
+                    .GroupBy(step => step.ElementID)
+                    .Where(grp => grp.Last().Status==StepStatuses.WaitingStart
+                        || grp.Last().Status==StepStatuses.Waiting
+                        || grp.Last().Status==StepStatuses.Started
+                        || (grp.Last().Status==StepStatuses.Suspended && grp.Last().EndTime.HasValue))
+                    .Select(grp => grp.Key);
+        });
 
         public IEnumerable<string> ActiveSteps
+        => RunQuery<string>((IEnumerable<SPathEntry> steps) =>
         {
-            get
-            {
-                return ChildNodes.Cast<XmlNode>()
-                    .GroupBy(elem => elem.Attributes[_ELEMENT_ID].Value)
-                    .Where(grp => (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.WaitingStart
-                        || (StepStatuses)Enum.Parse(typeof(StepStatuses), grp.Last().Attributes[_STEP_STATUS].Value)==StepStatuses.Waiting)
+            return steps
+                    .GroupBy(step => step.ElementID)
+                    .Where(grp => grp.Last().Status==StepStatuses.Started)
                     .Select(grp => grp.Key);
-            }
-        }
+        });
 
-        internal bool IsStepWaiting(string id, int stepIndex)
+        public IEnumerable<sStepSuspension> SuspendedSteps
+        => RunQuery<sStepSuspension>((IEnumerable<SPathEntry> steps) =>
         {
-            return ChildNodes.Cast<XmlNode>()
-                .Skip(stepIndex)
-                .Where(n => n.Attributes[_ELEMENT_ID].Value==id)
-                .Select(n => n.Attributes[_STEP_STATUS].Value)
-                .DefaultIfEmpty("")
-                .FirstOrDefault() != StepStatuses.Succeeded.ToString();
-        }
+            return steps
+                    .Select((step, index) => new { step, index })
+                    .GroupBy(step => step.step.ElementID)
+                    .Where(grp => grp.Last().step.Status==StepStatuses.Suspended && grp.Last().step.EndTime.HasValue)
+                    .Select(grp => new sStepSuspension()
+                    {
+                        EndTime=grp.Last().step.EndTime.Value,
+                        Id=grp.Key,
+                        StepIndex=grp.Last().index
+                    });
+        });
 
         public StepStatuses GetStatus(string elementid)
         {
-            return ChildNodes.Cast<XmlNode>()
-                .Take((_lastStep==int.MaxValue ? ChildNodes.Length : _lastStep+1))
-                .Where(n => n.Attributes[_ELEMENT_ID].Value==elementid)
-                .Select(n => (StepStatuses)Enum.Parse(typeof(StepStatuses), n.Attributes[_STEP_STATUS].Value))
-                .DefaultIfEmpty(StepStatuses.NotRun)
-                .LastOrDefault();
+            return RunQuery<StepStatuses>((IEnumerable<SPathEntry> steps) =>
+            {
+                return steps
+                    .Take((_lastStep==int.MaxValue ? _steps.Count() : _lastStep+1))
+                    .Where(step => step.ElementID==elementid)
+                    .Select(step => step.Status)
+                    .DefaultIfEmpty(StepStatuses.NotRun);
+            }).LastOrDefault();
         }
 
         public int GetStepSuccessCount(string elementid)
         {
-            return ChildNodes.Cast<XmlNode>()
-                .Count(n => n.Attributes[_ELEMENT_ID].Value==elementid && (StepStatuses)Enum.Parse(typeof(StepStatuses), n.Attributes[_STEP_STATUS].Value) == StepStatuses.Succeeded);
+            _stateLock.EnterReadLock();
+            var result = _steps
+                .Count(step => step.ElementID==elementid && step.Status == StepStatuses.Succeeded);
+            _stateLock.ExitReadLock();
+            return result;
         }
 
         public int CurrentStepIndex(string elementid)
         {
-            return ChildNodes.Cast<XmlNode>()
-                .Any(n => n.Attributes[_ELEMENT_ID].Value == elementid)
-                ? ChildNodes.Cast<XmlNode>()
-                    .Select((node, index) => new { node, index })
-                    .Where(pair=>pair.node.Attributes[_ELEMENT_ID].Value == elementid)
+            _stateLock.EnterReadLock();
+            var result = _steps
+                .Any(step=>step.ElementID==elementid)
+                ? _steps
+                    .Select((step, index) => new { step, index })
+                    .Where(pair=>pair.step.ElementID== elementid)
                     .Max(pair=>pair.index)
                 : -1;
+            _stateLock.ExitReadLock();
+            return result;
         }
 
         internal void StartAnimation()
@@ -133,13 +393,18 @@ namespace Org.Reddragonit.BpmEngine.State
         internal string MoveToNextStep()
         {
             _lastStep++;
-            XmlElement[] nodes = ChildNodes;
-            return ((_lastStep==0 || (_lastStep>nodes.Length)) ? null : nodes[_lastStep-1].Attributes[_ELEMENT_ID].Value);
+            _stateLock.EnterReadLock();
+            var result =  ((_lastStep==0 || (_lastStep>_steps.Count())) ? null : _steps.Skip(_lastStep-1).First().ElementID);
+            _stateLock.ExitReadLock();
+            return result;
         }
 
         internal bool HasNext()
         {
-            return ChildNodes.Length+1 > _lastStep;
+            _stateLock.EnterReadLock();
+            var result = _steps.Count()+1>_lastStep;
+            _stateLock.ExitReadLock();
+            return result;
         }
 
         internal void FinishAnimation()
@@ -147,64 +412,33 @@ namespace Org.Reddragonit.BpmEngine.State
             _lastStep = int.MaxValue;
         }
 
-        private void _addPathEntry(string elementID, string incomingID, StepStatuses status, DateTime start, DateTime end)
+        private void _addPathEntry(string elementID, StepStatuses status, DateTime start, string incomingID = null, IEnumerable<string> outgoingID = null, DateTime? end = null, string completedBy = null)
         {
-            _addPathEntry(elementID, incomingID, null, status, start, end, null);
-        }
-
-        private void _addPathEntry(string elementID, string incomingID, StepStatuses status, DateTime start)
-        {
-            _addPathEntry(elementID, incomingID, null, status, start, null, null);
-        }
-
-        private void _addPathEntry(string elementID, string incomingID, IEnumerable<string> outgoingID, StepStatuses status, DateTime start, DateTime end)
-        {
-            _addPathEntry(elementID, incomingID, outgoingID, status, start, end, null);
-        }
-
-        private void _addPathEntry(string elementID, string incomingID, string outgoingID, StepStatuses status, DateTime start, DateTime end)
-        {
-            _addPathEntry(elementID, incomingID, new string[] { outgoingID }, status, start, end, null);
-        }
-
-        private void _addPathEntry(string elementID, string incomingID, IEnumerable<string> outgoingID, StepStatuses status, DateTime start, DateTime? end, string completedBy)
-        {
-            XmlElement elem = _ProduceElement(_PATH_ENTRY_ELEMENT);
-            _SetAttribute(elem, _ELEMENT_ID, elementID);
-            _SetAttribute(elem,_STEP_STATUS,status.ToString());
-            _SetAttribute(elem, _START_TIME, start.ToString(Constants.DATETIME_FORMAT));
-            if (incomingID != null)
-                _SetAttribute(elem, _INCOMING_ID, incomingID);
-            if (end.HasValue)
-                _SetAttribute(elem, _END_TIME, end.Value.ToString(Constants.DATETIME_FORMAT));
-            if (completedBy != null)
-                _SetAttribute(elem, _COMPLETED_BY, completedBy);
-            if (outgoingID != null)
+            _stateLock.EnterWriteLock();
+            _steps.Add(new SPathEntry()
             {
-                if (outgoingID.Count() == 1)
-                    _SetAttribute(elem, _OUTGOING_ID, outgoingID.First());
-                else
-                {
-                    outgoingID.ForEach(str =>
-                    {
-                        elem.AppendChild(_ProduceElement(_OUTGOING_ELEM));
-                        elem.ChildNodes[elem.ChildNodes.Count - 1].InnerText = str;
-                    });
-                }
-            }
-            //Console.WriteLine(string.Format("Adding Path Entry for {0}-{1}", elementID,status));
-            _AppendElement(elem);
-            _stateChanged();
+                ElementID=elementID,
+                IncomingID=incomingID,
+                OutgoingID=outgoingID,
+                Status=status,
+                StartTime=start,
+                EndTime=end,
+                CompletedBy=completedBy
+            });
+            _stateLock.ExitWriteLock();
+            _triggerChange();
         }
 
         private void _GetIncomingIDAndStart(string elementID,out DateTime start,out string incoming)
         {
             start = DateTime.Now;
             incoming = null;
-            var result = ChildNodes.Cast<XmlNode>()
-                .Where(n => n.Attributes[_ELEMENT_ID].Value == elementID && n.Attributes[_STEP_STATUS].Value == StepStatuses.Waiting.ToString())
-                .Select(n => new { incoming = (n.Attributes[_INCOMING_ID]==null ? null : n.Attributes[_INCOMING_ID].Value), start = DateTime.ParseExact(n.Attributes[_START_TIME].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture) })
+            _stateLock.EnterReadLock();
+            var result = _steps
+                .Where(step => step.ElementID == elementID && (step.Status == StepStatuses.Waiting||step.Status==StepStatuses.Started))
+                .Select(step => new { incoming = step.IncomingID, start = step.StartTime })
                 .LastOrDefault();
+            _stateLock.ExitReadLock();
             if (result!=null)
             {
                 start=result.start;
@@ -212,154 +446,92 @@ namespace Org.Reddragonit.BpmEngine.State
             }
         }
 
+        private void _WriteLogLine(string elementID, LogLevels level, string message)
+        {
+            _process.WriteLogLine(elementID, level, new System.Diagnostics.StackFrame(1, true), DateTime.Now, message);
+        }
+
         internal void DelayEventStart(AEvent Event,string incoming,TimeSpan delay)
         {
             _WriteLogLine(Event.id, LogLevels.Debug, "Delaying start of event in Process Path");
-            _addPathEntry(Event.id, incoming, StepStatuses.WaitingStart, DateTime.Now,DateTime.Now.Add(delay));
+            _addPathEntry(Event.id, StepStatuses.WaitingStart, DateTime.Now,incomingID:incoming,end:DateTime.Now.Add(delay));
         }
 
-        internal void StartEvent(AEvent Event, string incoming)
+        internal void StartFlowNode(AFlowNode node,string incoming)
         {
-            _WriteLogLine(Event.id,LogLevels.Debug,"Starting Event in Process Path");
-            _addPathEntry(Event.id,incoming,StepStatuses.Waiting, DateTime.Now);
+            _WriteLogLine(node.id, LogLevels.Debug, string.Format("Starting {0} in Process Path", node.GetType().Name));
+            _addPathEntry(node.id, (node is UserTask || node is ManualTask ? StepStatuses.Waiting : StepStatuses.Started),DateTime.Now,incomingID:incoming);
         }
+
+        internal void SucceedFlowNode(ATask task, IEnumerable<string> outgoing = null, string completedByID = null)
+        {
+            SucceedFlowNode((AFlowNode)task,outgoing:outgoing??task.Outgoing,completedByID:completedByID);
+        }
+
+        internal void SucceedFlowNode(AEvent evnt, IEnumerable<string> outgoing = null, string completedByID = null)
+        {
+            if (evnt is BoundaryEvent)
+                SucceedFlowNode((AFlowNode)evnt, outgoing: outgoing??((BoundaryEvent)evnt).Outgoing, completedByID: completedByID);
+            else
+                SucceedFlowNode((AFlowNode)evnt, outgoing: outgoing??evnt.Outgoing, completedByID: completedByID);
+        }
+
+        internal void SucceedFlowNode(AFlowNode node,IEnumerable<string> outgoing=null, string completedByID=null)
+        {
+            _WriteLogLine(node.id, LogLevels.Debug, string.Format("Succeeding {0} in Process Path {1}",node.GetType().Name,(completedByID==null ? "" : string.Format(" as completed by {0}",completedByID))));
+            string incoming;
+            DateTime start;
+            _GetIncomingIDAndStart(node.id, out start, out incoming);
+            outgoing = outgoing??node.Outgoing;
+            if (!outgoing.Any())
+            {
+                _addPathEntry(node.id,StepStatuses.Succeeded,start,incomingID:incoming,end:DateTime.Now,completedBy:completedByID);
+                Complete(node.id, null);
+            }
+            else
+            {
+                _addPathEntry(node.id, StepStatuses.Succeeded, start, incomingID: incoming, end: DateTime.Now,outgoingID:node.Outgoing,completedBy:completedByID);
+                outgoing.Distinct().ForEach(id => Complete(node.id, id));
+            }
+        }
+
+        internal void FailFlowNode(AFlowNode node,Exception error=null)
+        {
+            _WriteLogLine(node.id, LogLevels.Debug, string.Format("Failing {0} in Process Path", node.GetType().Name));
+            string incoming;
+            DateTime start;
+            _GetIncomingIDAndStart(node.id, out start, out incoming);
+            _addPathEntry(node.id,StepStatuses.Failed,start,incomingID:incoming, end:DateTime.Now);
+            Error(node, error);
+        }
+
         private async void Complete(string incoming, string outgoing) => await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
 
         private async void Error(IElement step, Exception ex) => await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
 
-        internal void SucceedEvent(AEvent Event)
-        {
-            _WriteLogLine(Event.id,LogLevels.Debug,"Succeeding Event in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(Event.id, out start, out incoming);
-            if (!Event.Outgoing.Any())
-            {
-                _addPathEntry(Event.id,incoming,StepStatuses.Succeeded, start, DateTime.Now);
-                Complete(Event.id, null);
-            }
-            else
-            {
-                _addPathEntry(Event.id, incoming, Event.Outgoing, StepStatuses.Succeeded, start, DateTime.Now);
-                Event.Outgoing.ForEach(id => Complete(Event.id, id));
-            }
-        }
-
-        internal void FailEvent(AEvent Event)
-        {
-            _WriteLogLine(Event.id, LogLevels.Debug, "Failing Event in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(Event.id, out start, out incoming);
-            _addPathEntry(Event.id,incoming,StepStatuses.Failed, start, DateTime.Now);
-            Error(Event, null);
-        }
-
-        internal void StartSubProcess(SubProcess SubProcess, string incoming)
-        {
-            _WriteLogLine(SubProcess.id, LogLevels.Debug, "Starting SubProcess in Process Path");
-            _addPathEntry(SubProcess.id, incoming, StepStatuses.Waiting, DateTime.Now);
-        }
-
-        internal void SucceedSubProcess(SubProcess SubProcess)
-        {
-            _WriteLogLine(SubProcess.id, LogLevels.Debug, "Succeeding SubProcess in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(SubProcess.id, out start, out incoming);
-            IEnumerable<string> outgoing = SubProcess.Outgoing;
-            if (!outgoing.Any())
-            {
-                _addPathEntry(SubProcess.id, incoming, StepStatuses.Succeeded, start, DateTime.Now);
-                Complete(SubProcess.id, null);
-            }
-            else
-            {
-                _addPathEntry(SubProcess.id, incoming, outgoing, StepStatuses.Succeeded, start, DateTime.Now);
-                outgoing.ForEach(id => Complete(SubProcess.id, id));
-            }
-        }
-
         internal void ProcessFlowElement(IFlowElement flowElement)
         {
             _WriteLogLine(flowElement.id, LogLevels.Debug, "Processing Flow Element in Process Path");
-            _addPathEntry(flowElement.id, flowElement.sourceRef, flowElement.targetRef, StepStatuses.Succeeded, DateTime.Now, DateTime.Now);
+            _addPathEntry(flowElement.id,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.sourceRef, outgoingID:new string[] { flowElement.targetRef }, end:DateTime.Now);
             Complete(flowElement.id, flowElement.targetRef);
-        }
-
-        internal void StartTask(ATask task, string incoming)
-        {
-            _WriteLogLine(task.id, LogLevels.Debug, "Starting Task in Process Path");
-            _addPathEntry(task.id,incoming, StepStatuses.Waiting, DateTime.Now);
-        }
-
-        internal void FailTask(ATask task, Exception ex)
-        {
-            _WriteLogLine(task.id, LogLevels.Debug, "Failing Task in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(task.id, out start, out incoming);
-            _addPathEntry(task.id,incoming,StepStatuses.Failed, start, DateTime.Now);
-            Error(task, ex);
-        }
-
-        internal void SucceedTask(UserTask task,string completedByID)
-        {
-            _WriteLogLine(task.id, LogLevels.Debug, string.Format("Succeeding Task in Process Path with Completed By ID {0}", new object[] { completedByID }));
-            _SucceedTask(task, completedByID);
-        }
-
-        internal void SucceedTask(ATask task)
-        {
-            _WriteLogLine(task.id, LogLevels.Debug, "Succeeding Task in Process Path");
-            _SucceedTask(task, null);
-        }
-
-        private void _SucceedTask(ATask task, string completedByID)
-        {
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(task.id, out start, out incoming);
-            _addPathEntry(task.id, incoming, task.Outgoing, StepStatuses.Succeeded, start, DateTime.Now, (task is UserTask ? completedByID : null));
-            Complete(task.id, (!task.Outgoing.Any()  ? null : task.Outgoing.First()));
-        }
-
-        internal void StartGateway(AGateway gateway, string incoming)
-        {
-            _WriteLogLine(gateway.id, LogLevels.Debug, "Starting Gateway in Process Path");
-            _addPathEntry(gateway.id,incoming,StepStatuses.Waiting, DateTime.Now);
-        }
-
-        internal void FailGateway(AGateway gateway)
-        {
-            _WriteLogLine(gateway.id, LogLevels.Debug, "Failing Gateway in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(gateway.id, out start, out incoming);
-            _addPathEntry(gateway.id, incoming, StepStatuses.Failed, start, DateTime.Now);
-            Error(gateway,null);
-        }
-
-        internal void SuccessGateway(AGateway gateway, IEnumerable<string> chosenExits)
-        {
-            _WriteLogLine(gateway.id, LogLevels.Debug, "Succeeding Gateway in Process Path");
-            string incoming;
-            DateTime start;
-            _GetIncomingIDAndStart(gateway.id, out start, out incoming);
-            _addPathEntry(gateway.id, incoming, chosenExits, StepStatuses.Succeeded, start, DateTime.Now);
-            chosenExits.ForEach(outgoing => Complete(gateway.id, outgoing));
         }
 
         internal void SuspendElement(string sourceID, IElement elem)
         {
             _WriteLogLine(elem.id, LogLevels.Debug, "Suspending Element in Process Path");
-            _addPathEntry(elem.id,sourceID,StepStatuses.Suspended, DateTime.Now);
+            _addPathEntry(elem.id,StepStatuses.Suspended,DateTime.Now,incomingID:sourceID);
+        }
+
+        internal void SuspendElement(string sourceID, string elementID,TimeSpan span)
+        {
+            _WriteLogLine(elementID, LogLevels.Debug, "Suspending Element in Process Path");
+            _addPathEntry(elementID, StepStatuses.Suspended, DateTime.Now, incomingID: sourceID,end:DateTime.Now.Add(span));
         }
 
         internal void AbortStep(string sourceID,string attachedToID)
         {
             _WriteLogLine(attachedToID, LogLevels.Debug, "Aborting Process Step");
-            _addPathEntry(attachedToID, sourceID, StepStatuses.Aborted, DateTime.Now);
+            _addPathEntry(attachedToID, StepStatuses.Aborted, DateTime.Now, incomingID: sourceID);
 
         }
     }

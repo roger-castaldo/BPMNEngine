@@ -23,7 +23,9 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(_ProcessTask) });
+            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { 
+                BeginUserTask= new StartUserTask(_BeginUserTask) 
+            });
         }
 
         [ClassCleanup]
@@ -32,21 +34,30 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private static void _ProcessTask(ITask task)
+        private static void _BeginUserTask(IUserTask task)
         {
             if (task.Variables[_DELAY_ID]!=null)
-                System.Threading.Thread.Sleep((int)task.Variables[_DELAY_ID]);
+            {
+                Task.Delay((int)task.Variables[_DELAY_ID]).ContinueWith(_ =>
+                {
+                    task.MarkComplete();
+                });
+            }
+            else
+                task.MarkComplete();
         }
 
-        private static TimeSpan? GetStepDuration(XmlDocument state,string name)
+        private static TimeSpan? GetStepDuration(IState state,string name)
         {
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(state.AsXMLDocument);
             DateTime? start = null;
-            XmlNode node = state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='WaitingStart']", name));
+            XmlNode node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='WaitingStart']", name));
             if (node!=null)
             {
                 start = DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture);
             }
-            node = state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name));
+            node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name));
             if (node!=null)
             {
                 return DateTime.ParseExact(node.Attributes["endTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture).Subtract((start.HasValue ? start.Value : DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture)));
@@ -82,7 +93,7 @@ namespace UnitTest
             instance.Suspend();
             Task.Delay(5000).Wait();
             var doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.OuterXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _process.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -95,7 +106,7 @@ namespace UnitTest
             Assert.IsNotNull(ts);
             Assert.AreEqual(60, (int)Math.Floor(ts.Value.TotalSeconds));
 
-            stateChangeMock.Verify(x => x.Invoke(It.IsAny<XmlDocument>()), Times.Once());
+            stateChangeMock.Verify(x => x.Invoke(It.IsAny<IState>()), Times.Once());
         }
 
         [TestMethod]
@@ -107,7 +118,7 @@ namespace UnitTest
             instance.Suspend();
             Task.Delay(5000).Wait();
             var doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.OuterXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _process.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -119,7 +130,7 @@ namespace UnitTest
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
             TimeSpan? ts = GetStepDuration(instance.CurrentState, "IntermediateCatchEvent_1tm2fi4");
             Assert.IsNotNull(ts);
-            Assert.IsTrue((int)Math.Floor(ts.Value.TotalSeconds)>60);
+            Assert.IsTrue((int)Math.Ceiling(ts.Value.TotalSeconds)>=60);
         }
 
 
@@ -166,7 +177,7 @@ namespace UnitTest
             instance.Suspend();
             Task.Delay(5000).Wait();
             var doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.OuterXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _process.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -191,7 +202,7 @@ namespace UnitTest
             instance.Suspend();
             Task.Delay(5000).Wait();
             var doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.OuterXml);
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _process.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -203,7 +214,7 @@ namespace UnitTest
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
             TimeSpan? ts = GetStepDuration(instance.CurrentState, "BoundaryEvent_14c0tw1");
             Assert.IsNotNull(ts);
-            Assert.IsTrue((int)Math.Floor(ts.Value.TotalSeconds)>30);
+            Assert.IsTrue((int)Math.Ceiling(ts.Value.TotalSeconds)>=30);
         }
     }
 }

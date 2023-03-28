@@ -17,51 +17,49 @@ namespace Org.Reddragonit.BpmEngine
     internal sealed class ProcessInstance : IProcessInstance
     {
         private BusinessProcess _process;
-        public BusinessProcess Process { get { return _process; } }
+        public BusinessProcess Process => _process;
 
         private Guid _id;
-        public Guid ID { get { return _id; } }
+        public Guid ID => _id;
 
         private ProcessState _state;
-        public ProcessState State { get { return _state; } }
+        public ProcessState State => _state;
 
-        private ManualResetEvent _processLock;
-        internal ManualResetEvent ProcessLock { get { return _processLock; } }
-        private ManualResetEvent _mreSuspend;
-        public ManualResetEvent MreSuspend { get { return _mreSuspend; } }
+        private ManualResetEvent _processLock=null;
+        internal ManualResetEvent ProcessLock
+        {
+            get
+            {
+                if (_processLock==null)
+                    _processLock = new ManualResetEvent(false);
+                return _processLock;
+            }
+        }
+        private ManualResetEvent _mreSuspend=null;
+        public ManualResetEvent MreSuspend
+        {
+            get
+            {
+                if (_mreSuspend==null)
+                    _mreSuspend = new ManualResetEvent(false);
+                return _mreSuspend;
+            }
+        }
         private LogLevels _stateLogLevel;
 
         private DelegateContainer _delegates;
-        public DelegateContainer Delegates { get { return _delegates; } }
-        private AutoResetEvent _stateEvent = new AutoResetEvent(true);
-        public AutoResetEvent StateEvent { get { return _stateEvent; } }
+        public DelegateContainer Delegates => _delegates;
+
         private bool _isSuspended = false;
-        public bool IsSuspended { get { return _isSuspended; } }
+        public bool IsSuspended => _isSuspended;
 
         internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevels stateLogLevel)
         {
             _id = Utility.NextRandomGuid();
-            _processLock = new ManualResetEvent(false);
-            _mreSuspend = new ManualResetEvent(false);
             _process = process;
             _delegates=delegates;
-            _state = new ProcessState(_process, new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError), new OnStateChange(_StateChange));
+            _state = new ProcessState(_process, new ProcessStepComplete(_ProcessStepComplete), new ProcessStepError(_ProcessStepError), delegates.Events.OnStateChange);
             _stateLogLevel=stateLogLevel;
-        }
-
-        private void _StateChange(XmlDocument stateDocument)
-        {
-            _stateEvent.WaitOne();
-            if (_delegates.Events.OnStateChange!=null)
-                System.Threading.Tasks.Task.Run(() =>
-                {
-                    try
-                    {
-                        _delegates.Events.OnStateChange.Invoke(stateDocument);
-                    }
-                    catch (Exception) { }
-                });
-            _stateEvent.Set();
         }
 
         internal bool LoadState(XmlDocument doc, bool autoResume)
@@ -104,9 +102,7 @@ namespace Org.Reddragonit.BpmEngine
 
         internal void CompleteTimedEvent(AEvent evnt)
         {
-            _stateEvent.WaitOne();
-            _state.Path.SucceedEvent(evnt);
-            _stateEvent.Set();
+            _state.Path.SucceedFlowNode(evnt);
             _InvokeElementEventDelegate(_delegates.Events.Events.Completed, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, this));
         }
 
@@ -146,58 +142,27 @@ namespace Org.Reddragonit.BpmEngine
             if (!((Tasks.ExternalTask)task).Aborted)
             {
                 WriteLogLine(task, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, (task is IUserTask ? ((IUserTask)task).UserID : null) }));
-                _stateEvent.WaitOne();
                 IVariables vars = task.Variables;
-                vars.Keys.ForEach(key =>
-                {
-                    object left = vars[key];
-                    object right = _state[task.id, key];
-                    if (!_IsVariablesEqual(left, right))
-                        _state[task.id, key] = left;
-                });
+                _state.MergeVariables(task,vars);
                 _InvokeElementEventDelegate(_delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.id, this));
                 ATask tsk = _process.GetTask(task.id);
                 if (tsk is UserTask)
-                    _state.Path.SucceedTask((UserTask)tsk, ((IUserTask)task).UserID);
+                    _state.Path.SucceedFlowNode((UserTask)tsk, completedByID:((IUserTask)task).UserID);
                 else
-                    _state.Path.SucceedTask(tsk);
-                _stateEvent.Set();
-            }
-        }
-
-        private bool _IsVariablesEqual(object left, object right)
-        {
-            if (left == null && right != null)
-                return false;
-            else if (left != null && right == null)
-                return false;
-            else if (left == null && right == null)
-                return true;
-            else
-            {
-                if (left is Array)
-                {
-                    if (!(right is Array))
-                        return false;
-                    else
-                    {
-                        Array aleft = (Array)left;
-                        Array aright = (Array)right;
-                        if (aleft.Length != aright.Length)
-                            return false;
-                        return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => _IsVariablesEqual(ival.val, aright.GetValue(ival.index)));
-                    }
-                }else
-                {
-                    try { return left.Equals(right); }
-                    catch (Exception e) { WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, e); return false; }
-                }
+                    _state.Path.SucceedFlowNode(tsk);
             }
         }
 
         public void Dispose()
         {
+            if (_state.ActiveSteps.Any())
+                throw new ActiveStepsException();
             Utility.UnloadProcess(this);
+            _state.Dispose();
+            if (_processLock!=null)
+                _processLock.Dispose();
+            if (_mreSuspend!=null)
+                _mreSuspend.Dispose();
         }
         public override bool Equals(object obj)
         {
@@ -223,7 +188,7 @@ namespace Org.Reddragonit.BpmEngine
 
         IEnumerable<string> IProcessInstance.Keys { get { return _process.Keys; } }
 
-        XmlDocument IProcessInstance.CurrentState { get { return _state.Document; } }
+        IState IProcessInstance.CurrentState { get { return _state.CurrentState; } }
 
         LogLevels IProcessInstance.StateLogLevel { get { return _stateLogLevel; } set { _stateLogLevel=value; } }
 
@@ -233,22 +198,13 @@ namespace Org.Reddragonit.BpmEngine
             if (_isSuspended)
             {
                 _isSuspended = false;
-                var resumeSteps = _state.ResumeSteps;
-                _state.Resume();
-                resumeSteps.ForEach(ss => _ProcessStepComplete(ss.IncomingID, ss.ElementID));
-                _state.SuspendedSteps.ForEach(ss =>
+                _state.Resume(this,(string incomingID,string elementID) =>
                 {
-                    if (DateTime.Now.Ticks < ss.EndTime.Ticks)
-                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), this, (AEvent)_process.GetElement(ss.Id));
-                    else
-                        CompleteTimedEvent((AEvent)_process.GetElement(ss.Id));
-                });
-                _state.DelayedEvents.ForEach(sdse =>
+                    _ProcessStepComplete(incomingID, elementID);
+                },
+                (AEvent delayedEvent) =>
                 {
-                    if (sdse.Delay.Ticks<0)
-                        _process.ProcessEvent(this, sdse.IncomingID, (AEvent)_process.GetElement(sdse.ElementID));
-                    else
-                        Utility.DelayStart(sdse.Delay, this, (BoundaryEvent)_process.GetElement(sdse.ElementID), sdse.IncomingID);
+                    CompleteTimedEvent(delayedEvent);
                 });
                 WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
             }
@@ -265,14 +221,20 @@ namespace Org.Reddragonit.BpmEngine
             WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
             _isSuspended = true;
             _state.Suspend();
-            _mreSuspend.WaitOne(5000);
             Utility.UnloadProcess(this);
+            var cnt = 0;
+            while (_state.ActiveSteps.Any() && cnt<10)
+            {
+                if (!MreSuspend.WaitOne(5000))
+                    break;
+                cnt++;
+            }
             if (_delegates.Events.OnStateChange!=null)
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     try
                     {
-                        _delegates.Events.OnStateChange.Invoke(_state.Document);
+                        _delegates.Events.OnStateChange.Invoke(_state.CurrentState);
                     }
                     catch (Exception) { }
                 });
@@ -333,25 +295,25 @@ namespace Org.Reddragonit.BpmEngine
         #region ProcessLock
         bool IProcessInstance.WaitForCompletion()
         {
-            return _processLock.WaitOne();
+            return ProcessLock.WaitOne();
         }
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout)
         {
-            return _processLock.WaitOne(millisecondsTimeout);
+            return ProcessLock.WaitOne(millisecondsTimeout);
         }
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout)
         {
-            return _processLock.WaitOne(timeout);
+            return ProcessLock.WaitOne(timeout);
         }
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout, bool exitContext)
         {
-            return _processLock.WaitOne(millisecondsTimeout, exitContext);
+            return ProcessLock.WaitOne(millisecondsTimeout, exitContext);
         }
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout, bool exitContext)
         {
-            return _processLock.WaitOne(timeout, exitContext);
+            return ProcessLock.WaitOne(timeout, exitContext);
         }
-        Dictionary<string, object> IProcessInstance.CurrentVariables { get { return StateVariableContainer.ExtractVariables(((IProcessInstance)this).CurrentState); } }
+        Dictionary<string, object> IProcessInstance.CurrentVariables { get { return ProcessVariables.ExtractVariables(((IProcessInstance)this).CurrentState); } }
         #endregion
 
         byte[] IProcessInstance.Diagram(bool outputVariables,ImageFormat type) { return _process.Diagram(outputVariables, _state, type); }

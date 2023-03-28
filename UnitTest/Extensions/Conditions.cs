@@ -65,7 +65,9 @@ namespace UnitTest.Extensions
             IProcessInstance processInstance = _pathProcess.BeginProcess(vars);
             Assert.IsNotNull(processInstance);
             Assert.IsTrue(processInstance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
-            return processInstance.CurrentState;
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(processInstance.CurrentState.AsXMLDocument);
+            return doc;
         }
 
         private bool _StepRan(BusinessProcess process,XmlDocument xmlDocument, string name)
@@ -174,13 +176,16 @@ namespace UnitTest.Extensions
             IProcessInstance instance = _eventProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
-            Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
-            Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Default"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsTrue(_StepRan(_eventProcess, doc, "Can Start"));
+            Assert.IsFalse(_StepRan(_eventProcess, doc, "Default"));
             instance = _eventProcess.BeginProcess(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
-            Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
-            Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Default"));
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsFalse(_StepRan(_eventProcess, doc, "Can Start"));
+            Assert.IsTrue(_StepRan(_eventProcess, doc, "Default"));
         }
     }
 }

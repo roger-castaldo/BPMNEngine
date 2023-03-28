@@ -7,59 +7,26 @@ using System.Xml;
 
 namespace Org.Reddragonit.BpmEngine.State
 {
-
-
-    internal struct sStepSuspension
+    internal readonly struct sStepSuspension
     {
-        private readonly string _id;
-        public string Id => _id;
-
-        private readonly int _stepIndex;
-        public int StepIndex => _stepIndex;
-
-        private readonly DateTime _endTime;
-        public DateTime EndTime => _endTime;
-
-        public sStepSuspension(XmlElement elem)
-        {
-            _id = elem.Attributes["id"].Value;
-            _stepIndex = int.Parse(elem.Attributes["stepIndex"].Value);
-            _endTime = DateTime.ParseExact(elem.Attributes["endTime"].Value, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
-        }
-
+        public string Id { get; init; }
+        public int StepIndex { get; init; }
+        public DateTime EndTime { get; init; }
     }
 
-    internal struct sSuspendedStep
+    internal readonly struct sSuspendedStep
     {
-        private readonly string _incomingID;
-        public string IncomingID => _incomingID;
-
-        private readonly string _elementID;
-        public string ElementID => _elementID;
-
-        public sSuspendedStep(string incomingID, string elementID)
-        {
-            _incomingID = incomingID;
-            _elementID = elementID;
-        }
+        public string IncomingID { get; init; }
+        public string ElementID { get; init; }
     }
 
-    internal struct sDelayedStartEvent
+    internal readonly struct sDelayedStartEvent
     {
-        private readonly string _incomingID;
-        public string IncomingID => _incomingID;
+        public string IncomingID {get;init;}
 
-        private readonly string _elementID;
-        public string ElementID => _elementID;
+        public string ElementID { get; init; }
 
-        private readonly DateTime _startTime;
-        public TimeSpan Delay => _startTime.Subtract(DateTime.Now);
-
-        public sDelayedStartEvent(string incomingID,string elementID,DateTime startTime)
-        {
-            _incomingID=incomingID;
-            _elementID=elementID;
-            _startTime=startTime;
-        }
+        public DateTime StartTime { get; init; }
+        public TimeSpan Delay => StartTime.Subtract(DateTime.Now);
     }
 }

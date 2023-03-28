@@ -18,9 +18,11 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
         public abstract IEnumerable<string> EvaulateOutgoingPaths(Definition definition,IsFlowValid isFlowValid, IReadonlyVariables variables);
         public abstract bool IsIncomingFlowComplete(string incomingID, ProcessPath path);
 
+        private static readonly StepStatuses[] _WAITING_STATUSES = new StepStatuses[] { StepStatuses.Waiting, StepStatuses.Started };
+
         public bool IsWaiting(ProcessPath path)
         {
-            return path.GetStatus(this.id) == StepStatuses.Waiting;
+            return _WAITING_STATUSES.Contains(path.GetStatus(this.id));
         }
 
         public string Default { 

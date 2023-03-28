@@ -83,13 +83,16 @@ namespace UnitTest.Delegates
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Waiting"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Succeeded"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+
+            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
 
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
@@ -113,13 +116,16 @@ namespace UnitTest.Delegates
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Waiting"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Succeeded"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+
+            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
 
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
@@ -146,13 +152,16 @@ namespace UnitTest.Delegates
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Waiting"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Succeeded"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+
+            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
         }
 
         [TestMethod]
@@ -170,13 +179,16 @@ namespace UnitTest.Delegates
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Waiting"));
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Waiting"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "StartEvent_0fbfgne", "Succeeded"));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(instance.CurrentState, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsFalse(_EventOccured(instance.CurrentState, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+
+            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
 
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {

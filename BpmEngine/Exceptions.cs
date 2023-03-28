@@ -85,4 +85,10 @@ namespace Org.Reddragonit.BpmEngine
         internal DiagramException(string message)
             : base(message) { }
     }
+
+    public class ActiveStepsException : Exception
+    {
+        internal ActiveStepsException()
+            : base("An attempt was made to dispose of a Process Instance with active steps") { }
+    }
 }

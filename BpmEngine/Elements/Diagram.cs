@@ -105,6 +105,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
                     ret = Colors.Green;
                     break;
                 case StepStatuses.Waiting:
+                case StepStatuses.Started:
                     ret = Colors.Blue;
                     break;
                 case StepStatuses.WaitingStart:
