@@ -643,19 +643,17 @@ namespace Org.Reddragonit.BpmEngine
             ReadOnlyProcessVariablesContainer variables = new ReadOnlyProcessVariablesContainer(new ProcessVariablesContainer(esp.id, instance));
             if (esp.IsStartValid(variables, instance.Delegates.Validations.IsProcessStartValid))
             {
-                esp.StartEvents.ForEach(se =>
+                var startEvent = esp.StartEvents.FirstOrDefault(se => se.IsEventStartValid(variables, instance.Delegates.Validations.IsEventStartValid));
+                if (startEvent!=null)
                 {
-                    if (se.IsEventStartValid(variables, instance.Delegates.Validations.IsEventStartValid))
-                    {
-                        instance.WriteLogLine(se, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", se.id));
-                        instance.State.Path.StartFlowNode(esp, sourceID);
-                        _TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Started, new object[] { esp, variables });
-                        _TriggerDelegateAsync(instance.Delegates.Events.Events.Started, new object[] { se, variables });
-                        instance.State.Path.StartFlowNode(se, null);
-                        instance.State.Path.SucceedFlowNode(se);
-                        _TriggerDelegateAsync(instance.Delegates.Events.Events.Completed, new object[] { se, new ReadOnlyProcessVariablesContainer(se.id, instance) });
-                    }
-                });
+                    instance.WriteLogLine(startEvent, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", startEvent.id));
+                    instance.State.Path.StartFlowNode(esp, sourceID);
+                    _TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Started, new object[] { esp, variables });
+                    instance.State.Path.StartFlowNode(startEvent, null);
+                    _TriggerDelegateAsync(instance.Delegates.Events.Events.Started, new object[] { startEvent, variables });
+                    instance.State.Path.SucceedFlowNode(startEvent);
+                    _TriggerDelegateAsync(instance.Delegates.Events.Events.Completed, new object[] { startEvent, variables });
+                }
             }
         }
 
@@ -789,7 +787,7 @@ namespace Org.Reddragonit.BpmEngine
                         else
                         {
                             _TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
-                            instance.ProcessLock.Set();
+                            instance.CompleteProcess();
                         }
                     }
                     else
@@ -797,7 +795,7 @@ namespace Org.Reddragonit.BpmEngine
                         ReadOnlyProcessVariablesContainer vars = new ReadOnlyProcessVariablesContainer(evnt.id, instance);
                         instance.State.AbortableSteps.ForEach(str => { _AbortStep(instance, evnt.id, GetElement(str), vars); });
                         _TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
-                        instance.ProcessLock.Set();
+                        instance.CompleteProcess();
                     }
                 }
             }
@@ -831,12 +829,7 @@ namespace Org.Reddragonit.BpmEngine
 
         private void _ProcessGateway(ProcessInstance instance,string sourceID,AGateway gw)
         {
-            bool gatewayComplete = false;
-            if (gw.IsIncomingFlowComplete(sourceID, instance.State.Path))
-                gatewayComplete = true;
-            else if (!gw.IsWaiting(instance.State.Path))
-                instance.State.Path.StartFlowNode(gw, sourceID);
-            if (gatewayComplete)
+            if (instance.State.Path.ProcessGateway(gw,sourceID))
             {
                 _TriggerDelegateAsync(instance.Delegates.Events.Gateways.Started,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
                 IEnumerable<string> outgoings = null;

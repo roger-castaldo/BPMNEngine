@@ -45,5 +45,15 @@ namespace UnitTest
             doc.LoadXml(state.AsXMLDocument);
             return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
         }
+
+        private static readonly TimeSpan DEFAULT_PROCESS_WAIT = TimeSpan.FromMinutes(5);
+
+        public static bool WaitForCompletion(IProcessInstance instance,TimeSpan? waitTime=null)
+        {
+            var result = instance.WaitForCompletion(waitTime??DEFAULT_PROCESS_WAIT);
+            if (!result)
+                Console.WriteLine(instance.CurrentState.AsXMLDocument);
+            return result;
+        }
     }
 }

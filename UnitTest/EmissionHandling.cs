@@ -64,7 +64,7 @@ namespace UnitTest
                 {_VALUE_ID,"external_catch" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState,"IntermediateCatchEvent_1rztezm"));
         }
 
@@ -77,7 +77,7 @@ namespace UnitTest
                 {_VALUE_ID,"non_interupting_catch" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0cezzjh"));
         }
 
@@ -90,7 +90,7 @@ namespace UnitTest
                 {_VALUE_ID,"interupting_catch" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1qem8ws"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
         }
@@ -104,7 +104,7 @@ namespace UnitTest
                 {_VALUE_ID,"external_catch" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "IntermediateCatchEvent_0ms7d2m"));
         }
 
@@ -117,7 +117,7 @@ namespace UnitTest
                 {_VALUE_ID,"non_interupting_catch" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1sdut64"));
         }
 
@@ -130,7 +130,7 @@ namespace UnitTest
                 {_VALUE_ID,"interupting_catch" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1bbj59j"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
         }
@@ -144,7 +144,7 @@ namespace UnitTest
                 {_VALUE_ID,"Task_1pr3o3s" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_1pr3o3s"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0zk6tzw"));
         }
@@ -158,7 +158,7 @@ namespace UnitTest
                 {_VALUE_ID,"Task_0peqa8k" }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1sr23zw"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
         }

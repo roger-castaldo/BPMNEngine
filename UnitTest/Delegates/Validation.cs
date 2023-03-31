@@ -81,7 +81,7 @@ namespace UnitTest.Delegates
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
@@ -114,7 +114,7 @@ namespace UnitTest.Delegates
                 IsEventStartValid=new IsEventStartValid(_instanceIsEventStartValid)
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
@@ -150,7 +150,7 @@ namespace UnitTest.Delegates
                 IsFlowValid=new IsFlowValid(_instanceIsFlowValid)
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
@@ -177,7 +177,7 @@ namespace UnitTest.Delegates
                 IsProcessStartValid=new IsProcessStartValid(_instanceIsProcessStartValid)
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);

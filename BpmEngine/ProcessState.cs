@@ -49,7 +49,10 @@ namespace Org.Reddragonit.BpmEngine
                 {
                     using(var ms = new MemoryStream())
                     {
-                        var writer = XmlWriter.Create(ms);
+                        var writer = XmlWriter.Create(ms,new XmlWriterSettings()
+                        {
+                            Indent = true
+                        });
                         writer.WriteStartDocument();
                         writer.WriteStartElement(_PROCESS_STATE_ELEMENT);
                         writer.WriteAttributeString(_PROCESS_SUSPENDED_ATTRIBUTE, _isSuspended.ToString());

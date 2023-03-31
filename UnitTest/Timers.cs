@@ -70,7 +70,7 @@ namespace UnitTest
         {
             IProcessInstance instance = _process.BeginProcess(null);
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
@@ -98,7 +98,7 @@ namespace UnitTest
             instance = _process.LoadState(doc);
             Assert.IsNotNull(instance);
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
@@ -124,7 +124,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             Task.Delay(60000).Wait();
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
@@ -141,7 +141,7 @@ namespace UnitTest
                 { _DELAY_ID,(int)31*1000}
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
@@ -157,7 +157,7 @@ namespace UnitTest
                 { _DELAY_ID,(int)46*1000}
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
@@ -182,7 +182,7 @@ namespace UnitTest
             instance = _process.LoadState(doc);
             Assert.IsNotNull(instance);
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
@@ -208,7 +208,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             Task.Delay(30000).Wait();
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_14c0tw1"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));

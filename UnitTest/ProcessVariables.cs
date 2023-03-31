@@ -34,8 +34,14 @@ namespace UnitTest
         {
             IProcessInstance inst = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
 
-            Thread.Sleep(1000);
+            int cnt = 0;
             IUserTask task = inst.GetUserTask("UserTask_15dj2au");
+            while (cnt<5 && task==null)
+            {
+                Thread.Sleep(1000);
+                task = inst.GetUserTask("UserTask_15dj2au");
+                cnt++;
+            }
             Assert.IsNotNull(task);
             if (variableValue==null)
                 Assert.AreEqual(0, task.Variables.Keys.Count());
@@ -46,7 +52,7 @@ namespace UnitTest
             }
             task.MarkComplete();
 
-            Assert.IsTrue(inst.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(inst));
             return inst.CurrentVariables;
         }
 
@@ -413,7 +419,7 @@ namespace UnitTest
                 taskVariables.Add(key, task.Variables[key]);
             task.MarkComplete();
 
-            Assert.IsTrue(inst.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(inst));
 
             Assert.IsFalse(taskVariables.ContainsKey("TestNull"));
 

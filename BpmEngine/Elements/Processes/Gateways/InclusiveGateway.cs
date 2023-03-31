@@ -23,10 +23,5 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
                 result = new string[] { Default };
             return result;
         }
-
-        public override bool IsIncomingFlowComplete(string incomingID, ProcessPath path)
-        {
-            return true;
-        }
     }
 }

@@ -40,7 +40,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -58,7 +58,7 @@ namespace UnitTest.Delegates
                 ProcessBusinessRuleTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
@@ -72,7 +72,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count());
@@ -93,7 +93,7 @@ namespace UnitTest.Delegates
                     BeginManualTask=new StartManualTask(_StartInstanceManualTask)
                 });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count());
@@ -113,7 +113,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -132,7 +132,7 @@ namespace UnitTest.Delegates
                 ProcessRecieveTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
@@ -148,7 +148,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -167,7 +167,7 @@ namespace UnitTest.Delegates
                 ProcessScriptTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
@@ -183,7 +183,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -202,7 +202,7 @@ namespace UnitTest.Delegates
                 ProcessSendTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
@@ -218,7 +218,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -237,7 +237,7 @@ namespace UnitTest.Delegates
                 ProcessServiceTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
@@ -253,7 +253,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -272,7 +272,7 @@ namespace UnitTest.Delegates
                 ProcessTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
@@ -288,7 +288,7 @@ namespace UnitTest.Delegates
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
@@ -307,7 +307,7 @@ namespace UnitTest.Delegates
                 CallActivity = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskProcessDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Never());
             taskInstanceDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }

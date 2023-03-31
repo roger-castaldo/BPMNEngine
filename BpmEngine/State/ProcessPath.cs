@@ -16,6 +16,8 @@ using System.Threading;
 using SkiaSharp;
 using System.Collections.Immutable;
 using System.Linq.Expressions;
+using System.IO;
+using System.Text;
 
 namespace Org.Reddragonit.BpmEngine.State
 {
@@ -382,6 +384,90 @@ namespace Org.Reddragonit.BpmEngine.State
                     .Max(pair=>pair.index)
                 : -1;
             _stateLock.ExitReadLock();
+            return result;
+        }
+
+        public bool ProcessGateway(AGateway gw,string sourceID)
+        {
+            var result = true;
+            var changed = false;
+            _stateLock.EnterWriteLock();
+            if (gw is ParallelGateway)
+            {
+                if (gw.Incoming.Count()>1)
+                {
+                    if (_steps
+                        .Take((_lastStep==int.MaxValue ? _steps.Count() : _lastStep+1))
+                        .Where(step => step.ElementID==gw.id)
+                        .Select(step => step.Status)
+                        .DefaultIfEmpty(StepStatuses.NotRun)
+                        .FirstOrDefault()!=StepStatuses.Waiting)
+                        result = false;
+                    else
+                    {
+                        var counts = gw.Incoming
+                            .Select(i =>
+                                _steps
+                                .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
+                             );
+                        if (counts.Any(c => c!=counts.Max()))
+                            result=false;
+                    }
+                    if (!result && _steps
+                            .Take((_lastStep==int.MaxValue ? _steps.Count() : _lastStep+1))
+                            .Where(step => step.ElementID==gw.id)
+                            .Select(step => step.Status)
+                            .DefaultIfEmpty(StepStatuses.NotRun)
+                            .FirstOrDefault()!=StepStatuses.Waiting)
+                    {
+                        _steps.Add(new SPathEntry()
+                        {
+                            ElementID=gw.id,
+                            Status = StepStatuses.Waiting,
+                            StartTime = DateTime.Now,
+                            IncomingID=sourceID
+                        });
+                        changed=true;
+                    }
+                }
+            }
+            else if (gw is ExclusiveGateway)
+            {
+                if (gw.Incoming.Count()>1)
+                {
+                    var currentStatus = _steps
+                        .Take((_lastStep==int.MaxValue ? _steps.Count() : _lastStep+1))
+                        .Where(step => step.ElementID==gw.id)
+                        .Select(step => step.Status)
+                        .DefaultIfEmpty(StepStatuses.NotRun)
+                        .FirstOrDefault();
+                    if (currentStatus==StepStatuses.Started)
+                        result=false;
+                    else if (currentStatus==StepStatuses.Succeeded)
+                    {
+                        var counts = gw.Incoming
+                            .Select(
+                                i => _steps
+                                    .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
+                             );
+                        result = counts.Count(c => c==counts.Max())==1;
+                    }
+                }
+            }
+            if (result)
+            {
+                _steps.Add(new SPathEntry()
+                {
+                    ElementID=gw.id,
+                    Status = StepStatuses.Started,
+                    StartTime = DateTime.Now,
+                    IncomingID=sourceID
+                });
+                changed=true;
+            }
+            _stateLock.ExitWriteLock();
+            if (changed)
+                _triggerChange();
             return result;
         }
 

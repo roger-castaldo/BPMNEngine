@@ -26,7 +26,7 @@ namespace Org.Reddragonit.BpmEngine
         public ProcessState State => _state;
 
         private ManualResetEvent _processLock=null;
-        internal ManualResetEvent ProcessLock
+        private ManualResetEvent ProcessLock
         {
             get
             {
@@ -53,6 +53,8 @@ namespace Org.Reddragonit.BpmEngine
         private bool _isSuspended = false;
         public bool IsSuspended => _isSuspended;
 
+        private bool _isComplete = false;
+
         internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevels stateLogLevel)
         {
             _id = Utility.NextRandomGuid();
@@ -73,6 +75,13 @@ namespace Org.Reddragonit.BpmEngine
                 return true;
             }
             return false;
+        }
+
+        internal void CompleteProcess()
+        {
+            _isComplete=true;
+            if (_processLock!=null)
+                _processLock.Set();
         }
 
         private void _ProcessStepComplete(string sourceID, string outgoingID)
@@ -295,23 +304,53 @@ namespace Org.Reddragonit.BpmEngine
         #region ProcessLock
         bool IProcessInstance.WaitForCompletion()
         {
-            return ProcessLock.WaitOne();
+            var result = true;
+            if (!_isComplete)
+            {
+                result = ProcessLock.WaitOne();
+                result = result || _isComplete;
+            }
+            return result;
         }
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout)
         {
-            return ProcessLock.WaitOne(millisecondsTimeout);
+            var result = true;
+            if (!_isComplete)
+            {
+                result = ProcessLock.WaitOne(millisecondsTimeout);
+                result = result || _isComplete;
+            }
+            return result;
         }
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout)
         {
-            return ProcessLock.WaitOne(timeout);
+            var result = true;
+            if (!_isComplete)
+            {
+                result = ProcessLock.WaitOne(timeout);
+                result = result || _isComplete;
+            }
+            return result;
         }
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout, bool exitContext)
         {
-            return ProcessLock.WaitOne(millisecondsTimeout, exitContext);
+            var result = true;
+            if (!_isComplete)
+            {
+                result = ProcessLock.WaitOne(millisecondsTimeout,exitContext);
+                result = result || _isComplete;
+            }
+            return result;
         }
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout, bool exitContext)
         {
-            return ProcessLock.WaitOne(timeout, exitContext);
+            var result = true;
+            if (!_isComplete)
+            {
+                result = ProcessLock.WaitOne(timeout, exitContext);
+                result = result || _isComplete;
+            }
+            return result;
         }
         Dictionary<string, object> IProcessInstance.CurrentVariables { get { return ProcessVariables.ExtractVariables(((IProcessInstance)this).CurrentState); } }
         #endregion

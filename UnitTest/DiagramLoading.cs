@@ -66,7 +66,7 @@ namespace UnitTest
             {
                 IProcessInstance inst = proc.BeginProcess(null);
                 Assert.IsNotNull(inst);
-                Assert.IsTrue(inst.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+                Assert.IsTrue(Utility.WaitForCompletion(inst));
                 Assert.AreNotEqual("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", inst.CurrentState.AsXMLDocument);
             }
         }

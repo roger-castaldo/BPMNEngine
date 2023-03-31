@@ -46,7 +46,7 @@ namespace UnitTest
             IUserTask task = instance.GetUserTask("UserTask_07o8pvs");
             Assert.IsNotNull(task);
             task.MarkComplete();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace UnitTest
             IUserTask task = instance.GetUserTask("UserTask_07o8pvs");
             Assert.IsNotNull(task);
             task.MarkComplete();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace UnitTest
             instance = _timerProcess.LoadState(doc);
             Assert.IsNotNull(instance);
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
         }
 
         [TestMethod]
@@ -109,7 +109,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(30*1000);
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
         }
 
         [TestMethod]
@@ -133,7 +133,7 @@ namespace UnitTest
             {
                 exception=e;
             }
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsNotNull(exception);
             Assert.IsInstanceOfType(exception, typeof(NotSuspendedException));
         }

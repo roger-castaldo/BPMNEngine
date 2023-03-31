@@ -35,7 +35,7 @@ namespace UnitTest.Extensions
             task.Variables[_RESULT_VARIABLE_NAME] = string.Format(_RESULT_FORMAT, task.Variables[_VARIABLE_NAME]);
             task.MarkComplete();
 
-            Assert.IsTrue(instance.WaitForCompletion(Constants.DEFAULT_PROCESS_WAIT));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.AreEqual(1,variables.Count);
