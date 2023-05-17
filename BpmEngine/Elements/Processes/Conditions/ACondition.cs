@@ -1,11 +1,11 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
+namespace BpmEngine.Elements.Processes.Conditions
 {
     [ValidParent(typeof(ExtensionElements))]
     [ValidParent(typeof(AConditionSet))]

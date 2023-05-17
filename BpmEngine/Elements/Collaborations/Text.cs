@@ -1,10 +1,10 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Collaborations
+namespace BpmEngine.Elements.Collaborations
 {
     [XMLTag("bpmn", "text")]
     [ValidParent(typeof(TextAnnotation))]

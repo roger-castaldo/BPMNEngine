@@ -1,14 +1,14 @@
 ﻿using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Drawing.Icons;
+using BpmEngine.Drawing.Icons;
 
-using Org.Reddragonit.BpmEngine.Elements.Diagrams;
+using BpmEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing
+namespace BpmEngine.Drawing
 {
     internal static class IconGraphic
     {

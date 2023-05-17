@@ -1,14 +1,14 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Collaborations;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements.Collaborations;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
+namespace BpmEngine.Elements.Processes.Tasks
 {
     [ValidParent(typeof(IProcess))]
     internal abstract class ATask : AFlowNode

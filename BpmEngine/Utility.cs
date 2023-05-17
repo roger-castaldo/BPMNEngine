@@ -1,7 +1,7 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal static class Utility
     {

@@ -1,12 +1,12 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Scripts;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Elements.Processes.Scripts;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Conditions
+namespace BpmEngine.Elements.Processes.Conditions
 {
     internal abstract class AConditionSet : ACondition
     {

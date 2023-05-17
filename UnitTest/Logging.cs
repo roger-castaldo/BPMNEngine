@@ -1,8 +1,8 @@
 ﻿using Esprima.Ast;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,12 +27,12 @@ namespace UnitTest
             var logger = new Mock<LogLine>();
             var exceptionLogger = new Mock<LogException>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
-                logging: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessLogging()
+                logging: new BpmEngine.DelegateContainers.ProcessLogging()
                 {
                     LogLine=logger.Object,
                     LogException=exceptionLogger.Object
                 },
-                tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+                tasks: new BpmEngine.DelegateContainers.ProcessTasks()
                 {
                     BeginUserTask=new StartUserTask(_StartUserTask)
                 }

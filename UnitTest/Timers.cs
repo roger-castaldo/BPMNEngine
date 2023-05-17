@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -23,7 +23,7 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { 
+            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks() { 
                 BeginUserTask= new StartUserTask(_BeginUserTask) 
             });
         }

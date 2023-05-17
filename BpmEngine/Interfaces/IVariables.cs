@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Interfaces
+namespace BpmEngine.Interfaces
 {
     /// <summary>
     /// This interface defines a container to house the process variables and allows for editing of those variables.

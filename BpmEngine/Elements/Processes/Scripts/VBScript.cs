@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.VisualBasic;
 using Microsoft.CSharp;
 using Microsoft.VisualBasic;
-using Org.Reddragonit.BpmEngine.Attributes;
+using BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
+namespace BpmEngine.Elements.Processes.Scripts
 {
     [XMLTag("exts", "VBScript")]
     internal class VBScript : ACompiledScript

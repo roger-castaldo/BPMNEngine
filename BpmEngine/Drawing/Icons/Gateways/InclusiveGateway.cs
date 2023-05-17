@@ -1,12 +1,12 @@
 ﻿using Microsoft.Maui.Graphics;
 
-using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+using BpmEngine.Drawing.Icons.IconParts;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
+namespace BpmEngine.Drawing.Icons.Gateways
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.InclusiveGateway)]
     internal class InclusiveGateway : AGateway

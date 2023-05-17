@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     [ExcludeFromCodeCoverage]
     internal static class Constants

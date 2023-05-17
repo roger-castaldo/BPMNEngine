@@ -1,14 +1,14 @@
 ﻿using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Drawing;
-using Org.Reddragonit.BpmEngine.State;
+using BpmEngine.Attributes;
+using BpmEngine.Drawing;
+using BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
+namespace BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNPlane")]
     [RequiredAttribute("id")]

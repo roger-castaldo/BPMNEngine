@@ -1,13 +1,13 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Interfaces;
+using BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Gateways
+namespace BpmEngine.Elements.Processes.Gateways
 {
     [XMLTag("bpmn","exclusiveGateway")]
     internal class ExclusiveGateway : AGateway

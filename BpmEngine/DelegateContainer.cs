@@ -1,11 +1,11 @@
-﻿using Org.Reddragonit.BpmEngine.DelegateContainers;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.DelegateContainers;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal class DelegateContainer
     {

@@ -1,13 +1,13 @@
 ﻿using Microsoft.Maui.Graphics;
 
-using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-using Org.Reddragonit.BpmEngine.Elements;
+using BpmEngine.Drawing.Icons.IconParts;
+using BpmEngine.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Gateways
+namespace BpmEngine.Drawing.Icons.Gateways
 {
     internal abstract class AGateway : AIcon
     {

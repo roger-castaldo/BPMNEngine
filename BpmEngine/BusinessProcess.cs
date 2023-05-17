@@ -1,16 +1,16 @@
 ﻿using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.DelegateContainers;
-using Org.Reddragonit.BpmEngine.Drawing;
-using Org.Reddragonit.BpmEngine.Elements;
-using Org.Reddragonit.BpmEngine.Elements.Collaborations;
-using Org.Reddragonit.BpmEngine.Elements.Processes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
+using BpmEngine.Attributes;
+using BpmEngine.DelegateContainers;
+using BpmEngine.Drawing;
+using BpmEngine.Elements;
+using BpmEngine.Elements.Collaborations;
+using BpmEngine.Elements.Processes;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Elements.Processes.Gateways;
+using BpmEngine.Elements.Processes.Tasks;
+using BpmEngine.Interfaces;
+using BpmEngine.State;
 using SkiaSharp;
 using System;
 using System.Collections;
@@ -25,7 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     /// <summary>
     /// This class is the primary class for the library.  It implements a Business Process by constructing the object using a BPMN 2.0 compliant definition.
@@ -311,7 +311,7 @@ namespace Org.Reddragonit.BpmEngine
             IImage ret = null;
             try
             {
-                var image = Org.Reddragonit.BpmEngine.Elements.Diagram.ProduceImage((int)Math.Ceiling(width),(int)Math.Ceiling(height));
+                var image = BpmEngine.Elements.Diagram.ProduceImage((int)Math.Ceiling(width),(int)Math.Ceiling(height));
                 var surface = image.Canvas;
                 surface.FillColor=Colors.White;
                 surface.FillRectangle(new Rect(0, 0, width, height));
@@ -334,14 +334,14 @@ namespace Org.Reddragonit.BpmEngine
 
         private IImage _ProduceVariablesImage(ProcessState state)
         {
-            var image = Org.Reddragonit.BpmEngine.Elements.Diagram.ProduceImage(1,1);
+            var image = BpmEngine.Elements.Diagram.ProduceImage(1,1);
             var canvas = image.Canvas;
-            SizeF sz = canvas.GetStringSize("Variables", Org.Reddragonit.BpmEngine.Elements.Diagram.DefaultFont, Org.Reddragonit.BpmEngine.Elements.Diagram.FONT_SIZE);
+            SizeF sz = canvas.GetStringSize("Variables", BpmEngine.Elements.Diagram.DefaultFont, BpmEngine.Elements.Diagram.FONT_SIZE);
             int varHeight = (int)sz.Height + 2;
             var keys = state[null];
-            varHeight+=keys.Sum(key => (int)canvas.GetStringSize(key, Org.Reddragonit.BpmEngine.Elements.Diagram.DefaultFont, Org.Reddragonit.BpmEngine.Elements.Diagram.FONT_SIZE).Height + 2);
+            varHeight+=keys.Sum(key => (int)canvas.GetStringSize(key, BpmEngine.Elements.Diagram.DefaultFont, BpmEngine.Elements.Diagram.FONT_SIZE).Height + 2);
 
-            image = Org.Reddragonit.BpmEngine.Elements.Diagram.ProduceImage(_VARIABLE_IMAGE_WIDTH, varHeight);
+            image = BpmEngine.Elements.Diagram.ProduceImage(_VARIABLE_IMAGE_WIDTH, varHeight);
             var surface = image.Canvas;
             surface.FillColor = Colors.White;
             surface.FillRectangle(0, 0, image.Width, image.Height);
@@ -359,14 +359,14 @@ namespace Org.Reddragonit.BpmEngine
             keys.ForEach(key =>
             {
                 string label = key;
-                SizeF szLabel = canvas.GetStringSize(label, Org.Reddragonit.BpmEngine.Elements.Diagram.DefaultFont, Org.Reddragonit.BpmEngine.Elements.Diagram.FONT_SIZE);
+                SizeF szLabel = canvas.GetStringSize(label, BpmEngine.Elements.Diagram.DefaultFont, BpmEngine.Elements.Diagram.FONT_SIZE);
                 while (szLabel.Width > _VARIABLE_NAME_WIDTH)
                 {
                     if (label.EndsWith("..."))
                         label = label.Substring(0, label.Length - 4) + "...";
                     else
                         label = label.Substring(0, label.Length - 1) + "...";
-                    szLabel = canvas.GetStringSize(label, Org.Reddragonit.BpmEngine.Elements.Diagram.DefaultFont, Org.Reddragonit.BpmEngine.Elements.Diagram.FONT_SIZE);
+                    szLabel = canvas.GetStringSize(label, BpmEngine.Elements.Diagram.DefaultFont, BpmEngine.Elements.Diagram.FONT_SIZE);
                 }
                 StringBuilder val = new StringBuilder();
                 if (state[null, key] != null)
@@ -387,14 +387,14 @@ namespace Org.Reddragonit.BpmEngine
                         val.Append(state[null, key].ToString());
                 }
                 var sval = val.ToString();
-                Size szValue = canvas.GetStringSize(sval, Org.Reddragonit.BpmEngine.Elements.Diagram.DefaultFont, Org.Reddragonit.BpmEngine.Elements.Diagram.FONT_SIZE);
+                Size szValue = canvas.GetStringSize(sval, BpmEngine.Elements.Diagram.DefaultFont, BpmEngine.Elements.Diagram.FONT_SIZE);
                 if (szValue.Width > _VARIABLE_VALUE_WIDTH)
                 {
                     if (sval.EndsWith("..."))
                         sval = sval.Substring(0, sval.Length - 4) + "...";
                     else
                         sval = sval.Substring(0, sval.Length - 1) + "...";
-                    canvas.GetStringSize(sval, Org.Reddragonit.BpmEngine.Elements.Diagram.DefaultFont, Org.Reddragonit.BpmEngine.Elements.Diagram.FONT_SIZE);
+                    canvas.GetStringSize(sval, BpmEngine.Elements.Diagram.DefaultFont, BpmEngine.Elements.Diagram.FONT_SIZE);
                 }
                 surface.DrawString(label, 2, curY, HorizontalAlignment.Left);
                 surface.DrawString(sval, 2+_VARIABLE_NAME_WIDTH, curY, HorizontalAlignment.Left);
@@ -407,7 +407,7 @@ namespace Org.Reddragonit.BpmEngine
         private IImage _AppendVariables(IImage diagram,ProcessState state)
         {
             var vmap = _ProduceVariablesImage(state);
-            var ret = Org.Reddragonit.BpmEngine.Elements.Diagram.ProduceImage(
+            var ret = BpmEngine.Elements.Diagram.ProduceImage(
                 (int)Math.Ceiling(diagram.Width + _DEFAULT_PADDING + vmap.Width), 
                 (int)Math.Ceiling(Math.Max(diagram.Height, vmap.Height + _DEFAULT_PADDING))
             );
@@ -664,7 +664,7 @@ namespace Org.Reddragonit.BpmEngine
             try
             {
                 ProcessVariablesContainer variables = new ProcessVariablesContainer(tsk.id, instance);
-                Org.Reddragonit.BpmEngine.Tasks.ExternalTask task =null;
+                BpmEngine.Tasks.ExternalTask task =null;
                 switch (tsk.GetType().Name)
                 {
                     case "BusinessRuleTask":
@@ -674,7 +674,7 @@ namespace Org.Reddragonit.BpmEngine
                     case "Task":
                     case "ScriptTask":
                     case "CallActivity":
-                        task = new Org.Reddragonit.BpmEngine.Tasks.ExternalTask(tsk, variables, instance);
+                        task = new BpmEngine.Tasks.ExternalTask(tsk, variables, instance);
                         break;
                 }
                 ProcessTask delTask = null;
@@ -684,7 +684,7 @@ namespace Org.Reddragonit.BpmEngine
                         delTask = instance.Delegates.Tasks.ProcessBusinessRuleTask;
                         break;
                     case "ManualTask":
-                        _TriggerDelegateAsync(instance.Delegates.Tasks.BeginManualTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.ManualTask(tsk, variables, instance) });
+                        _TriggerDelegateAsync(instance.Delegates.Tasks.BeginManualTask,new object[] { new BpmEngine.Tasks.ManualTask(tsk, variables, instance) });
                         break;
                     case "ReceiveTask":
                         delTask = instance.Delegates.Tasks.ProcessRecieveTask;
@@ -705,7 +705,7 @@ namespace Org.Reddragonit.BpmEngine
                         delTask = instance.Delegates.Tasks.CallActivity;
                         break;
                     case "UserTask":
-                        _TriggerDelegateAsync(instance.Delegates.Tasks.BeginUserTask,new object[] { new Org.Reddragonit.BpmEngine.Tasks.UserTask(tsk, variables, instance) });
+                        _TriggerDelegateAsync(instance.Delegates.Tasks.BeginUserTask,new object[] { new BpmEngine.Tasks.UserTask(tsk, variables, instance) });
                         break;
                 }
                 if (delTask!=null)

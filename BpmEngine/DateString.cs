@@ -1,10 +1,10 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal class DateString
     {

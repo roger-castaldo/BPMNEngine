@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal class XmlPrefixMap
     {

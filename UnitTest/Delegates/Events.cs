@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -68,33 +68,33 @@ namespace UnitTest.Delegates
         {
             _cache = new ConcurrentQueue<string>();
             _startCompleteProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/start_complete_triggers.bpmn"),
-                validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+                validations: new BpmEngine.DelegateContainers.StepValidations()
                 {
                     IsProcessStartValid=new IsProcessStartValid(_isProcessStartValid)
                 },
-                events: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                events: new BpmEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    Flows=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    Flows=new BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
                     {
                         SequenceFlow=new OnFlowComplete(_flowCompleted),
                         MessageFlow=new OnFlowComplete(_flowCompleted)
@@ -183,29 +183,29 @@ namespace UnitTest.Delegates
         {
             Guid guid = Guid.NewGuid();
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } },
-                events: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                events: new BpmEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    Flows=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    Flows=new BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
                     {
                         SequenceFlow=new OnFlowComplete(_instanceFlowCompleted),
                         MessageFlow=new OnFlowComplete(_instanceFlowCompleted)

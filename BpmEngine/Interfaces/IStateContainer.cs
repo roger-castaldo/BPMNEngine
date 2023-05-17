@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Org.Reddragonit.BpmEngine.Interfaces
+namespace BpmEngine.Interfaces
 {
     internal interface IStateContainer : IDisposable
     {

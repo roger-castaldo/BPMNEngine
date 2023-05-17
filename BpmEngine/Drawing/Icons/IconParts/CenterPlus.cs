@@ -1,4 +1,4 @@
-﻿namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
+﻿namespace BpmEngine.Drawing.Icons.IconParts
 {
     internal class CenterPlus : EmbeddedResourceIcon
     {

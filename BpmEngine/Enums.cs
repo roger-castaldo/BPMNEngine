@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal enum StepStatuses
     {

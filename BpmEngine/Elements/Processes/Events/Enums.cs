@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
+namespace BpmEngine.Elements.Processes.Events
 {
     internal enum EventSubTypes
     {

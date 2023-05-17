@@ -1,10 +1,10 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Tasks
+namespace BpmEngine.Elements.Processes.Tasks
 {
     [XMLTag("bpmn", "callActivity")]
     internal class CallActivity : ATask

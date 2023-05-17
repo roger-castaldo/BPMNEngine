@@ -1,14 +1,14 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine.Attributes;
+using BpmEngine.Elements.Processes.Events.Definitions;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
+namespace BpmEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn", "intermediateCatchEvent")]
     internal class IntermediateCatchEvent : AHandlingEvent

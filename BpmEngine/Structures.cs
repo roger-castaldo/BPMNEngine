@@ -1,5 +1,5 @@
-﻿using Org.Reddragonit.BpmEngine.Elements;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
+﻿using BpmEngine.Elements;
+using BpmEngine.Elements.Processes.Events;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     /// <summary>
     /// This structure is used to house a File associated within a process instance.  It is used to both store, encode, decode and retreive File variables inside the process state.

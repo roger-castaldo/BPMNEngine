@@ -1,12 +1,12 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements;
+using BpmEngine.Elements.Processes.Gateways;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     /// <summary>
     /// This Exception gets thrown on the loading of a Process Definition inside a BusinessProcess class when the definition is found to be invalid.

@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace UnitTest.Delegates
         public void TestBusinessRule()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessBusinessRuleTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -49,7 +49,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessBusinessRuleTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -66,7 +66,7 @@ namespace UnitTest.Delegates
         [TestMethod]
         public void TestManualTask()
         {
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 BeginManualTask = new StartManualTask(_StartManualTask)
             });
@@ -83,7 +83,7 @@ namespace UnitTest.Delegates
         [TestMethod]
         public void TestManualTaskInstanceOverride()
         {
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 BeginManualTask = new StartManualTask(_StartManualTask)
             });
@@ -106,7 +106,7 @@ namespace UnitTest.Delegates
         public void TestRecieveTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessRecieveTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -122,7 +122,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessRecieveTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -141,7 +141,7 @@ namespace UnitTest.Delegates
         public void TestScriptTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessScriptTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -157,7 +157,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessScriptTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -176,7 +176,7 @@ namespace UnitTest.Delegates
         public void TestSendTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessSendTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -192,7 +192,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessSendTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -211,7 +211,7 @@ namespace UnitTest.Delegates
         public void TestServiceTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessServiceTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -227,7 +227,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessServiceTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -246,7 +246,7 @@ namespace UnitTest.Delegates
         public void TestTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -262,7 +262,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -281,7 +281,7 @@ namespace UnitTest.Delegates
         public void TestCallActivity()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 CallActivity = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)
@@ -297,7 +297,7 @@ namespace UnitTest.Delegates
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
-            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks()
             {
                 CallActivity = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(_StartManualTask)

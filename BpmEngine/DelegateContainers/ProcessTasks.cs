@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Org.Reddragonit.BpmEngine.DelegateContainers
+namespace BpmEngine.DelegateContainers
 {
     /// <summary>
     /// This class is used to house all the Tasks delegates for a business process. 

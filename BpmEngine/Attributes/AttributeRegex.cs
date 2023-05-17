@@ -1,10 +1,10 @@
-﻿using Org.Reddragonit.BpmEngine.Elements;
+﻿using BpmEngine.Elements;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Org.Reddragonit.BpmEngine.Attributes
+namespace BpmEngine.Attributes
 {
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
     internal class AttributeRegex : Attribute

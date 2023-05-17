@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Reflection;
 using System.Xml;
@@ -21,7 +21,7 @@ namespace UnitTest
             try
             {
                 BusinessProcess proc = new BusinessProcess(doc,
-                    logging: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessLogging() {
+                    logging: new BpmEngine.DelegateContainers.ProcessLogging() {
                         LogException=logExceptionMoq.Object
                     }
                 );

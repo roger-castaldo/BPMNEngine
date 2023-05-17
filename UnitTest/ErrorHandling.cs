@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -28,69 +28,69 @@ namespace UnitTest
         {
             _cache = new ConcurrentQueue<string>();
             _noErrorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/no_error_handling.bpmn"),
-                events:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                events:new BpmEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Processes=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new BpmEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
                     {
                         Error= new OnProcessErrorEvent(_ProcessError)
                     }
                 },
-                validations:new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+                validations:new BpmEngine.DelegateContainers.StepValidations()
                 {
                     IsEventStartValid=new IsEventStartValid(_IsEventStartValid),
                     IsFlowValid=new IsFlowValid(_isFlowValid),
                 },
-                tasks:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+                tasks:new BpmEngine.DelegateContainers.ProcessTasks()
                 {
                     ProcessTask=new ProcessTask(_ProcessTask)
                 }
             );
             _errorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/process_error_handling.bpmn"),
-                events: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents()
+                events: new BpmEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Gateways=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Tasks=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    SubProcesses=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Processes=new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new BpmEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
                     {
                         Error= new OnProcessErrorEvent(_ProcessError)
                     }
                 },
-                validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+                validations: new BpmEngine.DelegateContainers.StepValidations()
                 {
                     IsEventStartValid=new IsEventStartValid(_IsEventStartValid),
                     IsFlowValid=new IsFlowValid(_isFlowValid),
                 },
-                tasks: new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks()
+                tasks: new BpmEngine.DelegateContainers.ProcessTasks()
                 {
                     ProcessTask=new ProcessTask(_ProcessTask)
                 }

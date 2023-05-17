@@ -1,10 +1,10 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
+namespace BpmEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "linkEventDefinition")]
     [ValidParent(typeof(AEvent))]

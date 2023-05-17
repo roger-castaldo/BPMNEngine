@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Attributes
+namespace BpmEngine.Attributes
 {
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
     internal class RequiredAttribute : Attribute

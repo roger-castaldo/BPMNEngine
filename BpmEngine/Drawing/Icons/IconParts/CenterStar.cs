@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
+namespace BpmEngine.Drawing.Icons.IconParts
 {
     internal class CenterStar : EmbeddedResourceIcon
     {

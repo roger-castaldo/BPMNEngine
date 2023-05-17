@@ -1,11 +1,11 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Org.Reddragonit.BpmEngine.DelegateContainers
+namespace BpmEngine.DelegateContainers
 {
     /// <summary>
     /// This class is used to house all the validation delegates for a business process. 

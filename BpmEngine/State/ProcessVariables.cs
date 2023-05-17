@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.State
+namespace BpmEngine.State
 {
     internal class ProcessVariables : IStateContainer
     {

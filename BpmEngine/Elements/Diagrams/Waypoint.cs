@@ -1,12 +1,12 @@
 ﻿using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Attributes;
+using BpmEngine.Attributes;
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
+namespace BpmEngine.Elements.Diagrams
 {
     [XMLTag("di","waypoint")]
     [RequiredAttribute("x")]

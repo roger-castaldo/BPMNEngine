@@ -1,7 +1,7 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Collaborations;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements.Collaborations;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements
+namespace BpmEngine.Elements
 {
     [XMLTag("bpmn","definitions")]
     [RequiredAttribute("id")]

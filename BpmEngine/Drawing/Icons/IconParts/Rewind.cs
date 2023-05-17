@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
+namespace BpmEngine.Drawing.Icons.IconParts
 {
     internal class Rewind : IIconPart
     {

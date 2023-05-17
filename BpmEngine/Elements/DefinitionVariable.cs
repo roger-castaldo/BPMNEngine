@@ -1,11 +1,11 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Processes;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements.Processes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements
+namespace BpmEngine.Elements
 {
     [XMLTag("exts", "DefinitionVariable")]
     [Required("Name")]

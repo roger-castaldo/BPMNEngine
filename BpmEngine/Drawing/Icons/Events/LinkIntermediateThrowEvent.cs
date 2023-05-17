@@ -1,9 +1,9 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+﻿using BpmEngine.Drawing.Icons.IconParts;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Events
+namespace BpmEngine.Drawing.Icons.Events
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.LinkIntermediateThrowEvent)]
     internal class LinkIntermediateThrowEvent : AIcon

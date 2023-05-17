@@ -1,4 +1,4 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Interfaces;
 using System;
 using System.Reflection;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.State
+namespace BpmEngine.State
 {
     internal sealed class ProcessLog : IStateContainer
     {

@@ -1,10 +1,10 @@
 ﻿using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
-using Org.Reddragonit.BpmEngine.Elements;
+using BpmEngine.Drawing.Icons.IconParts;
+using BpmEngine.Elements;
 using System.Collections.Generic;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons
+namespace BpmEngine.Drawing.Icons
 {
     internal abstract class AIcon
     {

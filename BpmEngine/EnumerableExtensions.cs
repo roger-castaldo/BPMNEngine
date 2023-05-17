@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal static class EnumerableExtensions
     {

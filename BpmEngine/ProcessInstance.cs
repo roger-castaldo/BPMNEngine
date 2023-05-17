@@ -1,8 +1,8 @@
 ﻿using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Elements.Processes.Tasks;
+using BpmEngine.Interfaces;
+using BpmEngine.State;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal sealed class ProcessInstance : IProcessInstance
     {
@@ -256,7 +256,7 @@ namespace Org.Reddragonit.BpmEngine
             {
                 ATask elem = _process.GetTask(taskID);
                 if (elem != null && elem is ManualTask)
-                    ret = new Org.Reddragonit.BpmEngine.Tasks.ManualTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
+                    ret = new BpmEngine.Tasks.ManualTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
             }
             return ret;
         }
@@ -268,7 +268,7 @@ namespace Org.Reddragonit.BpmEngine
             {
                 ATask elem = _process.GetTask(taskID);
                 if (elem != null && elem is UserTask)
-                    ret = new Org.Reddragonit.BpmEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
+                    ret = new BpmEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
             }
             return ret;
         }

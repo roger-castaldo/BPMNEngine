@@ -1,5 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Elements;
+using BpmEngine.Elements;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Org.Reddragonit.BpmEngine.Drawing
+namespace BpmEngine.Drawing
 {
     internal class AnimatedPNG : IDisposable
     {

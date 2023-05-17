@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Interfaces
+namespace BpmEngine.Interfaces
 {
     internal interface IReadOnlyStateContainer
     {

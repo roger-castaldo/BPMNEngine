@@ -1,13 +1,13 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions;
+using BpmEngine.Interfaces;
+using BpmEngine.Elements.Processes.Events.Definitions;
 using System.Linq;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events
+namespace BpmEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn","endEvent")]
     internal class EndEvent : AEvent

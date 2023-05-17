@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.State
+namespace BpmEngine.State
 {
     internal readonly struct sStepSuspension
     {

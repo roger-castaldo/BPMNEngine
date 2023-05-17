@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,7 +18,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCustomExtension()
         {
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks:new Org.Reddragonit.BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(_ProcessTask) });
+            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks:new BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(_ProcessTask) });
             Assert.IsNotNull(process);
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>()
             {

@@ -1,4 +1,4 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements
+namespace BpmEngine.Elements
 {
     internal abstract class AParentElement : AElement,IParentElement
     {

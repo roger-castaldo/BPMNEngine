@@ -1,15 +1,15 @@
 ﻿using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Drawing;
+using BpmEngine.Attributes;
+using BpmEngine.Drawing;
 
-using Org.Reddragonit.BpmEngine.Elements.Collaborations;
-using Org.Reddragonit.BpmEngine.Elements.Diagrams;
-using Org.Reddragonit.BpmEngine.Elements.Processes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Tasks;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
+using BpmEngine.Elements.Collaborations;
+using BpmEngine.Elements.Diagrams;
+using BpmEngine.Elements.Processes;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Elements.Processes.Tasks;
+using BpmEngine.Interfaces;
+using BpmEngine.State;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ using System.Security;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements
+namespace BpmEngine.Elements
 {
     [XMLTag("bpmndi","BPMNDiagram")]
     [RequiredAttribute("id")]

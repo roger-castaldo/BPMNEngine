@@ -1,11 +1,11 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     #region Ons
     /// <summary>

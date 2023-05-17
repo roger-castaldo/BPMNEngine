@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
+namespace BpmEngine.Drawing.Icons.IconParts
 {
     internal class Table : EmbeddedResourceIcon
     {

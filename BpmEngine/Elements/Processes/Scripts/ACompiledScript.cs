@@ -6,10 +6,10 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine.Interfaces;
 using System.Linq;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
+namespace BpmEngine.Elements.Processes.Scripts
 {
     internal abstract class ACompiledScript : AScript
     {
@@ -24,7 +24,7 @@ namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
         protected string _FunctionName { get { return _functionName; } }
 
         private IEnumerable<string> _Imports
-            => new string[] { "System", "Org.Reddragonit.BpmEngine", "Org.Reddragonit.BpmEngine.Interfaces", "System.Linq" }
+            => new string[] { "System", "BpmEngine", "BpmEngine.Interfaces", "System.Linq" }
             .Concat(SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="using")
                 .Select(n => n.InnerText)

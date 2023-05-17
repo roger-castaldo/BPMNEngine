@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BpmEngine;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -52,7 +52,7 @@ namespace UnitTest.Delegates
         public static void Initialize(TestContext testContext)
         {
             _pathChecksProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/path_valid_checks.bpmn"),
-                validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+                validations: new BpmEngine.DelegateContainers.StepValidations()
                 {
                     IsFlowValid= new IsFlowValid(_isFlowValid),
                     IsProcessStartValid=new IsProcessStartValid(_isProcessStartValid),
@@ -109,7 +109,7 @@ namespace UnitTest.Delegates
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_0fbfgne","SequenceFlow_1sl9l6m","SequenceFlow_0hhf11n" }}
             },
-            validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+            validations: new BpmEngine.DelegateContainers.StepValidations()
             {
                 IsEventStartValid=new IsEventStartValid(_instanceIsEventStartValid)
             });
@@ -131,7 +131,7 @@ namespace UnitTest.Delegates
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_0fbfgne", "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             },
-            validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+            validations: new BpmEngine.DelegateContainers.StepValidations()
             {
                 IsEventStartValid=new IsEventStartValid(_instanceIsEventStartValid)
             });
@@ -145,7 +145,7 @@ namespace UnitTest.Delegates
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             },
-            validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+            validations: new BpmEngine.DelegateContainers.StepValidations()
             {
                 IsFlowValid=new IsFlowValid(_instanceIsFlowValid)
             });
@@ -172,7 +172,7 @@ namespace UnitTest.Delegates
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }},
                 {_PROCESS_BLOCKED_NAME,false }
             },
-            validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+            validations: new BpmEngine.DelegateContainers.StepValidations()
             {
                 IsProcessStartValid=new IsProcessStartValid(_instanceIsProcessStartValid)
             });
@@ -194,7 +194,7 @@ namespace UnitTest.Delegates
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }},
             },
-            validations: new Org.Reddragonit.BpmEngine.DelegateContainers.StepValidations()
+            validations: new BpmEngine.DelegateContainers.StepValidations()
             {
                 IsProcessStartValid=new IsProcessStartValid(_instanceIsProcessStartValid)
             });

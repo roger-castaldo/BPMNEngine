@@ -1,12 +1,12 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Scripts
+namespace BpmEngine.Elements.Processes.Scripts
 {
     [XMLTag("exts", "Javascript")]
     internal class Javascript : AScript

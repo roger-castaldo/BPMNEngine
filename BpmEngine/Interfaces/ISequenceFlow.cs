@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Interfaces
+namespace BpmEngine.Interfaces
 {
     /// <summary>
     /// This interface is the extended interface for a sequence flow to provide additional properties that are beyond an IElement

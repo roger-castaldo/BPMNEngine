@@ -1,13 +1,13 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions.Extensions;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements.Processes.Events.Definitions.Extensions;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Processes.Events.Definitions
+namespace BpmEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "signalEventDefinition")]
     [ValidParent(typeof(AEvent))]

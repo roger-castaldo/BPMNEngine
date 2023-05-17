@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using Org.Reddragonit.BpmEngine.Elements;
+using BpmEngine.Elements;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
+namespace BpmEngine.Drawing.Icons.IconParts
 {
     internal abstract class EmbeddedResourceIcon
         : IIconPart
@@ -18,7 +18,7 @@ namespace Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts
 
         public void Add(ICanvas surface,int iconSize, Color color)
         {
-            var icon = SKImage.FromEncodedData(GetType().GetTypeInfo().Assembly.GetManifestResourceStream(string.Format("Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts.resources.{0}", _resourceName)));
+            var icon = SKImage.FromEncodedData(GetType().GetTypeInfo().Assembly.GetManifestResourceStream(string.Format("BpmEngine.Drawing.Icons.IconParts.resources.{0}", _resourceName)));
             var bmp = SKBitmap.FromImage(icon);
             var image = Diagram.ProduceImage(icon.Width,icon.Height);
             for(int x = 0; x<bmp.Width; x++)

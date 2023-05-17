@@ -1,9 +1,9 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
+﻿using BpmEngine.Elements.Processes.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Interfaces
+namespace BpmEngine.Interfaces
 {
     internal interface IProcess : IParentElement
     {

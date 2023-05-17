@@ -1,13 +1,13 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Elements.Processes;
-using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Attributes;
+using BpmEngine.Elements.Processes;
+using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements
+namespace BpmEngine.Elements
 {
     internal abstract class AElement : IElement
     {
@@ -114,7 +114,7 @@ namespace Org.Reddragonit.BpmEngine.Elements
         internal void LoadExtensionElement(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {
             if (_extensionElement!=null)
-                ((Org.Reddragonit.BpmEngine.Elements.Processes.ExtensionElements)_extensionElement).LoadChildren(ref map, ref cache);
+                ((BpmEngine.Elements.Processes.ExtensionElements)_extensionElement).LoadChildren(ref map, ref cache);
         }
     }
 }

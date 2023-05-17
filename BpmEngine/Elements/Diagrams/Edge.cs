@@ -1,19 +1,19 @@
 ﻿using Microsoft.Maui.Graphics;
-using Org.Reddragonit.BpmEngine.Attributes;
-using Org.Reddragonit.BpmEngine.Drawing;
+using BpmEngine.Attributes;
+using BpmEngine.Drawing;
 
-using Org.Reddragonit.BpmEngine.Elements.Collaborations;
-using Org.Reddragonit.BpmEngine.Elements.Processes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Gateways;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
+using BpmEngine.Elements.Collaborations;
+using BpmEngine.Elements.Processes;
+using BpmEngine.Elements.Processes.Gateways;
+using BpmEngine.Interfaces;
+using BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine.Elements.Diagrams
+namespace BpmEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNEdge")]
     [RequiredAttribute("id")]

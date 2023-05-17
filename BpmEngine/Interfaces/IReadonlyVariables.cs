@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Interfaces
+namespace BpmEngine.Interfaces
 {
     /// <summary>
     /// This interface defines a Read Only version of the process variables container.  These are using in event delegates as the process variables

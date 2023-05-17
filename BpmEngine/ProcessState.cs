@@ -1,6 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.State;
+﻿using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Interfaces;
+using BpmEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +12,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace Org.Reddragonit.BpmEngine
+namespace BpmEngine
 {
     internal sealed class ProcessState : IDisposable
     {

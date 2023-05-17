@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Org.Reddragonit.BpmEngine.Drawing
+namespace BpmEngine.Drawing
 {
     internal class AnimatedFrame : IDisposable
     {

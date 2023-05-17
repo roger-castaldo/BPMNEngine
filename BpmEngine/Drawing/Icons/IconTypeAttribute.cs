@@ -1,9 +1,9 @@
-﻿using Org.Reddragonit.BpmEngine.Elements.Diagrams;
+﻿using BpmEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons
+namespace BpmEngine.Drawing.Icons
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     internal class IconTypeAttribute : Attribute

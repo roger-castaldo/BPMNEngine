@@ -1,6 +1,6 @@
-﻿using Org.Reddragonit.BpmEngine.Drawing.Icons.IconParts;
+﻿using BpmEngine.Drawing.Icons.IconParts;
 
-namespace Org.Reddragonit.BpmEngine.Drawing.Icons.Events
+namespace BpmEngine.Drawing.Icons.Events
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.TerminateEndEvent)]
     internal class TerminateEndEvent : AIcon

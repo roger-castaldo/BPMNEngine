@@ -1,15 +1,15 @@
-﻿using Org.Reddragonit.BpmEngine.Attributes;
+﻿using BpmEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using Org.Reddragonit.BpmEngine.Elements.Processes;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Events;
-using Org.Reddragonit.BpmEngine.Elements.Processes.Conditions;
+using BpmEngine.Interfaces;
+using BpmEngine.Elements.Processes;
+using BpmEngine.Elements.Processes.Events;
+using BpmEngine.Elements.Processes.Conditions;
 using System.Linq;
 
-namespace Org.Reddragonit.BpmEngine.Elements
+namespace BpmEngine.Elements
 {
     [XMLTag("bpmn", "subProcess")]
     [RequiredAttribute("id")]

@@ -1,9 +1,9 @@
-﻿using Org.Reddragonit.BpmEngine.Interfaces;
+﻿using BpmEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.Reddragonit.BpmEngine.Tasks
+namespace BpmEngine.Tasks
 {
     internal class UserTask : ManualTask, IUserTask
     {
