@@ -80,7 +80,7 @@ namespace BpmEngine
                     ));
                 if (definitionVariable!=null)
                     return (definitionVariable is DefinitionVariable ? ((DefinitionVariable)definitionVariable).Value
-                        : new sFile((DefinitionFile)definitionVariable)
+                        : new SFile((DefinitionFile)definitionVariable)
                     );
                 return null;
             }

@@ -41,36 +41,34 @@ namespace BpmEngine
 
             public IEnumerable<string> Keys => _variables.Keys;
 
-            private IEnumerable<IReadOnlyStateContainer> _Components => new IReadOnlyStateContainer[] {_path,_variables,_log};
+            private IEnumerable<IReadOnlyStateContainer> Components => new IReadOnlyStateContainer[] {_path,_variables,_log};
 
             public string AsXMLDocument
             {
                 get
                 {
-                    using(var ms = new MemoryStream())
+                    using var ms = new MemoryStream();
+                    var writer = XmlWriter.Create(ms, new XmlWriterSettings()
                     {
-                        var writer = XmlWriter.Create(ms,new XmlWriterSettings()
-                        {
-                            Indent = true
-                        });
-                        writer.WriteStartDocument();
-                        writer.WriteStartElement(_PROCESS_STATE_ELEMENT);
-                        writer.WriteAttributeString(_PROCESS_SUSPENDED_ATTRIBUTE, _isSuspended.ToString());
+                        Indent = true
+                    });
+                    writer.WriteStartDocument();
+                    writer.WriteStartElement(_PROCESS_STATE_ELEMENT);
+                    writer.WriteAttributeString(_PROCESS_SUSPENDED_ATTRIBUTE, _isSuspended.ToString());
 
-                        _Components.ForEach(comp =>
-                        {
-                            writer.WriteStartElement(comp.GetType().Name.Replace("ReadOnly",""));
-                            comp.Append(writer);
-                            writer.WriteEndElement();
-                        });
-
+                    Components.ForEach(comp =>
+                    {
+                        writer.WriteStartElement(comp.GetType().Name.Replace("ReadOnly", ""));
+                        comp.Append(writer);
                         writer.WriteEndElement();
-                        writer.Flush();
+                    });
 
-                        ms.Position=0;
-                        var result = new StreamReader(ms).ReadToEnd();
-                        return result;
-                    }
+                    writer.WriteEndElement();
+                    writer.Flush();
+
+                    ms.Position=0;
+                    var result = new StreamReader(ms).ReadToEnd();
+                    return result;
                 }
             }
 
@@ -78,35 +76,33 @@ namespace BpmEngine
             {
                 get
                 {
-                    using (var ms = new MemoryStream())
+                    using var ms = new MemoryStream();
+                    var writer = new Utf8JsonWriter(ms);
+                    writer.WriteStartObject();
+                    writer.WritePropertyName(_PROCESS_SUSPENDED_ATTRIBUTE);
+                    writer.WriteBooleanValue(_isSuspended);
+
+                    Components.ForEach(comp =>
                     {
-                        var writer = new Utf8JsonWriter(ms);
-                        writer.WriteStartObject();
-                        writer.WritePropertyName(_PROCESS_SUSPENDED_ATTRIBUTE);
-                        writer.WriteBooleanValue(_isSuspended);
+                        writer.WritePropertyName(comp.GetType().Name.Replace("ReadOnly", ""));
+                        comp.Append(writer);
+                    });
 
-                        _Components.ForEach(comp =>
-                        {
-                            writer.WritePropertyName(comp.GetType().Name.Replace("ReadOnly", ""));
-                            comp.Append(writer);
-                        });
+                    writer.WriteEndObject();
+                    writer.Flush();
 
-                        writer.WriteEndObject();
-                        writer.Flush();
-
-                        ms.Position=0;
-                        var result = new StreamReader(ms).ReadToEnd();
-                        return result;
-                    }
+                    ms.Position=0;
+                    var result = new StreamReader(ms).ReadToEnd();
+                    return result;
                 }
             }
         }
 
-        private ProcessLog _log;
-        private ProcessVariables _variables;
-        private ProcessPath _path;
+        private readonly ProcessLog _log;
+        private readonly ProcessVariables _variables;
+        private readonly ProcessPath _path;
         internal ProcessPath Path { get { return _path; } }
-        private ReaderWriterLockSlim _stateEvent = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+        private readonly ReaderWriterLockSlim _stateEvent = new(LockRecursionPolicy.NoRecursion);
 
         internal bool IsSuspended { get; set; }
         private readonly OnStateChange _onStateChange;
@@ -118,7 +114,7 @@ namespace BpmEngine
             _process = process;
             _log = new ProcessLog(_stateEvent);
             _variables = new ProcessVariables(_stateEvent);
-            _path = new ProcessPath(complete, error,process,_stateEvent,new delTriggerStateChange(_stateChanged));
+            _path = new ProcessPath(complete, error,process,_stateEvent,new delTriggerStateChange(StateChanged));
             _onStateChange = onStateChange;
         }
 
@@ -183,7 +179,6 @@ namespace BpmEngine
                                     break;
                                 default:
                                     throw new Exception("Reading error...");
-                                    break;
                             }
                             if (reader.NodeType==XmlNodeType.EndElement)
                                 reader.Read();
@@ -192,7 +187,7 @@ namespace BpmEngine
                             reader.Read();
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     result=false;
                 }
@@ -206,7 +201,7 @@ namespace BpmEngine
 
 
         internal IEnumerable<sSuspendedStep> ResumeSteps
-            => !IsSuspended ? new sSuspendedStep[] { } : _path.ResumeSteps;
+            => !IsSuspended ? Array.Empty<sSuspendedStep>() : _path.ResumeSteps;
 
         internal IEnumerable<sDelayedStartEvent> DelayedEvents => _path.DelayedEvents;
 
@@ -224,15 +219,14 @@ namespace BpmEngine
         {
             get
             {
-                object ret = null;
-                int stepIndex = -1;
+                int stepIndex;
                 if (elementID == null)
                     stepIndex = _path.LastStep;
                 else
                     stepIndex = _path.CurrentStepIndex(elementID);
                 if (elementID!=null && stepIndex==-1)
                     stepIndex=_path.LastStep;
-                ret = _variables[variableName, stepIndex];
+                object ret = _variables[variableName, stepIndex];
                 return ret;
             }
             set
@@ -245,15 +239,15 @@ namespace BpmEngine
         {
             get
             {
-                IEnumerable<string> result = Array.Empty<string>();
-                int stepIndex = -1;
+                _ = Array.Empty<string>();
+                int stepIndex;
                 if (elementID == null)
                     stepIndex = _path.LastStep;
                 else
                     stepIndex = _path.CurrentStepIndex(elementID);
                 if (elementID!=null && stepIndex==-1)
                     stepIndex=_path.LastStep;
-                result = _variables[stepIndex];
+                IEnumerable<string> result = _variables[stepIndex];
                 return result;
             }
         }
@@ -262,7 +256,7 @@ namespace BpmEngine
         {
             _process.WriteLogLine(elementID, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
             _path.SuspendElement(sourceID, elementID, span);
-            _stateChanged();
+            StateChanged();
         }
 
         internal IEnumerable<sStepSuspension> SuspendedSteps
@@ -270,7 +264,7 @@ namespace BpmEngine
 
         public IState CurrentState => new ReadOnlyProcessState(this);
 
-        private void _stateChanged()
+        private void StateChanged()
         {
             if (_onStateChange != null)
             {
@@ -326,7 +320,7 @@ namespace BpmEngine
                 });
             });
             _stateEvent.ExitWriteLock();
-            _stateChanged();
+            StateChanged();
         }
 
         internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)

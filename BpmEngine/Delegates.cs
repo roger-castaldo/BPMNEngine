@@ -113,7 +113,7 @@ namespace BpmEngine
     /// <summary>
     /// This delegate is implemented to get triggered when the Process State changes.  The state may not be usable externally without understanding its structure, however, capturing these events allows for the storage of a process state externally to be brought back in on a process restart.
     /// </summary>
-    /// <param name="stateDocument">The XML Document containing the Process State</param>
+    /// <param name="currentState">The current state of the process</param>
     /// <example>
     /// <code>
     ///     public void _StateChange(XmlDocument stateDocument){

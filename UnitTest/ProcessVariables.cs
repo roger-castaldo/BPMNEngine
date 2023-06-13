@@ -342,8 +342,8 @@ namespace UnitTest
             byte[] data = new byte[str.Length];
             str.Read(data,0, data.Length);
             str.Close();
-            var variableValue = new sFile("start_to_stop","bpmn","text/xml",data);
-            var variableArray = new sFile[] { variableValue, variableValue };
+            var variableValue = new SFile("start_to_stop","bpmn","text/xml",data);
+            var variableArray = new SFile[] { variableValue, variableValue };
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
@@ -400,7 +400,7 @@ namespace UnitTest
                 {"TestFloat",float.MinValue},
                 {"TestByte", System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345")},
                 {"TestNull",null },
-                { "TestFile",new sFile("start_to_stop","bpmn",data) },
+                { "TestFile",new SFile("start_to_stop","bpmn",data) },
                 {"TestArray","This is a test".ToCharArray() },
                 {"TestGuid",new Guid("a4966f14-0108-48ba-a793-8be9982bc411") }
             };
@@ -468,11 +468,11 @@ namespace UnitTest
                 Assert.IsInstanceOfType(extracted, typeof(byte));
                 Assert.AreEqual(Convert.ToBase64String((byte[])inputted), Convert.ToBase64String((byte[])extracted));
             }
-            else if (inputted is sFile)
+            else if (inputted is SFile)
             {
-                Assert.IsInstanceOfType(extracted, typeof(sFile));
-                var isfile = (sFile)inputted;
-                var extfile = (sFile)extracted;
+                Assert.IsInstanceOfType(extracted, typeof(SFile));
+                var isfile = (SFile)inputted;
+                var extfile = (SFile)extracted;
                 Assert.AreEqual(isfile.Name, extfile.Name);
                 Assert.AreEqual(isfile.Extension, extfile.Extension);
                 Assert.AreEqual(isfile.ContentType, extfile.ContentType);

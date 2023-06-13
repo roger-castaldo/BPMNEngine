@@ -13,7 +13,7 @@ namespace BpmEngine
     /// </summary>
     public class InvalidProcessDefinitionException : Exception
     {
-        private IEnumerable<Exception> _processExceptions;
+        private readonly IEnumerable<Exception> _processExceptions;
         /// <summary>
         /// The Exception(s) thrown during the validation process.
         /// </summary>
@@ -86,6 +86,9 @@ namespace BpmEngine
             : base(message) { }
     }
 
+    /// <summary>
+    /// This Exception is thrown when a Process Instance is being disposed but still has active steps
+    /// </summary>
     public class ActiveStepsException : Exception
     {
         internal ActiveStepsException()

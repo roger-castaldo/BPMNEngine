@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace BpmEngine.Interfaces
 {
+    /// <summary>
+    /// Houses the current state of a process, this will have current variables (including the Keys to know all variables contained)
+    /// as well as the ability to output a string version (XML/JSON) of the state
+    /// </summary>
     public interface IState
     {
         /// <summary>

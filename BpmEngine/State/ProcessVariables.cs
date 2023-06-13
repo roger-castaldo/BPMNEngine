@@ -45,7 +45,7 @@ namespace BpmEngine.State
                 _processVariables._stateLock.EnterReadLock();
                 var variables = _processVariables._variables.Where(variable => variable.StepIndex==_stepIndex);
                 _processVariables._stateLock.ExitReadLock();
-                variables.OrderBy(variable => variable.StepIndex).ForEach(variable =>
+                _=variables.OrderBy(variable => variable.StepIndex).ForEach(variable =>
                 {
                     writer.WriteStartElement(_VARIABLE_ENTRY_ELEMENT);
                     writer.WriteAttributeString(_PATH_STEP_INDEX, variable.StepIndex.ToString());
@@ -54,16 +54,16 @@ namespace BpmEngine.State
                         writer.WriteAttributeString(_TYPE, VariableTypes.Null.ToString());
                     else
                     {
-                        writer.WriteAttributeString(_TYPE, _GetVariableType(variable.Value).ToString());
+                        writer.WriteAttributeString(_TYPE, GetVariableType(variable.Value).ToString());
                         if (variable.Value.GetType().IsArray && variable.Value.GetType().FullName != "System.Byte[]" && variable.Value.GetType().FullName!="System.String")
                         {
                             writer.WriteAttributeString(_IS_ARRAY, true.ToString());
-                            if (variable.Value.GetType().GetElementType().FullName == typeof(sFile).FullName)
+                            if (variable.Value.GetType().GetElementType().FullName == typeof(SFile).FullName)
                             {
-                                ((IEnumerable)variable.Value).Cast<sFile>().ForEach(sf =>
+                                ((IEnumerable)variable.Value).Cast<SFile>().ForEach(sf =>
                                 {
                                     writer.WriteStartElement(_VALUE);
-                                    _AppendFile(sf, writer);
+                                    ReadOnlyProcessVariables.AppendFile(sf, writer);
                                     writer.WriteEndElement();
                                 });
                             }
@@ -72,7 +72,7 @@ namespace BpmEngine.State
                                 ((IEnumerable)variable.Value).Cast<object>().ForEach(val =>
                                 {
                                     writer.WriteStartElement(_VALUE);
-                                    writer.WriteCData(_EncodeValue(val));
+                                    writer.WriteCData(EncodeValue(val));
                                     writer.WriteEndElement();
                                 });
                             }
@@ -80,10 +80,10 @@ namespace BpmEngine.State
                         else
                         {
                             writer.WriteAttributeString(_IS_ARRAY, false.ToString());
-                            if (variable.Value is sFile)
-                                _AppendFile((sFile)variable.Value, writer);
+                            if (variable.Value is SFile file)
+                                ReadOnlyProcessVariables.AppendFile(file, writer);
                             else
-                                writer.WriteCData(_EncodeValue(variable.Value));
+                                writer.WriteCData(EncodeValue(variable.Value));
                         }
                     }
                     writer.WriteEndElement();
@@ -108,25 +108,25 @@ namespace BpmEngine.State
                         writer.WriteStringValue(VariableTypes.Null.ToString());
                     else
                     {
-                        writer.WriteStringValue(_GetVariableType(variable.Value).ToString());
+                        writer.WriteStringValue(GetVariableType(variable.Value).ToString());
                         writer.WritePropertyName(_IS_ARRAY);
                         if (variable.Value.GetType().IsArray && variable.Value.GetType().FullName != "System.Byte[]" && variable.Value.GetType().FullName!="System.String")
                         {
                             writer.WriteBooleanValue(true);
                             writer.WritePropertyName(_VALUE);
                             writer.WriteStartArray();
-                            if (variable.Value.GetType().GetElementType().FullName == typeof(sFile).FullName)
+                            if (variable.Value.GetType().GetElementType().FullName == typeof(SFile).FullName)
                             {
-                                ((IEnumerable)variable.Value).Cast<sFile>().ForEach(sf =>
+                                ((IEnumerable)variable.Value).Cast<SFile>().ForEach(sf =>
                                 {
-                                    _AppendFile(sf, writer);
+                                    ReadOnlyProcessVariables.AppendFile(sf, writer);
                                 });
                             }
                             else
                             {
                                 ((IEnumerable)variable.Value).Cast<object>().ForEach(val =>
                                 {
-                                    writer.WriteStringValue(_EncodeValue(val));
+                                    writer.WriteStringValue(EncodeValue(val));
                                 });
                             }
                             writer.WriteEndArray();
@@ -135,10 +135,10 @@ namespace BpmEngine.State
                         {
                             writer.WriteBooleanValue(false);
                             writer.WritePropertyName(_VALUE);
-                            if (variable.Value is sFile)
-                                _AppendFile((sFile)variable.Value, writer);
+                            if (variable.Value is SFile file)
+                                ReadOnlyProcessVariables.AppendFile(file, writer);
                             else
-                                writer.WriteStringValue(_EncodeValue(variable.Value));
+                                writer.WriteStringValue(EncodeValue(variable.Value));
                         }
                     }
                     writer.WriteEndObject();
@@ -146,7 +146,7 @@ namespace BpmEngine.State
                 writer.WriteEndArray();
             }
 
-            private void _AppendFile(sFile file,XmlWriter writer)
+            private static void AppendFile(SFile file,XmlWriter writer)
             {
                 writer.WriteStartElement(_FILE_ELEMENT_TYPE);
                 writer.WriteAttributeString(_FILE_NAME, file.Name);
@@ -157,7 +157,7 @@ namespace BpmEngine.State
                 writer.WriteEndElement();
             }
 
-            private void _AppendFile(sFile file, Utf8JsonWriter writer)
+            private static void AppendFile(SFile file, Utf8JsonWriter writer)
             {
                 writer.WriteStartObject();
                 writer.WritePropertyName(_FILE_NAME);
@@ -207,7 +207,7 @@ namespace BpmEngine.State
                 var stepIndex=int.Parse(reader.GetAttribute(_PATH_STEP_INDEX));
                 var name=reader.GetAttribute(_NAME);
                 var type = (VariableTypes)Enum.Parse(typeof(VariableTypes), reader.GetAttribute(_TYPE));
-                var isArray = (reader.GetAttribute(_IS_ARRAY)==null ? false : Boolean.Parse(reader.GetAttribute(_IS_ARRAY)));
+                var isArray = (reader.GetAttribute(_IS_ARRAY)!=null &&Boolean.Parse(reader.GetAttribute(_IS_ARRAY)));
                 object value = null;
                 if (type!=VariableTypes.Null)
                 {
@@ -219,14 +219,14 @@ namespace BpmEngine.State
                         {
                             reader.Read();
                             if (type==VariableTypes.File)
-                                al.Add(_DecodeFile(reader));
+                                al.Add(DecodeFile(reader));
                             else
                                 al.Add(Utility.ExtractVariableValue(type, reader.Value));
                             reader.Read();
                             if (reader.NodeType==XmlNodeType.EndElement && reader.Name==_VALUE)
                                 reader.Read();
                         }
-                        value = _ConvertArray(al, type);
+                        value = ConvertArray(al, type);
                     }
                     else
                     {
@@ -234,7 +234,7 @@ namespace BpmEngine.State
                         if (reader.NodeType==XmlNodeType.CDATA)
                             value = Utility.ExtractVariableValue(type, reader.Value);
                         else
-                            value = _DecodeFile(reader);
+                            value = DecodeFile(reader);
                     }
                 }
                 reader.Read();
@@ -249,7 +249,7 @@ namespace BpmEngine.State
             }
         }
 
-        private static object _ConvertArray(ArrayList al, VariableTypes type)
+        private static object ConvertArray(ArrayList al, VariableTypes type)
         {
             object result = null;
             switch (type)
@@ -273,7 +273,7 @@ namespace BpmEngine.State
                     result = Array.CreateInstance(typeof(double), al.Count);
                     break;
                 case VariableTypes.File:
-                    result = Array.CreateInstance(typeof(sFile), al.Count);
+                    result = Array.CreateInstance(typeof(SFile), al.Count);
                     break;
                 case VariableTypes.Float:
                     result = Array.CreateInstance(typeof(float), al.Count);
@@ -308,18 +308,18 @@ namespace BpmEngine.State
             return result;
         }
 
-        private static sFile _DecodeFile(XmlReader reader)
+        private static SFile DecodeFile(XmlReader reader)
         {
             var name = reader.GetAttribute(_FILE_NAME);
             var extension = reader.GetAttribute(_FILE_EXTENSION);
             var contentType = reader.GetAttribute(_FILE_CONTENT_TYPE);
             reader.Read();
-            var result = new sFile(name, extension, contentType, Convert.FromBase64String(reader.Value));
+            var result = new SFile(name, extension, contentType, Convert.FromBase64String(reader.Value));
             reader.Read();
             return result;
         }
 
-        private static sFile _DecodeFile(Utf8JsonReader reader)
+        private static SFile DecodeFile(Utf8JsonReader reader)
         {
             var name = string.Empty;
             var extension = string.Empty;
@@ -347,12 +347,12 @@ namespace BpmEngine.State
                 }
             }
             reader.Read();
-            return new sFile(name,extension,contentType, content);
+            return new SFile(name,extension,contentType, content);
         }
 
-        private static sFile _DecodeFile(XmlElement element)
+        private static SFile DecodeFile(XmlElement element)
         {
-            return new sFile(
+            return new SFile(
                 element.GetAttribute(_FILE_NAME),
                 element.GetAttribute(_FILE_EXTENSION),
                 element.GetAttribute(_FILE_CONTENT_TYPE),
@@ -368,7 +368,6 @@ namespace BpmEngine.State
             {
                 var stepIndex = 0;
                 var name = string.Empty;
-                var isArray = false;
                 var type = VariableTypes.Null;
                 object value = null;
                 if (reader.TokenType==JsonTokenType.StartObject)
@@ -383,9 +382,6 @@ namespace BpmEngine.State
                             stepIndex=reader.GetInt32(); break;
                         case _NAME:
                             name=reader.GetString(); break;
-                        case _IS_ARRAY:
-                            isArray = reader.GetBoolean();
-                            break;
                         case _TYPE:
                             type = (VariableTypes)Enum.Parse(typeof(VariableTypes), reader.GetString());
                             break;
@@ -397,12 +393,12 @@ namespace BpmEngine.State
                                 while (reader.TokenType!=JsonTokenType.EndArray)
                                 {
                                     if (type==VariableTypes.File)
-                                        al.Add(_DecodeFile(reader));
+                                        al.Add(DecodeFile(reader));
                                     else
                                         al.Add(Utility.ExtractVariableValue(type, reader.GetString()));
                                     reader.Read();
                                 }
-                                value = _ConvertArray(al, type);
+                                value = ConvertArray(al, type);
                             }
                             else
                                 value = Utility.ExtractVariableValue(type, reader.GetString());
@@ -486,7 +482,7 @@ namespace BpmEngine.State
                         .LastOrDefault(var => var.Name==key
                             && var.StepIndex <= stepIndex)
                     : null);
-                if (!IsVariablesEqual(left, (right==null ? null : right.Value.Value)))
+                if (!IsVariablesEqual(left, (right?.Value)))
                     changes.Enqueue(new SProcessVariable()
                     {
                         Name=key,
@@ -494,16 +490,16 @@ namespace BpmEngine.State
                         Value=left
                     });
             });
-            while(changes.Count()>0)
+            while(changes.Any())
                 _variables.Add(changes.Dequeue());
             _stateLock.ExitWriteLock();
         }
 
-        private static VariableTypes _GetVariableType(object value)
+        private static VariableTypes GetVariableType(object value)
         {
             string fullName = (value.GetType().IsArray && value.GetType().FullName != "System.Byte[]" && value.GetType().FullName!="System.String" ? value.GetType().GetElementType().FullName : value.GetType().FullName);
             var result = VariableTypes.Null;
-            if (fullName==typeof(sFile).FullName)
+            if (fullName==typeof(SFile).FullName)
                 result= VariableTypes.File;
             else
             {
@@ -559,24 +555,15 @@ namespace BpmEngine.State
             return result;
         }
 
-        private static string _EncodeValue(object value)
+        private static string EncodeValue(object value)
         {
-            string text = "";
-            switch (value.GetType().FullName)
+            string text = value.GetType().FullName switch
             {
-                case "System.Double":
-                    text = ((double)value).ToString("R");
-                    break;
-                case "System.Single":
-                    text = ((float)value).ToString("R");
-                    break;
-                case "System.Byte[]":
-                    text = Convert.ToBase64String((byte[])value);
-                    break;
-                default:
-                    text = value.ToString();
-                    break;
-            }
+                "System.Double" => ((double)value).ToString("R"),
+                "System.Single" => ((float)value).ToString("R"),
+                "System.Byte[]" => Convert.ToBase64String((byte[])value),
+                _ => value.ToString(),
+            };
             return text;
         }
 
@@ -590,14 +577,14 @@ namespace BpmEngine.State
                 return true;
             else
             {
-                if (left is Array)
+                if (left is Array array)
                 {
-                    if (!(right is Array))
+                    if (right is not Array array1)
                         return false;
                     else
                     {
-                        Array aleft = (Array)left;
-                        Array aright = (Array)right;
+                        Array aleft = array;
+                        Array aright = array1;
                         if (aleft.Length != aright.Length)
                             return false;
                         return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => IsVariablesEqual(ival.val, aright.GetValue(ival.index)));
@@ -610,7 +597,7 @@ namespace BpmEngine.State
                 }
             }
         }
-        private static object ConvertValue(XmlElement? elem)
+        private static object ConvertValue(XmlElement elem)
         {
             if (elem==null)
                 return null;
@@ -624,17 +611,17 @@ namespace BpmEngine.State
                     elem.ChildNodes.Cast<XmlNode>().ForEach(node =>
                     {
                         if (type==VariableTypes.File)
-                            al.Add(_DecodeFile((XmlElement)node));
+                            al.Add(DecodeFile((XmlElement)node));
                         else
                         {
                             string text = ((XmlCDataSection)node.ChildNodes[0]).InnerText;
                             al.Add(Utility.ExtractVariableValue(type, text));
                         }
                     });
-                    ret=_ConvertArray(al, type);
+                    ret=ConvertArray(al, type);
                 }
                 else if (type == VariableTypes.File)
-                    ret = _DecodeFile((XmlElement)elem.ChildNodes[0]);
+                    ret = DecodeFile((XmlElement)elem.ChildNodes[0]);
                 else
                 {
                     string text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
@@ -648,7 +635,7 @@ namespace BpmEngine.State
 
         public static Dictionary<string, object> ExtractVariables(IState currentState)
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
+            Dictionary<string, object> ret = new();
             currentState.Keys.ForEach(key =>
             {
                 ret.Add(key, currentState[key]);
@@ -658,7 +645,7 @@ namespace BpmEngine.State
 
         public static Dictionary<string, object> ExtractVariables(XmlDocument doc)
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
+            Dictionary<string, object> ret = new();
             var grps = doc.GetElementsByTagName(typeof(ProcessVariables).Name).Cast<XmlNode>()
                 .SelectMany(node => node.ChildNodes.Cast<XmlNode>())
                 .Where(cnode => cnode.NodeType==XmlNodeType.Element)

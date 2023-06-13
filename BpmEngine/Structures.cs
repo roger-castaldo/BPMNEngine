@@ -14,7 +14,7 @@ namespace BpmEngine
     /// <summary>
     /// This structure is used to house a File associated within a process instance.  It is used to both store, encode, decode and retreive File variables inside the process state.
     /// </summary>
-    public readonly struct sFile 
+    public readonly struct SFile 
     {
         private readonly string _name;
         /// <summary>
@@ -45,8 +45,8 @@ namespace BpmEngine
         /// </summary>
         /// <param name="name">Becomes the Name property of the File.</param>
         /// <param name="extension">Becomes the Extension property of the File.</param>
-        public sFile(string name, string extension)
-            : this(name, extension, null, new byte[0])
+        public SFile(string name, string extension)
+            : this(name, extension, null, Array.Empty<byte>())
         { }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace BpmEngine
         /// <param name="name">Becomes the Name property of the File.</param>
         /// <param name="extension">Becomes the Extension property of the File.</param>
         /// <param name="content">Becomes the Content property of the File.</param>
-        public sFile(string name, string extension, byte[] content)
+        public SFile(string name, string extension, byte[] content)
             : this(name, extension, null, content)
         { }
 
@@ -66,7 +66,7 @@ namespace BpmEngine
         /// <param name="extension">Becomes the Extension property of the File.</param>
         /// <param name="contentType">Becomes the ContentType property of the File.</param>
         /// <param name="content">Becomes the Content property of the File.</param>
-        public sFile(string name, string extension, string contentType, byte[] content)
+        public SFile(string name, string extension, string contentType, byte[] content)
         {
             _name = name;
             _extension = extension;
@@ -74,7 +74,7 @@ namespace BpmEngine
             _content = content;
         }
 
-        internal sFile(DefinitionFile file)
+        internal SFile(DefinitionFile file)
         {
             _name=file.Name;
             _extension=file.Extension;
@@ -82,17 +82,26 @@ namespace BpmEngine
             _content = file.Content;
         }
 
+        /// <summary>
+        /// Compares the object to this
+        /// </summary>
+        /// <param name="obj">the object to compare</param>
+        /// <returns>true if obj is an sFile and is equal</returns>
         public override bool Equals(object obj)
         {
-            if (obj is sFile fle)
+            if (obj is SFile fle)
             {
                 return fle.Name.Equals(Name) &&
                     fle.Extension.Equals(Extension) &&
-                    _dataEquals(fle.Content);
+                    DataEquals(fle.Content);
             }
             return false;
         }
 
+        /// <summary>
+        /// Called to get a HashCode calculation for the object
+        /// </summary>
+        /// <returns>an integer value hashcode</returns>
         public override int GetHashCode()
         {
             return string.Format("{0}.{1}:{2}", new object[]
@@ -103,11 +112,33 @@ namespace BpmEngine
             }).GetHashCode();
         }
 
-        private bool _dataEquals(byte[] content)
+        private bool DataEquals(byte[] content)
         {
             if (_content.Length==content.Length)
                 return !_content.Select((b, i) => new { val = b, index = i }).Any(o => content[o.index]!=o.val);
             return false;
+        }
+
+        /// <summary>
+        /// Compares left and right files
+        /// </summary>
+        /// <param name="left">left file for comparison</param>
+        /// <param name="right">right file for comparison</param>
+        /// <returns>true if are equal</returns>
+        public static bool operator ==(SFile left, SFile right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Compares left and right files
+        /// </summary>
+        /// <param name="left">left file for comparison</param>
+        /// <param name="right">right file for comparison</param>
+        /// <returns>true if are not equal</returns>
+        public static bool operator !=(SFile left, SFile right)
+        {
+            return !(left==right);
         }
     }
 

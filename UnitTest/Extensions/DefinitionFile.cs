@@ -23,7 +23,7 @@ namespace UnitTest.Extensions
             BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_file.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_FILE_NAME]);
-            Assert.IsInstanceOfType(process[_FILE_NAME], typeof(sFile));
+            Assert.IsInstanceOfType(process[_FILE_NAME], typeof(SFile));
 
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -32,7 +32,7 @@ namespace UnitTest.Extensions
             var task = instance.GetUserTask("UserTask_15dj2au");
             Assert.IsNotNull(task);
             Assert.IsTrue(task.Variables.FullKeys.Contains(_FILE_NAME));
-            var file = (sFile)task.Variables[_FILE_NAME];
+            var file = (SFile)task.Variables[_FILE_NAME];
             task.Variables[_RESULT_VARIABLE_NAME] = System.Text.ASCIIEncoding.ASCII.GetString(file.Content);
             task.MarkComplete();
 
