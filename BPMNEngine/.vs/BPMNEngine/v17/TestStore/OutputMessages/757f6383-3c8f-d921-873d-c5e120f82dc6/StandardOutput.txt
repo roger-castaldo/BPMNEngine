@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProcessState isSuspended="False">
+  <ProcessPath>
+    <sPathEntry elementID="StartEvent_1" status="Started" startTime="20230615123802127" />
+    <sPathEntry elementID="StartEvent_1" status="Succeeded" startTime="20230615123802127" endTime="20230615123802127" outgoingID="SequenceFlow_1rtitz2" />
+    <sPathEntry elementID="SequenceFlow_1rtitz2" status="Succeeded" startTime="20230615123802137" incomingID="StartEvent_1" endTime="20230615123802137" outgoingID="IntermediateCatchEvent_036z13e" />
+    <sPathEntry elementID="IntermediateCatchEvent_036z13e" status="Started" startTime="20230615123802141" incomingID="SequenceFlow_1rtitz2" />
+    <sPathEntry elementID="IntermediateCatchEvent_036z13e" status="Succeeded" startTime="20230615123802141" incomingID="SequenceFlow_1rtitz2" endTime="20230615123802144" outgoingID="SequenceFlow_0a7p60l" />
+    <sPathEntry elementID="SequenceFlow_0a7p60l" status="Succeeded" startTime="20230615123802147" incomingID="IntermediateCatchEvent_036z13e" endTime="20230615123802147" outgoingID="Task_1t5xv8f" />
+    <sPathEntry elementID="Task_1t5xv8f" status="Started" startTime="20230615123802156" incomingID="SequenceFlow_0a7p60l" />
+    <sPathEntry elementID="Task_1t5xv8f" status="Succeeded" startTime="20230615123802156" incomingID="SequenceFlow_0a7p60l" endTime="20230615123802161" outgoingID="SequenceFlow_0qsoaur" />
+    <sPathEntry elementID="SequenceFlow_0qsoaur" status="Succeeded" startTime="20230615123802164" incomingID="Task_1t5xv8f" endTime="20230615123802164" outgoingID="SubProcess_1mqrot2" />
+    <sPathEntry elementID="SubProcess_1mqrot2" status="Started" startTime="20230615123802176" incomingID="SequenceFlow_0qsoaur" />
+    <sPathEntry elementID="StartEvent_0al3og8" status="Started" startTime="20230615123802177" />
+    <sPathEntry elementID="StartEvent_0al3og8" status="Succeeded" startTime="20230615123802177" endTime="20230615123802177" outgoingID="SequenceFlow_10dbf9x" />
+    <sPathEntry elementID="SequenceFlow_10dbf9x" status="Succeeded" startTime="20230615123802179" incomingID="StartEvent_0al3og8" endTime="20230615123802179" outgoingID="Task_0e0f0l0" />
+    <sPathEntry elementID="Task_0e0f0l0" status="Started" startTime="20230615123802191" incomingID="SequenceFlow_10dbf9x" />
+    <sPathEntry elementID="Task_0e0f0l0" status="Succeeded" startTime="20230615123802191" incomingID="SequenceFlow_10dbf9x" endTime="20230615123802202" outgoingID="SequenceFlow_1o9n31t" />
+    <sPathEntry elementID="SequenceFlow_1o9n31t" status="Succeeded" startTime="20230615123802206" incomingID="Task_0e0f0l0" endTime="20230615123802206" outgoingID="EndEvent_06m4kld" />
+    <sPathEntry elementID="EndEvent_06m4kld" status="Started" startTime="20230615123802209" incomingID="SequenceFlow_1o9n31t" />
+    <sPathEntry elementID="EndEvent_06m4kld" status="Succeeded" startTime="20230615123802209" incomingID="SequenceFlow_1o9n31t" endTime="20230615123802211" />
+    <sPathEntry elementID="SubProcess_1mqrot2" status="Succeeded" startTime="20230615123802176" incomingID="SequenceFlow_0qsoaur" endTime="20230615123802214" outgoingID="SequenceFlow_02klc0b" />
+    <sPathEntry elementID="SequenceFlow_02klc0b" status="Succeeded" startTime="20230615123802220" incomingID="SubProcess_1mqrot2" endTime="20230615123802220" outgoingID="ExclusiveGateway_1nkgv9w" />
+    <sPathEntry elementID="ExclusiveGateway_1nkgv9w" status="Started" startTime="20230615123802223" incomingID="SequenceFlow_02klc0b" />
+    <sPathEntry elementID="ExclusiveGateway_1nkgv9w" status="Failed" startTime="20230615123802223" incomingID="SequenceFlow_02klc0b" endTime="20230615123802228" />
+  </ProcessPath>
+  <ProcessVariables>
+    <sVariableEntry pathStepIndex="0" name="TestID" type="Guid" isArray="False"><![CDATA[67718f12-3139-4f90-afc1-75956092339e]]></sVariableEntry>
+    <sVariableEntry pathStepIndex="0" name="InvalidElements" type="String" isArray="True">
+      <Value><![CDATA[SequenceFlow_096t69k]]></Value>
+      <Value><![CDATA[SequenceFlow_1io01r8]]></Value>
+    </sVariableEntry>
+  </ProcessVariables>
+  <ProcessLog><![CDATA[]]></ProcessLog>
+</ProcessState>
+<?xml version="1.0" encoding="utf-8"?>
+<ProcessState isSuspended="False">
+  <ProcessPath>
+    <sPathEntry elementID="StartEvent_1" status="Started" startTime="20230615123809140" />
+    <sPathEntry elementID="StartEvent_1" status="Succeeded" startTime="20230615123809140" endTime="20230615123809140" outgoingID="SequenceFlow_1rtitz2" />
+    <sPathEntry elementID="SequenceFlow_1rtitz2" status="Succeeded" startTime="20230615123809142" incomingID="StartEvent_1" endTime="20230615123809142" outgoingID="IntermediateCatchEvent_036z13e" />
+    <sPathEntry elementID="IntermediateCatchEvent_036z13e" status="Started" startTime="20230615123809143" incomingID="SequenceFlow_1rtitz2" />
+    <sPathEntry elementID="IntermediateCatchEvent_036z13e" status="Succeeded" startTime="20230615123809143" incomingID="SequenceFlow_1rtitz2" endTime="20230615123809144" outgoingID="SequenceFlow_0a7p60l" />
+    <sPathEntry elementID="SequenceFlow_0a7p60l" status="Succeeded" startTime="20230615123809145" incomingID="IntermediateCatchEvent_036z13e" endTime="20230615123809145" outgoingID="Task_1t5xv8f" />
+    <sPathEntry elementID="Task_1t5xv8f" status="Started" startTime="20230615123809147" incomingID="SequenceFlow_0a7p60l" />
+    <sPathEntry elementID="Task_1t5xv8f" status="Succeeded" startTime="20230615123809147" incomingID="SequenceFlow_0a7p60l" endTime="20230615123809148" outgoingID="SequenceFlow_0qsoaur" />
+    <sPathEntry elementID="SequenceFlow_0qsoaur" status="Succeeded" startTime="20230615123809149" incomingID="Task_1t5xv8f" endTime="20230615123809149" outgoingID="SubProcess_1mqrot2" />
+    <sPathEntry elementID="SubProcess_1mqrot2" status="Started" startTime="20230615123809151" incomingID="SequenceFlow_0qsoaur" />
+    <sPathEntry elementID="StartEvent_0al3og8" status="Started" startTime="20230615123809151" />
+    <sPathEntry elementID="StartEvent_0al3og8" status="Succeeded" startTime="20230615123809151" endTime="20230615123809151" outgoingID="SequenceFlow_10dbf9x" />
+    <sPathEntry elementID="SequenceFlow_10dbf9x" status="Succeeded" startTime="20230615123809153" incomingID="StartEvent_0al3og8" endTime="20230615123809153" outgoingID="Task_0e0f0l0" />
+    <sPathEntry elementID="Task_0e0f0l0" status="Started" startTime="20230615123809155" incomingID="SequenceFlow_10dbf9x" />
+    <sPathEntry elementID="Task_0e0f0l0" status="Succeeded" startTime="20230615123809155" incomingID="SequenceFlow_10dbf9x" endTime="20230615123809156" outgoingID="SequenceFlow_1o9n31t" />
+    <sPathEntry elementID="SequenceFlow_1o9n31t" status="Succeeded" startTime="20230615123809157" incomingID="Task_0e0f0l0" endTime="20230615123809157" outgoingID="EndEvent_06m4kld" />
+    <sPathEntry elementID="EndEvent_06m4kld" status="Started" startTime="20230615123809159" incomingID="SequenceFlow_1o9n31t" />
+    <sPathEntry elementID="EndEvent_06m4kld" status="Succeeded" startTime="20230615123809159" incomingID="SequenceFlow_1o9n31t" endTime="20230615123809159" />
+    <sPathEntry elementID="SubProcess_1mqrot2" status="Succeeded" startTime="20230615123809151" incomingID="SequenceFlow_0qsoaur" endTime="20230615123809160" outgoingID="SequenceFlow_02klc0b" />
+    <sPathEntry elementID="SequenceFlow_02klc0b" status="Succeeded" startTime="20230615123809162" incomingID="SubProcess_1mqrot2" endTime="20230615123809162" outgoingID="ExclusiveGateway_1nkgv9w" />
+    <sPathEntry elementID="ExclusiveGateway_1nkgv9w" status="Started" startTime="20230615123809163" incomingID="SequenceFlow_02klc0b" />
+    <sPathEntry elementID="ExclusiveGateway_1nkgv9w" status="Failed" startTime="20230615123809163" incomingID="SequenceFlow_02klc0b" endTime="20230615123809165" />
+  </ProcessPath>
+  <ProcessVariables>
+    <sVariableEntry pathStepIndex="0" name="TestID" type="Guid" isArray="False"><![CDATA[63087f93-f389-43c9-b11d-5e8ede39f953]]></sVariableEntry>
+  </ProcessVariables>
+  <ProcessLog><![CDATA[]]></ProcessLog>
+</ProcessState>

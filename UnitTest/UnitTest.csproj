@@ -92,6 +92,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BpmEngine\BPMNEngine.csproj" />
+    <ProjectReference Include="..\BPMNEngine\BPMNEngine.csproj" />
   </ItemGroup>
 
 </Project>

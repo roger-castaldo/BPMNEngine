@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	  <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <RootNamespace>BPMNEngine</RootNamespace>
+    <PackageId>BPMNEngine</PackageId>
+    <Version>3.0-beta1</Version>
+    <Authors>Roger Castaldo</Authors>
+    <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
+    <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
+    <PackageTags>BPMN</PackageTags>
+    <PackageReleaseNotes>Major revision to a new library with breaking changes, including the concept of a process instance and creating named parameters for supplying all delegates.</PackageReleaseNotes>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <FileVersion>3.0.0</FileVersion>
+	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
+	  <IncludeSymbols>true</IncludeSymbols>
+	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DocumentationFile>..\BPMNEngine.Wiki\BPMNEngine.xml</DocumentationFile>
+    <DocumentationMarkdown>..\BPMNEngine.Wiki\BPMNEngine.md</DocumentationMarkdown>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Drawing\Icons\IconParts\resources\CenterPlus.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\CenterStar.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\CenterX.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Cog.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Hand.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Person.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Script.png" />
+    <None Remove="Drawing\Icons\IconParts\resources\Table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\CenterPlus.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\CenterStar.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\CenterX.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Cog.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Hand.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Person.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Script.png" />
+    <EmbeddedResource Include="Drawing\Icons\IconParts\resources\Table.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="7.0.59" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="7.0.59" />
+    <PackageReference Include="Vsxmd" Version="1.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.CodeDom" Version="7.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.4.0" />
+	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
+	<PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.3" />
+	<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.3" />
+  </ItemGroup>
+</Project>
