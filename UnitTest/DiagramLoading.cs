@@ -20,7 +20,7 @@ namespace UnitTest
             bool loaded = false;
             try
             {
-                BusinessProcess proc = new BusinessProcess(doc,
+                BusinessProcess proc = new(doc,
                     logging: new BPMNEngine.DelegateContainers.ProcessLogging() {
                         LogException=logExceptionMoq.Object
                     }
@@ -40,7 +40,7 @@ namespace UnitTest
             bool loaded = false;
             try
             {
-                BusinessProcess proc = new BusinessProcess(doc);
+                BusinessProcess proc = new(doc);
                 loaded=true;
             }
             catch (Exception)

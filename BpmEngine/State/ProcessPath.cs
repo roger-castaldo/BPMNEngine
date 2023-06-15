@@ -501,6 +501,12 @@ namespace BPMNEngine.State
         private void _addPathEntry(string elementID, StepStatuses status, DateTime start, string incomingID = null, IEnumerable<string> outgoingID = null, DateTime? end = null, string completedBy = null)
         {
             _stateLock.EnterWriteLock();
+            if (_steps.Any(step => step.ElementID==elementID))
+            {
+                var lastStep = _steps.Last(step=>step.ElementID==elementID);
+                if (lastStep.Status==StepStatuses.WaitingStart)
+                    start=lastStep.StartTime;
+            }
             _steps.Add(new SPathEntry()
             {
                 ElementID=elementID,

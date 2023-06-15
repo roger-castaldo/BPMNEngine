@@ -18,7 +18,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCustomExtension()
         {
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(_ProcessTask) });
+            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(ProcessTask) });
             Assert.IsNotNull(process);
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>()
             {
@@ -39,7 +39,7 @@ namespace UnitTest.Extensions
             Assert.IsFalse(variables.ContainsKey(_VARIABLE_NAME));
         }
 
-        private void _ProcessTask(ITask task)
+        private void ProcessTask(ITask task)
         {
             if (task.ExtensionElement!=null)
             {

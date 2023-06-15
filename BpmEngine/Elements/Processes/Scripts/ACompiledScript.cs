@@ -24,7 +24,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
         protected string _FunctionName { get { return _functionName; } }
 
         private IEnumerable<string> _Imports
-            => new string[] { "System", "BpmEngine", "BpmEngine.Interfaces", "System.Linq" }
+            => new string[] { "System", "BPMNEngine", "BPMNEngine.Interfaces", "System.Linq" }
             .Concat(SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="using")
                 .Select(n => n.InnerText)

@@ -21,9 +21,9 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(_ProcessTask)});
-            _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
-            _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
+            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(ProcessTask)});
+            _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
+            _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
         }
 
         [ClassCleanup]
@@ -34,22 +34,21 @@ namespace UnitTest
             _escalateProcess.Dispose();
         }
 
-        private static void _ProcessTask(ITask task)
+        private static void ProcessTask(ITask task)
         {
             if (task.Variables[_ACTION_ID]!=null)
             {
-                bool aborted;
                 switch ((string)task.Variables[_ACTION_ID])
                 {
                     case "Message":
-                        task.EmitMessage((string)task.Variables[_VALUE_ID], out aborted);
+                        task.EmitMessage((string)task.Variables[_VALUE_ID], out _);
                         break;
                     case "Signal":
-                        task.Signal((string)task.Variables[_VALUE_ID], out aborted);
+                        task.Signal((string)task.Variables[_VALUE_ID], out _);
                         break;
                     case "Escalate":
                         if (task.id == (string)task.Variables[_VALUE_ID])
-                            task.Escalate(out aborted);
+                            task.Escalate(out _);
                         break;
                 }
             }

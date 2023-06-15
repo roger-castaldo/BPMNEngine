@@ -17,13 +17,13 @@ namespace UnitTest.Delegates
         private const string INSTANCE_VARIABLE_NAME = "TestInstanceManualVariable";
         private const string VARIABLE_VALUE = "ManualVariableValue";
 
-        private static void _StartManualTask(IManualTask task)
+        private static void StartManualTask(IManualTask task)
         {
             task.Variables[VARIABLE_NAME] = VARIABLE_VALUE;
             task.MarkComplete();
         }
 
-        private static void _StartInstanceManualTask(IManualTask task)
+        private static void StartInstanceManualTask(IManualTask task)
         {
             task.Variables[INSTANCE_VARIABLE_NAME] = VARIABLE_VALUE;
             task.MarkComplete();
@@ -36,7 +36,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessBusinessRuleTask = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -52,7 +52,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessBusinessRuleTask = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new(){
                 ProcessBusinessRuleTask = taskInstanceDelegateMock.Object
@@ -68,14 +68,14 @@ namespace UnitTest.Delegates
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
-            Assert.AreEqual(1, variables.Count());
+            Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(VARIABLE_NAME));
             Assert.AreEqual(VARIABLE_VALUE, variables[VARIABLE_NAME]);
         }
@@ -85,18 +85,18 @@ namespace UnitTest.Delegates
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { },
                 tasks: new()
                 {
-                    BeginManualTask=new StartManualTask(_StartInstanceManualTask)
+                    BeginManualTask=new StartManualTask(StartInstanceManualTask)
                 });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
-            Assert.AreEqual(1, variables.Count());
+            Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(INSTANCE_VARIABLE_NAME));
             Assert.IsFalse(variables.ContainsKey(VARIABLE_NAME));
             Assert.AreEqual(VARIABLE_VALUE, variables[INSTANCE_VARIABLE_NAME]);
@@ -109,7 +109,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessRecieveTask = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -125,7 +125,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessRecieveTask = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {
@@ -144,7 +144,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessScriptTask = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -160,7 +160,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessScriptTask = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {
@@ -179,7 +179,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessSendTask = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -195,7 +195,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessSendTask = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {
@@ -214,7 +214,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessServiceTask = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -230,7 +230,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessServiceTask = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {
@@ -249,7 +249,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessTask = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -265,7 +265,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 ProcessTask = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {
@@ -284,7 +284,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 CallActivity = taskDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
@@ -300,7 +300,7 @@ namespace UnitTest.Delegates
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 CallActivity = taskProcessDelegateMock.Object,
-                BeginManualTask = new StartManualTask(_StartManualTask)
+                BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-    <RootNamespace>BpmEngine</RootNamespace>
-    <PackageId>BpmEngine</PackageId>
+    <RootNamespace>BPMNEngine</RootNamespace>
+    <PackageId>BPMNEngine</PackageId>
     <Version>3.0-beta1</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
@@ -24,8 +24,8 @@
     <DefineConstants>TRACE;DEBUG;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DocumentationFile>..\BPMEngine.Wiki\BpmEngine.xml</DocumentationFile>
-    <DocumentationMarkdown>..\BPMEngine.Wiki\BpmEngine.md</DocumentationMarkdown>
+    <DocumentationFile>..\BPMNEngine.Wiki\BPMNEngine.xml</DocumentationFile>
+    <DocumentationMarkdown>..\BPMNEngine.Wiki\BPMNEngine.md</DocumentationMarkdown>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Drawing\Icons\IconParts\resources\CenterPlus.png" />

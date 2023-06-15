@@ -33,7 +33,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             {
                 try
                 {
-                    _jintAssembly = Assembly.LoadFile(typeof(Javascript).Assembly.Location.Replace("BpmEngine.dll", "Jint.dll"));
+                    _jintAssembly = Assembly.LoadFile(typeof(Javascript).Assembly.Location.Replace("BPMNEngine.dll", "Jint.dll"));
                 }
                 catch (Exception)
                 {

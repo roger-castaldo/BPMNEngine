@@ -27,7 +27,7 @@ namespace BPMNEngine.Elements.Processes.Events
 
         public override bool IsValid(out string[] err)
         {
-            if (Incoming.Any() && !SubType.HasValue)
+            if (Incoming.Any(id=> !Definition.MessageFlows.Any(mf=>mf.id==id)) && !SubType.HasValue)
             {
                 err = new string[] { "Start Events cannot have an incoming path." };
                 return false;

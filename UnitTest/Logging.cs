@@ -19,7 +19,7 @@ namespace UnitTest
         private const string _LOG_LINE = "Test Log Line";
         private const string _LOG_FORMAT_LINE = "Test Log Line {0}";
         private static readonly object[] _FORMAT_INPUT = new object[] { 1234567890 };
-        private static readonly Exception _EXCEPTION = new Exception(_LOG_LINE);
+        private static readonly Exception _EXCEPTION = new(_LOG_LINE);
 
         [TestMethod]
         public void TestLoggingFromUserTask()
@@ -34,7 +34,7 @@ namespace UnitTest
                 },
                 tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
                 {
-                    BeginUserTask=new StartUserTask(_StartUserTask)
+                    BeginUserTask=new StartUserTask(StartUserTask)
                 }
             );
 
@@ -58,7 +58,7 @@ namespace UnitTest
 
             exceptionLogger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), _EXCEPTION), Times.Once);
 
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
             var nodes = doc.GetElementsByTagName("ProcessLog");
@@ -74,7 +74,7 @@ namespace UnitTest
             Assert.IsTrue(logs.Contains("STACKTRACE:"));
         }
 
-        private void _StartUserTask(IUserTask task)
+        private void StartUserTask(IUserTask task)
         {
             task.Info(_LOG_LINE);
             task.Info(_LOG_FORMAT_LINE, _FORMAT_INPUT);

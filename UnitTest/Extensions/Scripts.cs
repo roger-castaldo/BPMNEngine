@@ -4,6 +4,7 @@ using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 
 namespace UnitTest.Extensions
 {
@@ -18,7 +19,13 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCSharp()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"));
+            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"),logging:new BPMNEngine.DelegateContainers.ProcessLogging()
+            {
+                LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                {
+                    System.Diagnostics.Debug.WriteLine(exception.Message);
+                }
+            });
             IProcessInstance instance = null;
             try
             {

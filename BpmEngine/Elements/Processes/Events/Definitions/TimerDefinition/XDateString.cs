@@ -13,7 +13,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
     [ValidParent(typeof(ExtensionElements))]
     internal class XDateString : AElement
     {
-        protected string _Code => this["Code"] ?? 
+        protected string Code => this["Code"] ?? 
             SubNodes.Where(n=>n.NodeType==XmlNodeType.Text).Select(n=>n.Value).FirstOrDefault() ??
             SubNodes.Where(n=>n.NodeType==XmlNodeType.CDATA).Select(n=>((XmlCDataSection)n).Value).FirstOrDefault() ?? 
             String.Empty;
@@ -24,7 +24,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 
         public override bool IsValid(out string[] err)
         {
-            if (String.IsNullOrEmpty(_Code))
+            if (String.IsNullOrEmpty(Code))
             {
                 err = new string[] { "No Date String Specified" };
                 return false;
@@ -34,9 +34,9 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 
         public DateTime GetTime(IReadonlyVariables variables)
         {
-            if (String.IsNullOrEmpty(_Code))
+            if (String.IsNullOrEmpty(Code))
                 throw new Exception("Invalid Date String Specified");
-            var ds = new DateString(_Code);
+            var ds = new DateString(Code);
             return ds.GetTime(variables);
         }
     }

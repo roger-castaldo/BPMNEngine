@@ -18,32 +18,32 @@ namespace UnitTest.Delegates
         private const string _VALID_PATHS_NAME = "ValidPaths";
         private const string _PROCESS_BLOCKED_NAME = "IsProcessBlocked";
 
-        private static bool _isEventStartValid(IStepElement Event, IReadonlyVariables variables)
+        private static bool IsEventStartValid(IStepElement Event, IReadonlyVariables variables)
         {
             return new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(Event.id);
         }
 
-        private static bool _isProcessStartValid(IElement process, IReadonlyVariables variables)
+        private static bool IsProcessStartValid(IElement process, IReadonlyVariables variables)
         {
-            return (variables[_PROCESS_BLOCKED_NAME]==null ? true : (bool)variables[_PROCESS_BLOCKED_NAME]);
+            return (variables[_PROCESS_BLOCKED_NAME]==null ||(bool)variables[_PROCESS_BLOCKED_NAME]);
         }
 
-        private static bool _isFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
+        private static bool IsFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
         {
             return new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(flow.id);
         }
 
-        private static bool _instanceIsEventStartValid(IStepElement Event, IReadonlyVariables variables)
+        private static bool InstanceIsEventStartValid(IStepElement Event, IReadonlyVariables variables)
         {
             return !new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(Event.id);
         }
 
-        private static bool _instanceIsProcessStartValid(IElement process, IReadonlyVariables variables)
+        private static bool InstanceIsProcessStartValid(IElement process, IReadonlyVariables variables)
         {
-            return !(variables[_PROCESS_BLOCKED_NAME]==null ? true : (bool)variables[_PROCESS_BLOCKED_NAME]);
+            return !(variables[_PROCESS_BLOCKED_NAME]==null ||(bool)variables[_PROCESS_BLOCKED_NAME]);
         }
 
-        private static bool _instanceIsFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
+        private static bool InstanceIsFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
         {
             return !new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(flow.id);
         }
@@ -54,9 +54,9 @@ namespace UnitTest.Delegates
             _pathChecksProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/path_valid_checks.bpmn"),
                 validations: new BPMNEngine.DelegateContainers.StepValidations()
                 {
-                    IsFlowValid= new IsFlowValid(_isFlowValid),
-                    IsProcessStartValid=new IsProcessStartValid(_isProcessStartValid),
-                    IsEventStartValid=new IsEventStartValid(_isEventStartValid)
+                    IsFlowValid= new IsFlowValid(IsFlowValid),
+                    IsProcessStartValid=new IsProcessStartValid(IsProcessStartValid),
+                    IsEventStartValid=new IsEventStartValid(IsEventStartValid)
                 }
             );
         }
@@ -67,7 +67,7 @@ namespace UnitTest.Delegates
             _pathChecksProcess.Dispose();
         }
 
-        private static bool _EventOccured(XmlDocument state,string id,string status)
+        private static bool EventOccured(XmlDocument state,string id,string status)
         {
             return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='{1}']", id,status))!=null;
         }
@@ -83,16 +83,16 @@ namespace UnitTest.Delegates
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
 
-            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
 
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
@@ -111,21 +111,21 @@ namespace UnitTest.Delegates
             },
             validations: new BPMNEngine.DelegateContainers.StepValidations()
             {
-                IsEventStartValid=new IsEventStartValid(_instanceIsEventStartValid)
+                IsEventStartValid=new IsEventStartValid(InstanceIsEventStartValid)
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
 
-            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
 
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
@@ -133,7 +133,7 @@ namespace UnitTest.Delegates
             },
             validations: new BPMNEngine.DelegateContainers.StepValidations()
             {
-                IsEventStartValid=new IsEventStartValid(_instanceIsEventStartValid)
+                IsEventStartValid=new IsEventStartValid(InstanceIsEventStartValid)
             });
             Assert.IsNull(instance);
         }
@@ -147,21 +147,21 @@ namespace UnitTest.Delegates
             },
             validations: new BPMNEngine.DelegateContainers.StepValidations()
             {
-                IsFlowValid=new IsFlowValid(_instanceIsFlowValid)
+                IsFlowValid=new IsFlowValid(InstanceIsFlowValid)
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
 
-            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
         }
 
         [TestMethod]
@@ -174,21 +174,21 @@ namespace UnitTest.Delegates
             },
             validations: new BPMNEngine.DelegateContainers.StepValidations()
             {
-                IsProcessStartValid=new IsProcessStartValid(_instanceIsProcessStartValid)
+                IsProcessStartValid=new IsProcessStartValid(InstanceIsProcessStartValid)
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Started"));
-            Assert.IsTrue(_EventOccured(doc, "StartEvent_1", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Started"));
-            Assert.IsFalse(_EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Started"));
+            Assert.IsTrue(EventOccured(doc, "StartEvent_1", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Started"));
+            Assert.IsFalse(EventOccured(doc, "StartEvent_0fbfgne", "Succeeded"));
 
-            Assert.IsTrue(_EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
-            Assert.IsFalse(_EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
+            Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", "Succeeded"));
+            Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", "Succeeded"));
 
             instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
@@ -196,7 +196,7 @@ namespace UnitTest.Delegates
             },
             validations: new BPMNEngine.DelegateContainers.StepValidations()
             {
-                IsProcessStartValid=new IsProcessStartValid(_instanceIsProcessStartValid)
+                IsProcessStartValid=new IsProcessStartValid(InstanceIsProcessStartValid)
             });
             Assert.IsNull(instance);
         }

@@ -34,22 +34,10 @@ namespace BPMNEngine.Elements
         public string id
         {
             get {
-                string ret = null; ;
-                if (_cachedID == null)
-                {
-                    ret = this["id"];
-                    if (ret == null)
-                    {
-                        if (_cachedID == null)
-                            _cachedID = Utility.FindXPath(Definition,_element);
-                        ret = _cachedID;
-                    }
-                    else
-                        _cachedID = ret;
-                }
-                else
-                    ret = _cachedID;
-                return ret;
+                var ret = _cachedID??this["id"];
+                if (ret==null)
+                    _cachedID = Utility.FindXPath(Definition, _element);
+                return ret??_cachedID;
             }
         }
 
@@ -81,8 +69,8 @@ namespace BPMNEngine.Elements
         public sealed override string ToString()
         {
             if (this.GetType().Name == "TextAnnotation")
-                return (string)this.GetType().GetProperty("Content").GetValue(this, new object[] { });
-            return (this["name"]==null ? "" : this["name"]);
+                return (string)this.GetType().GetProperty("Content").GetValue(this, Array.Empty<object>());
+            return this["name"]??String.Empty;
         }
 
         public virtual bool IsValid(out string[] err)

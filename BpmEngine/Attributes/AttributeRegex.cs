@@ -9,21 +9,19 @@ namespace BPMNEngine.Attributes
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
     internal class AttributeRegex : Attribute
     {
-        private string _name;
-        public string Name { get { return _name; } }
-        private Regex _reg;
-        public Regex Reg { get { return _reg; } }
+        public string Name { get; private set; }
+        public Regex Reg { get; private set; }
 
         public AttributeRegex(string name, string regex)
         {
-            _name = name;
-            _reg=new Regex(regex,RegexOptions.Compiled|RegexOptions.ECMAScript);
+            Name = name;
+            Reg=new Regex(regex,RegexOptions.Compiled|RegexOptions.ECMAScript);
         }
 
         public bool IsValid(AElement elem)
         {
-            if (elem[_name]!=null)
-                return _reg.IsMatch(elem[_name]);
+            if (elem[Name]!=null)
+                return Reg.IsMatch(elem[Name]);
             return true;
         }
     }

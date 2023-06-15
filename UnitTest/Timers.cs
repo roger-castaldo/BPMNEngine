@@ -24,7 +24,7 @@ namespace UnitTest
         public static void Initialize(TestContext testContext)
         {
             _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { 
-                BeginUserTask= new StartUserTask(_BeginUserTask) 
+                BeginUserTask= new StartUserTask(BeginUserTask) 
             });
         }
 
@@ -34,7 +34,7 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private static void _BeginUserTask(IUserTask task)
+        private static void BeginUserTask(IUserTask task)
         {
             if (task.Variables[_DELAY_ID]!=null)
             {
@@ -49,18 +49,17 @@ namespace UnitTest
 
         private static TimeSpan? GetStepDuration(IState state,string name)
         {
-            XmlDocument xml = new XmlDocument();
+            XmlDocument xml = new();
             xml.LoadXml(state.AsXMLDocument);
-            DateTime? start = null;
             XmlNode node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='WaitingStart']", name));
             if (node!=null)
             {
-                start = DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture);
+                DateTime? start = DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture);
             }
             node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name));
             if (node!=null)
             {
-                return DateTime.ParseExact(node.Attributes["endTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture).Subtract((start.HasValue ? start.Value : DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture)));
+                return DateTime.ParseExact(node.Attributes["endTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture).Subtract((((DateTime?)null).HasValue ? ((DateTime?)null).Value : DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture)));
             }
             return null;
         }
