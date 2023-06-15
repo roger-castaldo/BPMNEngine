@@ -1,12 +1,12 @@
-﻿using BpmEngine.Elements.Processes.Events.Definitions;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Events
+namespace BPMNEngine.Elements.Processes.Events
 {
     internal abstract class AHandlingEvent : AEvent
     {

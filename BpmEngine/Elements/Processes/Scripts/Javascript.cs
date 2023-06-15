@@ -1,12 +1,12 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Scripts
+namespace BPMNEngine.Elements.Processes.Scripts
 {
     [XMLTag("exts", "Javascript")]
     internal class Javascript : AScript

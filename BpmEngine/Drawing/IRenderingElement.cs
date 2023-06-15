@@ -1,13 +1,13 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Elements;
-using BpmEngine.State;
+using BPMNEngine.Elements;
+using BPMNEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BpmEngine.Drawing
+namespace BPMNEngine.Drawing
 {
     internal interface IRenderingElement
     {

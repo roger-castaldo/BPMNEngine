@@ -1,10 +1,10 @@
-﻿using BpmEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Events.Definitions.Extensions
+namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
     [XMLTag("exts", "ErrorDefinition")]
     [ValidParent(typeof(ExtensionElements))]

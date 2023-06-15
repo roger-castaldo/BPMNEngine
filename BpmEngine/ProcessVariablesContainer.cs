@@ -1,11 +1,11 @@
-﻿using BpmEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal sealed class ProcessVariablesContainer : IVariables
     {

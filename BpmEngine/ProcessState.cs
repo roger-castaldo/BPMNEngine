@@ -1,6 +1,6 @@
-﻿using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Interfaces;
-using BpmEngine.State;
+﻿using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
+using BPMNEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +12,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal sealed class ProcessState : IDisposable
     {

@@ -1,4 +1,4 @@
-﻿namespace BpmEngine.Drawing.Icons.IconParts
+﻿namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class CenterPlus : EmbeddedResourceIcon
     {

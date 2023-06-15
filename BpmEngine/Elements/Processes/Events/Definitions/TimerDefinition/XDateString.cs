@@ -1,12 +1,12 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Events.Definitions.TimerDefinition
+namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 {
     [XMLTag("exts", "DateString")]
     [ValidParent(typeof(TimerEventDefinition))]
@@ -36,7 +36,7 @@ namespace BpmEngine.Elements.Processes.Events.Definitions.TimerDefinition
         {
             if (String.IsNullOrEmpty(_Code))
                 throw new Exception("Invalid Date String Specified");
-            DateString ds = new BpmEngine.DateString(_Code);
+            var ds = new DateString(_Code);
             return ds.GetTime(variables);
         }
     }

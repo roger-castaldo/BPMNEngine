@@ -1,13 +1,13 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes.Scripts;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes.Scripts;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Tasks
+namespace BPMNEngine.Elements.Processes.Tasks
 {
     [XMLTag("bpmn", "scriptTask")]
     internal class ScriptTask : ATask

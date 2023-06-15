@@ -1,12 +1,12 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Collaborations
+namespace BPMNEngine.Elements.Collaborations
 {
     [XMLTag("bpmn","textAnnotation")]
     [RequiredAttribute("id")]

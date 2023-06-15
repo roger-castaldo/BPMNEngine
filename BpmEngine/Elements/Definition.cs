@@ -1,7 +1,7 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Collaborations;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Collaborations;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements
+namespace BPMNEngine.Elements
 {
     [XMLTag("bpmn","definitions")]
     [RequiredAttribute("id")]

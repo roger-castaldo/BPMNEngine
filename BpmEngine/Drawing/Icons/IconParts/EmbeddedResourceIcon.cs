@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using BpmEngine.Elements;
+using BPMNEngine.Elements;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.IconParts
+namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal abstract class EmbeddedResourceIcon
         : IIconPart

@@ -1,13 +1,13 @@
-﻿using BpmEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using BpmEngine.Interfaces;
-using BpmEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces;
+using BPMNEngine.Elements.Processes.Events.Definitions;
 using System.Linq;
 
-namespace BpmEngine.Elements.Processes.Events
+namespace BPMNEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn", "boundaryEvent")]
     [RequiredAttribute("attachedToRef")]

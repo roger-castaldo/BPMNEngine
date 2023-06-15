@@ -1,11 +1,11 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Tasks
+namespace BPMNEngine.Elements.Processes.Tasks
 {
     [XMLTag("bpmn", "sendTask")]
     internal class SendTask : ATask

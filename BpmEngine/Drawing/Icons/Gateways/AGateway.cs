@@ -1,13 +1,13 @@
 ﻿using Microsoft.Maui.Graphics;
 
-using BpmEngine.Drawing.Icons.IconParts;
-using BpmEngine.Elements;
+using BPMNEngine.Drawing.Icons.IconParts;
+using BPMNEngine.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.Gateways
+namespace BPMNEngine.Drawing.Icons.Gateways
 {
     internal abstract class AGateway : AIcon
     {

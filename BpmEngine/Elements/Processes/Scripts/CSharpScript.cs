@@ -1,13 +1,13 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using BpmEngine.Attributes;
+using BPMNEngine.Attributes;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Scripts
+namespace BPMNEngine.Elements.Processes.Scripts
 {
     [XMLTag("exts", "cSharpScript")]
     internal class CSharpScript : ACompiledScript

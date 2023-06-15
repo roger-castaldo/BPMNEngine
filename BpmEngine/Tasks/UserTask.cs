@@ -1,9 +1,9 @@
-﻿using BpmEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Tasks
+namespace BPMNEngine.Tasks
 {
     internal class UserTask : ManualTask, IUserTask
     {

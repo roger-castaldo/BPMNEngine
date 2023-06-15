@@ -1,9 +1,9 @@
-﻿using BpmEngine.Elements.Diagrams;
+﻿using BPMNEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons
+namespace BPMNEngine.Drawing.Icons
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     internal class IconTypeAttribute : Attribute

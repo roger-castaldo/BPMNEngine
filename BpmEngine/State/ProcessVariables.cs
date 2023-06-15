@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Maui.Graphics;
-using BpmEngine.Interfaces;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace BpmEngine.State
+namespace BPMNEngine.State
 {
     internal class ProcessVariables : IStateContainer
     {

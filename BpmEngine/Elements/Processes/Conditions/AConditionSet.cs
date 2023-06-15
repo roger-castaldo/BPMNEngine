@@ -1,12 +1,12 @@
-﻿using BpmEngine.Elements.Processes.Scripts;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Elements.Processes.Scripts;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Conditions
+namespace BPMNEngine.Elements.Processes.Conditions
 {
     internal abstract class AConditionSet : ACondition
     {

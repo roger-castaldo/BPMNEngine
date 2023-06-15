@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Attributes
+namespace BPMNEngine.Attributes
 {
     [AttributeUsage(AttributeTargets.Class,Inherited=false,AllowMultiple=false)]
     internal class XMLTag : Attribute

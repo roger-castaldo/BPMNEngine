@@ -1,6 +1,6 @@
-﻿using BpmEngine.Drawing.Icons.IconParts;
+﻿using BPMNEngine.Drawing.Icons.IconParts;
 
-namespace BpmEngine.Drawing.Icons.Events
+namespace BPMNEngine.Drawing.Icons.Events
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.StartEvent)]
     internal class StartEvent : AIcon

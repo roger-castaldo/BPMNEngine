@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     internal interface IParentElement : IElement
     {

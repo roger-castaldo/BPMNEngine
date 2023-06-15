@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     internal interface IReadOnlyStateVariablesContainer : IReadOnlyStateContainer
     {

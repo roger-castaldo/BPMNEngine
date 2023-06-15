@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     /// <summary>
     /// This interface defines a running instance of a Business Process and will have its own Unique ID.  It contains its own state 

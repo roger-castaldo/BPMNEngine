@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     /// <summary>
     /// This interface implements Step Elements in a process.  These are elements that are containg both within a Process and a Lane and 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     /// <summary>
     /// This interface is the parent interface for ALL process elements (which are XML nodes)

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     /// <summary>
     /// This interface is used to define an externall accessible task that can have extension items to allow for processing beyond the basic BPMN notation.

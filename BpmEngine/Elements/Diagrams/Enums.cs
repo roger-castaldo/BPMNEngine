@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Elements.Diagrams
+namespace BPMNEngine.Elements.Diagrams
 {
     internal enum BPMIcons
     {

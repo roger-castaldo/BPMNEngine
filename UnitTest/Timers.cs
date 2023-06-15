@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using BpmEngine;
-using BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -23,7 +23,7 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks() { 
+            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { 
                 BeginUserTask= new StartUserTask(_BeginUserTask) 
             });
         }

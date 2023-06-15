@@ -1,15 +1,15 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes;
-using BpmEngine.Elements.Processes.Conditions;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes;
+using BPMNEngine.Elements.Processes.Conditions;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements
+namespace BPMNEngine.Elements
 {
     [XMLTag("bpmn","process")]
     [RequiredAttribute("id")]

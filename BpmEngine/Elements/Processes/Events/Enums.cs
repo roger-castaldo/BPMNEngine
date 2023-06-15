@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Elements.Processes.Events
+namespace BPMNEngine.Elements.Processes.Events
 {
     internal enum EventSubTypes
     {

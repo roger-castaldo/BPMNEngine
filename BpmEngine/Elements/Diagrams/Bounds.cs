@@ -1,12 +1,12 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Attributes;
+using BPMNEngine.Attributes;
 
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Diagrams
+namespace BPMNEngine.Elements.Diagrams
 {
     [XMLTag("dc","Bounds")]
     [RequiredAttribute("x")]

@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BpmEngine.Drawing
+namespace BPMNEngine.Drawing
 {
     internal class AnimatedFrame : IDisposable
     {

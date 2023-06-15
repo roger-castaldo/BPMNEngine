@@ -1,12 +1,12 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Diagrams
+namespace BPMNEngine.Elements.Diagrams
 {
     [RequiredAttribute("bpmnElement")]
     internal abstract class ADiagramElement : AParentElement

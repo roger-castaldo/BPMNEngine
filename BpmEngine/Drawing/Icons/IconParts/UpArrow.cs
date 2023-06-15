@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.IconParts
+namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class UpArrow : IIconPart
     {

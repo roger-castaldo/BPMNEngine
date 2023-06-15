@@ -1,10 +1,10 @@
-﻿using BpmEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Collaborations
+namespace BPMNEngine.Elements.Collaborations
 {
     [XMLTag("bpmn","messageFlow")]
     [RequiredAttribute("id")]

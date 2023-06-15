@@ -1,9 +1,9 @@
-﻿using BpmEngine.Drawing.Icons.IconParts;
+﻿using BPMNEngine.Drawing.Icons.IconParts;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.Gateways
+namespace BPMNEngine.Drawing.Icons.Gateways
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.ComplexGateway)]
     internal class ComplexGateway : AGateway

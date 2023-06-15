@@ -1,14 +1,14 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Drawing.Icons;
+using BPMNEngine.Drawing.Icons;
 
-using BpmEngine.Elements.Diagrams;
+using BPMNEngine.Elements.Diagrams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace BpmEngine.Drawing
+namespace BPMNEngine.Drawing
 {
     internal static class IconGraphic
     {

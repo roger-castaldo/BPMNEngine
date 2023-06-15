@@ -1,9 +1,9 @@
-﻿using BpmEngine.Elements.Processes.Events;
+﻿using BPMNEngine.Elements.Processes.Events;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     internal interface IProcess : IParentElement
     {

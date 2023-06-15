@@ -1,4 +1,4 @@
-﻿using BpmEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using System;
 using System.Reflection;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace BpmEngine.State
+namespace BPMNEngine.State
 {
     internal sealed class ProcessLog : IStateContainer
     {

@@ -1,9 +1,9 @@
-﻿using BpmEngine.Drawing.Icons.IconParts;
+﻿using BPMNEngine.Drawing.Icons.IconParts;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.Tasks
+namespace BPMNEngine.Drawing.Icons.Tasks
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.UserTask)]
     internal class UserTask : AIcon

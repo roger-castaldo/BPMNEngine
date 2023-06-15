@@ -1,11 +1,11 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements
+namespace BPMNEngine.Elements
 {
     [XMLTag("exts", "DefinitionVariable")]
     [Required("Name")]

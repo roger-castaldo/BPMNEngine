@@ -1,10 +1,10 @@
-﻿using BpmEngine.Elements;
+﻿using BPMNEngine.Elements;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace BpmEngine.Attributes
+namespace BPMNEngine.Attributes
 {
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
     internal class AttributeRegex : Attribute

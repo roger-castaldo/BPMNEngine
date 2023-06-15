@@ -1,10 +1,10 @@
-﻿using BpmEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Events.Definitions
+namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "escalationEventDefinition")]
     [ValidParent(typeof(AEvent))]

@@ -1,11 +1,11 @@
-﻿using BpmEngine.DelegateContainers;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.DelegateContainers;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal class DelegateContainer
     {

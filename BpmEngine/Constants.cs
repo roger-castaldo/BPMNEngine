@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     [ExcludeFromCodeCoverage]
     internal static class Constants

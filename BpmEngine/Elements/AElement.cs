@@ -1,13 +1,13 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements
+namespace BPMNEngine.Elements
 {
     internal abstract class AElement : IElement
     {
@@ -114,7 +114,7 @@ namespace BpmEngine.Elements
         internal void LoadExtensionElement(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {
             if (_extensionElement!=null)
-                ((BpmEngine.Elements.Processes.ExtensionElements)_extensionElement).LoadChildren(ref map, ref cache);
+                ((ExtensionElements)_extensionElement).LoadChildren(ref map, ref cache);
         }
     }
 }

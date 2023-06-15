@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     internal interface IStateContainer : IDisposable
     {

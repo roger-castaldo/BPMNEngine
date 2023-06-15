@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BpmEngine;
-using BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -28,69 +28,69 @@ namespace UnitTest
         {
             _cache = new ConcurrentQueue<string>();
             _noErrorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/no_error_handling.bpmn"),
-                events:new BpmEngine.DelegateContainers.ProcessEvents()
+                events:new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Processes=new BpmEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new BPMNEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
                     {
                         Error= new OnProcessErrorEvent(_ProcessError)
                     }
                 },
-                validations:new BpmEngine.DelegateContainers.StepValidations()
+                validations:new BPMNEngine.DelegateContainers.StepValidations()
                 {
                     IsEventStartValid=new IsEventStartValid(_IsEventStartValid),
                     IsFlowValid=new IsFlowValid(_isFlowValid),
                 },
-                tasks:new BpmEngine.DelegateContainers.ProcessTasks()
+                tasks:new BPMNEngine.DelegateContainers.ProcessTasks()
                 {
                     ProcessTask=new ProcessTask(_ProcessTask)
                 }
             );
             _errorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/process_error_handling.bpmn"),
-                events: new BpmEngine.DelegateContainers.ProcessEvents()
+                events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Error=new OnElementEvent(_ErrorEvent)
                     },
-                    Processes=new BpmEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new BPMNEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
                     {
                         Error= new OnProcessErrorEvent(_ProcessError)
                     }
                 },
-                validations: new BpmEngine.DelegateContainers.StepValidations()
+                validations: new BPMNEngine.DelegateContainers.StepValidations()
                 {
                     IsEventStartValid=new IsEventStartValid(_IsEventStartValid),
                     IsFlowValid=new IsFlowValid(_isFlowValid),
                 },
-                tasks: new BpmEngine.DelegateContainers.ProcessTasks()
+                tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
                 {
                     ProcessTask=new ProcessTask(_ProcessTask)
                 }

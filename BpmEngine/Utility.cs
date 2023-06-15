@@ -1,7 +1,7 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal static class Utility
     {

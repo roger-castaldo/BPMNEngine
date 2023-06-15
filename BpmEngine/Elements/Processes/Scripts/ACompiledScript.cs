@@ -6,10 +6,10 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using BpmEngine.Interfaces;
+using BPMNEngine.Interfaces;
 using System.Linq;
 
-namespace BpmEngine.Elements.Processes.Scripts
+namespace BPMNEngine.Elements.Processes.Scripts
 {
     internal abstract class ACompiledScript : AScript
     {

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Elements.Processes.Tasks;
-using BpmEngine.Interfaces;
-using BpmEngine.State;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Elements.Processes.Tasks;
+using BPMNEngine.Interfaces;
+using BPMNEngine.State;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal sealed class ProcessInstance : IProcessInstance
     {
@@ -256,7 +256,7 @@ namespace BpmEngine
             {
                 ATask elem = _process.GetTask(taskID);
                 if (elem != null && elem is ManualTask)
-                    ret = new BpmEngine.Tasks.ManualTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
+                    ret = new BPMNEngine.Tasks.ManualTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
             }
             return ret;
         }
@@ -268,7 +268,7 @@ namespace BpmEngine
             {
                 ATask elem = _process.GetTask(taskID);
                 if (elem != null && elem is UserTask)
-                    ret = new BpmEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
+                    ret = new BPMNEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
             }
             return ret;
         }

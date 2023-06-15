@@ -1,13 +1,13 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
-using BpmEngine.State;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
+using BPMNEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Gateways
+namespace BPMNEngine.Elements.Processes.Gateways
 {
     [ValidParent(typeof(IProcess))]
     internal abstract class AGateway : AFlowNode

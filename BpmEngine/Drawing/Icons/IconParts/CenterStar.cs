@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.IconParts
+namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class CenterStar : EmbeddedResourceIcon
     {

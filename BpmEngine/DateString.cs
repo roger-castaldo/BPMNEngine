@@ -1,10 +1,10 @@
-﻿using BpmEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal class DateString
     {

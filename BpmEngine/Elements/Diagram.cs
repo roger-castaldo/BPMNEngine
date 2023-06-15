@@ -1,15 +1,15 @@
 ﻿using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using BpmEngine.Attributes;
-using BpmEngine.Drawing;
+using BPMNEngine.Attributes;
+using BPMNEngine.Drawing;
 
-using BpmEngine.Elements.Collaborations;
-using BpmEngine.Elements.Diagrams;
-using BpmEngine.Elements.Processes;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Elements.Processes.Tasks;
-using BpmEngine.Interfaces;
-using BpmEngine.State;
+using BPMNEngine.Elements.Collaborations;
+using BPMNEngine.Elements.Diagrams;
+using BPMNEngine.Elements.Processes;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Elements.Processes.Tasks;
+using BPMNEngine.Interfaces;
+using BPMNEngine.State;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ using System.Security;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements
+namespace BPMNEngine.Elements
 {
     [XMLTag("bpmndi","BPMNDiagram")]
     [RequiredAttribute("id")]

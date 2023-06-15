@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     internal enum StepStatuses
     {

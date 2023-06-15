@@ -1,19 +1,19 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Attributes;
-using BpmEngine.Drawing;
+using BPMNEngine.Attributes;
+using BPMNEngine.Drawing;
 
-using BpmEngine.Elements.Collaborations;
-using BpmEngine.Elements.Processes;
-using BpmEngine.Elements.Processes.Gateways;
-using BpmEngine.Interfaces;
-using BpmEngine.State;
+using BPMNEngine.Elements.Collaborations;
+using BPMNEngine.Elements.Processes;
+using BPMNEngine.Elements.Processes.Gateways;
+using BPMNEngine.Interfaces;
+using BPMNEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Diagrams
+namespace BPMNEngine.Elements.Diagrams
 {
     [XMLTag("bpmndi","BPMNEdge")]
     [RequiredAttribute("id")]

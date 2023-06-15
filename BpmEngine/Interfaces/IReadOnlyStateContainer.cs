@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace BpmEngine.Interfaces
+namespace BPMNEngine.Interfaces
 {
     internal interface IReadOnlyStateContainer
     {

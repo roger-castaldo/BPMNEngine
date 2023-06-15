@@ -1,13 +1,13 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes.Conditions;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes.Conditions;
+using BPMNEngine.Interfaces;
 using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes
+namespace BPMNEngine.Elements.Processes
 {
     [XMLTag("bpmn","sequenceFlow")]
     [RequiredAttribute("id")]

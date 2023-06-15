@@ -1,5 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
-using BpmEngine.Elements;
+using BPMNEngine.Elements;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BpmEngine.Drawing
+namespace BPMNEngine.Drawing
 {
     internal class AnimatedPNG : IDisposable
     {

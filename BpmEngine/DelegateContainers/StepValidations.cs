@@ -1,11 +1,11 @@
-﻿using BpmEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BpmEngine.DelegateContainers
+namespace BPMNEngine.DelegateContainers
 {
     /// <summary>
     /// This class is used to house all the validation delegates for a business process. 

@@ -1,9 +1,9 @@
-﻿using BpmEngine.Drawing.Icons.IconParts;
+﻿using BPMNEngine.Drawing.Icons.IconParts;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.Events
+namespace BPMNEngine.Drawing.Icons.Events
 {
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.InteruptingErrorBoundaryEvent)]
     internal class InteruptingErrorBoundaryEvent : AIcon

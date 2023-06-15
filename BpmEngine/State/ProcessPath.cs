@@ -1,14 +1,14 @@
-﻿using BpmEngine.Elements.Collaborations;
-using BpmEngine.Elements.Processes;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Elements.Processes.Gateways;
-using BpmEngine.Elements.Processes.Tasks;
+﻿using BPMNEngine.Elements.Collaborations;
+using BPMNEngine.Elements.Processes;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Elements.Processes.Gateways;
+using BPMNEngine.Elements.Processes.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using BpmEngine.Interfaces;
+using BPMNEngine.Interfaces;
 using System.Globalization;
-using BpmEngine.Elements;
+using BPMNEngine.Elements;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -19,7 +19,7 @@ using System.Linq.Expressions;
 using System.IO;
 using System.Text;
 
-namespace BpmEngine.State
+namespace BPMNEngine.State
 {
     internal sealed class ProcessPath : IStateContainer
     {

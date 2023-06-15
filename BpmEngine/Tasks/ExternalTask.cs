@@ -1,12 +1,12 @@
-﻿using BpmEngine.Elements.Processes.Tasks;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Elements.Processes.Tasks;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Tasks
+namespace BPMNEngine.Tasks
 {
     internal class ExternalTask : ITask
     {

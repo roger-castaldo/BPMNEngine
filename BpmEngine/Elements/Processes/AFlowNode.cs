@@ -1,11 +1,11 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes
+namespace BPMNEngine.Elements.Processes
 {
     [RequiredAttribute("id")]
     internal abstract class AFlowNode : AParentElement, IStepElement

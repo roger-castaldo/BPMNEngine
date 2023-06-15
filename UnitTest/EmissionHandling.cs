@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BpmEngine;
-using BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,9 +21,9 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new BpmEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(_ProcessTask)});
-            _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
-            _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BpmEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
+            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(_ProcessTask)});
+            _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
+            _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(_ProcessTask) });
         }
 
         [ClassCleanup]

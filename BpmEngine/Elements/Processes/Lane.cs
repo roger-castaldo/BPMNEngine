@@ -1,12 +1,12 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes
+namespace BPMNEngine.Elements.Processes
 {
     [XMLTag("bpmn","lane")]
     [RequiredAttribute("id")]

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BpmEngine.DelegateContainers
+namespace BPMNEngine.DelegateContainers
 {
     /// <summary>
     /// This class is used to house all the Logging delegates for a business process. 

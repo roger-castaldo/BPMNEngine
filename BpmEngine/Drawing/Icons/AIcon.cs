@@ -1,10 +1,10 @@
 ﻿using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
-using BpmEngine.Drawing.Icons.IconParts;
-using BpmEngine.Elements;
+using BPMNEngine.Drawing.Icons.IconParts;
+using BPMNEngine.Elements;
 using System.Collections.Generic;
 
-namespace BpmEngine.Drawing.Icons
+namespace BPMNEngine.Drawing.Icons
 {
     internal abstract class AIcon
     {

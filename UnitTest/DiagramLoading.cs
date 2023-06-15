@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using BpmEngine;
-using BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
 using System.Reflection;
 using System.Xml;
@@ -21,7 +21,7 @@ namespace UnitTest
             try
             {
                 BusinessProcess proc = new BusinessProcess(doc,
-                    logging: new BpmEngine.DelegateContainers.ProcessLogging() {
+                    logging: new BPMNEngine.DelegateContainers.ProcessLogging() {
                         LogException=logExceptionMoq.Object
                     }
                 );

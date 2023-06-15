@@ -7,7 +7,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 
-namespace BpmEngine.Drawing.Icons.IconParts
+namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class Bolt : IIconPart
     {

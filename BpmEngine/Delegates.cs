@@ -1,11 +1,11 @@
-﻿using BpmEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine
+namespace BPMNEngine
 {
     #region Ons
     /// <summary>

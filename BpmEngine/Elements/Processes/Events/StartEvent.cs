@@ -1,13 +1,13 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes.Conditions;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes.Conditions;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Events
+namespace BPMNEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn","startEvent")]
     internal class StartEvent : AEvent

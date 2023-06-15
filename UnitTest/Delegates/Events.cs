@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BpmEngine;
-using BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -68,33 +68,33 @@ namespace UnitTest.Delegates
         {
             _cache = new ConcurrentQueue<string>();
             _startCompleteProcess = new BusinessProcess(Utility.LoadResourceDocument("Delegates/start_complete_triggers.bpmn"),
-                validations: new BpmEngine.DelegateContainers.StepValidations()
+                validations: new BPMNEngine.DelegateContainers.StepValidations()
                 {
                     IsProcessStartValid=new IsProcessStartValid(_isProcessStartValid)
                 },
-                events: new BpmEngine.DelegateContainers.ProcessEvents()
+                events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_elementStarted),
                         Completed=new OnElementEvent(_elementCompleted)
                     },
-                    Flows=new BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    Flows=new BPMNEngine.DelegateContainers.ProcessEvents.FlowEvents()
                     {
                         SequenceFlow=new OnFlowComplete(_flowCompleted),
                         MessageFlow=new OnFlowComplete(_flowCompleted)
@@ -183,29 +183,29 @@ namespace UnitTest.Delegates
         {
             Guid guid = Guid.NewGuid();
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } },
-                events: new BpmEngine.DelegateContainers.ProcessEvents()
+                events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    Gateways=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    SubProcesses=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    Tasks=new BpmEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
                     {
                         Started=new OnElementEvent(_instanceElementStarted),
                         Completed=new OnElementEvent(_instanceElementCompleted)
                     },
-                    Flows=new BpmEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    Flows=new BPMNEngine.DelegateContainers.ProcessEvents.FlowEvents()
                     {
                         SequenceFlow=new OnFlowComplete(_instanceFlowCompleted),
                         MessageFlow=new OnFlowComplete(_instanceFlowCompleted)

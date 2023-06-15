@@ -1,14 +1,14 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Collaborations;
-using BpmEngine.Elements.Processes.Events;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Collaborations;
+using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Tasks
+namespace BPMNEngine.Elements.Processes.Tasks
 {
     [ValidParent(typeof(IProcess))]
     internal abstract class ATask : AFlowNode

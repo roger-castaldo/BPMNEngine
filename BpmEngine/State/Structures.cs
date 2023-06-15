@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.State
+namespace BPMNEngine.State
 {
     internal readonly struct sStepSuspension
     {

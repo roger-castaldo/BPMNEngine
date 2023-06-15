@@ -1,14 +1,14 @@
-﻿using BpmEngine.Attributes;
-using BpmEngine.Elements.Processes.Conditions;
-using BpmEngine.Elements.Processes.Events.Definitions;
-using BpmEngine.Interfaces;
+﻿using BPMNEngine.Attributes;
+using BPMNEngine.Elements.Processes.Conditions;
+using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace BpmEngine.Elements.Processes.Scripts
+namespace BPMNEngine.Elements.Processes.Scripts
 {
     [ValidParent(typeof(ExtensionElements))]
     [ValidParent(typeof(AConditionSet))]
