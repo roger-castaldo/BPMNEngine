@@ -1,4 +1,4 @@
-﻿using BPMNEngine.Interfaces;
+﻿using BPMNEngine.Interfaces.Variables;
 using System;
 using System.Collections.Generic;
 using System.Text;

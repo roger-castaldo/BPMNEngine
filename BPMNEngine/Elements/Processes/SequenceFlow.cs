@@ -1,11 +1,12 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Conditions;
-using BPMNEngine.Interfaces;
 using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes
 {

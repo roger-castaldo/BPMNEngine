@@ -1,6 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;

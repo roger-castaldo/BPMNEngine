@@ -5,13 +5,13 @@ using BPMNEngine.Drawing;
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Gateways;
-using BPMNEngine.Interfaces;
 using BPMNEngine.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
 {

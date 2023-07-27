@@ -6,7 +6,6 @@ using BPMNEngine.Elements.Processes.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using BPMNEngine.Interfaces;
 using System.Globalization;
 using BPMNEngine.Elements;
 using System.Linq;
@@ -19,6 +18,8 @@ using System.Linq.Expressions;
 using System.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.State;
 
 namespace BPMNEngine.State
 {

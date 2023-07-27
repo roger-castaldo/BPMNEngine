@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using BPMNEngine.Interfaces;
 using BPMNEngine.Elements.Processes.Events.Definitions;
 using System.Linq;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
 {

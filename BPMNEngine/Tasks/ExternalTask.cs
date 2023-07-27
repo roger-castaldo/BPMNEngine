@@ -1,5 +1,7 @@
 ﻿using BPMNEngine.Elements.Processes.Tasks;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Tasks
 {

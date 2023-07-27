@@ -1,10 +1,10 @@
 ﻿using Microsoft.Maui.Graphics;
 using BPMNEngine.Attributes;
-using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
 {

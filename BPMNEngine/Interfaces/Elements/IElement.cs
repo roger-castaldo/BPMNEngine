@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace BPMNEngine.Interfaces
+namespace BPMNEngine.Interfaces.Elements
 {
     /// <summary>
     /// This interface is the parent interface for ALL process elements (which are XML nodes)
@@ -25,7 +25,7 @@ namespace BPMNEngine.Interfaces
         /// </summary>
         /// <param name="attributeName">The name of the attribute</param>
         /// <returns></returns>
-        string this[string attributeName]{ get; }
+        string this[string attributeName] { get; }
 
         /// <summary>
         /// The extensions element if it exists.  This element is what is used in BPMN 2.0 to house additional components outside of the definition that 

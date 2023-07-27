@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
 
-namespace BPMNEngine.Interfaces
+namespace BPMNEngine.Interfaces.Tasks
 {
     /// <summary>
     /// This interface is used to define an externall accessible task that can have extension items to allow for processing beyond the basic BPMN notation.
@@ -16,7 +18,7 @@ namespace BPMNEngine.Interfaces
         /// </summary>
         /// <param name="signal">The signal to emit into the process</param>
         /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
-        void Signal(string signal,out bool isAborted);
+        void Signal(string signal, out bool isAborted);
         /// <summary>
         /// Called to issue an escalation from the task (this should be caught somewhere within the process by an Escalation Reciving Element)
         /// </summary>

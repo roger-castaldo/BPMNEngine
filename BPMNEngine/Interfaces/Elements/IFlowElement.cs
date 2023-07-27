@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BPMNEngine.Interfaces
+namespace BPMNEngine.Interfaces.Elements
 {
     /// <summary>
     /// An interface for a flow element which can be message, sequence, or in some cases association

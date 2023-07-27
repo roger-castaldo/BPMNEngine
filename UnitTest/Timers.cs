@@ -8,6 +8,8 @@ using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {

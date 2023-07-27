@@ -1,5 +1,5 @@
 ﻿using BPMNEngine.Elements.Processes.Events.Definitions;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;

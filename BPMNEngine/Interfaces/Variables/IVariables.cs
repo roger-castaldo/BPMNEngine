@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BPMNEngine.Interfaces
+namespace BPMNEngine.Interfaces.Variables
 {
     /// <summary>
     /// This interface defines a container to house the process variables and allows for editing of those variables.

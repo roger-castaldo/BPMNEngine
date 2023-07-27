@@ -26,6 +26,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine
 {

@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Scripts;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;

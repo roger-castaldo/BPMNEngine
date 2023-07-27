@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Maui.Graphics;
-using BPMNEngine.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +12,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Xml;
+using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.State
 {
@@ -151,7 +152,7 @@ namespace BPMNEngine.State
                 writer.WriteStartElement(_FILE_ELEMENT_TYPE);
                 writer.WriteAttributeString(_FILE_NAME, file.Name);
                 writer.WriteAttributeString(_FILE_EXTENSION, file.Extension);
-                if (file.ContentType!=null)
+                if (!string.IsNullOrEmpty(file.ContentType))
                     writer.WriteAttributeString(_FILE_CONTENT_TYPE, file.ContentType);
                 writer.WriteCData(Convert.ToBase64String(file.Content));
                 writer.WriteEndElement();
@@ -164,7 +165,7 @@ namespace BPMNEngine.State
                 writer.WriteStringValue(file.Name);
                 writer.WritePropertyName(_FILE_EXTENSION);
                 writer.WriteStringValue(file.Extension);
-                if (file.ContentType!=null)
+                if (!string.IsNullOrEmpty(file.ContentType))
                 {
                     writer.WritePropertyName(_FILE_CONTENT_TYPE);
                     writer.WriteStringValue(file.ContentType);

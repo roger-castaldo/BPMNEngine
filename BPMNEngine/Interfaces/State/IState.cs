@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BPMNEngine.Interfaces.Elements;
 
-namespace BPMNEngine.Interfaces
+namespace BPMNEngine.Interfaces.State
 {
     /// <summary>
     /// Houses the current state of a process, this will have current variables (including the Keys to know all variables contained)

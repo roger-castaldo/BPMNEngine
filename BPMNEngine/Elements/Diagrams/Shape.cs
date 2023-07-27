@@ -7,13 +7,13 @@ using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
-using BPMNEngine.Interfaces;
 using BPMNEngine.State;
 using System;
 using System.CodeDom;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Xml;
+using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
 {

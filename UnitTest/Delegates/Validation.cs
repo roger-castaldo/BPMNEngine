@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
 
 namespace UnitTest.Delegates
 {

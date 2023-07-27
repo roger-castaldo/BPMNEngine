@@ -6,8 +6,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml;
-using BPMNEngine.Interfaces;
 using System.Linq;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.Generic;

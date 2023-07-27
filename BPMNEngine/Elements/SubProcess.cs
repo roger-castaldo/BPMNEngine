@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using BPMNEngine.Interfaces;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Conditions;
 using System.Linq;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements
 {

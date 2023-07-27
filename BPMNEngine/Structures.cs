@@ -21,7 +21,7 @@ namespace BPMNEngine
         /// <summary>
         /// The content type tag for the File.  e.g. text/html
         /// </summary>
-        public string ContentType { get; init; }
+        public string ContentType { get; init; } = null;
 
         /// <summary>
         /// The binary content of the File.

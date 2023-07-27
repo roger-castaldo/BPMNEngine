@@ -1,4 +1,7 @@
-﻿using BPMNEngine.Interfaces;
+﻿using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

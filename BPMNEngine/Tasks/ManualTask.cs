@@ -1,5 +1,5 @@
 ﻿using BPMNEngine.Elements.Processes.Tasks;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Text;

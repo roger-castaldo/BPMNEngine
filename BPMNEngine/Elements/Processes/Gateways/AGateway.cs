@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.State;
 using System;
 using System.Collections.Generic;

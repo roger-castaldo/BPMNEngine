@@ -2,7 +2,8 @@
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;

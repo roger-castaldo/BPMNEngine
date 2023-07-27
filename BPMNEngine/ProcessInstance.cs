@@ -12,6 +12,10 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using Microsoft.Extensions.Logging;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine
 {

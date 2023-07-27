@@ -10,6 +10,8 @@ using System.Threading;
 using System.Linq;
 using Esprima.Ast;
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
+using System.Diagnostics;
+using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
@@ -475,7 +477,8 @@ namespace UnitTest
                 var extfile = (SFile)extracted;
                 Assert.AreEqual(isfile.Name, extfile.Name);
                 Assert.AreEqual(isfile.Extension, extfile.Extension);
-                Assert.AreEqual(isfile.ContentType, extfile.ContentType);
+                if (!(string.IsNullOrEmpty(isfile.ContentType)&&string.IsNullOrEmpty(extfile.ContentType)))
+                    Assert.AreEqual(isfile.ContentType, extfile.ContentType);
                 Assert.AreEqual(Convert.ToBase64String(isfile.Content), Convert.ToBase64String(extfile.Content));
             }
             else

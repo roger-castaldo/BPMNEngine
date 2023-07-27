@@ -1,4 +1,4 @@
-﻿using BPMNEngine.Interfaces;
+﻿using BPMNEngine.Interfaces.State;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;

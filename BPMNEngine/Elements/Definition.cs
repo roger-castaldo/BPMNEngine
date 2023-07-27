@@ -1,6 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Collaborations;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
 using System.Xml;
 
 namespace BPMNEngine.Elements

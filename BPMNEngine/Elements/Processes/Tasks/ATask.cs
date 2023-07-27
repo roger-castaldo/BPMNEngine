@@ -1,7 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes.Events;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,5 +1,8 @@
 ﻿using BPMNEngine.Elements.Processes.Events;
-using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.State;
 using Microsoft.Extensions.Logging;
 using System;

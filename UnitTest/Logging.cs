@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.Logging;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
