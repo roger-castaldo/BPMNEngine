@@ -1,17 +1,12 @@
 ﻿using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Tasks
 {
     internal class ExternalTask : ITask
     {
-        private ATask _task;
-        private ProcessVariablesContainer _variables;
+        private readonly ATask _task;
+        private readonly ProcessVariablesContainer _variables;
         protected ProcessInstance _businessProcess;
         private bool _aborted;
         public bool Aborted { get { return _aborted; } }
@@ -59,29 +54,29 @@ namespace BPMNEngine.Tasks
             get { return _task.ExtensionElement; }
         }
 
-        private void WriteLogLine(LogLevels level,string message)
+        private void WriteLogLine(LogLevel level,string message)
         {
             _businessProcess.WriteLogLine(_task, level, new StackFrame(2, true), DateTime.Now, message);
         }
 
         public void Debug(string message)
         {
-            WriteLogLine(LogLevels.Debug, message);
+            WriteLogLine(LogLevel.Debug, message);
         }
 
         public void Debug(string message, object[] pars)
         {
-            WriteLogLine(LogLevels.Debug, string.Format(message,pars));
+            WriteLogLine(LogLevel.Debug, string.Format(message,pars));
         }
 
         public void Error(string message)
         {
-            WriteLogLine(LogLevels.Error, message);
+            WriteLogLine(LogLevel.Error, message);
         }
 
         public void Error(string message, object[] pars)
         {
-            WriteLogLine(LogLevels.Error, string.Format(message, pars));
+            WriteLogLine(LogLevel.Error, string.Format(message, pars));
         }
 
         public Exception Exception(Exception exception)
@@ -91,22 +86,22 @@ namespace BPMNEngine.Tasks
 
         public void Fatal(string message)
         {
-            WriteLogLine(LogLevels.Fatal, message);
+            WriteLogLine(LogLevel.Critical, message);
         }
 
         public void Fatal(string message, object[] pars)
         {
-            WriteLogLine(LogLevels.Fatal, string.Format(message, pars));
+            WriteLogLine(LogLevel.Critical, string.Format(message, pars));
         }
 
         public void Info(string message)
         {
-            WriteLogLine(LogLevels.Info, message);
+            WriteLogLine(LogLevel.Information, message);
         }
 
         public void Info(string message, object[] pars)
         {
-            WriteLogLine(LogLevels.Info, string.Format(message, pars));
+            WriteLogLine(LogLevel.Information, string.Format(message, pars));
         }
         #endregion
 

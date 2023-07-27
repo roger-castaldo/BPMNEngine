@@ -47,7 +47,7 @@ namespace BPMNEngine
                 if (prefix != null)
                 {
                     changed = true;
-                    _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
+                    _process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
                     if (!_prefixMaps.ContainsKey(prefix))
                         _prefixMaps.TryAdd(prefix, Array.Empty<string>());
                     IEnumerable<string> current;
@@ -60,7 +60,7 @@ namespace BPMNEngine
 
         public IEnumerable<string> Translate(string prefix)
         {
-            _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Attempting to translate xml prefix {0}", new object[] { prefix }));
+            _process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Attempting to translate xml prefix {0}", new object[] { prefix }));
             IEnumerable<string> ret;
             _prefixMaps.TryGetValue(prefix, out ret);
             return ret;
@@ -68,7 +68,7 @@ namespace BPMNEngine
 
         internal bool isMatch(string prefix, string tag, string nodeName)
         {
-            _process.WriteLogLine((string)null, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName, prefix, tag }));
+            _process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName, prefix, tag }));
             return string.Equals($"{prefix}:{tag}", nodeName, StringComparison.InvariantCultureIgnoreCase)
                 ||Translate(prefix).Any(str => string.Equals($"{prefix}:{str}", nodeName, StringComparison.InvariantCultureIgnoreCase));
         }

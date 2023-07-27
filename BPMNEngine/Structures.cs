@@ -1,13 +1,5 @@
 ﻿using BPMNEngine.Elements;
 using BPMNEngine.Elements.Processes.Events;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine
 {
@@ -16,70 +8,32 @@ namespace BPMNEngine
     /// </summary>
     public readonly struct SFile 
     {
-        private readonly string _name;
         /// <summary>
         /// The name of the File.
         /// </summary>
-        public string Name { get { return _name; } }
+        public string Name { get; init; }
 
-        private readonly string _extension;
         /// <summary>
         /// The extension of the File.
         /// </summary>
-        public string Extension { get { return _extension; } }
+        public string Extension { get; init; }
 
-        private readonly string _contentType;
         /// <summary>
         /// The content type tag for the File.  e.g. text/html
         /// </summary>
-        public string ContentType { get { return _contentType; } }
+        public string ContentType { get; init; }
 
-        private readonly byte[] _content;
         /// <summary>
         /// The binary content of the File.
         /// </summary>
-        public byte[] Content { get { return _content; } }
-
-        /// <summary>
-        /// Create a new Empty File, only specifying the name and extension.
-        /// </summary>
-        /// <param name="name">Becomes the Name property of the File.</param>
-        /// <param name="extension">Becomes the Extension property of the File.</param>
-        public SFile(string name, string extension)
-            : this(name, extension, null, Array.Empty<byte>())
-        { }
-
-        /// <summary>
-        /// Create with new File with a given content.
-        /// </summary>
-        /// <param name="name">Becomes the Name property of the File.</param>
-        /// <param name="extension">Becomes the Extension property of the File.</param>
-        /// <param name="content">Becomes the Content property of the File.</param>
-        public SFile(string name, string extension, byte[] content)
-            : this(name, extension, null, content)
-        { }
-
-        /// <summary>
-        /// Create with new File with a given content and Content Type.
-        /// </summary>
-        /// <param name="name">Becomes the Name property of the File.</param>
-        /// <param name="extension">Becomes the Extension property of the File.</param>
-        /// <param name="contentType">Becomes the ContentType property of the File.</param>
-        /// <param name="content">Becomes the Content property of the File.</param>
-        public SFile(string name, string extension, string contentType, byte[] content)
-        {
-            _name = name;
-            _extension = extension;
-            _contentType = (contentType==String.Empty ? null : contentType);
-            _content = content;
-        }
+        public byte[] Content { get; init; }
 
         internal SFile(DefinitionFile file)
         {
-            _name=file.Name;
-            _extension=file.Extension;
-            _contentType = file.ContentType;
-            _content = file.Content;
+            Name=file.Name;
+            Extension=file.Extension;
+            ContentType = file.ContentType;
+            Content = file.Content;
         }
 
         /// <summary>
@@ -91,8 +45,8 @@ namespace BPMNEngine
         {
             if (obj is SFile fle)
             {
-                return fle.Name.Equals(Name) &&
-                    fle.Extension.Equals(Extension) &&
+                return fle.Name.Equals(Name,StringComparison.InvariantCultureIgnoreCase) &&
+                    fle.Extension.Equals(Extension, StringComparison.InvariantCultureIgnoreCase) &&
                     DataEquals(fle.Content);
             }
             return false;
@@ -104,18 +58,14 @@ namespace BPMNEngine
         /// <returns>an integer value hashcode</returns>
         public override int GetHashCode()
         {
-            return string.Format("{0}.{1}:{2}", new object[]
-            {
-                _name,
-                _extension,
-                Convert.ToBase64String(_content)
-            }).GetHashCode();
+            return $"{Name}.{Extension}:{Convert.ToBase64String(Content)}"
+                .GetHashCode();
         }
 
         private bool DataEquals(byte[] content)
         {
-            if (_content.Length==content.Length)
-                return !_content.Select((b, i) => new { val = b, index = i }).Any(o => content[o.index]!=o.val);
+            if (Content.Length==content.Length)
+                return !Content.Select((b, i) => new { val = b, index = i }).Any(o => content[o.index]!=o.val);
             return false;
         }
 
@@ -147,64 +97,29 @@ namespace BPMNEngine
     /// </summary>
     public readonly struct SProcessRuntimeConstant
     {
-        private readonly string _name;
         /// <summary>
         /// The Name of the variable.
         /// </summary>
-        public string Name => _name;
+        public string Name { get; init; }
 
-        private readonly object _value;
         /// <summary>
         /// The Value of the variable.
         /// </summary>
-        public object Value => _value;
-
-        /// <summary>
-        /// Create a new Process Runtime Constant with the given name and value.
-        /// </summary>
-        /// <param name="name">Becomes the Name property of the variable.</param>
-        /// <param name="value">Becomes the Value property of the variable.</param>
-        public SProcessRuntimeConstant(string name,object value)
-        {
-            _name = name;
-            _value = value;
-        }
+        public object Value { get; init; }
     }
 
     internal readonly struct SProcessSuspendEvent
     {
-        private readonly ProcessInstance _instance;
-        public ProcessInstance Instance => _instance;
-        private readonly AEvent _event;
-        public AEvent Event => _event;
-        private readonly DateTime _endTime;
-        public DateTime EndTime => _endTime;
-
-        public SProcessSuspendEvent(ProcessInstance instance, AEvent evnt, TimeSpan time)
-        {
-            _instance = instance;
-            _event = evnt;
-            _endTime = DateTime.Now.Add(time);
-        }
+        public ProcessInstance Instance { get; init; }
+        public AEvent Event { get; init; }
+        public DateTime EndTime { get; init; }
     }
 
     internal readonly struct SProcessDelayedEvent
     {
-        private readonly ProcessInstance _instance;
-        public ProcessInstance Instance { get { return _instance; } }
-        private readonly BoundaryEvent _event;
-        public BoundaryEvent Event { get { return _event; } }
-        private readonly DateTime _startTime;
-        public DateTime StartTime { get { return _startTime; } }
-        private readonly string _sourceID;
-        public string SourceID { get { return _sourceID; } }
-
-        public SProcessDelayedEvent(ProcessInstance instance, BoundaryEvent evnt, TimeSpan time, string sourceID)
-        {
-            _instance = instance;
-            _event = evnt;
-            _startTime = DateTime.Now.Add(time);
-            _sourceID=sourceID;
-        }
+        public ProcessInstance Instance { get; init; }
+        public BoundaryEvent Event { get; init; }
+        public DateTime StartTime { get; init; }
+        public string SourceID { get; init; }
     }
 }

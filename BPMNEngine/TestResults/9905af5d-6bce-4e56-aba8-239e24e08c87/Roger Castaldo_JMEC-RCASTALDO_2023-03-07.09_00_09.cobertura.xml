@@ -385,7 +385,7 @@
                 <line number="709" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="0" branch-rate="0" complexity="2" name="LoadState" signature="(System.Xml.XmlDocument, bool, BpmEngine.LogLine, BpmEngine.LogException, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessErrorEvent, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnStateChange, BpmEngine.OnElementAborted, BpmEngine.IsEventStartValid, BpmEngine.IsProcessStartValid, BpmEngine.IsFlowValid, BpmEngine.ProcessTask, BpmEngine.StartManualTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.StartUserTask, BpmEngine.LogLevels)">
+            <method line-rate="0" branch-rate="0" complexity="2" name="LoadState" signature="(System.Xml.XmlDocument, bool, BpmEngine.LogLine, BpmEngine.LogException, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessErrorEvent, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnStateChange, BpmEngine.OnElementAborted, BpmEngine.IsEventStartValid, BpmEngine.IsProcessStartValid, BpmEngine.IsFlowValid, BpmEngine.ProcessTask, BpmEngine.StartManualTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.StartUserTask, BpmEngine.LogLevel)">
               <lines>
                 <line number="788" hits="0" branch="False" />
                 <line number="789" hits="0" branch="False" />
@@ -725,7 +725,7 @@
                 <line number="996" hits="0" branch="False" />
               </lines>
             </method>
-            <method line-rate="0.8571428571428571" branch-rate="0.625" complexity="16" name="BeginProcess" signature="(System.Collections.Generic.Dictionary&lt;string, object&gt;, BpmEngine.LogLine, BpmEngine.LogException, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessErrorEvent, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnStateChange, BpmEngine.OnElementAborted, BpmEngine.IsEventStartValid, BpmEngine.IsProcessStartValid, BpmEngine.IsFlowValid, BpmEngine.ProcessTask, BpmEngine.StartManualTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.StartUserTask, BpmEngine.LogLevels)">
+            <method line-rate="0.8571428571428571" branch-rate="0.625" complexity="16" name="BeginProcess" signature="(System.Collections.Generic.Dictionary&lt;string, object&gt;, BpmEngine.LogLine, BpmEngine.LogException, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessEvent, BpmEngine.OnProcessErrorEvent, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnFlowComplete, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnElementEvent, BpmEngine.OnStateChange, BpmEngine.OnElementAborted, BpmEngine.IsEventStartValid, BpmEngine.IsProcessStartValid, BpmEngine.IsFlowValid, BpmEngine.ProcessTask, BpmEngine.StartManualTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.ProcessTask, BpmEngine.StartUserTask, BpmEngine.LogLevel)">
               <lines>
                 <line number="1074" hits="1" branch="False" />
                 <line number="1075" hits="1" branch="False" />
@@ -1430,7 +1430,7 @@
                 <line number="1516" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="1" branch-rate="1" complexity="2" name="WriteLogLine" signature="(string, BpmEngine.LogLevels, System.Diagnostics.StackFrame, System.DateTime, string)">
+            <method line-rate="1" branch-rate="1" complexity="2" name="WriteLogLine" signature="(string, BpmEngine.LogLevel, System.Diagnostics.StackFrame, System.DateTime, string)">
               <lines>
                 <line number="1520" hits="1" branch="False" />
                 <line number="1521" hits="1" branch="True" condition-coverage="100% (2/2)">
@@ -1441,7 +1441,7 @@
                 <line number="1522" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="0.75" branch-rate="0.5" complexity="2" name="WriteLogLine" signature="(BpmEngine.Interfaces.IElement, BpmEngine.LogLevels, System.Diagnostics.StackFrame, System.DateTime, string)">
+            <method line-rate="0.75" branch-rate="0.5" complexity="2" name="WriteLogLine" signature="(BpmEngine.Interfaces.IElement, BpmEngine.LogLevel, System.Diagnostics.StackFrame, System.DateTime, string)">
               <lines>
                 <line number="1524" hits="1" branch="False" />
                 <line number="1525" hits="1" branch="True" condition-coverage="50% (1/2)">
@@ -4023,7 +4023,7 @@
                 <line number="39" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="1" branch-rate="1" complexity="1" name=".ctor" signature="(BpmEngine.BusinessProcess, BpmEngine.DelegateContainer, BpmEngine.LogLevels)">
+            <method line-rate="1" branch-rate="1" complexity="1" name=".ctor" signature="(BpmEngine.BusinessProcess, BpmEngine.DelegateContainer, BpmEngine.LogLevel)">
               <lines>
                 <line number="36" hits="1" branch="False" />
                 <line number="38" hits="1" branch="False" />
@@ -4390,7 +4390,7 @@
                 <line number="268" hits="0" branch="False" />
               </lines>
             </method>
-            <method line-rate="0" branch-rate="1" complexity="1" name="BpmEngine.Interfaces.IProcessInstance.set_StateLogLevel" signature="(BpmEngine.LogLevels)">
+            <method line-rate="0" branch-rate="1" complexity="1" name="BpmEngine.Interfaces.IProcessInstance.set_StateLogLevel" signature="(BpmEngine.LogLevel)">
               <lines>
                 <line number="268" hits="0" branch="False" />
               </lines>
@@ -4525,7 +4525,7 @@
                 <line number="347" hits="0" branch="False" />
               </lines>
             </method>
-            <method line-rate="1" branch-rate="0.5" complexity="2" name="WriteLogLine" signature="(string, BpmEngine.LogLevels, System.Diagnostics.StackFrame, System.DateTime, string)">
+            <method line-rate="1" branch-rate="0.5" complexity="2" name="WriteLogLine" signature="(string, BpmEngine.LogLevel, System.Diagnostics.StackFrame, System.DateTime, string)">
               <lines>
                 <line number="351" hits="1" branch="False" />
                 <line number="352" hits="1" branch="True" condition-coverage="50% (1/2)">
@@ -4536,7 +4536,7 @@
                 <line number="353" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="0.66666666666666663" branch-rate="0.375" complexity="8" name="WriteLogLine" signature="(BpmEngine.Interfaces.IElement, BpmEngine.LogLevels, System.Diagnostics.StackFrame, System.DateTime, string)">
+            <method line-rate="0.66666666666666663" branch-rate="0.375" complexity="8" name="WriteLogLine" signature="(BpmEngine.Interfaces.IElement, BpmEngine.LogLevel, System.Diagnostics.StackFrame, System.DateTime, string)">
               <lines>
                 <line number="355" hits="1" branch="False" />
                 <line number="356" hits="1" branch="True" condition-coverage="50% (2/4)">
@@ -5341,7 +5341,7 @@
                 <line number="173" hits="0" branch="False" />
               </lines>
             </method>
-            <method line-rate="0" branch-rate="1" complexity="1" name="LogLine" signature="(string, System.Reflection.AssemblyName, string, int, BpmEngine.LogLevels, System.DateTime, string)">
+            <method line-rate="0" branch-rate="1" complexity="1" name="LogLine" signature="(string, System.Reflection.AssemblyName, string, int, BpmEngine.LogLevel, System.DateTime, string)">
               <lines>
                 <line number="176" hits="0" branch="False" />
                 <line number="177" hits="0" branch="False" />
@@ -5812,7 +5812,7 @@
                 <line number="42" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="0" branch-rate="0" complexity="4" name="WriteLogLine" signature="(BpmEngine.LogLevels, string)">
+            <method line-rate="0" branch-rate="0" complexity="4" name="WriteLogLine" signature="(BpmEngine.LogLevel, string)">
               <lines>
                 <line number="45" hits="0" branch="False" />
                 <line number="46" hits="0" branch="True" condition-coverage="0% (0/2)">
@@ -5830,7 +5830,7 @@
                 <line number="50" hits="0" branch="False" />
               </lines>
             </method>
-            <method line-rate="0" branch-rate="0" complexity="4" name="WriteLogLine" signature="(BpmEngine.LogLevels, System.Diagnostics.StackFrame, System.DateTime, string)">
+            <method line-rate="0" branch-rate="0" complexity="4" name="WriteLogLine" signature="(BpmEngine.LogLevel, System.Diagnostics.StackFrame, System.DateTime, string)">
               <lines>
                 <line number="53" hits="0" branch="False" />
                 <line number="54" hits="0" branch="True" condition-coverage="0% (0/2)">
@@ -8534,7 +8534,7 @@
                 <line number="54" hits="0" branch="False" />
               </lines>
             </method>
-            <method line-rate="1" branch-rate="1" complexity="1" name="_WriteLogLine" signature="(string, BpmEngine.LogLevels, string)">
+            <method line-rate="1" branch-rate="1" complexity="1" name="_WriteLogLine" signature="(string, BpmEngine.LogLevel, string)">
               <lines>
                 <line number="57" hits="1" branch="False" />
                 <line number="58" hits="1" branch="False" />
@@ -8593,7 +8593,7 @@
                 <line number="17" hits="1" branch="False" />
               </lines>
             </method>
-            <method line-rate="0" branch-rate="1" complexity="1" name="LogLine" signature="(string, System.Reflection.AssemblyName, string, int, BpmEngine.LogLevels, System.DateTime, string)">
+            <method line-rate="0" branch-rate="1" complexity="1" name="LogLine" signature="(string, System.Reflection.AssemblyName, string, int, BpmEngine.LogLevel, System.DateTime, string)">
               <lines>
                 <line number="20" hits="0" branch="False" />
                 <line number="21" hits="0" branch="False" />

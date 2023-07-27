@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using Microsoft.Extensions.Logging;
 
 namespace BPMNEngine
 {
@@ -38,7 +39,7 @@ namespace BPMNEngine
                 return _mreSuspend;
             }
         }
-        private LogLevels _stateLogLevel;
+        private readonly LogLevel _stateLogLevel;
         public DelegateContainer Delegates { get; private init; }
 
         private bool _isSuspended = false;
@@ -46,7 +47,7 @@ namespace BPMNEngine
 
         private bool _isComplete = false;
 
-        internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevels stateLogLevel)
+        internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevel stateLogLevel)
         {
             ID = Utility.NextRandomGuid();
             Process = process;
@@ -59,7 +60,7 @@ namespace BPMNEngine
         {
             if (State.Load(doc))
             {
-                WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
+                WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
                 _isSuspended = State.IsSuspended;
                 if (autoResume&&_isSuspended)
                     ((IProcessInstance)this).Resume();
@@ -140,7 +141,7 @@ namespace BPMNEngine
         {
             if (!((Tasks.ExternalTask)task).Aborted)
             {
-                WriteLogLine(task, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, task is IUserTask task1 ? task1.UserID : null }));
+                WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, task is IUserTask task1 ? task1.UserID : null }));
                 IVariables vars = task.Variables;
                 State.MergeVariables(task,vars);
                 InvokeElementEventDelegate(Delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.id, this));
@@ -180,17 +181,17 @@ namespace BPMNEngine
             get { return Process.Document; }
         }
 
-        object IProcessInstance.this[string name] { get { return Process[name]; } }
+        object IProcessInstance.this[string name]=>Process[name];
 
-        IEnumerable<string> IProcessInstance.Keys { get { return Process.Keys; } }
+        IEnumerable<string> IProcessInstance.Keys=>Process.Keys;
 
-        IState IProcessInstance.CurrentState { get { return State.CurrentState; } }
+        IState IProcessInstance.CurrentState =>State.CurrentState;
 
-        LogLevels IProcessInstance.StateLogLevel { get { return _stateLogLevel; } set { _stateLogLevel=value; } }
+        public LogLevel StateLogLevel { get; private init; }
 
         void IProcessInstance.Resume()
         {
-            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
+            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
             if (_isSuspended)
             {
                 _isSuspended = false;
@@ -202,7 +203,7 @@ namespace BPMNEngine
                 {
                     CompleteTimedEvent(delayedEvent);
                 });
-                WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
+                WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
             }
             else
             {
@@ -214,7 +215,7 @@ namespace BPMNEngine
 
         void IProcessInstance.Suspend()
         {
-            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
+            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
             _isSuspended = true;
             State.Suspend();
             Utility.UnloadProcess(this);
@@ -261,13 +262,13 @@ namespace BPMNEngine
         }
 
         #region Logging
-        internal void WriteLogLine(string elementID, LogLevels level, StackFrame sf, DateTime timestamp, string message)
+        internal void WriteLogLine(string elementID, LogLevel level, StackFrame sf, DateTime timestamp, string message)
         {
             WriteLogLine((IElement)(elementID==null ? null : Process.GetElement(elementID)), level, sf, timestamp, message);
         }
-        internal void WriteLogLine(IElement element, LogLevels level, StackFrame sf, DateTime timestamp, string message)
+        internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
         {
-            if ((int)level <= (int)_stateLogLevel && State!=null)
+            if ((int)level >= (int)_stateLogLevel && State!=null)
                 State.LogLine(element?.id, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
             Delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
@@ -279,7 +280,7 @@ namespace BPMNEngine
 
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
-            if ((int)LogLevels.Error <= (int)_stateLogLevel)
+            if ((int)LogLevel.Error>= (int)_stateLogLevel)
                 State.LogException(element?.id, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             Delegates.Logging.LogException?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             return exception;

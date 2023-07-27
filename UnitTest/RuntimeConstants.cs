@@ -23,7 +23,10 @@ namespace UnitTest
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"), constants: new SProcessRuntimeConstant[]
             {
-                new SProcessRuntimeConstant(VARIABLE_NAME,VARIABLE_VALUE)
+                new SProcessRuntimeConstant(){
+                    Name=VARIABLE_NAME,
+                    Value=VARIABLE_VALUE
+                }
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
 

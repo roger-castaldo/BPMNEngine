@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Graphics;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,7 +24,7 @@ namespace BPMNEngine.Interfaces
         /// <summary>
         /// The log level to use inside the state document for logging
         /// </summary>
-        LogLevels StateLogLevel { get; set; }
+        LogLevel StateLogLevel { get; }
         /// <summary>
         /// This is used to access the values of the process runtime and definition constants
         /// </summary>

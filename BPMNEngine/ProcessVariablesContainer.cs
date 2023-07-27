@@ -29,14 +29,14 @@ namespace BPMNEngine
         {
             _processInstance= processInstance;
             _process = processInstance.Process;
-            _process.WriteLogLine(elementID,LogLevels.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
+            _process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
             _elementID = elementID;
             _stepIndex = processInstance.State.Path.CurrentStepIndex(elementID);
             _nulls = new List<string>();
             _variables = new Dictionary<string, object>();
             processInstance.State[elementID].ForEach(key =>
             {
-                _process.WriteLogLine(elementID, LogLevels.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
+                _process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
                 _variables.Add(key, processInstance.State[elementID, key]);
             });
         }

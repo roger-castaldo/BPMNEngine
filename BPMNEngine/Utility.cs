@@ -265,7 +265,12 @@ namespace BPMNEngine
         {
             lock (_events)
             {
-                _events.Add(new SProcessSuspendEvent(process, evnt, value));
+                _events.Add(new SProcessSuspendEvent()
+                {
+                    Instance=process,
+                    Event=evnt,
+                    EndTime=DateTime.Now.Add(value)
+                });
             }
             _backgroundMREEvent.Set();
         }
@@ -274,7 +279,13 @@ namespace BPMNEngine
         {
             lock (_events)
             {
-                _events.Add(new SProcessDelayedEvent(process, evnt, value, sourceID));
+                _events.Add(new SProcessDelayedEvent()
+                {
+                    Instance=process,
+                    Event=evnt,
+                    StartTime=DateTime.Now.Add(value),
+                    SourceID=sourceID
+                });
             }
             _backgroundMREEvent.Set();
         }

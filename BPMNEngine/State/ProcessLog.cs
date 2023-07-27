@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Reflection;
 using System.Text;
@@ -26,7 +27,7 @@ namespace BPMNEngine.State
                 get
                 {
                     _log._stateLock.EnterReadLock();
-                    var result = _log._content.ToString().Substring(0, _length);
+                    var result = _log._content.ToString()[.._length];
                     _log._stateLock.ExitReadLock();
                     return result;
                 }
@@ -53,7 +54,7 @@ namespace BPMNEngine.State
             _content = new StringBuilder();
         }
 
-        public void LogLine(string elementID, AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
+        public void LogLine(string elementID, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
         {
             _stateLock.EnterWriteLock();
             _content.AppendFormat("{0}|{1}|{2}|{3}[{4}]|Element[{5}]|{6}\r\n", new object[]
@@ -72,12 +73,12 @@ namespace BPMNEngine.State
 
         public void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
         {
-            LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(exception));
+            LogLine(elementID, assembly, fileName, lineNumber, LogLevel.Error, timestamp, GenerateExceptionLine(exception));
             if (exception is InvalidProcessDefinitionException processDefinitionException)
-                processDefinitionException.ProcessExceptions.ForEach(e => LogLine(elementID, assembly, fileName, lineNumber, LogLevels.Error, timestamp, _GenerateExceptionLine(e)));
+                processDefinitionException.ProcessExceptions.ForEach(e => LogLine(elementID, assembly, fileName, lineNumber, LogLevel.Error, timestamp, GenerateExceptionLine(e)));
         }
 
-        private string _GenerateExceptionLine(Exception exception)
+        private static string GenerateExceptionLine(Exception exception)
         {
             var sb = new StringBuilder();
             bool isInner = false;

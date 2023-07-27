@@ -342,7 +342,7 @@ namespace UnitTest
             byte[] data = new byte[str.Length];
             str.Read(data,0, data.Length);
             str.Close();
-            var variableValue = new SFile("start_to_stop","bpmn","text/xml",data);
+            var variableValue = new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content=data };
             var variableArray = new SFile[] { variableValue, variableValue };
             Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
@@ -400,7 +400,7 @@ namespace UnitTest
                 {"TestFloat",float.MinValue},
                 {"TestByte", System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345")},
                 {"TestNull",null },
-                { "TestFile",new SFile("start_to_stop","bpmn",data) },
+                { "TestFile",new SFile(){Name="start_to_stop",Extension="bpmn",Content=data } },
                 {"TestArray","This is a test".ToCharArray() },
                 {"TestGuid",new Guid("a4966f14-0108-48ba-a793-8be9982bc411") }
             };

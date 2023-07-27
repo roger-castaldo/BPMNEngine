@@ -314,7 +314,13 @@ namespace BPMNEngine.State
             var extension = reader.GetAttribute(_FILE_EXTENSION);
             var contentType = reader.GetAttribute(_FILE_CONTENT_TYPE);
             reader.Read();
-            var result = new SFile(name, extension, contentType, Convert.FromBase64String(reader.Value));
+            var result = new SFile()
+            {
+                Name=name,
+                Extension=extension,
+                ContentType=contentType,
+                Content=Convert.FromBase64String(reader.Value)
+            };
             reader.Read();
             return result;
         }
@@ -347,17 +353,24 @@ namespace BPMNEngine.State
                 }
             }
             reader.Read();
-            return new SFile(name,extension,contentType, content);
+            return new()
+            {
+                Name=name,
+                Extension=extension,
+                ContentType=contentType,
+                Content=content
+            };
         }
 
         private static SFile DecodeFile(XmlElement element)
         {
-            return new SFile(
-                element.GetAttribute(_FILE_NAME),
-                element.GetAttribute(_FILE_EXTENSION),
-                element.GetAttribute(_FILE_CONTENT_TYPE),
-                Convert.FromBase64String(((XmlCDataSection)element.ChildNodes[0]).Value)
-            );
+            return new()
+            {
+                Name=element.GetAttribute(_FILE_NAME),
+                Extension=element.GetAttribute(_FILE_EXTENSION),
+                ContentType=element.GetAttribute(_FILE_CONTENT_TYPE),
+                Content=Convert.FromBase64String(((XmlCDataSection)element.ChildNodes[0]).Value)
+            };
         }
 
         public void Load(Utf8JsonReader reader)

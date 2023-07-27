@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 
 namespace BPMNEngine
 {
@@ -52,13 +53,12 @@ namespace BPMNEngine
             .OfType<IElement>()
             .Traverse(elem => (elem is IParentElement element ? element.Children : Array.Empty<IElement>()));
 
-        private readonly XmlDocument _doc;
         /// <summary>
         /// The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
         /// </summary>
-        public XmlDocument Document { get { return _doc; } }
+        public XmlDocument Document { get; private init; }
 
-        private readonly SProcessRuntimeConstant[] _constants;
+        private readonly IEnumerable<SProcessRuntimeConstant> _constants;
         /// <summary>
         /// This is used to access the values of the process runtime and definition constants
         /// </summary>
@@ -150,8 +150,8 @@ namespace BPMNEngine
         /// <param name="validations">The Process Validations delegates container</param>
         /// <param name="tasks">The Process Tasks delegates container</param>
         /// <param name="logging">The Process Logging delegates container</param>
-        public BusinessProcess(XmlDocument doc, 
-            SProcessRuntimeConstant[] constants = null,
+        public BusinessProcess(XmlDocument doc,
+             IEnumerable<SProcessRuntimeConstant> constants = null,
             ProcessEvents events = null,
             StepValidations validations=null,
             ProcessTasks tasks=null,
@@ -170,11 +170,11 @@ namespace BPMNEngine
 
 
             IEnumerable<Exception> exceptions = Array.Empty<Exception>();
-            _doc = new XmlDocument();
-            _doc.LoadXml(doc.OuterXml);
+            Document = new XmlDocument();
+            Document.LoadXml(doc.OuterXml);
             var elementMapCache = new BPMNEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
-            WriteLogLine((IElement)null,LogLevels.Info,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
+            WriteLogLine((IElement)null,LogLevel.Information,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
             _components = new List<object>();
             XmlPrefixMap map = new(this);
             _=doc.ChildNodes.Cast<XmlNode>().ForEach(n =>
@@ -217,12 +217,12 @@ namespace BPMNEngine
             }
             _eventHandlers = Elements
                 .OfType<AHandlingEvent>();
-            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
+            WriteLogLine((IElement)null,LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
         }
 
         private IEnumerable<Exception> ValidateElement(AElement elem)
         {
-            WriteLogLine(elem,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.id }));
+            WriteLogLine(elem,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.id }));
             IEnumerable<Exception> result = Array.Empty<Exception>();
             result = result.Concat(
                 elem.GetType().GetCustomAttributes(true).OfType<RequiredAttribute>()
@@ -265,7 +265,7 @@ namespace BPMNEngine
             StepValidations validations = null,
             ProcessTasks tasks = null,
             ProcessLogging logging = null,
-            LogLevels stateLogLevel=LogLevels.None)
+            LogLevel stateLogLevel=LogLevel.None)
         {
             ProcessInstance ret = new(this, DelegateContainer.Merge(_delegates,new DelegateContainer()
             {
@@ -303,7 +303,7 @@ namespace BPMNEngine
             if (!definition.Diagrams.Any())
                 throw new DiagramException("Process definition does not contain any Diagrams");
             state??=new ProcessState(this, null, null, null);
-            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
+            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             double width = 0;
             double height = 0;
             width = definition.Diagrams.Max(d => d.Size.Width+_DEFAULT_PADDING);
@@ -420,7 +420,7 @@ namespace BPMNEngine
 
         internal byte[] Animate(bool outputVariables, ProcessState state)
         {
-            WriteLogLine((IElement)null, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
+            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             var result = Array.Empty<byte>();
             try
             {
@@ -482,7 +482,7 @@ namespace BPMNEngine
             StepValidations validations = null,
             ProcessTasks tasks = null,
             ProcessLogging logging = null,
-            LogLevels stateLogLevel = LogLevels.None)
+            LogLevel stateLogLevel = LogLevel.None)
         {
             ProcessInstance ret = new(this, DelegateContainer.Merge(_delegates, new DelegateContainer()
             {
@@ -492,7 +492,7 @@ namespace BPMNEngine
                 Logging = logging
             }), stateLogLevel);
             ProcessVariablesContainer variables = new(pars,this,ret);
-            ret.WriteLogLine((IElement)null,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
+            ret.WriteLogLine((IElement)null,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new(variables);
             var proc = Elements.OfType<Elements.Process>().FirstOrDefault(p => p.IsStartValid(ropvc, ret.Delegates.Validations.IsProcessStartValid));
             if (proc != null)
@@ -500,7 +500,7 @@ namespace BPMNEngine
                 var start = proc.StartEvents.FirstOrDefault(se => se.IsEventStartValid(ropvc, ret.Delegates.Validations.IsEventStartValid));
                 if (start!=null)
                 {
-                    ret.WriteLogLine(start, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.id));
+                    ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.id));
                     BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Processes.Started, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
                     BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Events.Started, new object[] { start, new ReadOnlyProcessVariablesContainer(variables) });
                     ret.State.Path.StartFlowNode(start, null);
@@ -510,7 +510,7 @@ namespace BPMNEngine
                     return ret;
                 }
             }
-            WriteLogLine((IElement)null,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
+            WriteLogLine((IElement)null,LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Unable to begin process, no valid start located");
             return null;
         }
 
@@ -561,7 +561,7 @@ namespace BPMNEngine
                     });
                 }
             }
-            WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
+            WriteLogLine(sourceID,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
             if (outgoingID != null)
             {
                 IElement elem = GetElement(outgoingID);
@@ -571,7 +571,7 @@ namespace BPMNEngine
         }
 
         internal void ProcessStepError(ProcessInstance instance,IElement step, Exception ex) {
-            instance.WriteLogLine(step,LogLevels.Info, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
+            instance.WriteLogLine(step,LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
             bool success = false;
             if (step is AFlowNode node)
             {
@@ -581,7 +581,7 @@ namespace BPMNEngine
                     success=true;
                     events.ForEach(ahe =>
                     {
-                        instance.WriteLogLine(step, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.id));
+                        instance.WriteLogLine(step, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.id));
                         ProcessElement(instance, step.id, ahe);
                     });
                 }
@@ -604,7 +604,7 @@ namespace BPMNEngine
             }
             else
             {
-                instance.WriteLogLine(sourceID,LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
+                instance.WriteLogLine(sourceID,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
                 bool abort = false;
                 if (elem is AFlowNode node)
                 {
@@ -649,7 +649,7 @@ namespace BPMNEngine
                 var startEvent = esp.StartEvents.FirstOrDefault(se => se.IsEventStartValid(variables, instance.Delegates.Validations.IsEventStartValid));
                 if (startEvent!=null)
                 {
-                    instance.WriteLogLine(startEvent, LogLevels.Info, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", startEvent.id));
+                    instance.WriteLogLine(startEvent, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", startEvent.id));
                     instance.State.Path.StartFlowNode(esp, sourceID);
                     BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Started, new object[] { esp, variables });
                     instance.State.Path.StartFlowNode(startEvent, null);
@@ -870,11 +870,11 @@ namespace BPMNEngine
         }
 
         #region Logging
-        internal void WriteLogLine(string elementID,LogLevels level,StackFrame sf,DateTime timestamp, string message)
+        internal void WriteLogLine(string elementID,LogLevel level,StackFrame sf,DateTime timestamp, string message)
         {
             WriteLogLine((IElement)(elementID == null ? null : GetElement(elementID)), level, sf, timestamp, message);
         }
-        internal void WriteLogLine(IElement element, LogLevels level, StackFrame sf, DateTime timestamp, string message)
+        internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
         {
             _delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }

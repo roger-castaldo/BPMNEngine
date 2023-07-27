@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -390,7 +391,7 @@ namespace BPMNEngine
     /// <param name="level">The log level for the entry</param>
     /// <param name="timestamp">The timestamp of when the log entry occured</param>
     /// <param name="message">The log entry</param>
-    public delegate void LogLine(IElement callingElement,AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message);
+    public delegate void LogLine(IElement callingElement,AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message);
 
     /// <summary>
     /// This delegate is implemented to be called when a Log Exception is made by a process.  This can be used to log exceptions externally, to a file, database, or logging engine implemented outside of the library.

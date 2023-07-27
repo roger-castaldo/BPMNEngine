@@ -109,7 +109,7 @@ namespace BPMNEngine.DelegateContainers
             /// <summary>
             /// This delegate is called when a particular element has an error
             /// <code>
-            ///     public void OnEventError(IStepElement Event, IReadonlyVariables variables){
+            ///     public void OnEventError(IStepElement process,IStepElement Event, IReadonlyVariables variables){
             ///         Console.WriteLine("Event {0} inside process {1} had the error {2} occur with the following variables:",new object[]{Event.id,Event.Process.id,variables.Error.Message});
             ///         foreach (string key in variables.FullKeys){
             ///             Console.WriteLine("\t{0}:{1}",key,variables[key]);

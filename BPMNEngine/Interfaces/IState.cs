@@ -30,5 +30,9 @@ namespace BPMNEngine.Interfaces
         /// Called to convert the state into a loadable json document
         /// </summary>
         string AsJSONDocument { get; }
+        /// <summary>
+        /// Called to obtain a list of all elements that are active (Started or Waiting)
+        /// </summary>
+        IEnumerable<IElement> ActiveElements { get; }
     }
 }

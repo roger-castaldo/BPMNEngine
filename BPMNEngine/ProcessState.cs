@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces;
 using BPMNEngine.State;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,16 +26,18 @@ namespace BPMNEngine
         {
             private readonly bool _isSuspended;
             private readonly IReadOnlyStateVariablesContainer _variables;
-            private readonly IReadOnlyStateContainer _path;
+            private readonly IReadonlyProcessPathContainer _path;
             private readonly IReadOnlyStateContainer _log;
+            private readonly BusinessProcess _process;
 
             public ReadOnlyProcessState(ProcessState state)
             {
                 state._stateEvent.EnterReadLock();
                 _isSuspended=state.IsSuspended;
                 _variables=(IReadOnlyStateVariablesContainer)state._variables.Clone();
-                _path=state._path.Clone();
+                _path=(IReadonlyProcessPathContainer)state._path.Clone();
                 _log=state._log.Clone();
+                _process=state.Process;
                 state._stateEvent.ExitReadLock();
             }
             public object this[string name] => _variables[name];
@@ -96,6 +99,9 @@ namespace BPMNEngine
                     return result;
                 }
             }
+
+            public IEnumerable<IElement> ActiveElements => _path.ActiveSteps
+                .Select(id => _process.GetElement(id));
         }
 
         private readonly ProcessLog _log;
@@ -254,7 +260,7 @@ namespace BPMNEngine
 
         internal void SuspendStep(string sourceID,string elementID, TimeSpan span)
         {
-            _process.WriteLogLine(elementID, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
+            _process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
             _path.SuspendElement(sourceID, elementID, span);
             StateChanged();
         }
@@ -283,13 +289,13 @@ namespace BPMNEngine
 
         internal void Suspend()
         {
-            _process.WriteLogLine((string)null,LogLevels.Debug,new StackFrame(1,true),DateTime.Now,"Suspending Process State");
+            _process.WriteLogLine((string)null,LogLevel.Debug,new StackFrame(1,true),DateTime.Now,"Suspending Process State");
             IsSuspended = true;
         }
 
         internal void Resume(ProcessInstance instance,Action<string,string> processStepComplete,Action<AEvent> completeTimedEvent)
         {
-            _process.WriteLogLine((string)null, LogLevels.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
+            _process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
             var resumes = ResumeSteps.ToArray();
             var suspendedSteps = SuspendedSteps.ToArray();
             var delayedEvents = DelayedEvents.ToArray();
@@ -323,7 +329,7 @@ namespace BPMNEngine
             StateChanged();
         }
 
-        internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevels level, DateTime timestamp, string message)
+        internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
         {
             _log.LogLine(elementID, assembly, fileName, lineNumber, level, timestamp, message);
         }
