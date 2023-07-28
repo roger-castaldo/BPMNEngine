@@ -3,6 +3,7 @@ using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
+using BPMNEngine.Scheduling;
 using BPMNEngine.State;
 using Microsoft.Extensions.Logging;
 using System;
@@ -313,7 +314,7 @@ namespace BPMNEngine
                 suspendedSteps.ForEach(ss =>
                 {
                     if (DateTime.Now.Ticks < ss.EndTime.Ticks)
-                        Utility.Sleep(ss.EndTime.Subtract(DateTime.Now), instance, (AEvent)_process.GetElement(ss.Id));
+                        StepScheduler.Instance.Sleep(ss.EndTime.Subtract(DateTime.Now), instance, (AEvent)_process.GetElement(ss.Id));
                     else
                         completeTimedEvent((AEvent)_process.GetElement(ss.Id));
                 });
@@ -325,7 +326,7 @@ namespace BPMNEngine
                     if (sdse.Delay.Ticks<0)
                         _process.ProcessEvent(instance, sdse.IncomingID, (AEvent)_process.GetElement(sdse.ElementID));
                     else
-                        Utility.DelayStart(sdse.Delay, instance, (BoundaryEvent)_process.GetElement(sdse.ElementID), sdse.IncomingID);
+                        StepScheduler.Instance.DelayStart(sdse.Delay, instance, (BoundaryEvent)_process.GetElement(sdse.ElementID), sdse.IncomingID);
                 });
             });
             _stateEvent.ExitWriteLock();

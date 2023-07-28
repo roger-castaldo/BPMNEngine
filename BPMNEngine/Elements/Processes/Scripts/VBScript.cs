@@ -53,15 +53,15 @@ End Class";
             : base(elem, map, parent)
         { }
 
-        protected override EmitResult _Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms)
+        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms)
         {
             Info("Generating VB Code for script compilation for script element {0}", new object[] { id });
             StringBuilder sbUsing = new StringBuilder();
             imports.ForEach(str => sbUsing.AppendFormat("Imports {0}\n", str));
-            string ccode = string.Format((_IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (_IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
+            string ccode = string.Format((IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
                 sbUsing.ToString(),
-                _ClassName,
-                _FunctionName,
+                ClassName,
+                FunctionName,
                 code
             });
             List<SyntaxTree> tress = new List<SyntaxTree>();

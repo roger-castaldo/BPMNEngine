@@ -107,19 +107,4 @@ namespace BPMNEngine
         /// </summary>
         public object Value { get; init; }
     }
-
-    internal readonly struct SProcessSuspendEvent
-    {
-        public ProcessInstance Instance { get; init; }
-        public AEvent Event { get; init; }
-        public DateTime EndTime { get; init; }
-    }
-
-    internal readonly struct SProcessDelayedEvent
-    {
-        public ProcessInstance Instance { get; init; }
-        public BoundaryEvent Event { get; init; }
-        public DateTime StartTime { get; init; }
-        public string SourceID { get; init; }
-    }
 }

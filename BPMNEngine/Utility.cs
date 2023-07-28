@@ -30,19 +30,9 @@ namespace BPMNEngine
         private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
         private static Dictionary<string, Dictionary<string, Type>> _idealMap;
         public static Dictionary<string, Dictionary<string, Type>> IdealMap { get { return _idealMap; } }
-        private static readonly Thread _backgroundThread;
-        private static List<object> _events;
-        private static ManualResetEvent _backgroundMREEvent;
-
-
+        
         static Utility()
         {
-            _backgroundMREEvent = new ManualResetEvent(true);
-            _events = new List<object>();
-            _backgroundThread = new Thread(new ThreadStart(BackgroundStart));
-            _backgroundThread.Name = "Background Suspend/Delay Thread";
-            _backgroundThread.IsBackground = true;
-            _backgroundThread.Start();
             _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
             _idealMap = new Dictionary<string, Dictionary<string, Type>>();
             List<Type> tmp = new List<Type>();
@@ -118,16 +108,6 @@ namespace BPMNEngine
         internal static XMLTag[] GetTagAttributes(Type t)
         {
             return (_tagAttributes.ContainsKey(t) ? _tagAttributes[t] : null);
-        }
-
-        public static byte[] NextRandomBytes(int length)
-        {
-            return RandomNumberGenerator.GetBytes(length);
-        }
-
-        public static Guid NextRandomGuid()
-        {
-            return new Guid(NextRandomBytes(GUID_ID_LENGTH));
         }
 
         public static Type LocateElementType(Type parent, string tagName, XmlPrefixMap map)
@@ -259,159 +239,6 @@ namespace BPMNEngine
                     break;
             }
             return ret;
-        }
-
-        internal static void Sleep(TimeSpan value, ProcessInstance process, AEvent evnt)
-        {
-            lock (_events)
-            {
-                _events.Add(new SProcessSuspendEvent()
-                {
-                    Instance=process,
-                    Event=evnt,
-                    EndTime=DateTime.Now.Add(value)
-                });
-            }
-            _backgroundMREEvent.Set();
-        }
-
-        internal static void DelayStart(TimeSpan value, ProcessInstance process, BoundaryEvent evnt, string sourceID)
-        {
-            lock (_events)
-            {
-                _events.Add(new SProcessDelayedEvent()
-                {
-                    Instance=process,
-                    Event=evnt,
-                    StartTime=DateTime.Now.Add(value),
-                    SourceID=sourceID
-                });
-            }
-            _backgroundMREEvent.Set();
-        }
-
-        internal static void AbortDelayedEvent(ProcessInstance process,BoundaryEvent evnt,string sourceID)
-        {
-            lock (_events)
-            {
-                _events.RemoveAll(e =>
-                    e is SProcessDelayedEvent &&
-                    ((SProcessDelayedEvent)e).Instance.Equals(process) &&
-                    ((SProcessDelayedEvent)e).Event.id==evnt.id &&
-                    ((SProcessDelayedEvent)e).SourceID==sourceID);
-            }
-            _backgroundMREEvent.Set();
-        }
-
-        internal static void AbortSuspendedElement(ProcessInstance process, string id)
-        {
-            lock (_events)
-            {
-                _events.RemoveAll(e =>
-                    e is SProcessSuspendEvent &&
-                    ((SProcessSuspendEvent)e).Instance.Equals(process) &&
-                    ((SProcessSuspendEvent)e).Event.id==id
-                );
-            }
-            _backgroundMREEvent.Set();
-        }
-
-        internal static void UnloadProcess(BusinessProcess process)
-        {
-            bool changed = false;
-            lock (_events)
-            {
-                changed = _events.RemoveAll(e =>
-                    (e is SProcessDelayedEvent
-                    && ((SProcessDelayedEvent)e).Instance.Process.Equals(process))
-                    ||(e is SProcessSuspendEvent &&
-                    ((SProcessSuspendEvent)e).Instance.Process.Equals(process))
-                )>0;
-            }
-            if (changed)
-                _backgroundMREEvent.Set();
-        }
-
-        internal static void UnloadProcess(ProcessInstance process)
-        {
-            bool changed = false;
-            lock (_events) {
-                changed = _events.RemoveAll(e =>
-                    (e is SProcessDelayedEvent
-                    && ((SProcessDelayedEvent)e).Instance.Equals(process))
-                    ||(e is SProcessSuspendEvent &&
-                    ((SProcessSuspendEvent)e).Instance.Equals(process))
-                )>0;
-            }
-            if (changed)
-                _backgroundMREEvent.Set();
-        }
-
-        internal static void BackgroundStart()
-        {
-            while (true)
-            {
-                int sleep = -1;
-                lock (_events)
-                {
-                    if (_events.Any())
-                    {
-                        sleep = _events.Select(obj =>
-                        {
-                            DateTime compare = DateTime.MaxValue;
-                            if (obj is SProcessSuspendEvent)
-                                compare = ((SProcessSuspendEvent)obj).EndTime;
-                            else if (obj is SProcessDelayedEvent)
-                                compare = ((SProcessDelayedEvent)obj).StartTime;
-                            if (compare.Ticks < DateTime.Now.Ticks)
-                                return 0;
-                            else
-                                return (int)Math.Min(compare.Subtract(DateTime.Now).TotalMilliseconds, (double)int.MaxValue);
-                        }).Min();
-                    }
-                }
-                if (sleep != 0)
-                {
-                    if (sleep != -1)
-                        _backgroundMREEvent.WaitOne(sleep);
-                    else
-                        _backgroundMREEvent.WaitOne();
-                }
-                _backgroundMREEvent.Reset();
-                lock (_events)
-                {
-                    var now = DateTime.Now;
-                    IEnumerable<object> toRemove = Array.Empty<object>();
-
-                    _events.OfType<SProcessSuspendEvent>().ForEach(spse =>
-                    {
-                        if (spse.EndTime.Ticks<now.Ticks)
-                        {
-                            try
-                            {
-                                spse.Instance.CompleteTimedEvent(spse.Event);
-                                toRemove = toRemove.Append(spse);
-                            }
-                            catch (Exception e) { spse.Instance.WriteLogException(spse.Event, new StackFrame(1, true), DateTime.Now, e); }
-                        }
-                    });
-
-                    _events.OfType<SProcessDelayedEvent>().ForEach(spde =>
-                    {
-                        if (spde.StartTime.Ticks<now.Ticks)
-                        {
-                            try
-                            {
-                                spde.Instance.StartTimedEvent(spde.Event, spde.SourceID);
-                                toRemove = toRemove.Append(spde);
-                            }
-                            catch (Exception e) { spde.Instance.WriteLogException(spde.Event, new StackFrame(1, true), DateTime.Now, e); }
-                        }
-                    });
-
-                    _events.RemoveAll(o=>toRemove.Contains(o));
-                }
-            }
         }
     }
 }

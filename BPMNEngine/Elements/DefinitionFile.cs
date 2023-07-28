@@ -16,15 +16,13 @@ namespace BPMNEngine.Elements
         public string Name { get { return this["Name"]; } }
         public string Extension { get { return this["Extension"]; } }
         public string ContentType { get { return this["ContentType"]; } }
-
-        private byte[] _content;
-        public byte[] Content { get { return _content; } }
+        public byte[] Content { get; private init; }
 
         public DefinitionFile(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {
-            _content = new byte[0];
+            Content = Array.Empty<byte>();
             if (elem.ChildNodes.Count > 0)
-                _content = Convert.FromBase64String((elem.ChildNodes[0] is XmlCDataSection ? ((XmlCDataSection)elem.ChildNodes[0]).InnerText : elem.InnerText));
+                Content = Convert.FromBase64String((elem.ChildNodes[0] is XmlCDataSection section ? section.InnerText : elem.InnerText));
         }
     }
 }

@@ -64,13 +64,13 @@ namespace BPMNEngine.Elements.Processes.Scripts
             Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
             _setValue.Invoke(engine, pars);
             object ret = null;
-            if (_Code.Contains("return "))
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) }), new object[] { });
+            if (Code.Contains("return "))
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), new object[] { });
             else 
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { _Code }),new object[]{});
-            if (_IsCondition)
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { Code }),new object[]{});
+            if (IsCondition)
                 return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
-            else if (_IsTimerEvent)
+            else if (IsTimerEvent)
                 return DateTime.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
             return pars[1];
         }
@@ -86,13 +86,13 @@ namespace BPMNEngine.Elements.Processes.Scripts
             Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
             _setValue.Invoke(engine, pars);
             object ret = null;
-            if (_Code.Contains("return "))
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) }), new object[] { });
+            if (Code.Contains("return "))
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), new object[] { });
             else
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { _Code }), new object[] { });
-            if (_IsCondition)
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { Code }), new object[] { });
+            if (IsCondition)
                 return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
-            else if (_IsTimerEvent)
+            else if (IsTimerEvent)
                 return DateTime.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
             return pars[1];
         }
@@ -108,13 +108,13 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 _setValue.Invoke(engine, pars);
                 try
                 {
-                    _execute.Invoke(engine, new object[] { _Code });
+                    _execute.Invoke(engine, new object[] { Code });
                 }catch(Exception ex)
                 {
                     if (ex.InnerException != null)
                     {
                         if (ex.InnerException.Message.Contains("Illegal return statement"))
-                            _execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, _Code) });
+                            _execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) });
                         else
                             throw;
                     }

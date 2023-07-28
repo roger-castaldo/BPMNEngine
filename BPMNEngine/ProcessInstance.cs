@@ -16,6 +16,7 @@ using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
+using BPMNEngine.Scheduling;
 
 namespace BPMNEngine
 {
@@ -53,7 +54,7 @@ namespace BPMNEngine
 
         internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevel stateLogLevel)
         {
-            ID = Utility.NextRandomGuid();
+            ID = Guid.NewGuid();
             Process = process;
             Delegates=delegates;
             State = new ProcessState(Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
@@ -161,7 +162,7 @@ namespace BPMNEngine
         {
             if (State.ActiveSteps.Any())
                 throw new ActiveStepsException();
-            Utility.UnloadProcess(this);
+            StepScheduler.Instance.UnloadProcess(this);
             State.Dispose();
             _processLock?.Dispose();
             _mreSuspend?.Dispose();
@@ -222,7 +223,7 @@ namespace BPMNEngine
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
             _isSuspended = true;
             State.Suspend();
-            Utility.UnloadProcess(this);
+            StepScheduler.Instance.UnloadProcess(this);
             var cnt = 0;
             while (State.ActiveSteps.Any() && cnt<10)
             {

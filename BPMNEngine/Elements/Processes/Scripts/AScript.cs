@@ -22,7 +22,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             _map = map;
         }
 
-        protected string _Code =>
+        protected string Code =>
             SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Text)
                 .Select(n => n.InnerText)
@@ -35,7 +35,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             ??
             String.Empty;
 
-        protected bool _IsCondition
+        protected bool IsCondition
         {
             get
             {
@@ -51,7 +51,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
         }
 
-        protected bool _IsTimerEvent
+        protected bool IsTimerEvent
         {
             get
             {

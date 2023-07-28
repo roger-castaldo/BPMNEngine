@@ -29,6 +29,7 @@ using Microsoft.Extensions.Logging;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
+using BPMNEngine.Scheduling;
 
 namespace BPMNEngine
 {
@@ -161,7 +162,7 @@ namespace BPMNEngine
             ProcessLogging logging=null
             )
         {
-            _id = Utility.NextRandomGuid();
+            _id = Guid.NewGuid();
             _constants = constants;
             _delegates = new DelegateContainer()
             {
@@ -558,7 +559,7 @@ namespace BPMNEngine
                     {
                         if (instance.State.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
                         {
-                            Utility.AbortDelayedEvent(instance, (BoundaryEvent)ahe, sourceID);
+                            StepScheduler.Instance.AbortDelayedEvent(instance, (BoundaryEvent)ahe, sourceID);
                             AbortStep(instance, sourceID, ahe, vars);
                         }
                     });
@@ -626,7 +627,7 @@ namespace BPMNEngine
                             if (ts.HasValue)
                             {
                                 instance.State.Path.DelayEventStart(ahe, elem.id, ts.Value);
-                                Utility.DelayStart(ts.Value, instance, (BoundaryEvent)ahe, elem.id);
+                                StepScheduler.Instance.DelayStart(ts.Value, instance, (BoundaryEvent)ahe, elem.id);
                             }
                         });
                     }
@@ -747,7 +748,7 @@ namespace BPMNEngine
                 instance.State.SuspendStep(sourceID,evnt.id, ts.Value);
                 if (ts.Value.TotalMilliseconds > 0)
                 {
-                    Utility.Sleep(ts.Value, instance, evnt);
+                    StepScheduler.Instance.Sleep(ts.Value, instance, evnt);
                     return;
                 }
                 else
@@ -819,7 +820,7 @@ namespace BPMNEngine
                     {
                         case StepStatuses.Suspended:
                             abort=true;
-                            Utility.AbortSuspendedElement(instance, child.id);
+                            StepScheduler.Instance.AbortSuspendedElement(instance, child.id);
                             break;
                         case StepStatuses.Waiting:
                         case StepStatuses.Started:
@@ -907,7 +908,7 @@ namespace BPMNEngine
         /// </summary>
         public void Dispose()
         {
-            Utility.UnloadProcess(this);
+            StepScheduler.Instance.UnloadProcess(this);
         }
         /// <summary>
         /// Compares a given process instance to this instance to see if they are the same.

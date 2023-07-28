@@ -8,6 +8,7 @@ using System.Text;
 using System.Xml;
 using System.Linq;
 using BPMNEngine.Interfaces.Variables;
+using System.Security.Cryptography;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
@@ -16,21 +17,17 @@ namespace BPMNEngine.Elements.Processes.Scripts
         private const string _NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvzwxyz";
         private const int _NAME_LENGTH = 32;
 
-        private static Random _rand;
+        protected string ClassName { get; private init; }
+        protected string FunctionName { get;private init; }
 
-        private readonly string _className;
-        protected string _ClassName { get { return _className; } }
-        private readonly string _functionName;
-        protected string _FunctionName { get { return _functionName; } }
-
-        private IEnumerable<string> _Imports
-            => new string[] { "System", "BPMNEngine", "BPMNEngine.Interfaces", "System.Linq" }
+        private IEnumerable<string> Imports
+            => new string[] { "System", "BPMNEngine", "BPMNEngine.Interfaces", "BPMNEngine.Interfaces.Variables", "System.Linq" }
             .Concat(SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="using")
                 .Select(n => n.InnerText)
             );
 
-        private IEnumerable<string> _Dlls
+        private IEnumerable<string> Dlls
             => new string[] { Assembly.GetAssembly(this.GetType()).Location }
             .Concat(SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="dll")
@@ -39,34 +36,26 @@ namespace BPMNEngine.Elements.Processes.Scripts
         
         private Assembly _assembly;
 
-        private static string _NextName()
+        private static string NextName()
         {
             StringBuilder result = new StringBuilder();
             while (result.Length < _NAME_LENGTH)
             {
-                result.Append(_NAME_CHARS[_rand.Next(_NAME_CHARS.Length - 1)]);
+                result.Append(_NAME_CHARS[RandomNumberGenerator.GetInt32(_NAME_CHARS.Length - 1)]);
             }
             return result.ToString();
-        }
-
-        static ACompiledScript()
-        {
-            _rand = new Random(DateTime.Now.Millisecond);
         }
 
         public ACompiledScript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
-            lock (_rand)
-            {
-                _className = _NextName();
-                _functionName = _NextName();
-            }
+            ClassName = NextName();
+            FunctionName = NextName();
         }
 
-        protected abstract EmitResult _Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms);
+        protected abstract EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms);
         
-        private bool _CompileAssembly(out string errors)
+        private bool CompileAssembly(out string errors)
         {
             errors = null;
             lock (this)
@@ -78,10 +67,10 @@ namespace BPMNEngine.Elements.Processes.Scripts
                         .Where(ass => GetAssemblyLocation(ass) != null)
                         .Select(ass => MetadataReference.CreateFromFile(GetAssemblyLocation(ass)))
                         .Concat(
-                            _Dlls
+                            Dlls
                             .Select(d=> MetadataReference.CreateFromFile(d))
                         );
-                    EmitResult res = _Compile(_NextName(), references, _Imports, _Code, ref ms);
+                    EmitResult res = Compile(NextName(), references, Imports, Code, ref ms);
                     if (!res.Success)
                     {
                         StringBuilder error = new StringBuilder();
@@ -111,12 +100,12 @@ namespace BPMNEngine.Elements.Processes.Scripts
         {
             Debug("Attempting to compile script to execute for script element {0}",new object[] { id });
             string errors;
-            if (!_CompileAssembly(out errors))
+            if (!CompileAssembly(out errors))
                 throw new Exception(errors);
             Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
-            object o = _assembly.CreateInstance(_className);
+            object o = _assembly.CreateInstance(ClassName);
             Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
-            MethodInfo mi = o.GetType().GetMethod(_functionName);
+            MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = new object[] { variables };
             Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
             object ret = mi.Invoke(o, args);
@@ -132,12 +121,12 @@ namespace BPMNEngine.Elements.Processes.Scripts
         {
             Debug("Attempting to compile script to execute for script element {0}", new object[] { id });
             string errors;
-            if (!_CompileAssembly(out errors))
+            if (!CompileAssembly(out errors))
                 throw new Exception(errors);
             Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
-            object o = _assembly.CreateInstance(_className);
+            object o = _assembly.CreateInstance(ClassName);
             Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
-            MethodInfo mi = o.GetType().GetMethod(_functionName);
+            MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = new object[] { variables };
             Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
             object ret = mi.Invoke(o, args);
@@ -153,7 +142,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
         {
             _assembly = null;
             string error;
-            if (!_CompileAssembly(out error))
+            if (!CompileAssembly(out error))
             {
                 err = new string[] { error };
                 return false;
