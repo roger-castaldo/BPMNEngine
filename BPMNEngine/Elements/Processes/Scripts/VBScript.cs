@@ -53,10 +53,10 @@ End Class";
             : base(elem, map, parent)
         { }
 
-        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms)
+        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled)
         {
-            Info("Generating VB Code for script compilation for script element {0}", new object[] { id });
-            StringBuilder sbUsing = new StringBuilder();
+            Info("Generating VB Code for script compilation for script element {0}", new object[] { ID });
+            var sbUsing = new StringBuilder();
             imports.ForEach(str => sbUsing.AppendFormat("Imports {0}\n", str));
             string ccode = string.Format((IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
                 sbUsing.ToString(),
@@ -64,10 +64,12 @@ End Class";
                 FunctionName,
                 code
             });
-            List<SyntaxTree> tress = new List<SyntaxTree>();
-            tress.Add(SyntaxFactory.SyntaxTree(VisualBasicSyntaxTree.ParseText(ccode).GetRoot()));
-            VisualBasicCompilation comp = VisualBasicCompilation.Create(name, tress,references, new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            return comp.Emit(ms);
+            VisualBasicCompilation comp = VisualBasicCompilation.Create(name, new[] { SyntaxFactory.SyntaxTree(VisualBasicSyntaxTree.ParseText(ccode).GetRoot()) },
+                references, new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using MemoryStream ms = new();
+            var result = comp.Emit(ms);
+            compiled=ms.ToArray();
+            return result;
         }
     }
 }

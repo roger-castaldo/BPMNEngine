@@ -24,44 +24,44 @@ namespace UnitTest.Delegates
         private static void FlowCompleted(IElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static void ElementStarted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static void ElementCompleted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static void InstanceFlowCompleted(IElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static void InstanceElementStarted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("Instance_{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("Instance_{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static void InstanceElementCompleted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static bool IsProcessStartValid(IElement process, IReadonlyVariables variables)
         {
-            if (process.id=="Process_1" && !EventOccured((Guid)variables[_TEST_ID_NAME], "StartEvent_1", "Started"))
+            if (process.ID=="Process_1" && !EventOccured((Guid)variables[_TEST_ID_NAME], "StartEvent_1", "Started"))
                 return true;
-            else if ((process.id=="Process_1vk3guw"||process.id=="SubProcess_1fk97di") && EventOccured((Guid)variables[_TEST_ID_NAME], "StartEvent_1", "Started"))
+            else if ((process.ID=="Process_1vk3guw"||process.ID=="SubProcess_1fk97di") && EventOccured((Guid)variables[_TEST_ID_NAME], "StartEvent_1", "Started"))
                 return true;
             return false;
         }

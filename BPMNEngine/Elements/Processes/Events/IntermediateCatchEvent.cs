@@ -43,7 +43,7 @@ namespace BPMNEngine.Elements.Processes.Events
             {
                 sb = (SubProcess)source.SubProcess;
                 cost = 3;
-                string sid = (this.SubProcess==null ? null : this.SubProcess.id);
+                string sid = (this.SubProcess==null ? null : this.SubProcess.ID);
                 if (sid==null)
                 {
                     while (sb!=null)
@@ -54,7 +54,7 @@ namespace BPMNEngine.Elements.Processes.Events
                 }
                 else
                 {
-                    while (sb!=null&&sid!=sb.id)
+                    while (sb!=null&&sid!=sb.ID)
                     {
                         sb = (SubProcess)sb.SubProcess;
                         cost+=2;

@@ -1,42 +1,27 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements;
-using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.Intrinsics.X86;
-using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Xml;
 
 namespace BPMNEngine
 {
     internal static class Utility
     {
 
-        private const int GUID_ID_LENGTH = 16;
-
-        private static Dictionary<Type, List<Type>> _xmlChildren;
-        private static Dictionary<Type, XMLTag[]> _tagAttributes;
+        private static readonly Dictionary<Type, List<Type>> _xmlChildren;
+        private static readonly Dictionary<Type, XMLTag[]> _tagAttributes;
         private static readonly Type[] _globalXMLChildren;
-        private static Dictionary<Type, ConstructorInfo> _xmlConstructors;
-        private static Dictionary<string, Dictionary<string, Type>> _idealMap;
-        public static Dictionary<string, Dictionary<string, Type>> IdealMap { get { return _idealMap; } }
+        private static readonly Dictionary<Type, ConstructorInfo> _xmlConstructors;
+        private static readonly Dictionary<string, Dictionary<string, Type>> _idealMap;
+        public static Dictionary<string, Dictionary<string, Type>> IdealMap => _idealMap;
         
         static Utility()
         {
-            _xmlConstructors = new Dictionary<Type, ConstructorInfo>();
-            _idealMap = new Dictionary<string, Dictionary<string, Type>>();
-            List<Type> tmp = new List<Type>();
-            _tagAttributes = new Dictionary<Type, XMLTag[]>();
+            _xmlConstructors = new();
+            _idealMap = new();
+            _tagAttributes = new();
+            var tmp = new List<Type>();
             Assembly.GetAssembly(typeof(Utility)).GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IElement))).ForEach(t =>
             {
                 XMLTag[] tags = (XMLTag[])t.GetCustomAttributes(typeof(XMLTag), false);
@@ -44,7 +29,7 @@ namespace BPMNEngine
                 {
                     tmp.Add(t);
                     _tagAttributes.Add(t, tags);
-                    Dictionary<string, Type> tmpTypes = new Dictionary<string, Type>();
+                    var tmpTypes = new Dictionary<string, Type>();
                     if (_idealMap.ContainsKey(tags[0].Prefix.ToLower()))
                     {
                         tmpTypes = _idealMap[tags[0].Prefix.ToLower()];
@@ -56,10 +41,10 @@ namespace BPMNEngine
                 }
             });
             _xmlChildren = new Dictionary<Type, List<Type>>();
-            List<Type> globalChildren = new List<Type>();
+            var globalChildren = new List<Type>();
             tmp.ForEach(t =>
             {
-                List<ValidParentAttribute> atts = new List<Attributes.ValidParentAttribute>();
+                var atts = new List<Attributes.ValidParentAttribute>();
                 if (t.GetCustomAttributes(typeof(ValidParentAttribute), false).Length == 0)
                 {
                     Type bt = t.BaseType;
@@ -86,7 +71,7 @@ namespace BPMNEngine
                         {
                             if (!_xmlChildren.ContainsKey(c))
                                 _xmlChildren.Add(c, new List<Type>());
-                            List<Type> types = _xmlChildren[c];
+                            var types = _xmlChildren[c];
                             _xmlChildren.Remove(c);
                             types.Add(t);
                             _xmlChildren.Add(c, types);
@@ -95,7 +80,7 @@ namespace BPMNEngine
                     {
                         if (!_xmlChildren.ContainsKey(parent))
                             _xmlChildren.Add(parent, new List<Type>());
-                        List<Type> types = _xmlChildren[parent];
+                        var types = _xmlChildren[parent];
                         _xmlChildren.Remove(parent);
                         types.Add(t);
                         _xmlChildren.Add(parent, types);
@@ -135,7 +120,7 @@ namespace BPMNEngine
                     t = cache[element.Name];
             }
             else
-                t = Utility.LocateElementType((parent == null ? null : parent.GetType()), element.Name, map);
+                t = LocateElementType(parent?.GetType(), element.Name, map);
             if (t != null)
                 return (IElement)_xmlConstructors[t].Invoke(new object[] { element, map, parent });
             return null;
@@ -143,7 +128,7 @@ namespace BPMNEngine
 
         public static string FindXPath(Definition definition, XmlNode node)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
             while (node != null)
             {
                 switch (node.NodeType)
@@ -173,8 +158,7 @@ namespace BPMNEngine
 
         public static int FindElementIndex(Definition definition, XmlElement element)
         {
-            if (definition!=null)
-                definition.Debug(null,"Locating Element Index for element {0}", new object[] { element.Name });
+            definition?.Debug(null,"Locating Element Index for element {0}", new object[] { element.Name });
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
                 return 1;

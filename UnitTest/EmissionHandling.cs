@@ -48,7 +48,7 @@ namespace UnitTest
                         task.Signal((string)task.Variables[_VALUE_ID], out _);
                         break;
                     case "Escalate":
-                        if (task.id == (string)task.Variables[_VALUE_ID])
+                        if (task.ID == (string)task.Variables[_VALUE_ID])
                             task.Escalate(out _);
                         break;
                 }

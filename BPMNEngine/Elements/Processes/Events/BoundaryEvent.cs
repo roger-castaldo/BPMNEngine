@@ -28,9 +28,9 @@ namespace BPMNEngine.Elements.Processes.Events
                 if (Children.Any(c => c is CompensationEventDefinition))
                 {
                     var association = Definition.LocateElementsOfType<Association>()
-                        .FirstOrDefault(asc => asc.sourceRef==id);
+                        .FirstOrDefault(asc => asc.sourceRef==ID);
                     if (association!=null)  
-                        result = result.Concat(new string[] {association.id});
+                        result = result.Concat(new string[] {association.ID});
                 }
                 return result;
             }
@@ -59,18 +59,18 @@ namespace BPMNEngine.Elements.Processes.Events
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)
         {
             var cost = int.MaxValue;
-            if (source.id==AttachedToID)
+            if (source.ID==AttachedToID)
                 cost=0;
             else if (source.SubProcess!=null)
             {
                 SubProcess sb = (SubProcess)source.SubProcess;
                 cost=2;
-                while (sb!=null && sb.id!=this.AttachedToID)
+                while (sb!=null && sb.ID!=this.AttachedToID)
                 {
                     sb=(SubProcess)sb.SubProcess;
                     cost+=2;
                 }
-                if (sb==null || sb.id!=this.AttachedToID)
+                if (sb==null || sb.ID!=this.AttachedToID)
                     cost=int.MaxValue;
             }
             return cost;

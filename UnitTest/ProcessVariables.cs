@@ -21,7 +21,7 @@ namespace UnitTest
         private static BusinessProcess _process;
 
         [ClassInitialize()]
-        public static void Initialize(TestContext testContext)
+        public static void Initialize()
         {
             _process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"));
         }
@@ -32,7 +32,7 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private Dictionary<string, object> _TestProcessVariable(string variableName, object variableValue)
+        private static Dictionary<string, object> TestProcessVariable(string variableName, object variableValue)
         {
             IProcessInstance inst = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
 
@@ -50,7 +50,7 @@ namespace UnitTest
             else
             {
                 Assert.AreEqual(1, task.Variables.Keys.Count());
-                _CompareVariableValue(variableValue, task.Variables[variableName]);
+                CompareVariableValue(variableValue, task.Variables[variableName]);
             }
             task.MarkComplete();
 
@@ -64,17 +64,17 @@ namespace UnitTest
             var variableName = "TestDateTime";
             var variableValue = DateTime.Now;
             var variableArray = new DateTime[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -83,17 +83,17 @@ namespace UnitTest
             var variableName = "TestInteger";
             var variableValue = int.MinValue;
             var variableArray = new int[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -102,17 +102,17 @@ namespace UnitTest
             var variableName = "TestShort";
             var variableValue = short.MinValue;
             var variableArray = new short[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -121,17 +121,17 @@ namespace UnitTest
             var variableName = "TestLong";
             var variableValue = long.MinValue;
             var variableArray = new long[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -140,17 +140,17 @@ namespace UnitTest
             var variableName = "TestUnsignedInteger";
             var variableValue = uint.MinValue;
             var variableArray = new uint[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -159,17 +159,17 @@ namespace UnitTest
             var variableName = "TestUnsignedShort";
             var variableValue = ushort.MinValue;
             var variableArray = new ushort[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -178,17 +178,17 @@ namespace UnitTest
             var variableName = "TestUnsignedLong";
             var variableValue = ulong.MaxValue;
             var variableArray = new ulong[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -197,17 +197,17 @@ namespace UnitTest
             var variableName = "TestDouble";
             var variableValue = double.MinValue;
             var variableArray = new double[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -216,17 +216,17 @@ namespace UnitTest
             var variableName = "TestDecimal";
             var variableValue = decimal.MinValue;
             var variableArray = new decimal[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -235,17 +235,17 @@ namespace UnitTest
             var variableName = "TestString";
             var variableValue = "This is a test string";
             var variableArray = new string[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -254,17 +254,17 @@ namespace UnitTest
             var variableName = "TestChar";
             var variableValue = 'c';
             var variableArray = new char[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -273,17 +273,17 @@ namespace UnitTest
             var variableName = "TestBoolean";
             var variableValue = true;
             var variableArray = new bool[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -292,17 +292,17 @@ namespace UnitTest
             var variableName = "TestFloat";
             var variableValue = float.MinValue;
             var variableArray = new float[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out  value) ? value : null));
         }
 
         [TestMethod]
@@ -311,17 +311,17 @@ namespace UnitTest
             var variableName = "TestByte";
             var variableValue = System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345");
             var variableArray = new byte[][] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -329,11 +329,11 @@ namespace UnitTest
         {
             var variableName = "TestNull";
             object variableValue = null;
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsFalse(results.ContainsKey(variableName));
             Assert.AreEqual(0,results.Count);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
         }
 
         [TestMethod]
@@ -346,17 +346,17 @@ namespace UnitTest
             str.Close();
             var variableValue = new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content=data };
             var variableArray = new SFile[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -365,17 +365,17 @@ namespace UnitTest
             var variableName = "TestGuid";
             var variableValue = new Guid("a4966f14-0108-48ba-a793-8be9982bc411");
             var variableArray = new Guid[] { variableValue, variableValue };
-            Dictionary<string, object> results = _TestProcessVariable(variableName, variableValue);
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableValue, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = _TestProcessVariable(variableName, variableArray);
+            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            _CompareVariableValue(variableArray, (results.ContainsKey(variableName) ? results[variableName] : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -385,7 +385,7 @@ namespace UnitTest
             byte[] data = new byte[str.Length];
             str.Read(data, 0, data.Length);
             str.Close();
-            Dictionary<string, object> variables = new Dictionary<string, object>()
+            var variables = new Dictionary<string, object>()
             {
                 {"TestDateTime",DateTime.Now },
                 {"TestInteger",int.MinValue },
@@ -425,29 +425,29 @@ namespace UnitTest
 
             Assert.IsFalse(taskVariables.ContainsKey("TestNull"));
 
-            _CompareVariableSets(variables, taskVariables);
+            CompareVariableSets(variables, taskVariables);
 
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.LoadXml(inst.CurrentState.AsXMLDocument);
 
-            _CompareVariableSets(variables, BusinessProcess.ExtractProcessVariablesFromStateDocument(doc));
+            CompareVariableSets(variables, BusinessProcess.ExtractProcessVariablesFromStateDocument(doc));
 
             inst = _process.LoadState(doc);
             Assert.IsNotNull(inst);
-            _CompareVariableSets(variables, inst.CurrentVariables);
+            CompareVariableSets(variables, inst.CurrentVariables);
         }
 
-        private void _CompareVariableSets(Dictionary<string, object> inputted, Dictionary<string, object> extracted)
+        private static void CompareVariableSets(Dictionary<string, object> inputted, Dictionary<string, object> extracted)
         {
-            Assert.AreEqual(inputted.Count(), extracted.Count);
+            Assert.AreEqual(inputted.Count, extracted.Count);
             foreach (string str in inputted.Keys)
             {
                 Assert.IsTrue(extracted.ContainsKey(str));
-                _CompareVariableValue(inputted[str], extracted[str]);
+                CompareVariableValue(inputted[str], extracted[str]);
             }
         }
 
-        private void _CompareVariableValue(object inputted,object extracted)
+        private static void CompareVariableValue(object inputted,object extracted)
         {
             if (inputted==null)
                 Assert.IsNull(extracted);
@@ -458,22 +458,22 @@ namespace UnitTest
                 var inpGroups = ((IEnumerable)inputted).Cast<object>().Select((v, i) => new { value = v, index = i });
                 var extGroups = ((IEnumerable)extracted).Cast<object>().Select((v, i) => new { value = v, index = i });
                 foreach (var inp in inpGroups)
-                    _CompareVariableValue(inp.value, extGroups.FirstOrDefault(grp => grp.index==inp.index).value);
+                    CompareVariableValue(inp.value, extGroups.FirstOrDefault(grp => grp.index==inp.index).value);
             }
             else if (inputted is DateTime)
             {
                 Assert.IsInstanceOfType(extracted, typeof(DateTime));
                 Assert.AreEqual(inputted.ToString(), extracted.ToString());
             }
-            else if (inputted is byte[])
+            else if (inputted is byte[] v)
             {
                 Assert.IsInstanceOfType(extracted, typeof(byte));
-                Assert.AreEqual(Convert.ToBase64String((byte[])inputted), Convert.ToBase64String((byte[])extracted));
+                Assert.AreEqual(Convert.ToBase64String(v), Convert.ToBase64String((byte[])extracted));
             }
-            else if (inputted is SFile)
+            else if (inputted is SFile file)
             {
                 Assert.IsInstanceOfType(extracted, typeof(SFile));
-                var isfile = (SFile)inputted;
+                var isfile = file;
                 var extfile = (SFile)extracted;
                 Assert.AreEqual(isfile.Name, extfile.Name);
                 Assert.AreEqual(isfile.Extension, extfile.Extension);

@@ -67,16 +67,16 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
         }
 
-        protected abstract object _Invoke(IVariables variables);
-        protected abstract object _Invoke(IReadonlyVariables variables);
-        protected abstract bool _IsValid(out string[] err);
+        protected abstract object ScriptInvoke(IVariables variables);
+        protected abstract object ScriptInvoke(IReadonlyVariables variables);
+        protected abstract bool ScriptIsValid(out string[] err);
 
         public object Invoke(IVariables variables)
         {
-            Info("Attempting to process script {0}", new object[] { id });
+            Info("Attempting to process script {0}", new object[] { ID });
             try
             {
-                return _Invoke(variables);
+                return ScriptInvoke(variables);
             }
             catch (Exception e) {
                 Exception(e);
@@ -86,10 +86,10 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         public object Invoke(IReadonlyVariables variables)
         {
-            Info("Attempting to process script {0}", new object[] { id });
+            Info("Attempting to process script {0}", new object[] { ID });
             try
             {
-                return _Invoke(variables);
+                return ScriptInvoke(variables);
             }
             catch (Exception e)
             {
@@ -100,7 +100,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         public sealed override bool IsValid(out string[] err)
         {
-            if (!_IsValid(out err))
+            if (!ScriptIsValid(out err))
                 return false;
             return base.IsValid(out err);
         }

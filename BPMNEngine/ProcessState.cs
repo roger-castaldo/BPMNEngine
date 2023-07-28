@@ -221,7 +221,7 @@ namespace BPMNEngine
 
         internal void MergeVariables(ITask task, IVariables vars)
         {
-            int stepIndex = _path.CurrentStepIndex(task.id);
+            int stepIndex = _path.CurrentStepIndex(task.ID);
             _variables.MergeVariables(stepIndex, vars);
         }
 

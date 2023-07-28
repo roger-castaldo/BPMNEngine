@@ -30,8 +30,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
                     vars.Keys.ToArray().ForEach(str => task.Variables[str]=vars[str]);
                 }
             }
-            if (processScriptTask!=null)
-                processScriptTask(task);
+            processScriptTask?.Invoke(task);
         }
     }
 }

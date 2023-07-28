@@ -32,7 +32,7 @@ namespace BPMNEngine.Elements.Processes
 
         public bool IsFlowValid(IsFlowValid isFlowValid, IReadonlyVariables variables)
         {
-            Debug("Checking if Sequence Flow[{0}] is valid", new object[] { id });
+            Debug("Checking if Sequence Flow[{0}] is valid", new object[] { ID });
             if (!isFlowValid(this, variables))
                 return false;
             if (ExtensionElement != null)

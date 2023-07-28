@@ -40,10 +40,10 @@ public class {1} {{
             : base(elem, map, parent)
         { }
 
-        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms)
+        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled)
         {
-            Info("Generating C# Code for script compilation for script element {0}",new object[] { id });
-            StringBuilder sbUsing = new StringBuilder();
+            Info("Generating C# Code for script compilation for script element {0}",new object[] { ID });
+            var sbUsing = new StringBuilder();
             imports.ForEach(str=>sbUsing.AppendFormat("using {0};\n", str));
             string ccode = string.Format(IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE), new object[]{
                 sbUsing.ToString(),
@@ -51,10 +51,12 @@ public class {1} {{
                 FunctionName,
                 code
             });
-            List<SyntaxTree> tress = new List<SyntaxTree>();
-            tress.Add(SyntaxFactory.SyntaxTree(CSharpSyntaxTree.ParseText(ccode).GetRoot()));
-            CSharpCompilation comp = CSharpCompilation.Create(name, tress,references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            return comp.Emit(ms);
+            CSharpCompilation comp = CSharpCompilation.Create(name, new[] { SyntaxFactory.SyntaxTree(CSharpSyntaxTree.ParseText(ccode).GetRoot()) },
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using MemoryStream ms = new();
+            var result = comp.Emit(ms);
+            compiled=ms.ToArray();
+            return result;
         }
     }
 }

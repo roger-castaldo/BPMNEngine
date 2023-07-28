@@ -52,7 +52,7 @@ namespace BPMNEngine
         private readonly IEnumerable<AHandlingEvent> _eventHandlers = null;
         private readonly Definition definition;
 
-        internal IElement GetElement(string id) => Elements.FirstOrDefault(elem=>elem.id==id);
+        internal IElement GetElement(string id) => Elements.FirstOrDefault(elem=>elem.ID==id);
         private IEnumerable<IElement> Elements => _components
             .OfType<IElement>()
             .Traverse(elem => (elem is IParentElement element ? element.Children : Array.Empty<IElement>()));
@@ -133,9 +133,9 @@ namespace BPMNEngine
 
         internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type,out bool isAborted)
         {
-            var events = GetEventHandlers(type, data, (AFlowNode)GetElement(task.id), new ReadOnlyProcessVariablesContainer(task.Variables));
-            events.ForEach(ahe => ProcessEvent(instance, task.id, ahe));
-            isAborted = instance.State.Path.GetStatus(task.id)==StepStatuses.Aborted;
+            var events = GetEventHandlers(type, data, (AFlowNode)GetElement(task.ID), new ReadOnlyProcessVariablesContainer(task.Variables));
+            events.ForEach(ahe => ProcessEvent(instance, task.ID, ahe));
+            isAborted = instance.State.Path.GetStatus(task.ID)==StepStatuses.Aborted;
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace BPMNEngine
 
         private IEnumerable<Exception> ValidateElement(AElement elem)
         {
-            WriteLogLine(elem,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.id }));
+            WriteLogLine(elem,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.ID }));
             IEnumerable<Exception> result = Array.Empty<Exception>();
             result = result.Concat(
                 elem.GetType().GetCustomAttributes(true).OfType<RequiredAttribute>()
@@ -504,13 +504,13 @@ namespace BPMNEngine
                 var start = proc.StartEvents.FirstOrDefault(se => se.IsEventStartValid(ropvc, ret.Delegates.Validations.IsEventStartValid));
                 if (start!=null)
                 {
-                    ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.id));
+                    ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.ID));
                     BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Processes.Started, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
                     BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Events.Started, new object[] { start, new ReadOnlyProcessVariablesContainer(variables) });
                     ret.State.Path.StartFlowNode(start, null);
-                    variables.Keys.ForEach(key => ret.State[start.id, key] = variables[key]);
+                    variables.Keys.ForEach(key => ret.State[start.ID, key] = variables[key]);
                     ret.State.Path.SucceedFlowNode(start);
-                    BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Events.Completed, new object[] { start, new ReadOnlyProcessVariablesContainer(start.id, ret) });
+                    BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Events.Completed, new object[] { start, new ReadOnlyProcessVariablesContainer(start.ID, ret) });
                     return ret;
                 }
             }
@@ -557,7 +557,7 @@ namespace BPMNEngine
                     ReadOnlyProcessVariablesContainer vars = new(sourceID,instance);
                     GetEventHandlers(EventSubTypes.Timer, null, node, vars).ForEach(ahe =>
                     {
-                        if (instance.State.Path.GetStatus(ahe.id)==StepStatuses.WaitingStart)
+                        if (instance.State.Path.GetStatus(ahe.ID)==StepStatuses.WaitingStart)
                         {
                             StepScheduler.Instance.AbortDelayedEvent(instance, (BoundaryEvent)ahe, sourceID);
                             AbortStep(instance, sourceID, ahe, vars);
@@ -579,23 +579,23 @@ namespace BPMNEngine
             bool success = false;
             if (step is AFlowNode node)
             {
-                var events = GetEventHandlers(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.id,instance,ex));
+                var events = GetEventHandlers(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.ID,instance,ex));
                 if (events.Any())
                 {
                     success=true;
                     events.ForEach(ahe =>
                     {
-                        instance.WriteLogLine(step, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.id));
-                        ProcessElement(instance, step.id, ahe);
+                        instance.WriteLogLine(step, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.ID));
+                        ProcessElement(instance, step.ID, ahe);
                     });
                 }
             }
             if (!success)
             {
                 if (((IStepElement)step).SubProcess!=null)
-                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Error, new object[] { (IStepElement)((IStepElement)step).SubProcess, new ReadOnlyProcessVariablesContainer(step.id, instance, ex) });
+                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Error, new object[] { (IStepElement)((IStepElement)step).SubProcess, new ReadOnlyProcessVariablesContainer(step.ID, instance, ex) });
                 else
-                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Processes.Error, new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.id, instance, ex) });
+                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Processes.Error, new object[] { ((IStepElement)step).Process, step, new ReadOnlyProcessVariablesContainer(step.ID, instance, ex) });
             }
         }
 
@@ -608,7 +608,7 @@ namespace BPMNEngine
             }
             else
             {
-                instance.WriteLogLine(sourceID,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.id, sourceID }));
+                instance.WriteLogLine(sourceID,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Processing Element {0} from source {1}", new object[] { elem.ID, sourceID }));
                 bool abort = false;
                 if (elem is AFlowNode node)
                 {
@@ -616,7 +616,7 @@ namespace BPMNEngine
                     var evnts = GetEventHandlers(EventSubTypes.Conditional, null, node, ropvc);
                     evnts.ForEach(ahe =>
                     {
-                        ProcessEvent(instance, elem.id, ahe);
+                        ProcessEvent(instance, elem.ID, ahe);
                         abort|=(ahe is BoundaryEvent @event &&@event.CancelActivity);
                     });
                     if (!abort)
@@ -626,8 +626,8 @@ namespace BPMNEngine
                             TimeSpan? ts = ahe.GetTimeout(ropvc);
                             if (ts.HasValue)
                             {
-                                instance.State.Path.DelayEventStart(ahe, elem.id, ts.Value);
-                                StepScheduler.Instance.DelayStart(ts.Value, instance, (BoundaryEvent)ahe, elem.id);
+                                instance.State.Path.DelayEventStart(ahe, elem.ID, ts.Value);
+                                StepScheduler.Instance.DelayStart(ts.Value, instance, (BoundaryEvent)ahe, elem.ID);
                             }
                         });
                     }
@@ -647,13 +647,13 @@ namespace BPMNEngine
 
         private static void ProcessSubProcess(ProcessInstance instance,string sourceID, SubProcess esp)
         {
-            ReadOnlyProcessVariablesContainer variables = new(new ProcessVariablesContainer(esp.id, instance));
+            ReadOnlyProcessVariablesContainer variables = new(new ProcessVariablesContainer(esp.ID, instance));
             if (esp.IsStartValid(variables, instance.Delegates.Validations.IsProcessStartValid))
             {
                 var startEvent = esp.StartEvents.FirstOrDefault(se => se.IsEventStartValid(variables, instance.Delegates.Validations.IsEventStartValid));
                 if (startEvent!=null)
                 {
-                    instance.WriteLogLine(startEvent, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", startEvent.id));
+                    instance.WriteLogLine(startEvent, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", startEvent.ID));
                     instance.State.Path.StartFlowNode(esp, sourceID);
                     BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Started, new object[] { esp, variables });
                     instance.State.Path.StartFlowNode(startEvent, null);
@@ -667,10 +667,10 @@ namespace BPMNEngine
         private static void ProcessTask(ProcessInstance instance,string sourceID, ATask tsk)
         {
             instance.State.Path.StartFlowNode(tsk, sourceID);
-            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Tasks.Started,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, instance) });
+            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Tasks.Started,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.ID, instance) });
             try
             {
-                ProcessVariablesContainer variables = new(tsk.id, instance);
+                ProcessVariablesContainer variables = new(tsk.ID, instance);
                 Tasks.ExternalTask task =null;
                 switch (tsk.GetType().Name)
                 {
@@ -722,7 +722,7 @@ namespace BPMNEngine
             catch (Exception e)
             {
                 instance.WriteLogException(tsk, new StackFrame(1, true), DateTime.Now, e);
-                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Tasks.Error,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.id, instance, e) });
+                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Tasks.Error,new object[] { tsk, new ReadOnlyProcessVariablesContainer(tsk.ID, instance, e) });
                 instance.State.Path.FailFlowNode(tsk, error:e);
             }
         }
@@ -736,16 +736,16 @@ namespace BPMNEngine
                     instance.State.Path.StartFlowNode(sp, sourceID);
             }
             instance.State.Path.StartFlowNode(evnt, sourceID);
-            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Events.Started, new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Events.Started, new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance) });
             if (evnt is BoundaryEvent @event && @event.CancelActivity)
-                AbortStep(instance, sourceID, GetElement(@event.AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                AbortStep(instance, sourceID, GetElement(@event.AttachedToID), new ReadOnlyProcessVariablesContainer(evnt.ID, instance));
             bool success = true;
             TimeSpan? ts = null;
             if (evnt is IntermediateCatchEvent || evnt is IntermediateThrowEvent)
-                ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                ts = evnt.GetTimeout(new ReadOnlyProcessVariablesContainer(evnt.ID, instance));
             if (ts.HasValue)
             {
-                instance.State.SuspendStep(sourceID,evnt.id, ts.Value);
+                instance.State.SuspendStep(sourceID,evnt.ID, ts.Value);
                 if (ts.Value.TotalMilliseconds > 0)
                 {
                     StepScheduler.Instance.Sleep(ts.Value, instance, evnt);
@@ -756,14 +756,14 @@ namespace BPMNEngine
             }else if (evnt is IntermediateThrowEvent event1)
             {
                 if (evnt.SubType.HasValue)
-                    GetEventHandlers(evnt.SubType.Value, event1.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance))
-                        .ForEach(tsk => { ProcessEvent(instance, evnt.id, tsk); });
+                    GetEventHandlers(evnt.SubType.Value, event1.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance))
+                        .ForEach(tsk => { ProcessEvent(instance, evnt.ID, tsk); });
             }
             else if (instance.Delegates.Validations.IsEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
             {
                 try
                 {
-                    success = instance.Delegates.Validations.IsEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance));
+                    success = instance.Delegates.Validations.IsEventStartValid(evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance));
                 }
                 catch (Exception e)
                 {
@@ -774,12 +774,12 @@ namespace BPMNEngine
             if (!success)
             {
                 instance.State.Path.FailFlowNode(evnt);
-                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Events.Error,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Events.Error,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance) });
             }
             else
             {
                 instance.State.Path.SucceedFlowNode(evnt);
-                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Events.Completed,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Events.Completed,new object[] { evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance) });
                 if (evnt is EndEvent event1 && event1.IsProcessEnd)
                 {
                     if (!event1.IsTermination)
@@ -788,19 +788,19 @@ namespace BPMNEngine
                         if (sp != null)
                         {
                             instance.State.Path.SucceedFlowNode(sp);
-                            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Completed, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.id, instance) });
+                            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.SubProcesses.Completed, new object[] { sp, new ReadOnlyProcessVariablesContainer(sp.ID, instance) });
                         }
                         else
                         {
-                            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                            BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.ID, instance) });
                             instance.CompleteProcess();
                         }
                     }
                     else
                     {
-                        ReadOnlyProcessVariablesContainer vars = new(evnt.id, instance);
-                        instance.State.AbortableSteps.ForEach(str => { AbortStep(instance, evnt.id, GetElement(str), vars); });
-                        BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.id, instance) });
+                        ReadOnlyProcessVariablesContainer vars = new(evnt.ID, instance);
+                        instance.State.AbortableSteps.ForEach(str => { AbortStep(instance, evnt.ID, GetElement(str), vars); });
+                        BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Processes.Completed, new object[] { event1.Process, new ReadOnlyProcessVariablesContainer(evnt.ID, instance) });
                         instance.CompleteProcess();
                     }
                 }
@@ -809,18 +809,18 @@ namespace BPMNEngine
 
         private void AbortStep(ProcessInstance instance,string sourceID,IElement element,IReadonlyVariables variables)
         {
-            instance.State.Path.AbortStep(sourceID, element.id);
+            instance.State.Path.AbortStep(sourceID, element.ID);
             BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.OnStepAborted, new object[] { element, GetElement(sourceID), variables });
             if (element is SubProcess process)
             {
                 process.Children.ForEach(child =>
                 {
                     bool abort = false;
-                    switch (instance.State.Path.GetStatus(child.id))
+                    switch (instance.State.Path.GetStatus(child.ID))
                     {
                         case StepStatuses.Suspended:
                             abort=true;
-                            StepScheduler.Instance.AbortSuspendedElement(instance, child.id);
+                            StepScheduler.Instance.AbortSuspendedElement(instance, child.ID);
                             break;
                         case StepStatuses.Waiting:
                         case StepStatuses.Started:
@@ -837,27 +837,27 @@ namespace BPMNEngine
         {
             if (instance.State.Path.ProcessGateway(gw,sourceID))
             {
-                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Started,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
+                BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Started,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.ID, instance) });
                 IEnumerable<string> outgoings = null;
                 try
                 {
-                    outgoings = gw.EvaulateOutgoingPaths(definition, instance.Delegates.Validations.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.id, instance));
+                    outgoings = gw.EvaulateOutgoingPaths(definition, instance.Delegates.Validations.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.ID, instance));
                 }
                 catch (Exception e)
                 {
                     instance.WriteLogException(gw, new StackFrame(1, true), DateTime.Now, e);
-                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Error,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,e) });
+                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Error,new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.ID, instance,e) });
                     outgoings = null;
                 }
                 if (outgoings==null || !outgoings.Any())
                 {
                     instance.State.Path.FailFlowNode(gw);
-                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Error, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance,new Exception("No valid outgoing path located")) });
+                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Error, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.ID, instance,new Exception("No valid outgoing path located")) });
                 }
                 else
                 {
                     instance.State.Path.SucceedFlowNode(gw, outgoing:outgoings);
-                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Completed, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.id, instance) });
+                    BusinessProcess.TriggerDelegateAsync(instance.Delegates.Events.Gateways.Completed, new object[] { gw, new ReadOnlyProcessVariablesContainer(gw.ID, instance) });
                 }
             }
         }
@@ -870,7 +870,7 @@ namespace BPMNEngine
                 delCall = instance.Delegates.Events.Flows.MessageFlow;
             else if (flowElement is Association)
                 delCall = instance.Delegates.Events.Flows.AssociationFlow;
-            BusinessProcess.TriggerDelegateAsync(delCall,new object[] { flowElement, new ReadOnlyProcessVariablesContainer(flowElement.id, instance) });
+            BusinessProcess.TriggerDelegateAsync(delCall,new object[] { flowElement, new ReadOnlyProcessVariablesContainer(flowElement.ID, instance) });
         }
 
         #region Logging

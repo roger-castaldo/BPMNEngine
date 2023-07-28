@@ -118,7 +118,7 @@ namespace BPMNEngine.Elements.Diagrams
             {
                 string sourceRef = (elem is SequenceFlow ? ((SequenceFlow)elem).sourceRef : ((MessageFlow)elem).sourceRef);
                 IElement gelem = definition.LocateElement(sourceRef);
-                if ((gelem is AGateway) && (((AGateway)gelem).Default??"")==elem.id)
+                if ((gelem is AGateway) && (((AGateway)gelem).Default??"")==elem.ID)
                 {
                     Point centre = new Point(
                         (0.5f*points[0].X)+(0.5f*points[1].X),

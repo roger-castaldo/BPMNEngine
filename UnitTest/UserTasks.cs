@@ -123,8 +123,8 @@ namespace UnitTest
             IUserTask task = instance.GetUserTask("UserTask_15dj2au");
             Assert.IsNotNull(task);
 
-            Assert.AreEqual("UserTask_15dj2au", task.id);
-            Assert.AreEqual(task.id, task["id"]);
+            Assert.AreEqual("UserTask_15dj2au", task.ID);
+            Assert.AreEqual(task.ID, task["id"]);
 
             Assert.IsTrue(task.SubNodes.Any());
             Assert.AreEqual(2, task.SubNodes.Count());
@@ -133,10 +133,10 @@ namespace UnitTest
             Assert.IsNull(task.SubProcess);
             
             Assert.IsNotNull(task.Lane);
-            Assert.AreEqual("Lane_0z6k1d4", task.Lane.id);
+            Assert.AreEqual("Lane_0z6k1d4", task.Lane.ID);
             
             Assert.IsNotNull(task.Process);
-            Assert.AreEqual("Process_1", task.Process.id);
+            Assert.AreEqual("Process_1", task.Process.ID);
 
             task.MarkComplete();
 

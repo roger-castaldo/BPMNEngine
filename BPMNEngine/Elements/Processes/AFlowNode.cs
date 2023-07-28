@@ -44,7 +44,7 @@ namespace BPMNEngine.Elements.Processes
                 return p.Children
                     .OfType<LaneSet>()
                     .SelectMany(ls => ls.Children)
-                    .FirstOrDefault(ln => ln is Lane && ((Lane)ln).Nodes.Contains(id));
+                    .FirstOrDefault(ln => ln is Lane && ((Lane)ln).Nodes.Contains(ID));
             }
         }
 
@@ -57,8 +57,8 @@ namespace BPMNEngine.Elements.Processes
                         .OfType<IncomingFlow>()
                         .Select(elem => elem.Value)
                     ).Concat(Definition.MessageFlows
-                        .Where(msgFlow => msgFlow.targetRef==this.id)
-                        .Select(msgFlow => msgFlow.id)
+                        .Where(msgFlow => msgFlow.targetRef==this.ID)
+                        .Select(msgFlow => msgFlow.ID)
                     );
             }
         }
@@ -72,8 +72,8 @@ namespace BPMNEngine.Elements.Processes
                         .OfType<OutgoingFlow>()
                         .Select(elem => elem.Value)
                     ).Concat(Definition.MessageFlows
-                        .Where(msgFlow => msgFlow.sourceRef==this.id)
-                        .Select(msgFlow => msgFlow.id)
+                        .Where(msgFlow => msgFlow.sourceRef==this.ID)
+                        .Select(msgFlow => msgFlow.ID)
                     );
             }
         }

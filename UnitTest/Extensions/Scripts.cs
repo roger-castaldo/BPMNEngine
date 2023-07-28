@@ -20,7 +20,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCSharp()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"),logging:new BPMNEngine.DelegateContainers.ProcessLogging()
+            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"),logging:new BPMNEngine.DelegateContainers.ProcessLogging()
             {
                 LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
                 {
@@ -36,14 +36,14 @@ namespace UnitTest.Extensions
                 instance=null;
                 Assert.Fail(e.Message);
             }
-            _CheckResults(instance);
+            Scripts.CheckResults(instance);
         }
 
         [TestMethod]
         public void TestVBScript()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/visual_basic.bpmn"));
-            IProcessInstance instance = null;
+            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/visual_basic.bpmn"));
+            IProcessInstance instance;
             try
             {
                 instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
@@ -53,14 +53,14 @@ namespace UnitTest.Extensions
                 instance=null;
                 Assert.Fail(e.Message);
             }
-            _CheckResults(instance);
+            Scripts.CheckResults(instance);
         }
 
         [TestMethod]
         public void TestJavascript()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/javascript.bpmn"));
-            IProcessInstance instance = null;
+            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/javascript.bpmn"));
+            IProcessInstance instance;
             try
             {
                 instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
@@ -70,10 +70,10 @@ namespace UnitTest.Extensions
                 instance=null;
                 Assert.Fail(e.Message);
             }
-            _CheckResults(instance);
+            Scripts.CheckResults(instance);
         }
 
-        private void _CheckResults(IProcessInstance instance)
+        private static void CheckResults(IProcessInstance instance)
         {
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));

@@ -13,7 +13,7 @@ namespace BPMNEngine.Interfaces.Elements
         /// <summary>
         /// The unique ID of the element from the process
         /// </summary>
-        string id { get; }
+        string ID { get; }
 
         /// <summary>
         /// The child XMLNodes from the process element

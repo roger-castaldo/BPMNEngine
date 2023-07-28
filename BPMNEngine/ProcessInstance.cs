@@ -108,7 +108,7 @@ namespace BPMNEngine
         internal void CompleteTimedEvent(AEvent evnt)
         {
             State.Path.SucceedFlowNode(evnt);
-            InvokeElementEventDelegate(Delegates.Events.Events.Completed, evnt, new ReadOnlyProcessVariablesContainer(evnt.id, this));
+            InvokeElementEventDelegate(Delegates.Events.Events.Completed, evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, this));
         }
 
         internal void StartTimedEvent(BoundaryEvent evnt, string sourceID)
@@ -118,7 +118,7 @@ namespace BPMNEngine
 
         internal void EmitTaskError(Tasks.ExternalTask externalTask, Exception error, out bool isAborted)
         {
-            InvokeElementEventDelegate(Delegates.Events.Tasks.Error, externalTask, new ReadOnlyProcessVariablesContainer(externalTask.id, this));
+            InvokeElementEventDelegate(Delegates.Events.Tasks.Error, externalTask, new ReadOnlyProcessVariablesContainer(externalTask.ID, this));
             Process.HandleTaskEmission(this, externalTask, error, EventSubTypes.Error, out isAborted);
         }
 
@@ -146,11 +146,11 @@ namespace BPMNEngine
         {
             if (!((Tasks.ExternalTask)task).Aborted)
             {
-                WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.id, task is IUserTask task1 ? task1.UserID : null }));
+                WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.ID, task is IUserTask task1 ? task1.UserID : null }));
                 IVariables vars = task.Variables;
                 State.MergeVariables(task,vars);
-                InvokeElementEventDelegate(Delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.id, this));
-                ATask tsk = Process.GetTask(task.id);
+                InvokeElementEventDelegate(Delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.ID, this));
+                ATask tsk = Process.GetTask(task.ID);
                 if (tsk is UserTask task2)
                     State.Path.SucceedFlowNode(task2, completedByID:((IUserTask)task).UserID);
                 else
@@ -274,7 +274,7 @@ namespace BPMNEngine
         internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
         {
             if ((int)level >= (int)_stateLogLevel && State!=null)
-                State.LogLine(element?.id, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
+                State.LogLine(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
             Delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
 
@@ -286,7 +286,7 @@ namespace BPMNEngine
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
             if ((int)LogLevel.Error>= (int)_stateLogLevel)
-                State.LogException(element?.id, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+                State.LogException(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             Delegates.Logging.LogException?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             return exception;
         }

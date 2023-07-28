@@ -31,7 +31,7 @@ namespace BPMNEngine.Elements
 
         private string _cachedID=null;
 
-        public string id
+        public string ID
         {
             get {
                 var ret = _cachedID??this["id"];

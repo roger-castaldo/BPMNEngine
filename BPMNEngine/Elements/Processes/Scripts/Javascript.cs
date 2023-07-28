@@ -53,15 +53,15 @@ namespace BPMNEngine.Elements.Processes.Scripts
         public Javascript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected override object _Invoke(IVariables variables)
+        protected override object ScriptInvoke(IVariables variables)
         {
-            Info("Attempting to invoke Javascript script {0}", new object[] { id });
+            Info("Attempting to invoke Javascript script {0}", new object[] { ID });
             if (_engineType == null)
                 throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
-            Debug("Creating new Javascript Engine for script element {0}", new object[] { id });
+            Debug("Creating new Javascript Engine for script element {0}", new object[] { ID });
             object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
             object[] pars = new object[] { "variables", variables };
-            Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
+            Debug("Invoking Javascript Engine for script element {0}", new object[] { ID });
             _setValue.Invoke(engine, pars);
             object ret = null;
             if (Code.Contains("return "))
@@ -75,15 +75,15 @@ namespace BPMNEngine.Elements.Processes.Scripts
             return pars[1];
         }
 
-        protected override object _Invoke(IReadonlyVariables variables)
+        protected override object ScriptInvoke(IReadonlyVariables variables)
         {
-            Info("Attempting to invoke Javascript script {0}", new object[] { id });
+            Info("Attempting to invoke Javascript script {0}", new object[] { ID });
             if (_engineType == null)
                 throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
-            Debug("Creating new Javascript Engine for script element {0}", new object[] { id });
+            Debug("Creating new Javascript Engine for script element {0}", new object[] { ID });
             object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
             object[] pars = new object[] { "variables", variables };
-            Debug("Invoking Javascript Engine for script element {0}", new object[] { id });
+            Debug("Invoking Javascript Engine for script element {0}", new object[] { ID });
             _setValue.Invoke(engine, pars);
             object ret = null;
             if (Code.Contains("return "))
@@ -97,7 +97,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             return pars[1];
         }
 
-        protected override bool _IsValid(out string[] err)
+        protected override bool ScriptIsValid(out string[] err)
         {
             try
             {

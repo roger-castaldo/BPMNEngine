@@ -22,7 +22,7 @@ namespace UnitTest.Delegates
 
         private static bool IsEventStartValid(IStepElement Event, IReadonlyVariables variables)
         {
-            return new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(Event.id);
+            return new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(Event.ID);
         }
 
         private static bool IsProcessStartValid(IElement process, IReadonlyVariables variables)
@@ -32,12 +32,12 @@ namespace UnitTest.Delegates
 
         private static bool IsFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
         {
-            return new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(flow.id);
+            return new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(flow.ID);
         }
 
         private static bool InstanceIsEventStartValid(IStepElement Event, IReadonlyVariables variables)
         {
-            return !new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(Event.id);
+            return !new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(Event.ID);
         }
 
         private static bool InstanceIsProcessStartValid(IElement process, IReadonlyVariables variables)
@@ -47,7 +47,7 @@ namespace UnitTest.Delegates
 
         private static bool InstanceIsFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
         {
-            return !new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(flow.id);
+            return !new List<string>((string[])variables[_VALID_PATHS_NAME]).Contains(flow.ID);
         }
 
         [ClassInitialize()]

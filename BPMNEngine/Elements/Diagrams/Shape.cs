@@ -197,7 +197,7 @@ namespace BPMNEngine.Elements.Diagrams
         public void Render(ICanvas surface, ProcessPath path, Definition definition)
         {
             var elem = definition.LocateElement(bpmnElement);
-            var color = Diagram.GetColor(path.GetStatus(elem.id));
+            var color = Diagram.GetColor(path.GetStatus(elem.ID));
             if (elem is Lane || elem is Participant || elem is LaneSet)
                 _RenderLane(elem, surface, color);
             else

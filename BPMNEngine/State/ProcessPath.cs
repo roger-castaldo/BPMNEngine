@@ -403,7 +403,7 @@ namespace BPMNEngine.State
                 {
                     if (_steps
                         .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
-                        .Where(step => step.ElementID==gw.id)
+                        .Where(step => step.ElementID==gw.ID)
                         .Select(step => step.Status)
                         .DefaultIfEmpty(StepStatuses.NotRun)
                         .FirstOrDefault()!=StepStatuses.Waiting)
@@ -420,14 +420,14 @@ namespace BPMNEngine.State
                     }
                     if (!result && _steps
                             .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
-                            .Where(step => step.ElementID==gw.id)
+                            .Where(step => step.ElementID==gw.ID)
                             .Select(step => step.Status)
                             .DefaultIfEmpty(StepStatuses.NotRun)
                             .FirstOrDefault()!=StepStatuses.Waiting)
                     {
                         _steps.Add(new SPathEntry()
                         {
-                            ElementID=gw.id,
+                            ElementID=gw.ID,
                             Status = StepStatuses.Waiting,
                             StartTime = DateTime.Now,
                             IncomingID=sourceID
@@ -442,7 +442,7 @@ namespace BPMNEngine.State
                 {
                     var currentStatus = _steps
                         .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
-                        .Where(step => step.ElementID==gw.id)
+                        .Where(step => step.ElementID==gw.ID)
                         .Select(step => step.Status)
                         .DefaultIfEmpty(StepStatuses.NotRun)
                         .FirstOrDefault();
@@ -463,7 +463,7 @@ namespace BPMNEngine.State
             {
                 _steps.Add(new SPathEntry()
                 {
-                    ElementID=gw.id,
+                    ElementID=gw.ID,
                     Status = StepStatuses.Started,
                     StartTime = DateTime.Now,
                     IncomingID=sourceID
@@ -550,14 +550,14 @@ namespace BPMNEngine.State
 
         internal void DelayEventStart(AEvent Event,string incoming,TimeSpan delay)
         {
-            WriteLogLine(Event.id, LogLevel.Debug, "Delaying start of event in Process Path");
-            AddPathEntry(Event.id, StepStatuses.WaitingStart, DateTime.Now,incomingID:incoming,end:DateTime.Now.Add(delay));
+            WriteLogLine(Event.ID, LogLevel.Debug, "Delaying start of event in Process Path");
+            AddPathEntry(Event.ID, StepStatuses.WaitingStart, DateTime.Now,incomingID:incoming,end:DateTime.Now.Add(delay));
         }
 
         internal void StartFlowNode(AFlowNode node,string incoming)
         {
-            WriteLogLine(node.id, LogLevel.Debug, string.Format("Starting {0} in Process Path", node.GetType().Name));
-            AddPathEntry(node.id, (node is UserTask || node is ManualTask ? StepStatuses.Waiting : StepStatuses.Started),DateTime.Now,incomingID:incoming);
+            WriteLogLine(node.ID, LogLevel.Debug, string.Format("Starting {0} in Process Path", node.GetType().Name));
+            AddPathEntry(node.ID, (node is UserTask || node is ManualTask ? StepStatuses.Waiting : StepStatuses.Started),DateTime.Now,incomingID:incoming);
         }
 
         internal void SucceedFlowNode(ATask task, IEnumerable<string> outgoing = null, string completedByID = null)
@@ -575,26 +575,26 @@ namespace BPMNEngine.State
 
         internal void SucceedFlowNode(AFlowNode node,IEnumerable<string> outgoing=null, string completedByID=null)
         {
-            WriteLogLine(node.id, LogLevel.Debug, string.Format("Succeeding {0} in Process Path {1}",node.GetType().Name,(completedByID==null ? "" : string.Format(" as completed by {0}",completedByID))));
-            GetIncomingIDAndStart(node.id, out DateTime start, out string incoming);
+            WriteLogLine(node.ID, LogLevel.Debug, string.Format("Succeeding {0} in Process Path {1}",node.GetType().Name,(completedByID==null ? "" : string.Format(" as completed by {0}",completedByID))));
+            GetIncomingIDAndStart(node.ID, out DateTime start, out string incoming);
             outgoing ??= node.Outgoing;
             if (!outgoing.Any())
             {
-                AddPathEntry(node.id,StepStatuses.Succeeded,start,incomingID:incoming,end:DateTime.Now,completedBy:completedByID);
-                Complete(node.id, null);
+                AddPathEntry(node.ID,StepStatuses.Succeeded,start,incomingID:incoming,end:DateTime.Now,completedBy:completedByID);
+                Complete(node.ID, null);
             }
             else
             {
-                AddPathEntry(node.id, StepStatuses.Succeeded, start, incomingID: incoming, end: DateTime.Now,outgoingID:node.Outgoing,completedBy:completedByID);
-                outgoing.Distinct().ForEach(id => Complete(node.id, id));
+                AddPathEntry(node.ID, StepStatuses.Succeeded, start, incomingID: incoming, end: DateTime.Now,outgoingID:node.Outgoing,completedBy:completedByID);
+                outgoing.Distinct().ForEach(id => Complete(node.ID, id));
             }
         }
 
         internal void FailFlowNode(AFlowNode node,Exception error=null)
         {
-            WriteLogLine(node.id, LogLevel.Debug, string.Format("Failing {0} in Process Path", node.GetType().Name));
-            GetIncomingIDAndStart(node.id, out DateTime start, out string incoming);
-            AddPathEntry(node.id,StepStatuses.Failed,start,incomingID:incoming, end:DateTime.Now);
+            WriteLogLine(node.ID, LogLevel.Debug, string.Format("Failing {0} in Process Path", node.GetType().Name));
+            GetIncomingIDAndStart(node.ID, out DateTime start, out string incoming);
+            AddPathEntry(node.ID,StepStatuses.Failed,start,incomingID:incoming, end:DateTime.Now);
             Error(node, error);
         }
 
@@ -604,15 +604,15 @@ namespace BPMNEngine.State
 
         internal void ProcessFlowElement(IFlowElement flowElement)
         {
-            WriteLogLine(flowElement.id, LogLevel.Debug, "Processing Flow Element in Process Path");
-            AddPathEntry(flowElement.id,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.sourceRef, outgoingID:new string[] { flowElement.targetRef }, end:DateTime.Now);
-            Complete(flowElement.id, flowElement.targetRef);
+            WriteLogLine(flowElement.ID, LogLevel.Debug, "Processing Flow Element in Process Path");
+            AddPathEntry(flowElement.ID,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.sourceRef, outgoingID:new string[] { flowElement.targetRef }, end:DateTime.Now);
+            Complete(flowElement.ID, flowElement.targetRef);
         }
 
         internal void SuspendElement(string sourceID, IElement elem)
         {
-            WriteLogLine(elem.id, LogLevel.Debug, "Suspending Element in Process Path");
-            AddPathEntry(elem.id,StepStatuses.Suspended,DateTime.Now,incomingID:sourceID);
+            WriteLogLine(elem.ID, LogLevel.Debug, "Suspending Element in Process Path");
+            AddPathEntry(elem.ID,StepStatuses.Suspended,DateTime.Now,incomingID:sourceID);
         }
 
         internal void SuspendElement(string sourceID, string elementID,TimeSpan span)

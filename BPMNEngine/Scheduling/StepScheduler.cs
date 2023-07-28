@@ -12,7 +12,7 @@ namespace BPMNEngine.Scheduling
 {
     internal class StepScheduler : IScheduleEngine
     {
-        public readonly static StepScheduler Instance = new StepScheduler();
+        public readonly static StepScheduler Instance = new();
 
         private readonly struct SProcessSuspendEvent
         {
@@ -108,7 +108,7 @@ namespace BPMNEngine.Scheduling
             var changed = delayedEvents.RemoveAll(de=>
             de.Instance.ID==process.ID 
             && de.SourceID==sourceID
-            && de.Event.id==evnt.id)>0;
+            && de.Event.ID==evnt.ID)>0;
             locker.ExitWriteLock();
             if (changed)
                 backgroundMREEvent.Set();
@@ -119,7 +119,7 @@ namespace BPMNEngine.Scheduling
             locker.EnterWriteLock();
             var changed = suspendEvents.RemoveAll(se =>
             se.Instance.ID==process.ID
-            && se.Event.id==id)>0;
+            && se.Event.ID==id)>0;
             locker.ExitWriteLock();
             if (changed)
                 backgroundMREEvent.Set();

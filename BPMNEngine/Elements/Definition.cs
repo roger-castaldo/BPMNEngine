@@ -19,9 +19,9 @@ namespace BPMNEngine.Elements
 
         public IElement LocateElement(string id)
         {
-            return (this.id==id
+            return (this.ID==id
                 ? this
-                : Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).FirstOrDefault(elem => elem.id==id));
+                : Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).FirstOrDefault(elem => elem.ID==id));
         }
 
         public IEnumerable<T> LocateElementsOfType<T>() where T: IElement

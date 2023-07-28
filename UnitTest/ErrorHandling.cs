@@ -116,28 +116,28 @@ namespace UnitTest
 
         private static void ProcessTask(ITask task)
         {
-            if (!IsElementValid(task.id, task.Variables[_INVALID_ELEMENTS_ID]))
+            if (!IsElementValid(task.ID, task.Variables[_INVALID_ELEMENTS_ID]))
                 throw new Exception((task.Variables[_ERROR_MESSAGE_NAME]!=null ? (string)task.Variables[_ERROR_MESSAGE_NAME] : "Invalid Task"));
         }
 
         private static bool IsFlowValid(ISequenceFlow flow, IReadonlyVariables variables)
         {
-            return IsElementValid(flow.id, variables[_INVALID_ELEMENTS_ID]);
+            return IsElementValid(flow.ID, variables[_INVALID_ELEMENTS_ID]);
         }
 
         private static bool IsEventStartValid(IStepElement Event, IReadonlyVariables variables)
         {
-            return IsElementValid(Event.id, variables[_INVALID_ELEMENTS_ID]);
+            return IsElementValid(Event.ID, variables[_INVALID_ELEMENTS_ID]);
         }
 
         private static void ProcessError(IElement process, IElement sourceElement, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}-{1}-{2}", new object[] { variables[_TEST_ID_NAME], process.id, sourceElement.id }));
+            _cache.Enqueue(string.Format("{0}-{1}-{2}", new object[] { variables[_TEST_ID_NAME], process.ID, sourceElement.ID }));
         }
 
         private static void ErrorEvent(IStepElement element, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}-{1}",new object[] { variables[_TEST_ID_NAME], element.id }));
+            _cache.Enqueue(string.Format("{0}-{1}",new object[] { variables[_TEST_ID_NAME], element.ID }));
         }
 
         private static bool EventOccured(Guid instanceID, string name)

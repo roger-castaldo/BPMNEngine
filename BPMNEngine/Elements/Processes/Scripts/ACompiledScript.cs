@@ -38,11 +38,9 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         private static string NextName()
         {
-            StringBuilder result = new StringBuilder();
-            while (result.Length < _NAME_LENGTH)
-            {
+            var result = new StringBuilder();
+            for(var x=0;x<_NAME_LENGTH;x++)
                 result.Append(_NAME_CHARS[RandomNumberGenerator.GetInt32(_NAME_CHARS.Length - 1)]);
-            }
             return result.ToString();
         }
 
@@ -53,7 +51,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             FunctionName = NextName();
         }
 
-        protected abstract EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, ref MemoryStream ms);
+        protected abstract EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled);
         
         private bool CompileAssembly(out string errors)
         {
@@ -62,7 +60,6 @@ namespace BPMNEngine.Elements.Processes.Scripts
             {
                 if (_assembly == null)
                 {
-                    MemoryStream ms = new MemoryStream();
                     var references = AppDomain.CurrentDomain.GetAssemblies()
                         .Where(ass => GetAssemblyLocation(ass) != null)
                         .Select(ass => MetadataReference.CreateFromFile(GetAssemblyLocation(ass)))
@@ -70,16 +67,16 @@ namespace BPMNEngine.Elements.Processes.Scripts
                             Dlls
                             .Select(d=> MetadataReference.CreateFromFile(d))
                         );
-                    EmitResult res = Compile(NextName(), references, Imports, Code, ref ms);
+                    EmitResult res = Compile(NextName(), references, Imports, Code, out byte[] compiled);
                     if (!res.Success)
                     {
-                        StringBuilder error = new StringBuilder();
+                        var error = new StringBuilder();
                         res.Diagnostics.ForEach(diag => error.AppendLine(diag.ToString()));
                         errors = string.Format("Unable to compile script Code.  Errors:{0}", error.ToString());
                         _assembly = null;
                     }
                     else
-                        _assembly = Assembly.Load(ms.ToArray());
+                        _assembly = Assembly.Load(compiled);
                 }
             }
             return errors == null;
@@ -96,53 +93,50 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
         }
 
-        protected sealed override object _Invoke(IVariables variables)
+        protected sealed override object ScriptInvoke(IVariables variables)
         {
-            Debug("Attempting to compile script to execute for script element {0}",new object[] { id });
-            string errors;
-            if (!CompileAssembly(out errors))
+            Debug("Attempting to compile script to execute for script element {0}",new object[] { ID });
+            if (!CompileAssembly(out string errors))
                 throw new Exception(errors);
-            Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Creating new instance of compiled script class for script element {0}", new object[] { ID });
             object o = _assembly.CreateInstance(ClassName);
-            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { ID });
             MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = new object[] { variables };
-            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { ID });
             object ret = mi.Invoke(o, args);
             if (mi.ReturnType == typeof(void))
             {
-                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { id });
+                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { ID });
                 ret = args[0];
             }
             return ret;
         }
 
-        protected sealed override object _Invoke(IReadonlyVariables variables)
+        protected sealed override object ScriptInvoke(IReadonlyVariables variables)
         {
-            Debug("Attempting to compile script to execute for script element {0}", new object[] { id });
-            string errors;
-            if (!CompileAssembly(out errors))
+            Debug("Attempting to compile script to execute for script element {0}", new object[] { ID });
+            if (!CompileAssembly(out string errors))
                 throw new Exception(errors);
-            Debug("Creating new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Creating new instance of compiled script class for script element {0}", new object[] { ID });
             object o = _assembly.CreateInstance(ClassName);
-            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { ID });
             MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = new object[] { variables };
-            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { id });
+            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { ID });
             object ret = mi.Invoke(o, args);
             if (mi.ReturnType == typeof(void))
             {
-                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { id });
+                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { ID });
                 ret = args[0];
             }
             return ret;
         }
 
-        protected override bool _IsValid(out string[] err)
+        protected override bool ScriptIsValid(out string[] err)
         {
             _assembly = null;
-            string error;
-            if (!CompileAssembly(out error))
+            if (!CompileAssembly(out string error))
             {
                 err = new string[] { error };
                 return false;

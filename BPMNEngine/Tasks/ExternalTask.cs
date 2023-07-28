@@ -41,9 +41,9 @@ namespace BPMNEngine.Tasks
             get { return _task.Lane; }
         }
 
-        public string id
+        public string ID
         {
-            get { return _task.id; }
+            get { return _task.ID; }
         }
 
         public IEnumerable<XmlNode> SubNodes

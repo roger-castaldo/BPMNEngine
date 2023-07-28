@@ -48,7 +48,7 @@ namespace UnitTest
             Assert.IsTrue(variables.ContainsKey(RESULT_VARIABLE_NAME));
             Assert.AreEqual(VARIABLE_VALUE, variables[RESULT_VARIABLE_NAME]);
 
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
 
             variables = BusinessProcess.ExtractProcessVariablesFromStateDocument(doc);
