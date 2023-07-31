@@ -18,7 +18,7 @@ namespace UnitTest
         private static BusinessProcess _process;
 
         [ClassInitialize()]
-        public static void Initialize()
+        public static void Initialize(TestContext testContext)
         {
             _process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"));
         }

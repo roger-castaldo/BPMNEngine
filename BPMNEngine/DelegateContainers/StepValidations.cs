@@ -11,8 +11,6 @@ namespace BPMNEngine.DelegateContainers
     /// </summary>
     public class StepValidations
     {
-        private static readonly StepValidations _DEFAULT_VALIDATOR = new();
-
         /// <summary>
         /// A delegate called to validate if an event can start
         /// <code>
@@ -41,7 +39,7 @@ namespace BPMNEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsEventStartValid IsEventStartValid { get; init; } = new(DefaultEventStartValid);
+        public IsEventStartValid IsEventStartValid { get; init; } = null;
         /// <summary>
         /// A delegate called to validate if a process is valid to start
         /// <code>
@@ -70,7 +68,7 @@ namespace BPMNEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsProcessStartValid IsProcessStartValid { get; init; } = new(DefaultProcessStartValid);
+        public IsProcessStartValid IsProcessStartValid { get; init; } = null;
         /// <summary>
         /// A delegate called to validate if a flow is valid to run
         /// <code>
@@ -98,22 +96,18 @@ namespace BPMNEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsFlowValid IsFlowValid { get; init; } = new(DefaultFlowValid);
+        public IsFlowValid IsFlowValid { get; init; } = null;
 
-        private static bool DefaultEventStartValid(IElement Event, IReadonlyVariables variables) { return true; }
-        private static bool DefaultProcessStartValid(IElement Event, IReadonlyVariables variables) { return true; }
-        private static bool DefaultFlowValid(IElement flow, IReadonlyVariables variables) { return true; }
-
+        private static readonly Func<IElement, IReadonlyVariables,bool> DEFAULT_ACTION = new((elem, variables) => true);
         internal static StepValidations Merge(StepValidations source, StepValidations append)
         {
-            if (source==null&&append==null) return Merge(_DEFAULT_VALIDATOR, null);
-            if (source==null) return Merge(_DEFAULT_VALIDATOR, append);
-            if (append==null) return Merge(_DEFAULT_VALIDATOR, source);
+            source??=new();
+            append??=new();
             return new StepValidations()
             {
-                IsEventStartValid = append.IsEventStartValid??(source.IsEventStartValid??new IsEventStartValid(DefaultEventStartValid)),
-                IsProcessStartValid = append.IsProcessStartValid??(source.IsProcessStartValid??new IsProcessStartValid(DefaultProcessStartValid)),
-                IsFlowValid = append.IsFlowValid??(source.IsFlowValid ?? new IsFlowValid(DefaultFlowValid))
+                IsEventStartValid = append.IsEventStartValid??source.IsEventStartValid??new(DEFAULT_ACTION),
+                IsProcessStartValid = append.IsProcessStartValid??source.IsProcessStartValid??new(DEFAULT_ACTION),
+                IsFlowValid = append.IsFlowValid??source.IsFlowValid??new(DEFAULT_ACTION)
             };
         }
     }

@@ -19,9 +19,8 @@
 
         internal static ProcessLogging Merge(ProcessLogging source,ProcessLogging append)
         {
-            if (source==null && append==null) return new ProcessLogging() { };
-            if (source==null) return append;
-            if (append==null) return source;
+            source??=new ProcessLogging();
+            append??=new ProcessLogging();
             return new ProcessLogging()
             {
                 LogLine = (source.LogLine!=null&&append.LogLine!=null ?

@@ -104,7 +104,7 @@ namespace UnitTest.Delegates
         {
             IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
             {
-                {_VALID_PATHS_NAME,new string[]{ "StartEvent_0fbfgne","SequenceFlow_1sl9l6m","SequenceFlow_0hhf11n" }}
+                {_VALID_PATHS_NAME,new string[]{ "StartEvent_0fbfgne", "SequenceFlow_1sl9l6m","SequenceFlow_0hhf11n" }}
             },
             validations: new BPMNEngine.DelegateContainers.StepValidations()
             {

@@ -242,9 +242,8 @@
 
         internal static ProcessEvents Merge(ProcessEvents source, ProcessEvents append)
         {
-            if(source==null&&append==null) return new ProcessEvents();
-            if (source==null) return append;
-            if (append==null) return source;
+            source??=new ProcessEvents();
+            append??=new ProcessEvents();
             return new ProcessEvents()
             {
                 Events = BasicEvents.Merge(source.Events, append.Events),

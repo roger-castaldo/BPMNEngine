@@ -147,9 +147,8 @@
 
         internal static ProcessTasks Merge(ProcessTasks source, ProcessTasks append)
         {
-            if (source==null && append==null) return new ProcessTasks() { };
-            if (source==null) return append;
-            if(append==null) return source;
+            source??=new ProcessTasks();
+            append??=new ProcessTasks();
             return new ProcessTasks()
             {
                 ProcessBusinessRuleTask = append.ProcessBusinessRuleTask??source.ProcessBusinessRuleTask,

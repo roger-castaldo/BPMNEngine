@@ -17,7 +17,7 @@ namespace BPMNEngine
             {
                 Logging = ProcessLogging.Merge(original.Logging,append.Logging)??new ProcessLogging(),
                 Tasks = ProcessTasks.Merge(original.Tasks,append.Tasks)??new ProcessTasks(),
-                Validations = StepValidations.Merge(original.Validations, append.Validations) ?? new StepValidations(),
+                Validations = StepValidations.Merge(original.Validations, append.Validations),
                 Events = ProcessEvents.Merge(original.Events, append.Events) ?? new ProcessEvents()
             };
         }
