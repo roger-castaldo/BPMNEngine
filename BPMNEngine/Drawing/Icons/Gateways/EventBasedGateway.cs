@@ -1,10 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
-
-using BPMNEngine.Drawing.Icons.IconParts;
 using BPMNEngine.Elements;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BPMNEngine.Drawing.Icons.Gateways
 {
@@ -23,13 +18,13 @@ namespace BPMNEngine.Drawing.Icons.Gateways
             new Point(23f,26f)
         };
 
-        protected override void _Draw(ICanvas surface, Color color)
+        protected override void InternalDraw(ICanvas surface, Color color)
         {
-            base._Draw(surface, color);
+            base.InternalDraw(surface, color);
 
             Diagram.DrawLines(surface, _POINTS);
 
-            surface.DrawLine(_POINTS[_POINTS.Length-1], _POINTS[0]);
+            surface.DrawLine(_POINTS[^1], _POINTS[0]);
 
             surface.StrokeSize = _CIRCLE_PEN_SIZE;
 

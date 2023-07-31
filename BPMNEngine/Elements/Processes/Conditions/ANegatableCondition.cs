@@ -1,26 +1,18 @@
-﻿using BPMNEngine.Attributes;
-using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
+﻿using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
     internal abstract class ANegatableCondition : ACondition
     {
-        protected bool _negated => (this["negated"]==null ? false : bool.Parse(this["negated"]));
+        protected bool Negated => (this["negated"]!=null &&bool.Parse(this["negated"]));
 
-        protected abstract bool _Evaluate(IReadonlyVariables variables);
+        protected abstract bool EvaluateCondition(IReadonlyVariables variables);
 
         public ANegatableCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         { }
 
         public sealed override bool Evaluate(IReadonlyVariables variables)
-        {
-            bool ret = _Evaluate(variables);
-            return (_negated ? !ret : ret);
-        }
+            => (Negated ? !EvaluateCondition(variables) : EvaluateCondition(variables));
     }
 }

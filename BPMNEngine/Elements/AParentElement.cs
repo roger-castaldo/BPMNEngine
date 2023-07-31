@@ -1,18 +1,10 @@
 ﻿using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements
 {
     internal abstract class AParentElement : AElement,IParentElement
     {
-
-        private readonly List<IElement> _children=null;
-        public IEnumerable<IElement> Children => _children;
+        public IEnumerable<IElement> Children { get; private set; }
 
         public void LoadChildren(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {
@@ -23,7 +15,7 @@ namespace BPMNEngine.Elements
                     IElement subElem = Utility.ConstructElementType(elem, ref map, ref cache, this);
                     if (subElem != null)
                     {
-                        _children.Add(subElem);
+                        Children=Children.Append(subElem);
                         if (subElem is AParentElement element)
                             element.LoadChildren(ref map, ref cache);
                         else
@@ -37,7 +29,7 @@ namespace BPMNEngine.Elements
         public AParentElement(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
-            _children=new List<IElement>();
+            Children=new List<IElement>();
         }
     }
 }

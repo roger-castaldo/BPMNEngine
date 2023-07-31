@@ -1,46 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BPMNEngine
+﻿namespace BPMNEngine
 {
     internal class ElementTypeCache
     {
-        private Dictionary<string, Type> _cachedMaps;
-
-        public ElementTypeCache() { _cachedMaps = new Dictionary<string, Type>(); }
-
-        public Type this[string xmlTag] => (_cachedMaps.ContainsKey(xmlTag.ToLower()) ? _cachedMaps[xmlTag.ToLower()] : null);
-
-        public bool IsCached(string xmlTag)
+        private readonly struct SCachedType
         {
-            return _cachedMaps.ContainsKey(xmlTag.ToLower());
+            public SCachedType(){}
+            public string Tag { get; init; } = string.Empty;
+            public Type Type { get; init; } = null;
         }
+
+        private readonly List<SCachedType> cache;
+
+        public ElementTypeCache() { cache=new(); }
+
+        public Type this[string xmlTag] => cache.FirstOrDefault(ct=>ct.Tag.Equals(xmlTag,StringComparison.CurrentCultureIgnoreCase)).Type;
+
+        public bool IsCached(string xmlTag) => cache.Any(ct=>ct.Tag.Equals(xmlTag,StringComparison.CurrentCultureIgnoreCase));
 
         public void MapIdeals(XmlPrefixMap map)
         {
             Dictionary<string, Dictionary<string, Type>> ideals = Utility.IdealMap;
-            ideals.Keys.ForEach(prefix =>
+            ideals.ForEach(prefixPair =>
             {
-                IEnumerable<string> tmp = map.Translate(prefix);
-                if (tmp!=null && tmp.Any())
+                IEnumerable<string> tmp = map.Translate(prefixPair.Key);
+                if (tmp.Any())
                 {
                     tmp.ForEach(trans =>
                     {
-                        ideals[prefix].Keys.ForEach(tag =>
+                        prefixPair.Value.ForEach(tagPair =>
                         {
-                            if (!_cachedMaps.ContainsKey(string.Format("{0}:{1}", trans, tag)))
-                                _cachedMaps.Add(string.Format("{0}:{1}", trans, tag), ideals[prefix][tag]);
+                            var tag = $"{trans}:{tagPair.Key}";
+                            if (!cache.Any(ct => ct.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)))
+                                cache.Add(new()
+                                {
+                                    Tag=tag,
+                                    Type=tagPair.Value
+                                });
                         });
                     });
                 }
                 else
                 {
-                    ideals[prefix].Keys.ForEach(tag =>
+                    prefixPair.Value.ForEach(tagPair =>
                     {
-                        _cachedMaps.Add(string.Format("{0}:{1}", prefix, tag), ideals[prefix][tag]);
-                        _cachedMaps.Add(tag, ideals[prefix][tag]);
+                        cache.Add(new() { Tag=$"{prefixPair.Key}:{tagPair.Key}",Type=tagPair.Value });
+                        cache.Add(new() { Tag=tagPair.Key, Type=tagPair.Value });
                     });
                 }
             });

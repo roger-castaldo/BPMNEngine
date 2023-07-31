@@ -1,11 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
@@ -13,13 +8,9 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     [ValidParent(typeof(AEvent))]
     internal class ErrorEventDefinition : AParentElement
     {
-        public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
-
-
-
-        public IEnumerable<string> ErrorTypes => new string[] {}.Concat(Children
+        public IEnumerable<string> ErrorTypes
+            => Array.Empty<string>()
+                .Concat(Children
                     .OfType<ErrorDefinition>()
                     .Select(ed => ed.Type ?? "*")
                 ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
@@ -29,11 +20,14 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                 ).Distinct()
                 .DefaultIfEmpty("*");
 
+        public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+            : base(elem, map, parent) { }
+
         public override bool IsValid(out string[] err)
         {
             if (ErrorTypes.Any())
             {
-                List<string> errors = new List<string>();
+                var errors = new List<string>();
                 if (Parent is IntermediateThrowEvent)
                 {
                     if (ErrorTypes.Count() > 1)
@@ -41,11 +35,11 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
                     bool found = elems
                         .Any(catcher => catcher.Children
-                            .Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Contains(ErrorTypes.First()))
+                            .Any(child => child is ErrorEventDefinition definition && definition.ErrorTypes.Contains(ErrorTypes.First()))
                         ) ||
                         elems
                         .Any(catcher => catcher.Children
-                            .Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Contains("*"))
+                            .Any(child => child is ErrorEventDefinition definition && definition.ErrorTypes.Contains("*"))
                         );
                     if (!found)
                         errors.Add("A defined error message type needs to have a Catch Event with a corresponding type or all");

@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Elements;
-using BPMNEngine.Elements.Processes.Events;
 
 namespace BPMNEngine
 {

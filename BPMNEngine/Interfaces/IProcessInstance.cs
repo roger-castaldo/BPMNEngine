@@ -1,11 +1,6 @@
 ﻿using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Interfaces
 {

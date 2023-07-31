@@ -3,22 +3,18 @@ using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
 using BPMNEngine.Elements;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal abstract class EmbeddedResourceIcon
         : IIconPart
     {
-        protected abstract string _resourceName { get; }
+        protected abstract string ResourceName { get; }
 
         public void Add(ICanvas surface,int iconSize, Color color)
         {
-            var icon = SKImage.FromEncodedData(GetType().GetTypeInfo().Assembly.GetManifestResourceStream(string.Format("BPMNEngine.Drawing.Icons.IconParts.resources.{0}", _resourceName)));
+            var icon = SKImage.FromEncodedData(GetType().GetTypeInfo().Assembly.GetManifestResourceStream(string.Format("BPMNEngine.Drawing.Icons.IconParts.resources.{0}", ResourceName)));
             var bmp = SKBitmap.FromImage(icon);
             var image = Diagram.ProduceImage(icon.Width,icon.Height);
             for(int x = 0; x<bmp.Width; x++)

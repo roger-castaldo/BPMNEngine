@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BPMNEngine.Elements.Diagrams
+﻿namespace BPMNEngine.Elements.Diagrams
 {
     internal enum BPMIcons
     {

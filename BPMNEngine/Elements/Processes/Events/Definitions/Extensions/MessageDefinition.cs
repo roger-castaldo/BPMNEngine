@@ -1,8 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
@@ -11,15 +7,14 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
     [ValidParent(typeof(MessageEventDefinition))]
     internal class MessageDefinition : AElement
     {
-        public MessageDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
+        public MessageDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+            : base(elem, map, parent) { }
 
-        public string Name { get { return this["name"]; } }
+        public string Name => this["name"];
 
         public override bool IsValid(out string[] err)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
             if (Name == "*")
                 errors.Add("A Message Definition cannot have the name of *, this is reserved");
             if (Parent.Parent is IntermediateThrowEvent && Name == null)

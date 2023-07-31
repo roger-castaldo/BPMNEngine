@@ -8,11 +8,6 @@ using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.State;
-using System;
-using System.CodeDom;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Xml;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
@@ -36,12 +31,11 @@ namespace BPMNEngine.Elements.Diagrams
         public BPMIcons? GetIcon(Definition definition)
         {
             BPMIcons? ret = null;
-            IElement elem = _GetLinkedElement(definition);
+            var elem = GetLinkedElement(definition);
             if (elem != null)
             {
-                if (elem is AEvent)
+                if (elem is AEvent evnt)
                 {
-                    AEvent evnt = (AEvent)elem;
                     if (elem is StartEvent)
                     {
                         ret = BPMIcons.StartEvent;
@@ -176,8 +170,7 @@ namespace BPMNEngine.Elements.Diagrams
                     ret = (BPMIcons)Enum.Parse(typeof(BPMIcons), elem.GetType().Name);
                 else if (elem is ATask)
                 {
-                    object obj;
-                    if (Enum.TryParse(typeof(BPMIcons), elem.GetType().Name, out obj))
+                    if (Enum.TryParse(typeof(BPMIcons), elem.GetType().Name, out object obj))
                         ret = (BPMIcons)obj;
                 }
             }
@@ -196,22 +189,22 @@ namespace BPMNEngine.Elements.Diagrams
 
         public void Render(ICanvas surface, ProcessPath path, Definition definition)
         {
-            var elem = definition.LocateElement(bpmnElement);
+            var elem = definition.LocateElement(BPMNElement);
             var color = Diagram.GetColor(path.GetStatus(elem.ID));
             if (elem is Lane || elem is Participant || elem is LaneSet)
-                _RenderLane(elem, surface, color);
+                RenderLane(elem, surface, color);
             else
             {
                 if (elem is AEvent aEvent)
-                    _RenderEvent(aEvent, surface, color);
+                    RenderEvent(aEvent, surface, color);
                 else if (elem is Processes.Gateways.AGateway aGateway)
-                    _RenderGateway(aGateway, surface, color);
+                    RenderGateway(aGateway, surface, color);
                 else if (elem is ATask aTask)
-                    _RenderTask(aTask, surface, color);
+                    RenderTask(aTask, surface, color);
                 else if (elem is TextAnnotation)
-                    _RenderTextAnnotation(surface, color);
+                    RenderTextAnnotation(surface, color);
                 else if (elem is SubProcess)
-                    _RenderSubProcess(surface, color);
+                    RenderSubProcess(surface, color);
 
                 if (elem.ToString()!="")
                 {
@@ -232,7 +225,7 @@ namespace BPMNEngine.Elements.Diagrams
         #endregion
 
         #region Event
-        private void _RenderEvent(AEvent aEvent, ICanvas surface,Color color)
+        private void RenderEvent(AEvent aEvent, ICanvas surface,Color color)
         {
             var icon = BPMIcons.StartEvent;
             if (aEvent is StartEvent)
@@ -369,16 +362,16 @@ namespace BPMNEngine.Elements.Diagrams
         #endregion
 
         #region Gateway
-        private void _RenderGateway(Processes.Gateways.AGateway aGateway, ICanvas surface, Color color)
+        private void RenderGateway(Processes.Gateways.AGateway aGateway, ICanvas surface, Color color)
         {
             IconGraphic.AppendIcon(this.Rectangle, (BPMIcons)Enum.Parse(typeof(BPMIcons), aGateway.GetType().Name), surface, color);
         }
         #endregion
 
         #region Lane
-        private void _RenderLane(IElement elem, ICanvas surface, Color color)
+        private void RenderLane(IElement elem, ICanvas surface, Color color)
         {
-            if (!(elem is LaneSet))
+            if (elem is not LaneSet)
             {
                 surface.StrokeColor=color;
                 surface.StrokeDashPattern=null;
@@ -398,7 +391,7 @@ namespace BPMNEngine.Elements.Diagrams
         #endregion
 
         #region Task
-        private void _RenderTask(ATask aTask, ICanvas surface, Color color)
+        private void RenderTask(ATask aTask, ICanvas surface, Color color)
         {
             surface.StrokeColor = color;
             surface.StrokeDashPattern=null;
@@ -406,8 +399,7 @@ namespace BPMNEngine.Elements.Diagrams
 
             surface.DrawRoundedRectangle(this.Rectangle,_TASK_RADIUS);
 
-            object obj;
-            if (Enum.TryParse(typeof(BPMIcons), aTask.GetType().Name, out obj))
+            if (Enum.TryParse(typeof(BPMIcons), aTask.GetType().Name, out object obj))
                 IconGraphic.AppendIcon(new Rect(this.Rectangle.X + 7, this.Rectangle.Y + 11, 15, 15), (BPMIcons)obj, surface, color);
 
             if (aTask is CallActivity)
@@ -422,7 +414,7 @@ namespace BPMNEngine.Elements.Diagrams
         #endregion
 
         #region TextAnnotation
-        private void _RenderTextAnnotation(ICanvas surface, Color color)
+        private void RenderTextAnnotation(ICanvas surface, Color color)
         {
             surface.StrokeColor=color;
             surface.StrokeSize=_PEN_SIZE;
@@ -438,7 +430,7 @@ namespace BPMNEngine.Elements.Diagrams
         #endregion
 
         #region SubProcess
-        private void _RenderSubProcess(ICanvas surface, Color color)
+        private void RenderSubProcess(ICanvas surface, Color color)
         {
             surface.StrokeColor=color;
             surface.StrokeDashPattern=null;

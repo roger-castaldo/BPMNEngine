@@ -1,10 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
@@ -13,12 +9,12 @@ namespace BPMNEngine.Elements.Processes.Scripts
     {
         private const string _codeExecReturnFormat = "(function(){{ {0} }})();";
 
-        private static Assembly _jintAssembly;
-        private static Type _engineType;
-        private static MethodInfo _setValue;
-        private static MethodInfo _execute;
-        private static MethodInfo _toObject;
-        private static MethodInfo _getCompletionValue;
+        private static readonly Assembly _jintAssembly;
+        private static readonly Type _engineType;
+        private static readonly MethodInfo _setValue;
+        private static readonly MethodInfo _execute;
+        private static readonly MethodInfo _toObject;
+        private static readonly MethodInfo _getCompletionValue;
 
         static Javascript()
         {
@@ -59,19 +55,19 @@ namespace BPMNEngine.Elements.Processes.Scripts
             if (_engineType == null)
                 throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
             Debug("Creating new Javascript Engine for script element {0}", new object[] { ID });
-            object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+            object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(Array.Empty<object>());
             object[] pars = new object[] { "variables", variables };
             Debug("Invoking Javascript Engine for script element {0}", new object[] { ID });
             _setValue.Invoke(engine, pars);
-            object ret = null;
+            object ret;
             if (Code.Contains("return "))
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), new object[] { });
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), Array.Empty<object>());
             else 
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { Code }),new object[]{});
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { Code }), Array.Empty<object>());
             if (IsCondition)
-                return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
+                return bool.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
             else if (IsTimerEvent)
-                return DateTime.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
+                return DateTime.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
             return pars[1];
         }
 
@@ -81,19 +77,19 @@ namespace BPMNEngine.Elements.Processes.Scripts
             if (_engineType == null)
                 throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
             Debug("Creating new Javascript Engine for script element {0}", new object[] { ID });
-            object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+            object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(Array.Empty<object>());
             object[] pars = new object[] { "variables", variables };
             Debug("Invoking Javascript Engine for script element {0}", new object[] { ID });
             _setValue.Invoke(engine, pars);
-            object ret = null;
+            object ret;
             if (Code.Contains("return "))
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), new object[] { });
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), Array.Empty<object>());
             else
-                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { Code }), new object[] { });
+                ret = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { Code }), Array.Empty<object>());
             if (IsCondition)
-                return bool.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
+                return bool.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
             else if (IsTimerEvent)
-                return DateTime.Parse(_toObject.Invoke(ret, new object[] { }).ToString());
+                return DateTime.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
             return pars[1];
         }
 
@@ -103,8 +99,8 @@ namespace BPMNEngine.Elements.Processes.Scripts
             {
                 if (_engineType == null)
                     throw new Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.");
-                object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
-                object[] pars = new object[] { "variables", new ProcessVariablesContainer(null,((Definition)this.Definition).OwningProcess,null)};
+                object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke(Array.Empty<object>());
+                object[] pars = new object[] { "variables", new ProcessVariablesContainer(null,((Definition)this.Definition).OwningProcess)};
                 _setValue.Invoke(engine, pars);
                 try
                 {

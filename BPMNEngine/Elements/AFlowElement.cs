@@ -1,9 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements
 {
@@ -15,7 +11,7 @@ namespace BPMNEngine.Elements
             base(elem, map, parent)
         {
         }
-        public string sourceRef => this["sourceRef"];
-        public string targetRef => this["targetRef"];
+        public string SourceRef => this["sourceRef"];
+        public string TargetRef => this["targetRef"];
     }
 }

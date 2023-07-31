@@ -2,11 +2,6 @@
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
@@ -14,14 +9,6 @@ namespace BPMNEngine.Elements.Processes.Scripts
     [ValidParent(typeof(AConditionSet))]
     internal abstract class AScript : AElement
     {
-        private readonly XmlPrefixMap _map;
-
-        protected AScript(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent)
-        {
-            _map = map;
-        }
-
         protected string Code =>
             SubNodes
                 .Where(n => n.NodeType==XmlNodeType.Text)
@@ -33,7 +20,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 .Select(n => ((XmlCDataSection)n).InnerText)
                 .FirstOrDefault()
             ??
-            String.Empty;
+            string.Empty;
 
         protected bool IsCondition
         {
@@ -65,6 +52,14 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 }
                 return false;
             }
+        }
+
+        private readonly XmlPrefixMap _map;
+
+        protected AScript(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
+        {
+            _map = map;
         }
 
         protected abstract object ScriptInvoke(IVariables variables);

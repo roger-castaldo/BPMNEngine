@@ -1,9 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes
 {
@@ -44,39 +40,29 @@ namespace BPMNEngine.Elements.Processes
                 return p.Children
                     .OfType<LaneSet>()
                     .SelectMany(ls => ls.Children)
-                    .FirstOrDefault(ln => ln is Lane && ((Lane)ln).Nodes.Contains(ID));
+                    .FirstOrDefault(ln => ln is Lane lane && lane.Nodes.Contains(ID));
             }
         }
 
         public IEnumerable<string> Incoming
-        {
-            get
-            {
-                return new string[] { }
-                    .Concat(Children
-                        .OfType<IncomingFlow>()
-                        .Select(elem => elem.Value)
-                    ).Concat(Definition.MessageFlows
-                        .Where(msgFlow => msgFlow.targetRef==this.ID)
-                        .Select(msgFlow => msgFlow.ID)
-                    );
-            }
-        }
+            => Array.Empty<string>()
+                .Concat(Children
+                    .OfType<IncomingFlow>()
+                    .Select(elem => elem.Value)
+                ).Concat(Definition.MessageFlows
+                    .Where(msgFlow => msgFlow.TargetRef==this.ID)
+                    .Select(msgFlow => msgFlow.ID)
+                );
 
         public IEnumerable<string> Outgoing
-        {
-            get
-            {
-                return new string[] { }
-                    .Concat(Children
-                        .OfType<OutgoingFlow>()
-                        .Select(elem => elem.Value)
-                    ).Concat(Definition.MessageFlows
-                        .Where(msgFlow => msgFlow.sourceRef==this.ID)
-                        .Select(msgFlow => msgFlow.ID)
-                    );
-            }
-        }
+            =>Array.Empty<string>()
+                .Concat(Children
+                    .OfType<OutgoingFlow>()
+                    .Select(elem => elem.Value)
+                ).Concat(Definition.MessageFlows
+                    .Where(msgFlow => msgFlow.SourceRef==this.ID)
+                    .Select(msgFlow => msgFlow.ID)
+                );
 
         public AFlowNode(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)

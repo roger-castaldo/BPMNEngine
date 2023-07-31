@@ -1,7 +1,4 @@
 ﻿using BPMNEngine.Elements;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BPMNEngine.Attributes
@@ -9,8 +6,8 @@ namespace BPMNEngine.Attributes
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
     internal class AttributeRegex : Attribute
     {
-        public string Name { get; private set; }
-        public Regex Reg { get; private set; }
+        public string Name { get; private init; }
+        public Regex Reg { get; private init; }
 
         public AttributeRegex(string name, string regex)
         {

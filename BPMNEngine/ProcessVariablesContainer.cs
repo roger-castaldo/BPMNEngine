@@ -1,43 +1,30 @@
 ﻿using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace BPMNEngine
 {
     internal sealed class ProcessVariablesContainer : IVariables
     {
-        private List<string> _nulls;
-        private Dictionary<string, object> _variables;
-        private int _stepIndex;
-        private string _elementID;
-        private BusinessProcess _process = null;
-        private ProcessInstance _processInstance;
+        private readonly List<string> nulls;
+        private readonly Dictionary<string, object> variables;
+        private readonly BusinessProcess process = null;
 
-        public ProcessVariablesContainer(Dictionary<string,object> props,BusinessProcess process,ProcessInstance processInstance)
+        public ProcessVariablesContainer(Dictionary<string,object> props,BusinessProcess process)
         {
-            _nulls = new List<string>();
-            _variables = (props==null ? new Dictionary<string, object>() : props);
-            _stepIndex = -1;
-            _process=process;
-            _processInstance= processInstance;
+            nulls = new List<string>();
+            variables = props??new Dictionary<string, object>();
+            this.process=process;
         }
 
         internal ProcessVariablesContainer(string elementID, ProcessInstance processInstance)
         {
-            _processInstance= processInstance;
-            _process = processInstance.Process;
-            _process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
-            _elementID = elementID;
-            _stepIndex = processInstance.State.Path.CurrentStepIndex(elementID);
-            _nulls = new List<string>();
-            _variables = new Dictionary<string, object>();
+            process = processInstance.Process;
+            process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
+            nulls = new List<string>();
+            variables = new Dictionary<string, object>();
             processInstance.State[elementID].ForEach(key =>
             {
-                _process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
-                _variables.Add(key, processInstance.State[elementID, key]);
+                process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
+                variables.Add(key, processInstance.State[elementID, key]);
             });
         }
 
@@ -47,33 +34,33 @@ namespace BPMNEngine
             {
                 object ret = null;
                 bool found = false;
-                lock (_variables)
+                lock (variables)
                 {
-                    if (_variables.ContainsKey(name))
+                    if (variables.ContainsKey(name))
                     {
                         found = true;
-                        ret = _variables[name];
-                    }else if (_nulls.Contains(name))
+                        ret = variables[name];
+                    }else if (nulls.Contains(name))
                     {
                         found = true;
                         ret = null;
                     }
                 }
-                if (!found && _process != null)
-                    ret = _process[name];
+                if (!found && process != null)
+                    ret = process[name];
                 return ret;
             }
             set
             {
-                lock (_variables)
+                lock (variables)
                 {
-                    _variables.Remove(name);
-                    if (value == null && !_nulls.Contains(name))
-                        _nulls.Add(name);
+                    variables.Remove(name);
+                    if (value == null && !nulls.Contains(name))
+                        nulls.Add(name);
                     else if (value != null)
                     {
-                        _variables.Add(name, value);
-                        _nulls.Remove(name);
+                        variables.Add(name, value);
+                        nulls.Remove(name);
                     }
                 }
             }
@@ -84,18 +71,17 @@ namespace BPMNEngine
             get
             {
                 IEnumerable<string> result;
-                lock (_variables)
+                lock (variables)
                 {
-                    result = _variables.Keys
-                        .Concat(_nulls);
+                    result = variables.Keys
+                        .Concat(nulls);
                 }
                 return result;
             }
         }
 
         public IEnumerable<string> FullKeys
-            => Keys.Concat(_process==null ? new string[] { }
-            : _process.Keys)
+            => Keys.Concat(process==null ? Array.Empty<string>() : process.Keys)
             .Distinct();
     }
 }

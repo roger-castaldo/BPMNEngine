@@ -1,12 +1,7 @@
-﻿using System;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Text;
-using System.Xml;
-using System.Linq;
 using BPMNEngine.Interfaces.Variables;
 using System.Security.Cryptography;
 
@@ -17,32 +12,27 @@ namespace BPMNEngine.Elements.Processes.Scripts
         private const string _NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvzwxyz";
         private const int _NAME_LENGTH = 32;
 
+        private static readonly string[] IMPORTS = new[] { "System", "BPMNEngine", "BPMNEngine.Interfaces", "BPMNEngine.Interfaces.Variables", "System.Linq" };
+
         protected string ClassName { get; private init; }
         protected string FunctionName { get;private init; }
 
         private IEnumerable<string> Imports
-            => new string[] { "System", "BPMNEngine", "BPMNEngine.Interfaces", "BPMNEngine.Interfaces.Variables", "System.Linq" }
+            => IMPORTS
             .Concat(SubNodes
-                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="using")
+                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.Equals("using",StringComparison.InvariantCultureIgnoreCase))
                 .Select(n => n.InnerText)
-            );
+            )
+            .Distinct();
 
         private IEnumerable<string> Dlls
             => new string[] { Assembly.GetAssembly(this.GetType()).Location }
             .Concat(SubNodes
-                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.ToLower()=="dll")
+                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.Equals("dll", StringComparison.InvariantCultureIgnoreCase))
                 .Select(n => n.InnerText)
             );
         
         private Assembly _assembly;
-
-        private static string NextName()
-        {
-            var result = new StringBuilder();
-            for(var x=0;x<_NAME_LENGTH;x++)
-                result.Append(_NAME_CHARS[RandomNumberGenerator.GetInt32(_NAME_CHARS.Length - 1)]);
-            return result.ToString();
-        }
 
         public ACompiledScript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
@@ -144,6 +134,14 @@ namespace BPMNEngine.Elements.Processes.Scripts
             else
                 err = null;
             return true;
+        }
+
+        private static string NextName()
+        {
+            var result = new StringBuilder();
+            for (var x = 0; x<_NAME_LENGTH; x++)
+                result.Append(_NAME_CHARS[RandomNumberGenerator.GetInt32(_NAME_CHARS.Length - 1)]);
+            return result.ToString();
         }
     }
 }

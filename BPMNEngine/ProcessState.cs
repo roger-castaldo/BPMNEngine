@@ -5,50 +5,43 @@ using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
 using BPMNEngine.State;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
-using System.Xml;
 
 namespace BPMNEngine
 {
     internal sealed class ProcessState : IDisposable
     {
-        private const string _PROCESS_STATE_ELEMENT = "ProcessState";
-        private const string _PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
+        private const string PROCESS_STATE_ELEMENT = "ProcessState";
+        private const string PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
 
         internal delegate void delTriggerStateChange();
 
         private class ReadOnlyProcessState : IState
         {
-            private readonly bool _isSuspended;
-            private readonly IReadOnlyStateVariablesContainer _variables;
-            private readonly IReadonlyProcessPathContainer _path;
-            private readonly IReadOnlyStateContainer _log;
-            private readonly BusinessProcess _process;
+            private readonly bool isSuspended;
+            private readonly IReadOnlyStateVariablesContainer variables;
+            private readonly IReadonlyProcessPathContainer path;
+            private readonly IReadOnlyStateContainer log;
+            private readonly BusinessProcess process;
 
             public ReadOnlyProcessState(ProcessState state)
             {
-                state._stateEvent.EnterReadLock();
-                _isSuspended=state.IsSuspended;
-                _variables=(IReadOnlyStateVariablesContainer)state._variables.Clone();
-                _path=(IReadonlyProcessPathContainer)state._path.Clone();
-                _log=state._log.Clone();
-                _process=state.Process;
-                state._stateEvent.ExitReadLock();
+                state.stateEvent.EnterReadLock();
+                isSuspended=state.IsSuspended;
+                variables=(IReadOnlyStateVariablesContainer)state.variables.Clone();
+                path=(IReadonlyProcessPathContainer)state.Path.Clone();
+                log=state.log.Clone();
+                process=state.Process;
+                state.stateEvent.ExitReadLock();
             }
-            public object this[string name] => _variables[name];
+            public object this[string name] => variables[name];
 
-            public IEnumerable<string> Keys => _variables.Keys;
+            public IEnumerable<string> Keys => variables.Keys;
 
-            private IEnumerable<IReadOnlyStateContainer> Components => new IReadOnlyStateContainer[] {_path,_variables,_log};
+            private IEnumerable<IReadOnlyStateContainer> Components => new IReadOnlyStateContainer[] {path,variables,log};
 
             public string AsXMLDocument
             {
@@ -60,8 +53,8 @@ namespace BPMNEngine
                         Indent = true
                     });
                     writer.WriteStartDocument();
-                    writer.WriteStartElement(_PROCESS_STATE_ELEMENT);
-                    writer.WriteAttributeString(_PROCESS_SUSPENDED_ATTRIBUTE, _isSuspended.ToString());
+                    writer.WriteStartElement(PROCESS_STATE_ELEMENT);
+                    writer.WriteAttributeString(PROCESS_SUSPENDED_ATTRIBUTE, isSuspended.ToString());
 
                     Components.ForEach(comp =>
                     {
@@ -86,8 +79,8 @@ namespace BPMNEngine
                     using var ms = new MemoryStream();
                     var writer = new Utf8JsonWriter(ms);
                     writer.WriteStartObject();
-                    writer.WritePropertyName(_PROCESS_SUSPENDED_ATTRIBUTE);
-                    writer.WriteBooleanValue(_isSuspended);
+                    writer.WritePropertyName(PROCESS_SUSPENDED_ATTRIBUTE);
+                    writer.WriteBooleanValue(isSuspended);
 
                     Components.ForEach(comp =>
                     {
@@ -104,71 +97,68 @@ namespace BPMNEngine
                 }
             }
 
-            public IEnumerable<IElement> ActiveElements => _path.ActiveSteps
-                .Select(id => _process.GetElement(id));
+            public IEnumerable<IElement> ActiveElements 
+                => path.ActiveSteps.Select(id => process.GetElement(id));
         }
 
-        private readonly ProcessLog _log;
-        private readonly ProcessVariables _variables;
-        private readonly ProcessPath _path;
-        internal ProcessPath Path { get { return _path; } }
-        private readonly ReaderWriterLockSlim _stateEvent = new(LockRecursionPolicy.NoRecursion);
-
+        private readonly ProcessLog log;
+        private readonly ProcessVariables variables;
+        private readonly ReaderWriterLockSlim stateEvent = new(LockRecursionPolicy.NoRecursion);
+        private readonly OnStateChange onStateChange;
+        internal ProcessPath Path { get; private init; }
         internal bool IsSuspended { get; set; }
-        private readonly OnStateChange _onStateChange;
-        private readonly BusinessProcess _process;
-        internal BusinessProcess Process { get { return _process; } }
+        internal BusinessProcess Process { get; private init; }
 
         internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
         {
-            _process = process;
-            _log = new ProcessLog(_stateEvent);
-            _variables = new ProcessVariables(_stateEvent);
-            _path = new ProcessPath(complete, error,process,_stateEvent,new delTriggerStateChange(StateChanged));
-            _onStateChange = onStateChange;
+            Process = process;
+            log = new ProcessLog(stateEvent);
+            variables = new ProcessVariables(stateEvent);
+            Path = new ProcessPath(complete, error,process,stateEvent,new delTriggerStateChange(StateChanged));
+            this.onStateChange = onStateChange;
         }
 
         public void Dispose()
         {
-            _log.Dispose();
-            _variables.Dispose();
-            _path.Dispose();
-            _stateEvent.EnterReadLock();
-            while (_stateEvent.CurrentReadCount>1)
+            log.Dispose();
+            variables.Dispose();
+            Path.Dispose();
+            stateEvent.EnterReadLock();
+            while (stateEvent.CurrentReadCount>1)
             {
                 System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
             }
-            _stateEvent.ExitReadLock();
-            _stateEvent.EnterWriteLock();
-            while (_stateEvent.WaitingWriteCount>0)
+            stateEvent.ExitReadLock();
+            stateEvent.EnterWriteLock();
+            while (stateEvent.WaitingWriteCount>0)
             {
-                _stateEvent.ExitWriteLock();
+                stateEvent.ExitWriteLock();
                 System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
-                _stateEvent.EnterWriteLock();
+                stateEvent.EnterWriteLock();
             }
-            _stateEvent.ExitWriteLock();
+            stateEvent.ExitWriteLock();
             try
             {
-                _stateEvent.Dispose();
+                stateEvent.Dispose();
             }
             catch (Exception) { }
         }
 
         internal bool Load(XmlDocument doc)
         {
-            if (doc.GetElementsByTagName(_PROCESS_STATE_ELEMENT).Count == 0)
+            if (doc.GetElementsByTagName(PROCESS_STATE_ELEMENT).Count == 0)
                 return false;
             var result = true;
-            _stateEvent.EnterWriteLock();
+            stateEvent.EnterWriteLock();
             var reader = XmlReader.Create(new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(doc.OuterXml)));
             while(reader.NodeType!=XmlNodeType.Element)
             {
                 if(!reader.Read())
                     return false;
             }
-            if (reader.NodeType ==XmlNodeType.Element && reader.Name==_PROCESS_STATE_ELEMENT)
+            if (reader.NodeType ==XmlNodeType.Element && reader.Name==PROCESS_STATE_ELEMENT)
             {
-                IsSuspended = bool.Parse(reader.GetAttribute(_PROCESS_SUSPENDED_ATTRIBUTE));
+                IsSuspended = bool.Parse(reader.GetAttribute(PROCESS_SUSPENDED_ATTRIBUTE));
                 reader.Read();
                 try
                 {
@@ -179,13 +169,13 @@ namespace BPMNEngine
                             switch (reader.Name)
                             {
                                 case "ProcessLog":
-                                    _log.Load(reader);
+                                    log.Load(reader);
                                     break;
                                 case "ProcessPath":
-                                    _path.Load(reader);
+                                    Path.Load(reader);
                                     break;
                                 case "ProcessVariables":
-                                    _variables.Load(reader);
+                                    variables.Load(reader);
                                     break;
                                 default:
                                     throw new Exception("Reading error...");
@@ -205,24 +195,27 @@ namespace BPMNEngine
             else
                 result=false;
             reader.Close();
-            _stateEvent.ExitWriteLock();
+            stateEvent.ExitWriteLock();
             return result;
         }
 
 
-        internal IEnumerable<sSuspendedStep> ResumeSteps
-            => !IsSuspended ? Array.Empty<sSuspendedStep>() : _path.ResumeSteps;
+        internal IEnumerable<SSuspendedStep> ResumeSteps
+            => !IsSuspended ? Array.Empty<SSuspendedStep>() : Path.ResumeSteps;
 
-        internal IEnumerable<sDelayedStartEvent> DelayedEvents => _path.DelayedEvents;
+        internal IEnumerable<SDelayedStartEvent> DelayedEvents 
+            => Path.DelayedEvents;
 
-        internal IEnumerable<string> AbortableSteps => _path.AbortableSteps;
+        internal IEnumerable<string> AbortableSteps 
+            => Path.AbortableSteps;
 
-        internal IEnumerable<string> ActiveSteps => _path.ActiveSteps;
+        internal IEnumerable<string> ActiveSteps 
+            => Path.ActiveSteps;
 
         internal void MergeVariables(ITask task, IVariables vars)
         {
-            int stepIndex = _path.CurrentStepIndex(task.ID);
-            _variables.MergeVariables(stepIndex, vars);
+            int stepIndex = Path.CurrentStepIndex(task.ID);
+            variables.MergeVariables(stepIndex, vars);
         }
 
         internal object this[string elementID, string variableName]
@@ -231,17 +224,17 @@ namespace BPMNEngine
             {
                 int stepIndex;
                 if (elementID == null)
-                    stepIndex = _path.LastStep;
+                    stepIndex = Path.LastStep;
                 else
-                    stepIndex = _path.CurrentStepIndex(elementID);
+                    stepIndex = Path.CurrentStepIndex(elementID);
                 if (elementID!=null && stepIndex==-1)
-                    stepIndex=_path.LastStep;
-                object ret = _variables[variableName, stepIndex];
+                    stepIndex=Path.LastStep;
+                object ret = variables[variableName, stepIndex];
                 return ret;
             }
             set
             {
-                _variables[variableName, _path.CurrentStepIndex(elementID)] = value;
+                variables[variableName, Path.CurrentStepIndex(elementID)] = value;
             }
         }
 
@@ -252,40 +245,41 @@ namespace BPMNEngine
                 _ = Array.Empty<string>();
                 int stepIndex;
                 if (elementID == null)
-                    stepIndex = _path.LastStep;
+                    stepIndex = Path.LastStep;
                 else
-                    stepIndex = _path.CurrentStepIndex(elementID);
+                    stepIndex = Path.CurrentStepIndex(elementID);
                 if (elementID!=null && stepIndex==-1)
-                    stepIndex=_path.LastStep;
-                IEnumerable<string> result = _variables[stepIndex];
+                    stepIndex=Path.LastStep;
+                IEnumerable<string> result = variables[stepIndex];
                 return result;
             }
         }
 
         internal void SuspendStep(string sourceID,string elementID, TimeSpan span)
         {
-            _process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
-            _path.SuspendElement(sourceID, elementID, span);
+            Process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
+            Path.SuspendElement(sourceID, elementID, span);
             StateChanged();
         }
 
-        internal IEnumerable<sStepSuspension> SuspendedSteps
-            => _path.SuspendedSteps;
+        internal IEnumerable<SStepSuspension> SuspendedSteps
+            => Path.SuspendedSteps;
 
-        public IState CurrentState => new ReadOnlyProcessState(this);
+        public IState CurrentState 
+            => new ReadOnlyProcessState(this);
 
         private void StateChanged()
         {
-            if (_onStateChange != null)
+            if (onStateChange != null)
             {
                 System.Threading.Tasks.Task.Run(() =>
                 {
                     try
                     {
-                        _onStateChange(CurrentState);
+                        onStateChange(CurrentState);
                     }catch(Exception ex)
                     {
-                        _process.WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, ex);
+                        Process.WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, ex);
                     }
                 });
             }
@@ -293,17 +287,17 @@ namespace BPMNEngine
 
         internal void Suspend()
         {
-            _process.WriteLogLine((string)null,LogLevel.Debug,new StackFrame(1,true),DateTime.Now,"Suspending Process State");
+            Process.WriteLogLine((string)null,LogLevel.Debug,new StackFrame(1,true),DateTime.Now,"Suspending Process State");
             IsSuspended = true;
         }
 
         internal void Resume(ProcessInstance instance,Action<string,string> processStepComplete,Action<AEvent> completeTimedEvent)
         {
-            _process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
+            Process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
             var resumes = ResumeSteps.ToArray();
             var suspendedSteps = SuspendedSteps.ToArray();
             var delayedEvents = DelayedEvents.ToArray();
-            _stateEvent.EnterWriteLock();
+            stateEvent.EnterWriteLock();
             IsSuspended = false;
             System.Threading.Tasks.Task.Run(() =>
             {
@@ -314,9 +308,9 @@ namespace BPMNEngine
                 suspendedSteps.ForEach(ss =>
                 {
                     if (DateTime.Now.Ticks < ss.EndTime.Ticks)
-                        StepScheduler.Instance.Sleep(ss.EndTime.Subtract(DateTime.Now), instance, (AEvent)_process.GetElement(ss.Id));
+                        StepScheduler.Instance.Sleep(ss.EndTime.Subtract(DateTime.Now), instance, (AEvent)Process.GetElement(ss.ID));
                     else
-                        completeTimedEvent((AEvent)_process.GetElement(ss.Id));
+                        completeTimedEvent((AEvent)Process.GetElement(ss.ID));
                 });
             });
             System.Threading.Tasks.Task.Run(() =>
@@ -324,23 +318,19 @@ namespace BPMNEngine
                 delayedEvents.ForEach(sdse =>
                 {
                     if (sdse.Delay.Ticks<0)
-                        _process.ProcessEvent(instance, sdse.IncomingID, (AEvent)_process.GetElement(sdse.ElementID));
+                        Process.ProcessEvent(instance, sdse.IncomingID, (AEvent)Process.GetElement(sdse.ElementID));
                     else
-                        StepScheduler.Instance.DelayStart(sdse.Delay, instance, (BoundaryEvent)_process.GetElement(sdse.ElementID), sdse.IncomingID);
+                        StepScheduler.Instance.DelayStart(sdse.Delay, instance, (BoundaryEvent)Process.GetElement(sdse.ElementID), sdse.IncomingID);
                 });
             });
-            _stateEvent.ExitWriteLock();
+            stateEvent.ExitWriteLock();
             StateChanged();
         }
 
         internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
-        {
-            _log.LogLine(elementID, assembly, fileName, lineNumber, level, timestamp, message);
-        }
+            => log.LogLine(elementID, assembly, fileName, lineNumber, level, timestamp, message);
 
         internal void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
-        {
-            _log.LogException(elementID, assembly, fileName, lineNumber, timestamp, exception);
-        }
+            => log.LogException(elementID, assembly, fileName, lineNumber, timestamp, exception);
     }
 }

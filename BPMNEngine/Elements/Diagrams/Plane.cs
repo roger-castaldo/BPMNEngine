@@ -2,11 +2,6 @@
 using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
 using BPMNEngine.State;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Diagrams
 {

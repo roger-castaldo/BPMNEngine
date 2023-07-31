@@ -1,11 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
 
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-
-using System.Text;
-
 namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class ThickCircle : IIconPart

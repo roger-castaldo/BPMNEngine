@@ -1,10 +1,4 @@
 ﻿using BPMNEngine.Elements.Processes.Scripts;
-using BPMNEngine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
@@ -13,9 +7,13 @@ namespace BPMNEngine.Elements.Processes.Conditions
         protected AConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected IEnumerable<ACondition> _Conditions => Children
-            .Where(child=>child is ACondition || child is AScript)
-            .Select(child=>(ACondition)(child is AScript ? new ScriptCondition((AScript)child) : child));
+        protected IEnumerable<ACondition> Conditions 
+            => Children
+            .OfType<ACondition>().Concat(
+                Children
+                .OfType<AScript>()
+                .Select(asc => new ScriptCondition(asc))
+            );
 
         public override bool IsValid(out string[] err)
         {

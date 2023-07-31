@@ -1,33 +1,16 @@
-﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes;
+﻿using BPMNEngine.Elements.Processes;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements
 {
     internal abstract class AElement : IElement
     {
-        private readonly AElement _parent;
-        public AElement Parent { get { return _parent; } }
+        public AElement Parent { get; private init; }
 
         public Definition Definition
-        {
-            get
-            {
-                if (this is Definition definition)
-                    return definition;
-                if (Parent != null)
-                    return Parent.Definition;
-                return null;
-            }
-        }
+            => (this is Definition definition) ? definition : Parent?.Definition;
 
-        private readonly XmlElement _element;
-        internal XmlElement Element { get { return _element; } }
+        internal XmlElement Element { get; private init; }
 
         private string _cachedID=null;
 
@@ -36,33 +19,31 @@ namespace BPMNEngine.Elements
             get {
                 var ret = _cachedID??this["id"];
                 if (ret==null)
-                    _cachedID = Utility.FindXPath(Definition, _element);
+                    _cachedID = Utility.FindXPath(Definition, Element);
                 return ret??_cachedID;
             }
         }
 
-        public IEnumerable<XmlNode> SubNodes => _element.ChildNodes.Cast<XmlNode>();
+        public IEnumerable<XmlNode> SubNodes => Element.ChildNodes.Cast<XmlNode>();
 
-        public string this[string attributeName] => _element.Attributes.Cast<XmlAttribute>()
+        public string this[string attributeName] => Element.Attributes.Cast<XmlAttribute>()
                     .Where(att => att.Name.ToLower()==attributeName.ToLower())
                     .Select(att => att.Value)
                     .FirstOrDefault()??null;
-
-        private readonly IElement _extensionElement;
-        public IElement ExtensionElement { get { return _extensionElement; } }
+        public IElement ExtensionElement { get; private init; }
 
         public AElement(XmlElement elem,XmlPrefixMap map,AElement parent)
         {
-            _element = elem;
-            _extensionElement = null;
-            _parent = parent;
+            Element = elem;
+            ExtensionElement = null;
+            Parent = parent;
             if (SubNodes != null)
             {
                 var tags = Utility.GetTagAttributes(typeof(ExtensionElements));
                 var extElem = SubNodes
                     .FirstOrDefault(n => n.NodeType==XmlNodeType.Element && tags.Any(xt => xt.Matches(map, n.Name)));
                 if (extElem!=null)
-                    _extensionElement=new ExtensionElements((XmlElement)extElem, map,this);
+                    ExtensionElement=new ExtensionElements((XmlElement)extElem, map,this);
             }
         }
 
@@ -101,8 +82,8 @@ namespace BPMNEngine.Elements
 
         internal void LoadExtensionElement(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {
-            if (_extensionElement!=null)
-                ((ExtensionElements)_extensionElement).LoadChildren(ref map, ref cache);
+            if (ExtensionElement!=null)
+                ((ExtensionElements)ExtensionElement).LoadChildren(ref map, ref cache);
         }
     }
 }

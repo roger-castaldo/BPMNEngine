@@ -1,9 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
@@ -12,15 +7,14 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
     [ValidParent(typeof(SignalEventDefinition))]
     internal class SignalDefinition : AElement
     {
-        public SignalDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
+        public SignalDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+            : base(elem, map, parent) { }
 
-        public string Type { get { return this["type"]; } }
+        public string Type => this["type"];
 
         public override bool IsValid(out string[] err)
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
             if (Type == "*")
                 errors.Add("A Signal Definition cannot have the type of *, this is reserved");
             if (Parent.Parent is IntermediateThrowEvent && Type == null)

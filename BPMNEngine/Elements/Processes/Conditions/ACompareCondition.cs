@@ -1,17 +1,11 @@
-﻿using BPMNEngine.Attributes;
-using BPMNEngine.Interfaces.Variables;
-using System;
+﻿using BPMNEngine.Interfaces.Variables;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
     internal abstract class ACompareCondition : ANegatableCondition
     {
-        private XmlPrefixMap _map;
+        private readonly XmlPrefixMap _map;
 
         public ACompareCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
@@ -19,40 +13,30 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 _map = map;
         }
 
-        protected object _GetLeft(IReadonlyVariables variables)
+        protected object GetLeft(IReadonlyVariables variables)
         {
-            if (this["leftVariable"] != null)
-                return _extractVariable(variables, this["leftVariable"]);
-            else if (SubNodes!=null)
-            {
-                return SubNodes
-                    .Where(n => n.NodeType==XmlNodeType.Element && (_map.isMatch("exts", "left", n.Name) || n.Name == "left"))
+            return this["leftVariable"] != null?
+                ExtractVariable(variables, this["leftVariable"])
+                : SubNodes
+                    .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "left", n.Name) || n.Name == "left"))
                     .Select(n => n.InnerText)
                     .FirstOrDefault();
-            }
-            return null;
         }
 
-        protected object _GetRight(IReadonlyVariables variables)
+        protected object GetRight(IReadonlyVariables variables)
         {
-            if (this["rightVariable"] != null)
-                return _extractVariable(variables, this["rightVariable"]);
-            else if (SubNodes!=null)
-            {
-                return SubNodes
-                    .Where(n => n.NodeType==XmlNodeType.Element && (_map.isMatch("exts", "right", n.Name) || n.Name == "right"))
+            return this["rightVariable"] != null
+                ? ExtractVariable(variables, this["rightVariable"])
+                : SubNodes
+                    .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "right", n.Name) || n.Name == "right"))
                     .Select(n => n.InnerText)
                     .FirstOrDefault();
-            }
-            return null;
         }
 
-        protected int _Compare(IReadonlyVariables variables)
-        {
-            return _Compare(_GetLeft(variables), _GetRight(variables), variables);
-        }
+        protected int Compare(IReadonlyVariables variables)
+            => ACompareCondition.Compare(GetLeft(variables), GetRight(variables), variables);
 
-        protected int _Compare(object left, object right, IReadonlyVariables variables)
+        protected static int Compare(object left, object right, IReadonlyVariables variables)
         {
             if (left == null && right != null)
                 return -1;
@@ -62,51 +46,51 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 return 0;
             else
             {
-                if (left is string && right is string)
-                    return ((string)left).CompareTo(right);
+                if (left is string ls && right is string rs)
+                    return ls.CompareTo(rs);
                 else
                 {
-                    if (left is string && !(right is string))
-                        left = _ConvertToType((string)left, right.GetType(), variables);
-                    else if (!(left is string) && right is string)
-                        right = _ConvertToType((string)right, left.GetType(), variables);
-                    else if (left.GetType() == right.GetType() && left is IComparable)
-                        return ((IComparable)left).CompareTo(right);
+                    if (left is string ls1 && right is not string)
+                        left = ACompareCondition.ConvertToType(ls1, right.GetType(), variables);
+                    else if (left is not string && right is string rs1)
+                        right = ACompareCondition.ConvertToType(rs1, left.GetType(), variables);
+                    else if (left.GetType() == right.GetType() && left is IComparable lic)
+                        return lic.CompareTo(right);
                     return left.ToString().CompareTo(right.ToString());
                 }
             }
         }
 
-        private object _extractVariable(object source, string name)
+        private object ExtractVariable(object source, string name)
         {
             object ret = null;
             if (source is IReadonlyVariables readonlyVariables)
             {
-                if (!name.Contains("."))
+                if (!name.Contains('.'))
                     ret = readonlyVariables[name];
-                else if (readonlyVariables[name.Substring(0, name.IndexOf("."))] != null)
-                    ret = _extractVariable(readonlyVariables[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+                else if (readonlyVariables[name[..name.IndexOf('.')]] != null)
+                    ret = ExtractVariable(readonlyVariables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
             } else if (source is IVariables variables)
             {
-                if (!name.Contains("."))
+                if (!name.Contains('.'))
                     ret = variables[name];
-                else if (variables[name.Substring(0, name.IndexOf("."))] != null)
-                    ret = _extractVariable(variables[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+                else if (variables[name[..name.IndexOf('.')]] != null)
+                    ret = ExtractVariable(variables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
             }else if (source is Hashtable hashtable)
             {
-                if (!name.Contains("."))
+                if (!name.Contains('.'))
                 {
                     if (hashtable.ContainsKey(name))
                         ret = hashtable[name];
                 } else
                 {
-                    if (hashtable.ContainsKey(name.Substring(0, name.IndexOf("."))))
-                        ret = _extractVariable(hashtable[name.Substring(0, name.IndexOf("."))], name.Substring(name.IndexOf(".") + 1));
+                    if (hashtable.ContainsKey(name[..name.IndexOf('.')]))
+                        ret = ExtractVariable(hashtable[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
                 }
-            }else if (source is Array)
+            }else if (source is Array arr)
             {
-                ArrayList al = new ArrayList();
-                ((IEnumerable)source).Cast<object>().ForEach(o => al.Add(_extractVariable(o, name)));
+                var al = new ArrayList();
+                arr.Cast<object>().ForEach(o => al.Add(ExtractVariable(o, name)));
                 if (al.Count > 0)
                 {
                     ret = Array.CreateInstance(al[0].GetType(), al.Count);
@@ -116,7 +100,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             return ret;
         }
 
-        private object _ConvertToType(string value, Type type, IReadonlyVariables variables)
+        private static object ConvertToType(string value, Type type, IReadonlyVariables variables)
         {
             object ret = value;
             switch (type.FullName)
@@ -159,16 +143,16 @@ namespace BPMNEngine.Elements.Processes.Conditions
         {
             bool foundLeft = this["leftVariable"]!=null;
             bool foundRight = this["rightVariable"]!=null;
-            List<string> errs = new List<string>();
+            var errs = new List<string>();
             SubNodes.OfType<XmlElement>().Select(n => n.Name).ForEach(name =>
             {
-                if (_map.isMatch("exts", "right", name) || name == "right")
+                if (_map.IsMatch("exts", "right", name) || name == "right")
                 {
                     if (foundRight)
                         errs.Add("Right value specified more than once.");
                     foundRight = true;
                 }
-                else if (_map.isMatch("exts", "left", name) || name == "left")
+                else if (_map.IsMatch("exts", "left", name) || name == "left")
                 {
                     if (foundLeft)
                         errs.Add("Left value specified more than once.");

@@ -2,7 +2,7 @@
 {
     internal class CenterPlus : EmbeddedResourceIcon
     {
-        protected override string _resourceName => "CenterPlus.png";
+        protected override string ResourceName => "CenterPlus.png";
     }
 }
 

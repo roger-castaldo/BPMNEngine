@@ -1,27 +1,18 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions;
-using BPMNEngine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
     [XMLTag("bpmn", "intermediateThrowEvent")]
     internal class IntermediateThrowEvent : AEvent
     {
-        public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
-            : base(elem, map,parent) { }
-
         public string Message
         {
             get
             {
                 if (SubType.HasValue)
                 {
-                    switch(SubType.Value)
+                    switch (SubType.Value)
                     {
                         case EventSubTypes.Signal:
                             return Children
@@ -44,6 +35,9 @@ namespace BPMNEngine.Elements.Processes.Events
             }
         }
 
+        public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
+            : base(elem, map,parent) { }
+
         public override bool IsValid(out string[] err)
         {
             if (!Incoming.Any())
@@ -60,35 +54,35 @@ namespace BPMNEngine.Elements.Processes.Events
                 switch (SubType.Value)
                 {
                     case EventSubTypes.Signal:
-                        if (!Children.Any(child=>child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Any()))
+                        if (!Children.Any(child=>child is SignalEventDefinition definition && definition.SignalTypes.Any()))
                         {
                             err = new string[] { "Intermediate Throw Signal Events must specify a singal type." };
                             return false;
-                        }else if (Children.Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Any() && ((SignalEventDefinition)child).SignalTypes.Count()!=1))
+                        }else if (Children.Any(child => child is SignalEventDefinition definition && definition.SignalTypes.Any() && definition.SignalTypes.Count()!=1))
                         {
                             err = new string[] { "Intermediate Throw Signal Events can only specify a single singal." };
                             return false;
                         }
                         break;
                     case EventSubTypes.Error:
-                        if (!Children.Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Any()))
+                        if (!Children.Any(child => child is ErrorEventDefinition definition && definition.ErrorTypes.Any()))
                         {
                             err = new string[] { "Intermediate Throw Error Events must specify an error." };
                             return false;
                         }
-                        else if (Children.Any(child => child is ErrorEventDefinition && ((ErrorEventDefinition)child).ErrorTypes.Any() && ((ErrorEventDefinition)child).ErrorTypes.Count()!=1))
+                        else if (Children.Any(child => child is ErrorEventDefinition definition && definition.ErrorTypes.Any() && definition.ErrorTypes.Count()!=1))
                         {
                             err = new string[] { "Intermediate Throw Error Events can only specify a single error." };
                             return false;
                         }
                         break;
                     case EventSubTypes.Message:
-                        if (!Children.Any(child => child is MessageEventDefinition && ((MessageEventDefinition)child).MessageTypes.Any()))
+                        if (!Children.Any(child => child is MessageEventDefinition definition && definition.MessageTypes.Any()))
                         {
                             err = new string[] { "Intermediate Throw Message Events must specify a message." };
                             return false;
                         }
-                        else if (Children.Any(child => child is MessageEventDefinition && ((MessageEventDefinition)child).MessageTypes.Any() && ((MessageEventDefinition)child).MessageTypes.Count()!=1))
+                        else if (Children.Any(child => child is MessageEventDefinition definition && definition.MessageTypes.Any() && definition.MessageTypes.Count()!=1))
                         {
                             err = new string[] { "Intermediate Throw Message Events can only specify a single message." };
                             return false;

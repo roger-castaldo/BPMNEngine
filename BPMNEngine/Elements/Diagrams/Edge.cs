@@ -6,11 +6,6 @@ using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.State;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
@@ -21,6 +16,7 @@ namespace BPMNEngine.Elements.Diagrams
     internal class Edge : ADiagramElement, IRenderingElement
     {
         private const float _PEN_SIZE = 2.0f;
+        private static readonly float _baseTLength = _PEN_SIZE*1.5f;
 
         public IEnumerable<PointF> Points => Children
             .OfType<Waypoint>()
@@ -50,22 +46,20 @@ namespace BPMNEngine.Elements.Diagrams
             }
         }
 
-        public Label Label => (Label)Children
-            .FirstOrDefault(elem => elem is Label);
+        public Label Label 
+            => Children.OfType<Label>().FirstOrDefault();
         
         public Edge(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        private static readonly float _baseTLength = _PEN_SIZE*1.5f;
-
-        private void _GenerateTriangle(ICanvas surface, Color color, Point end,Point start)
+        private static void GenerateTriangle(ICanvas surface, Color color, Point end,Point start)
         {
             float d = (float)Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
             float t = _baseTLength / d;
-            Point pc = new Point(((1f - t) * end.X) + (t * start.X), ((1f - t) * end.Y) + (t * start.Y));
-            Point fend = new Point(end.X, end.Y);
-            Point p1 = new Point(pc.X-(fend.Y-pc.Y),(fend.X-pc.X)+pc.Y);
-            Point p2 = new Point(fend.Y-pc.Y+pc.X,pc.Y-(fend.X-pc.X));
+            Point pc = new(((1f - t) * end.X) + (t * start.X), ((1f - t) * end.Y) + (t * start.Y));
+            Point fend = new(end.X, end.Y);
+            Point p1 = new(pc.X-(fend.Y-pc.Y),(fend.X-pc.X)+pc.Y);
+            Point p2 = new(fend.Y-pc.Y+pc.X,pc.Y-(fend.X-pc.X));
             surface.DrawLine(fend, pc);
             surface.FillColor=color;
 
@@ -94,11 +88,11 @@ namespace BPMNEngine.Elements.Diagrams
             var polyPath = new PathF(points[0]);
             points.Skip(1).ForEach(p => polyPath.LineTo(p));
             
-            var color = Diagram.GetColor(path.GetStatus(bpmnElement));
+            var color = Diagram.GetColor(path.GetStatus(BPMNElement));
 
             surface.StrokeColor=color;
             surface.StrokeSize=_PEN_SIZE;
-            var elem = _GetLinkedElement(definition);
+            var elem = GetLinkedElement(definition);
             if (elem != null&&(elem is Association || elem is MessageFlow))
                 surface.StrokeDashPattern = Constants.DASH_PATTERN;
             else
@@ -110,17 +104,17 @@ namespace BPMNEngine.Elements.Diagrams
             {
                 surface.FillColor = color;
                 surface.FillEllipse(new RectF(Points.First().X-0.5f,Points.First().Y-0.5f,1.5f, 1.5f));
-                _GenerateTriangle(surface, color, points[points.Length - 1], points[points.Length-2]);
+                Edge.GenerateTriangle(surface, color, points[^1], points[^2]);
             }
             else
-                _GenerateTriangle(surface, color, points[points.Length - 1], points[points.Length-2]);
+                Edge.GenerateTriangle(surface, color, points[^1], points[^2]);
             if (elem is SequenceFlow || elem is MessageFlow)
             {
-                string sourceRef = (elem is SequenceFlow ? ((SequenceFlow)elem).sourceRef : ((MessageFlow)elem).sourceRef);
-                IElement gelem = definition.LocateElement(sourceRef);
-                if ((gelem is AGateway) && (((AGateway)gelem).Default??"")==elem.ID)
+                var sourceRef = (elem is SequenceFlow flow ? flow.SourceRef : ((MessageFlow)elem).SourceRef);
+                var gelem = definition.LocateElement(sourceRef);
+                if ((gelem is AGateway gateway) && (gateway.Default??"")==elem.ID)
                 {
-                    Point centre = new Point(
+                    var centre = new Point(
                         (0.5f*points[0].X)+(0.5f*points[1].X),
                         (0.5f * points[0].Y) + (0.5f * points[1].Y)
                     );

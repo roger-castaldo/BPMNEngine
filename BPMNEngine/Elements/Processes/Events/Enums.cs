@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BPMNEngine.Elements.Processes.Events
+﻿namespace BPMNEngine.Elements.Processes.Events
 {
     internal enum EventSubTypes
     {

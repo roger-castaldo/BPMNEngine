@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BPMNEngine.Attributes
+﻿namespace BPMNEngine.Attributes
 {
     [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
     internal class RequiredAttribute : Attribute
     {
-        private string _name;
-        public string Name { get { return _name; } }
+        public string Name { get; private init; }
 
         public RequiredAttribute(string name)
         {
-            _name = name;
+            Name = name;
         }
     }
 }

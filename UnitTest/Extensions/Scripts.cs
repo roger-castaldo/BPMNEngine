@@ -3,7 +3,6 @@ using BPMNEngine;
 using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using BPMNEngine.Interfaces.Elements;
 

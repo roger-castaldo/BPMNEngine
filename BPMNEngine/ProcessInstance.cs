@@ -3,15 +3,7 @@ using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces;
 using BPMNEngine.State;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Xml;
-using Microsoft.Extensions.Logging;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
@@ -26,31 +18,29 @@ namespace BPMNEngine
         public Guid ID { get; private init; }
         public ProcessState State { get; private init; }
 
-        private ManualResetEvent _processLock=null;
+        private ManualResetEvent processLock=null;
         private ManualResetEvent ProcessLock
         {
             get
             {
-                _processLock ??= new ManualResetEvent(false);
-                return _processLock;
+                processLock ??= new ManualResetEvent(false);
+                return processLock;
             }
         }
-        private ManualResetEvent _mreSuspend=null;
+        private ManualResetEvent mreSuspend=null;
         public ManualResetEvent MreSuspend
         {
             get
             {
-                _mreSuspend ??= new ManualResetEvent(false);
-                return _mreSuspend;
+                mreSuspend ??= new ManualResetEvent(false);
+                return mreSuspend;
             }
         }
-        private readonly LogLevel _stateLogLevel;
+
+        private readonly LogLevel stateLogLevel;
         public DelegateContainer Delegates { get; private init; }
-
-        private bool _isSuspended = false;
-        public bool IsSuspended => _isSuspended;
-
-        private bool _isComplete = false;
+        public bool IsSuspended { get; private set; }
+        private bool isComplete = false;
 
         internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevel stateLogLevel)
         {
@@ -58,7 +48,7 @@ namespace BPMNEngine
             Process = process;
             Delegates=delegates;
             State = new ProcessState(Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
-            _stateLogLevel=stateLogLevel;
+            this.stateLogLevel=stateLogLevel;
         }
 
         internal bool LoadState(XmlDocument doc, bool autoResume)
@@ -66,8 +56,8 @@ namespace BPMNEngine
             if (State.Load(doc))
             {
                 WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
-                _isSuspended = State.IsSuspended;
-                if (autoResume&&_isSuspended)
+                IsSuspended = State.IsSuspended;
+                if (autoResume&&IsSuspended)
                     ((IProcessInstance)this).Resume();
                 return true;
             }
@@ -76,19 +66,15 @@ namespace BPMNEngine
 
         internal void CompleteProcess()
         {
-            _isComplete=true;
-            _processLock?.Set();
+            isComplete=true;
+            processLock?.Set();
         }
 
         private void ProcessStepComplete(string sourceID, string outgoingID)
-        {
-            Process.ProcessStepComplete(this, sourceID, outgoingID);
-        }
+            => Process.ProcessStepComplete(this, sourceID, outgoingID);
 
         private void ProcessStepError(IElement step, Exception ex)
-        {
-            Process.ProcessStepError(this, step, ex);
-        }
+            => Process.ProcessStepError(this, step, ex);
 
         private static void InvokeElementEventDelegate(Delegate @delegate,IElement element,IReadonlyVariables variables)
         {
@@ -112,9 +98,7 @@ namespace BPMNEngine
         }
 
         internal void StartTimedEvent(BoundaryEvent evnt, string sourceID)
-        {
-            Process.ProcessEvent(this, sourceID, evnt);
-        }
+            => Process.ProcessEvent(this, sourceID, evnt);
 
         internal void EmitTaskError(Tasks.ExternalTask externalTask, Exception error, out bool isAborted)
         {
@@ -123,24 +107,16 @@ namespace BPMNEngine
         }
 
         internal void EmitTaskMessage(Tasks.ExternalTask externalTask, string message,out bool isAborted)
-        {
-            Process.HandleTaskEmission(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message, out isAborted);
-        }
+            => Process.HandleTaskEmission(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message, out isAborted);
 
         internal void EscalateTask(Tasks.ExternalTask externalTask, out bool isAborted)
-        {
-            Process.HandleTaskEmission(this, externalTask, null, Elements.Processes.Events.EventSubTypes.Escalation, out isAborted);
-        }
+            => Process.HandleTaskEmission(this, externalTask, null, Elements.Processes.Events.EventSubTypes.Escalation, out isAborted);
 
         internal void EmitTaskSignal(Tasks.ExternalTask externalTask, string signal, out bool isAborted)
-        {
-            Process.HandleTaskEmission(this, externalTask, signal, Elements.Processes.Events.EventSubTypes.Signal, out isAborted);
-        }
+            => Process.HandleTaskEmission(this, externalTask, signal, Elements.Processes.Events.EventSubTypes.Signal, out isAborted);
 
         internal void CompleteTask(Tasks.ManualTask manualTask)
-        {
-            MergeVariables(manualTask);
-        }
+            => MergeVariables(manualTask);
 
         public void MergeVariables(ITask task)
         {
@@ -164,8 +140,8 @@ namespace BPMNEngine
                 throw new ActiveStepsException();
             StepScheduler.Instance.UnloadProcess(this);
             State.Dispose();
-            _processLock?.Dispose();
-            _mreSuspend?.Dispose();
+            processLock?.Dispose();
+            mreSuspend?.Dispose();
         }
         public override bool Equals(object obj)
         {
@@ -176,30 +152,28 @@ namespace BPMNEngine
             return false;
         }
         public override int GetHashCode()
-        {
-            return ID.GetHashCode()&Process.GetHashCode();
-        }
+            => ID.GetHashCode()&Process.GetHashCode();
 
         #region IProcessInstance
         XmlDocument IProcessInstance.Document
-        {
-            get { return Process.Document; }
-        }
+            => Process.Document; 
+        object IProcessInstance.this[string name]
+            =>Process[name];
 
-        object IProcessInstance.this[string name]=>Process[name];
+        IEnumerable<string> IProcessInstance.Keys
+            =>Process.Keys;
 
-        IEnumerable<string> IProcessInstance.Keys=>Process.Keys;
-
-        IState IProcessInstance.CurrentState =>State.CurrentState;
+        IState IProcessInstance.CurrentState 
+            =>State.CurrentState;
 
         public LogLevel StateLogLevel { get; private init; }
 
         void IProcessInstance.Resume()
         {
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
-            if (_isSuspended)
+            if (IsSuspended)
             {
-                _isSuspended = false;
+                IsSuspended = false;
                 State.Resume(this,(string incomingID,string elementID) =>
                 {
                     ProcessStepComplete(incomingID, elementID);
@@ -221,7 +195,7 @@ namespace BPMNEngine
         void IProcessInstance.Suspend()
         {
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
-            _isSuspended = true;
+            IsSuspended = true;
             State.Suspend();
             StepScheduler.Instance.UnloadProcess(this);
             var cnt = 0;
@@ -268,24 +242,20 @@ namespace BPMNEngine
 
         #region Logging
         internal void WriteLogLine(string elementID, LogLevel level, StackFrame sf, DateTime timestamp, string message)
-        {
-            WriteLogLine((IElement)(elementID==null ? null : Process.GetElement(elementID)), level, sf, timestamp, message);
-        }
+            => WriteLogLine((IElement)(elementID == null ? null : Process.GetElement(elementID)), level, sf, timestamp, message) ;
         internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
         {
-            if ((int)level >= (int)_stateLogLevel && State!=null)
+            if ((int)level >= (int)stateLogLevel && State!=null)
                 State.LogLine(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
             Delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
 
         internal Exception WriteLogException(string elementID, StackFrame sf, DateTime timestamp, Exception exception)
-        {
-            return WriteLogException((IElement)(elementID == null ? null : Process.GetElement(elementID)), sf, timestamp, exception);
-        }
+            => WriteLogException((IElement)(elementID == null ? null : Process.GetElement(elementID)), sf, timestamp, exception);
 
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
-            if ((int)LogLevel.Error>= (int)_stateLogLevel)
+            if ((int)LogLevel.Error>= (int)stateLogLevel)
                 State.LogException(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             Delegates.Logging.LogException?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
             return exception;
@@ -296,59 +266,62 @@ namespace BPMNEngine
         bool IProcessInstance.WaitForCompletion()
         {
             var result = true;
-            if (!_isComplete)
+            if (!isComplete)
             {
                 result = ProcessLock.WaitOne();
-                result = result || _isComplete;
+                result = result || isComplete;
             }
             return result;
         }
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout)
         {
             var result = true;
-            if (!_isComplete)
+            if (!isComplete)
             {
                 result = ProcessLock.WaitOne(millisecondsTimeout);
-                result = result || _isComplete;
+                result = result || isComplete;
             }
             return result;
         }
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout)
         {
             var result = true;
-            if (!_isComplete)
+            if (!isComplete)
             {
                 result = ProcessLock.WaitOne(timeout);
-                result = result || _isComplete;
+                result = result || isComplete;
             }
             return result;
         }
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout, bool exitContext)
         {
             var result = true;
-            if (!_isComplete)
+            if (!isComplete)
             {
                 result = ProcessLock.WaitOne(millisecondsTimeout,exitContext);
-                result = result || _isComplete;
+                result = result || isComplete;
             }
             return result;
         }
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout, bool exitContext)
         {
             var result = true;
-            if (!_isComplete)
+            if (!isComplete)
             {
                 result = ProcessLock.WaitOne(timeout, exitContext);
-                result = result || _isComplete;
+                result = result || isComplete;
             }
             return result;
         }
-        Dictionary<string, object> IProcessInstance.CurrentVariables { get { return ProcessVariables.ExtractVariables(((IProcessInstance)this).CurrentState); } }
+        Dictionary<string, object> IProcessInstance.CurrentVariables 
+            => ProcessVariables.ExtractVariables(((IProcessInstance)this).CurrentState);
         #endregion
 
-        byte[] IProcessInstance.Diagram(bool outputVariables,ImageFormat type) { return Process.Diagram(outputVariables, State, type); }
+        byte[] IProcessInstance.Diagram(bool outputVariables,ImageFormat type)
+            => Process.Diagram(outputVariables, State, type);
 
-        byte[] IProcessInstance.Animate(bool outputVariables) { return Process.Animate(outputVariables, State); }
+        byte[] IProcessInstance.Animate(bool outputVariables)
+            => Process.Animate(outputVariables, State);
 
         #endregion
     }

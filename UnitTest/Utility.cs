@@ -1,11 +1,7 @@
 ﻿using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.State;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Text;
 using System.Xml;
 
 namespace UnitTest

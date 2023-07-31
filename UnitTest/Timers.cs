@@ -5,7 +5,6 @@ using BPMNEngine.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using BPMNEngine.Interfaces.State;

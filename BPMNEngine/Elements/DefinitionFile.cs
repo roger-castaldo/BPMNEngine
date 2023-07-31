@@ -1,9 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements
 {
@@ -13,9 +9,9 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(ExtensionElements))]
     internal class DefinitionFile : AElement
     {
-        public string Name { get { return this["Name"]; } }
-        public string Extension { get { return this["Extension"]; } }
-        public string ContentType { get { return this["ContentType"]; } }
+        public string Name =>this["Name"];
+        public string Extension =>this["Extension"]; 
+        public string ContentType => this["ContentType"];
         public byte[] Content { get; private init; }
 
         public DefinitionFile(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)

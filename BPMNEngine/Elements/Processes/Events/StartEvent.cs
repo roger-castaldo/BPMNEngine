@@ -1,11 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
@@ -19,7 +14,7 @@ namespace BPMNEngine.Elements.Processes.Events
         {
             if (ExtensionElement != null
                 && ((ExtensionElements)ExtensionElement).Children!=null
-                && ((ExtensionElements)ExtensionElement).Children.Any(ie => ie is ConditionSet && !((ConditionSet)ie).Evaluate(variables))
+                && ((ExtensionElements)ExtensionElement).Children.Any(ie => ie is ConditionSet set && !set.Evaluate(variables))
                 )
                 return false;
             return isEventStartValid(this, variables);

@@ -1,10 +1,7 @@
-﻿using Esprima;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BPMNEngine;
 using BPMNEngine.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 using BPMNEngine.Interfaces.Tasks;
 

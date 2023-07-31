@@ -1,36 +1,31 @@
 ﻿using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace BPMNEngine
 {
     internal class ReadOnlyProcessVariablesContainer : IReadonlyVariables
     {
-        private IVariables _variables;
-        private Exception _error;
+        private readonly IVariables variables;
+
+        public object this[string name] { get => variables[name]; set => throw new Exception("Unable to change variable values in readonly process variables container."); }
+
+        public IEnumerable<string> Keys => variables.Keys;
+
+        public IEnumerable<string> FullKeys => variables.FullKeys;
+
+        public Exception Error { get; private init; }
 
         internal ReadOnlyProcessVariablesContainer(string elementID, ProcessInstance instance)
             : this(elementID, instance,null) { }
 
         internal ReadOnlyProcessVariablesContainer(string elementID, ProcessInstance instance,Exception error)
         {
-            _variables = new ProcessVariablesContainer(elementID, instance);
-            _error = error;
+            variables = new ProcessVariablesContainer(elementID, instance);
+            Error = error;
         }
 
         internal ReadOnlyProcessVariablesContainer(IVariables variables)
         {
-            _variables = variables;
+            this.variables = variables;
         }
-
-        public object this[string name] { get => _variables[name];  set => throw new Exception("Unable to change variable values in readonly process variables container."); }
-
-        public IEnumerable<string> Keys => _variables.Keys; 
-
-        public IEnumerable<string> FullKeys => _variables.FullKeys; 
-
-        public Exception Error { get { return _error; } }
     }
 }

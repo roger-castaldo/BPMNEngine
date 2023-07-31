@@ -9,18 +9,18 @@ namespace BPMNEngine
     internal static class Utility
     {
 
-        private static readonly Dictionary<Type, List<Type>> _xmlChildren;
-        private static readonly Dictionary<Type, XMLTag[]> _tagAttributes;
-        private static readonly Type[] _globalXMLChildren;
-        private static readonly Dictionary<Type, ConstructorInfo> _xmlConstructors;
-        private static readonly Dictionary<string, Dictionary<string, Type>> _idealMap;
-        public static Dictionary<string, Dictionary<string, Type>> IdealMap => _idealMap;
+        private static readonly Dictionary<Type, List<Type>> xmlChildren;
+        private static readonly Dictionary<Type, XMLTag[]> tagAttributes;
+        private static readonly Type[] globalXMLChildren;
+        private static readonly Dictionary<Type, ConstructorInfo> xmlConstructors;
+        private static readonly Dictionary<string, Dictionary<string, Type>> idealMap;
+        public static Dictionary<string, Dictionary<string, Type>> IdealMap => idealMap;
         
         static Utility()
         {
-            _xmlConstructors = new();
-            _idealMap = new();
-            _tagAttributes = new();
+            xmlConstructors = new();
+            idealMap = new();
+            tagAttributes = new();
             var tmp = new List<Type>();
             Assembly.GetAssembly(typeof(Utility)).GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IElement))).ForEach(t =>
             {
@@ -28,19 +28,19 @@ namespace BPMNEngine
                 if (tags.Length > 0)
                 {
                     tmp.Add(t);
-                    _tagAttributes.Add(t, tags);
+                    tagAttributes.Add(t, tags);
                     var tmpTypes = new Dictionary<string, Type>();
-                    if (_idealMap.ContainsKey(tags[0].Prefix.ToLower()))
+                    if (idealMap.ContainsKey(tags[0].Prefix.ToLower()))
                     {
-                        tmpTypes = _idealMap[tags[0].Prefix.ToLower()];
-                        _idealMap.Remove(tags[0].Prefix.ToLower());
+                        tmpTypes = idealMap[tags[0].Prefix.ToLower()];
+                        idealMap.Remove(tags[0].Prefix.ToLower());
                     }
-                    _xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
+                    xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
                     tmpTypes.Add(tags[0].Name.ToLower(), t);
-                    _idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
+                    idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
                 }
             });
-            _xmlChildren = new Dictionary<Type, List<Type>>();
+            xmlChildren = new Dictionary<Type, List<Type>>();
             var globalChildren = new List<Type>();
             tmp.ForEach(t =>
             {
@@ -69,45 +69,43 @@ namespace BPMNEngine
                     {
                         tmp.Where(c => c.IsSubclassOf(parent)).ForEach(c =>
                         {
-                            if (!_xmlChildren.ContainsKey(c))
-                                _xmlChildren.Add(c, new List<Type>());
-                            var types = _xmlChildren[c];
-                            _xmlChildren.Remove(c);
+                            if (!xmlChildren.ContainsKey(c))
+                                xmlChildren.Add(c, new List<Type>());
+                            var types = xmlChildren[c];
+                            xmlChildren.Remove(c);
                             types.Add(t);
-                            _xmlChildren.Add(c, types);
+                            xmlChildren.Add(c, types);
                         });
                     }else
                     {
-                        if (!_xmlChildren.ContainsKey(parent))
-                            _xmlChildren.Add(parent, new List<Type>());
-                        var types = _xmlChildren[parent];
-                        _xmlChildren.Remove(parent);
+                        if (!xmlChildren.ContainsKey(parent))
+                            xmlChildren.Add(parent, new List<Type>());
+                        var types = xmlChildren[parent];
+                        xmlChildren.Remove(parent);
                         types.Add(t);
-                        _xmlChildren.Add(parent, types);
+                        xmlChildren.Add(parent, types);
                     }
                 });
             });
-            _globalXMLChildren = globalChildren.ToArray();
+            globalXMLChildren = globalChildren.ToArray();
         }
 
         internal static XMLTag[] GetTagAttributes(Type t)
-        {
-            return (_tagAttributes.ContainsKey(t) ? _tagAttributes[t] : null);
-        }
+            => tagAttributes.TryGetValue(t,out XMLTag[] value) ? value : null;
 
         public static Type LocateElementType(Type parent, string tagName, XmlPrefixMap map)
         {
             DateTime start = DateTime.Now;
             Type ret = null;
-            if (parent != null && _xmlChildren.ContainsKey(parent))
+            if (parent != null && xmlChildren.TryGetValue(parent,out List<Type> types))
             {
-                ret = _xmlChildren[parent]
-                    .FirstOrDefault(t => _tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
+                ret = types
+                    .FirstOrDefault(t => tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
                 if (ret!=null)
                     return ret;
             }
-            ret = _globalXMLChildren
-                .FirstOrDefault(t => _tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
+            ret = globalXMLChildren
+                .FirstOrDefault(t => tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
             return ret;
         }
 
@@ -122,7 +120,7 @@ namespace BPMNEngine
             else
                 t = LocateElementType(parent?.GetType(), element.Name, map);
             if (t != null)
-                return (IElement)_xmlConstructors[t].Invoke(new object[] { element, map, parent });
+                return (IElement)xmlConstructors[t].Invoke(new object[] { element, map, parent });
             return null;
         }
 

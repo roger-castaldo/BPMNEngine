@@ -11,6 +11,6 @@ namespace BPMNEngine.Drawing.Icons.Events
             new FilledCircle()
         };
 
-        protected override IIconPart[] _parts { get { return _PARTS; } }
+        protected override IIconPart[] Parts { get { return _PARTS; } }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BPMNEngine.Interfaces.Tasks
+﻿namespace BPMNEngine.Interfaces.Tasks
 {
     /// <summary>
     /// This interface is used to define an externally accessible User Task.

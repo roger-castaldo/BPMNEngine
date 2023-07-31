@@ -1,8 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes
 {
@@ -10,7 +6,7 @@ namespace BPMNEngine.Elements.Processes
     [ValidParent(typeof(AFlowNode))]
     internal class OutgoingFlow : AElement
     {
-        public string Value =>Element.InnerText;
+        public string Value => Element.InnerText;
 
         public OutgoingFlow(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
         {

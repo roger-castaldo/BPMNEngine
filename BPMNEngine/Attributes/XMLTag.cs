@@ -1,34 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BPMNEngine.Attributes
+﻿namespace BPMNEngine.Attributes
 {
     [AttributeUsage(AttributeTargets.Class,Inherited=false,AllowMultiple=false)]
     internal class XMLTag : Attribute
     {
-        private string _name;
-        public string Name { get { return _name; } }
-
-        private string _prefix;
-        public string Prefix { get { return _prefix; } }
+        public string Name { get; private init; }
+        public string Prefix { get; private init; }
 
         public XMLTag(string prefix,string name)
         {
-            _name = name;
-            _prefix = prefix;
+            Name = name;
+            Prefix = prefix;
         }
 
         public override string ToString()
         {
-            return (_prefix==null ? _name : string.Format("{0}:{1}",_prefix,_name));
+            return (Prefix==null ? Name : $"{Prefix}:{Name}");
         }
 
         internal bool Matches(XmlPrefixMap map, string tagName)
         {
-            return (tagName.ToLower() == ToString().ToLower())
-                ||(tagName.ToLower() == _name.ToLower())
-                ||(_prefix != null && map.isMatch(_prefix, _name, tagName));
+            return tagName.Equals(ToString(),StringComparison.CurrentCultureIgnoreCase)
+                ||tagName.Equals(Name,StringComparison.CurrentCultureIgnoreCase)
+                ||(Prefix != null && map.IsMatch(Prefix, Name, tagName));
         }
     }
 }

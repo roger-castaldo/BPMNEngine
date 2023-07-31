@@ -1,12 +1,7 @@
 ﻿using BPMNEngine.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Conditions;
-using System.Linq;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
@@ -17,20 +12,19 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(Process))]
     internal class SubProcess : AFlowNode,IProcess
     {
-        public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
+        public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent) 
+            : base(elem, map, parent) { }
 
         public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
         {
             if (ExtensionElement != null&&((ExtensionElements)ExtensionElement).Children
-                    .Any(ie => ie is ConditionSet && !((ConditionSet)ie).Evaluate(variables)))
+                    .Any(ie => ie is ConditionSet set && !set.Evaluate(variables)))
                 return false;
             return isProcessStartValid(this, variables);
         }
 
-        public IEnumerable<StartEvent> StartEvents => Children
-                .OfType<StartEvent>();
+        public IEnumerable<StartEvent> StartEvents 
+            => Children.OfType<StartEvent>();
 
         public override bool IsValid(out string[] err)
         {
@@ -41,7 +35,7 @@ namespace BPMNEngine.Elements
                 bool hasIncoming = this.Incoming!=null || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
                 if (hasStart && hasEnd && hasIncoming)
                     return true;
-                List<string> terr = new List<string>();
+                var terr = new List<string>();
                 if (!hasStart)
                     terr.Add("A Sub Process Must have a StartEvent or valid IntermediateCatchEvent");
                 if (!hasIncoming)

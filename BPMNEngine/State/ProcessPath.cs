@@ -1,25 +1,13 @@
-﻿using BPMNEngine.Elements.Collaborations;
-using BPMNEngine.Elements.Processes;
+﻿using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Xml;
-using System.Globalization;
-using BPMNEngine.Elements;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Threading;
-using SkiaSharp;
-using System.Collections.Immutable;
-using System.Linq.Expressions;
-using System.IO;
-using System.Text;
-using Microsoft.Extensions.Logging;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
+using System.Collections.Immutable;
+using System.Globalization;
+using System.Text.Json;
+using System.Threading;
 
 namespace BPMNEngine.State
 {
@@ -38,24 +26,25 @@ namespace BPMNEngine.State
 
         private class ReadOnlyProcessPath : IReadonlyProcessPathContainer
         {
-            private readonly ProcessPath _path;
-            private readonly int _stepCount;
+            private readonly ProcessPath path;
+            private readonly int stepCount;
 
             public ReadOnlyProcessPath(ProcessPath path,int stepCount)
             {
-                _path = path;
-                _stepCount = stepCount;
+                this.path = path;
+                this.stepCount = stepCount;
             }
 
-            public IEnumerable<string> ActiveSteps => Steps
+            public IEnumerable<string> ActiveSteps 
+                => Steps
                     .GroupBy(step => step.ElementID)
                     .Where(grp => grp.Last().Status==StepStatuses.Started || grp.Last().Status==StepStatuses.Waiting)
                     .Select(grp => grp.Key);
 
             private IEnumerable<SPathEntry> Steps
-                => _path.RunQuery<SPathEntry>((IEnumerable<SPathEntry> Steps) =>
+                => path.RunQuery((IEnumerable<SPathEntry> Steps) =>
                 {
-                    return Steps.Take(_stepCount);
+                    return Steps.Take(stepCount);
                 });
 
             public void Append(XmlWriter writer)
@@ -136,24 +125,24 @@ namespace BPMNEngine.State
             }
         }
 
-        private readonly List<SPathEntry> _steps = new();
+        private readonly List<SPathEntry> steps = new();
 
-        private readonly ProcessStepComplete _complete;
-        private readonly ProcessStepError _error;
+        private readonly ProcessStepComplete complete;
+        private readonly ProcessStepError error;
         internal int LastStep { get; private set; }
 
-        private readonly ReaderWriterLockSlim _stateLock;
-        private readonly BusinessProcess _process;
-        private readonly ProcessState.delTriggerStateChange _triggerChange;
+        private readonly ReaderWriterLockSlim stateLock;
+        private readonly BusinessProcess process;
+        private readonly ProcessState.delTriggerStateChange triggerChange;
 
         public ProcessPath(ProcessStepComplete complete, ProcessStepError error, BusinessProcess process,ReaderWriterLockSlim stateLock, ProcessState.delTriggerStateChange triggerChange)
         {
-            _complete = complete;
-            _error = error;
+            this.complete = complete;
+            this.error = error;
             LastStep = int.MaxValue;
-            _process=process;
-            _stateLock=stateLock;
-            _triggerChange=triggerChange;
+            this.process=process;
+            this.stateLock=stateLock;
+            this.triggerChange=triggerChange;
         }
 
         #region IStateContainer
@@ -169,7 +158,7 @@ namespace BPMNEngine.State
 
         public void Load(XmlReader reader)
         {
-            _steps.Clear();
+            steps.Clear();
             reader.Read();
             while (reader.NodeType==XmlNodeType.Element && reader.Name==_PATH_ENTRY_ELEMENT)
             {
@@ -199,7 +188,7 @@ namespace BPMNEngine.State
                     outgoing = new string[] { reader.GetAttribute(_OUTGOING_ID) };
                     reader.Read();
                 }
-                _steps.Add(new SPathEntry()
+                steps.Add(new SPathEntry()
                 {
                     ElementID=elementID,
                     Status=stepStatus,
@@ -213,7 +202,7 @@ namespace BPMNEngine.State
 
         public void Load(Utf8JsonReader reader)
         {
-            _steps.Clear();
+            steps.Clear();
             reader.Read();
             while (reader.TokenType!=JsonTokenType.EndArray)
             {
@@ -260,7 +249,7 @@ namespace BPMNEngine.State
                         }
                     }
 
-                    _steps.Add(new SPathEntry()
+                    steps.Add(new SPathEntry()
                     {
                         ElementID=elementID,
                         Status=stepStatus,
@@ -278,42 +267,42 @@ namespace BPMNEngine.State
 
         private IEnumerable<T> RunQuery<T>(Func<IEnumerable<SPathEntry>,IEnumerable<T>> filter)
         {
-            _stateLock.EnterReadLock();
-            var results = filter(_steps).ToImmutableList();
-            _stateLock.ExitReadLock();
+            stateLock.EnterReadLock();
+            var results = filter(steps).ToImmutableList();
+            stateLock.ExitReadLock();
             return results;
         }
 
         public IReadOnlyStateContainer Clone()
         {
-            return new ReadOnlyProcessPath(this, _steps.Count);
+            return new ReadOnlyProcessPath(this, steps.Count);
         }
 
         public void Dispose()
         {
-            _steps.Clear();
+            steps.Clear();
         }
         #endregion
 
-        internal IEnumerable<sSuspendedStep> ResumeSteps
-            => RunQuery<sSuspendedStep>((IEnumerable<SPathEntry> steps)=> {
+        internal IEnumerable<SSuspendedStep> ResumeSteps
+            => RunQuery((IEnumerable<SPathEntry> steps)=> {
                 return steps
                             .GroupBy(step => step.ElementID)
                             .Where(grp => grp.Last().Status==StepStatuses.Suspended && !grp.Last().EndTime.HasValue)
-                            .Select(grp => new sSuspendedStep()
+                            .Select(grp => new SSuspendedStep()
                             {
                                 IncomingID=grp.Last().IncomingID,
                                 ElementID=grp.Last().ElementID
                             });
             });
 
-        internal IEnumerable<sDelayedStartEvent> DelayedEvents
-        => RunQuery<sDelayedStartEvent>((IEnumerable<SPathEntry> steps) =>
+        internal IEnumerable<SDelayedStartEvent> DelayedEvents
+        => RunQuery((IEnumerable<SPathEntry> steps) =>
         {
             return steps
                 .GroupBy(step => step.ElementID)
                     .Where(grp => grp.Last().Status==StepStatuses.WaitingStart)
-                    .Select(grp => new sDelayedStartEvent()
+                    .Select(grp => new SDelayedStartEvent()
                     {
                         IncomingID=grp.Last().IncomingID,
                         ElementID=grp.Last().ElementID,
@@ -322,7 +311,7 @@ namespace BPMNEngine.State
         });
 
         public IEnumerable<string> AbortableSteps
-        => RunQuery<string>((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<SPathEntry> steps) =>
         {
             return steps
                     .GroupBy(step => step.ElementID)
@@ -334,7 +323,7 @@ namespace BPMNEngine.State
         });
 
         public IEnumerable<string> ActiveSteps
-        => RunQuery<string>((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<SPathEntry> steps) =>
         {
             return steps
                     .GroupBy(step => step.ElementID)
@@ -342,27 +331,27 @@ namespace BPMNEngine.State
                     .Select(grp => grp.Key);
         });
 
-        public IEnumerable<sStepSuspension> SuspendedSteps
-        => RunQuery<sStepSuspension>((IEnumerable<SPathEntry> steps) =>
+        public IEnumerable<SStepSuspension> SuspendedSteps
+        => RunQuery((IEnumerable<SPathEntry> steps) =>
         {
             return steps
                     .Select((step, index) => new { step, index })
                     .GroupBy(step => step.step.ElementID)
                     .Where(grp => grp.Last().step.Status==StepStatuses.Suspended && grp.Last().step.EndTime.HasValue)
-                    .Select(grp => new sStepSuspension()
+                    .Select(grp => new SStepSuspension()
                     {
                         EndTime=grp.Last().step.EndTime.Value,
-                        Id=grp.Key,
+                        ID=grp.Key,
                         StepIndex=grp.Last().index
                     });
         });
 
         public StepStatuses GetStatus(string elementid)
         {
-            return RunQuery<StepStatuses>((IEnumerable<SPathEntry> steps) =>
+            return RunQuery((IEnumerable<SPathEntry> steps) =>
             {
                 return steps
-                    .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
+                    .Take(LastStep==int.MaxValue ? steps.Count() : LastStep+1)
                     .Where(step => step.ElementID==elementid)
                     .Select(step => step.Status)
                     .DefaultIfEmpty(StepStatuses.NotRun);
@@ -371,24 +360,24 @@ namespace BPMNEngine.State
 
         public int GetStepSuccessCount(string elementid)
         {
-            _stateLock.EnterReadLock();
-            var result = _steps
+            stateLock.EnterReadLock();
+            var result = steps
                 .Count(step => step.ElementID==elementid && step.Status == StepStatuses.Succeeded);
-            _stateLock.ExitReadLock();
+            stateLock.ExitReadLock();
             return result;
         }
 
         public int CurrentStepIndex(string elementid)
         {
-            _stateLock.EnterReadLock();
-            var result = _steps
+            stateLock.EnterReadLock();
+            var result = steps
                 .Any(step=>step.ElementID==elementid)
-                ? _steps
+                ? steps
                     .Select((step, index) => new { step, index })
                     .Where(pair=>pair.step.ElementID== elementid)
                     .Max(pair=>pair.index)
                 : -1;
-            _stateLock.ExitReadLock();
+            stateLock.ExitReadLock();
             return result;
         }
 
@@ -396,13 +385,13 @@ namespace BPMNEngine.State
         {
             var result = true;
             var changed = false;
-            _stateLock.EnterWriteLock();
+            stateLock.EnterWriteLock();
             if (gw is ParallelGateway)
             {
                 if (gw.Incoming.Count()>1)
                 {
-                    if (_steps
-                        .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
+                    if (steps
+                        .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
                         .Where(step => step.ElementID==gw.ID)
                         .Select(step => step.Status)
                         .DefaultIfEmpty(StepStatuses.NotRun)
@@ -412,20 +401,20 @@ namespace BPMNEngine.State
                     {
                         var counts = gw.Incoming
                             .Select(i =>
-                                _steps
+                                steps
                                 .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
                              );
                         if (counts.Any(c => c!=counts.Max()))
                             result=false;
                     }
-                    if (!result && _steps
-                            .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
+                    if (!result && steps
+                            .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
                             .Where(step => step.ElementID==gw.ID)
                             .Select(step => step.Status)
                             .DefaultIfEmpty(StepStatuses.NotRun)
                             .FirstOrDefault()!=StepStatuses.Waiting)
                     {
-                        _steps.Add(new SPathEntry()
+                        steps.Add(new SPathEntry()
                         {
                             ElementID=gw.ID,
                             Status = StepStatuses.Waiting,
@@ -440,8 +429,8 @@ namespace BPMNEngine.State
             {
                 if (gw.Incoming.Count()>1)
                 {
-                    var currentStatus = _steps
-                        .Take((LastStep==int.MaxValue ? _steps.Count : LastStep+1))
+                    var currentStatus = steps
+                        .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
                         .Where(step => step.ElementID==gw.ID)
                         .Select(step => step.Status)
                         .DefaultIfEmpty(StepStatuses.NotRun)
@@ -452,7 +441,7 @@ namespace BPMNEngine.State
                     {
                         var counts = gw.Incoming
                             .Select(
-                                i => _steps
+                                i => steps
                                     .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
                              );
                         result = counts.Count(c => c==counts.Max())==1;
@@ -461,7 +450,7 @@ namespace BPMNEngine.State
             }
             if (result)
             {
-                _steps.Add(new SPathEntry()
+                steps.Add(new SPathEntry()
                 {
                     ElementID=gw.ID,
                     Status = StepStatuses.Started,
@@ -470,9 +459,9 @@ namespace BPMNEngine.State
                 });
                 changed=true;
             }
-            _stateLock.ExitWriteLock();
+            stateLock.ExitWriteLock();
             if (changed)
-                _triggerChange();
+                triggerChange();
             return result;
         }
 
@@ -484,17 +473,17 @@ namespace BPMNEngine.State
         internal string MoveToNextStep()
         {
             LastStep++;
-            _stateLock.EnterReadLock();
-            var result =  ((LastStep==0 || (LastStep>_steps.Count)) ? null : _steps.Skip(LastStep-1).First().ElementID);
-            _stateLock.ExitReadLock();
+            stateLock.EnterReadLock();
+            var result =  ((LastStep==0 || (LastStep>steps.Count)) ? null : steps.Skip(LastStep-1).First().ElementID);
+            stateLock.ExitReadLock();
             return result;
         }
 
         internal bool HasNext()
         {
-            _stateLock.EnterReadLock();
-            var result = _steps.Count+1>LastStep;
-            _stateLock.ExitReadLock();
+            stateLock.EnterReadLock();
+            var result = steps.Count+1>LastStep;
+            stateLock.ExitReadLock();
             return result;
         }
 
@@ -505,14 +494,14 @@ namespace BPMNEngine.State
 
         private void AddPathEntry(string elementID, StepStatuses status, DateTime start, string incomingID = null, IEnumerable<string> outgoingID = null, DateTime? end = null, string completedBy = null)
         {
-            _stateLock.EnterWriteLock();
-            if (_steps.Any(step => step.ElementID==elementID))
+            stateLock.EnterWriteLock();
+            if (steps.Any(step => step.ElementID==elementID))
             {
-                var lastStep = _steps.Last(step=>step.ElementID==elementID);
+                var lastStep = steps.Last(step=>step.ElementID==elementID);
                 if (lastStep.Status==StepStatuses.WaitingStart)
                     start=lastStep.StartTime;
             }
-            _steps.Add(new SPathEntry()
+            steps.Add(new SPathEntry()
             {
                 ElementID=elementID,
                 IncomingID=incomingID,
@@ -522,20 +511,20 @@ namespace BPMNEngine.State
                 EndTime=end,
                 CompletedBy=completedBy
             });
-            _stateLock.ExitWriteLock();
-            _triggerChange();
+            stateLock.ExitWriteLock();
+            triggerChange();
         }
 
         private void GetIncomingIDAndStart(string elementID,out DateTime start,out string incoming)
         {
             start = DateTime.Now;
             incoming = null;
-            _stateLock.EnterReadLock();
-            var result = _steps
+            stateLock.EnterReadLock();
+            var result = steps
                 .Where(step => step.ElementID == elementID && (step.Status == StepStatuses.Waiting||step.Status==StepStatuses.Started))
                 .Select(step => new { incoming = step.IncomingID, start = step.StartTime })
                 .LastOrDefault();
-            _stateLock.ExitReadLock();
+            stateLock.ExitReadLock();
             if (result!=null)
             {
                 start=result.start;
@@ -544,9 +533,7 @@ namespace BPMNEngine.State
         }
 
         private void WriteLogLine(string elementID, LogLevel level, string message)
-        {
-            _process.WriteLogLine(elementID, level, new System.Diagnostics.StackFrame(1, true), DateTime.Now, message);
-        }
+            => process.WriteLogLine(elementID, level, new System.Diagnostics.StackFrame(1, true), DateTime.Now, message);
 
         internal void DelayEventStart(AEvent Event,string incoming,TimeSpan delay)
         {
@@ -561,9 +548,7 @@ namespace BPMNEngine.State
         }
 
         internal void SucceedFlowNode(ATask task, IEnumerable<string> outgoing = null, string completedByID = null)
-        {
-            SucceedFlowNode((AFlowNode)task,outgoing:outgoing??task.Outgoing,completedByID:completedByID);
-        }
+            => SucceedFlowNode((AFlowNode)task,outgoing:outgoing??task.Outgoing,completedByID:completedByID);
 
         internal void SucceedFlowNode(AEvent evnt, IEnumerable<string> outgoing = null, string completedByID = null)
         {
@@ -598,15 +583,17 @@ namespace BPMNEngine.State
             Error(node, error);
         }
 
-        private async void Complete(string incoming, string outgoing) => await System.Threading.Tasks.Task.Run(() => _complete.Invoke(incoming, outgoing));
+        private async void Complete(string incoming, string outgoing) 
+            => await System.Threading.Tasks.Task.Run(() => complete.Invoke(incoming, outgoing));
 
-        private async void Error(IElement step, Exception ex) => await System.Threading.Tasks.Task.Run(() => _error.Invoke(step,ex));
+        private async void Error(IElement step, Exception ex) 
+            => await System.Threading.Tasks.Task.Run(() => error.Invoke(step,ex));
 
         internal void ProcessFlowElement(IFlowElement flowElement)
         {
             WriteLogLine(flowElement.ID, LogLevel.Debug, "Processing Flow Element in Process Path");
-            AddPathEntry(flowElement.ID,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.sourceRef, outgoingID:new string[] { flowElement.targetRef }, end:DateTime.Now);
-            Complete(flowElement.ID, flowElement.targetRef);
+            AddPathEntry(flowElement.ID,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.SourceRef, outgoingID:new string[] { flowElement.TargetRef }, end:DateTime.Now);
+            Complete(flowElement.ID, flowElement.TargetRef);
         }
 
         internal void SuspendElement(string sourceID, IElement elem)

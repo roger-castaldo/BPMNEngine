@@ -1,7 +1,4 @@
 ﻿using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BPMNEngine
@@ -9,16 +6,16 @@ namespace BPMNEngine
     internal class DateString
     {
         private const string ValidUnits = "year|month|week|day|hour|minute|second";
-        private static readonly Regex _basicRelativeRegex = new Regex(@"^(last|next) +(" + ValidUnits + ")$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex _simpleRelativeRegex = new Regex(@"^([+-]?\d+) *(" + ValidUnits + ")s?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex _completeRelativeRegex = new Regex(@"^(\d+) *(" + ValidUnits + ")s?( +ago)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        private static readonly Regex _variableRegex = new Regex("^[+-]?\\$\\{([^}]+)\\}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex basicRelativeRegex = new(@"^(last|next) +(" + ValidUnits + ")$", RegexOptions.Compiled | RegexOptions.IgnoreCase,TimeSpan.FromMinutes(500));
+        private static readonly Regex simpleRelativeRegex = new(@"^([+-]?\d+) *(" + ValidUnits + ")s?$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(500));
+        private static readonly Regex completeRelativeRegex = new(@"^(\d+) *(" + ValidUnits + ")s?( +ago)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(500));
+        private static readonly Regex variableRegex = new("^[+-]?\\$\\{([^}]+)\\}$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(500));
 
-        private string _value;
+        private readonly string value;
 
         public DateString(string value)
         {
-            _value = value.Trim() + " ";
+            this.value = value.Trim() + " ";
         }
 
         public DateTime GetTime(IReadonlyVariables variables)
@@ -27,14 +24,14 @@ namespace BPMNEngine
             bool isFirst = true;
             string buffer = "";
             Match m;
-            _value.ForEach(c =>
+            value.ForEach(c =>
             {
                 switch (c)
                 {
                     case ' ':
-                        if (_variableRegex.IsMatch(buffer))
+                        if (variableRegex.IsMatch(buffer))
                         {
-                            m = _variableRegex.Match(buffer);
+                            m = variableRegex.Match(buffer);
                             buffer = buffer.Replace("${" + m.Groups[1].Value + "}", string.Format("{0}", variables[m.Groups[1].Value]));
                         }
                         if (isFirst)
@@ -61,28 +58,27 @@ namespace BPMNEngine
                         }
                         if (buffer != "")
                         {
-                            if (_basicRelativeRegex.IsMatch(buffer))
+                            if (basicRelativeRegex.IsMatch(buffer))
                             {
-                                m = _basicRelativeRegex.Match(buffer);
-                                ret = _AddOffset(variables, m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
+                                m = basicRelativeRegex.Match(buffer);
+                                ret = DateString.AddOffset(m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
                                 buffer = "";
                             }
-                            else if (_simpleRelativeRegex.IsMatch(buffer))
+                            else if (simpleRelativeRegex.IsMatch(buffer))
                             {
-                                m = _simpleRelativeRegex.Match(buffer);
-                                ret = _AddOffset(variables, m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
+                                m = simpleRelativeRegex.Match(buffer);
+                                ret = DateString.AddOffset(m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
                                 buffer = "";
                             }
-                            else if (_completeRelativeRegex.IsMatch(buffer))
+                            else if (completeRelativeRegex.IsMatch(buffer))
                             {
-                                m = _completeRelativeRegex.Match(buffer);
-                                ret = _AddOffset(variables, m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
+                                m = completeRelativeRegex.Match(buffer);
+                                ret = DateString.AddOffset(m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
                                 buffer = "";
                             }
                             else if (isFirst)
                             {
-                                DateTime tmp;
-                                if (DateTime.TryParse(buffer, out tmp))
+                                if (DateTime.TryParse(buffer, out DateTime tmp))
                                 {
                                     isFirst = false;
                                     buffer = "";
@@ -107,34 +103,19 @@ namespace BPMNEngine
             return ret;
         }
 
-        private DateTime _AddOffset(IReadonlyVariables variables,string unit, int value, DateTime dateTime)
+        private static DateTime AddOffset(string unit, int value, DateTime dateTime)
         {
-            switch (unit.ToLower())
+            return unit.ToLower() switch
             {
-                case "year":
-                case "years":
-                    return dateTime.AddYears(value);
-                case "month":
-                case "months":
-                    return dateTime.AddMonths(value);
-                case "week":
-                case "weeks":
-                    return dateTime.AddDays(value * 7);
-                case "day":
-                case "days":
-                    return dateTime.AddDays(value);
-                case "hour":
-                case "hours":
-                    return dateTime.AddHours(value);
-                case "minute":
-                case "minutes":
-                    return dateTime.AddMinutes(value);
-                case "second":
-                case "seconds":
-                    return dateTime.AddSeconds(value);
-                default:
-                    throw new Exception("Internal error: Unhandled relative date/time case.");
-            }
+                "year"or"years" => dateTime.AddYears(value),
+                "month"or"months" => dateTime.AddMonths(value),
+                "week"or"weeks" => dateTime.AddDays(value * 7),
+                "day"or"days" => dateTime.AddDays(value),
+                "hour"or"hours" => dateTime.AddHours(value),
+                "minute"or"minutes" => dateTime.AddMinutes(value),
+                "second"or"seconds" => dateTime.AddSeconds(value),
+                _ => throw new Exception("Internal error: Unhandled relative date/time case."),
+            };
         }
     }
 }

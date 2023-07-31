@@ -1,15 +1,11 @@
 ﻿using BPMNEngine.Elements.Processes.Scripts;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
     internal class ScriptCondition : ACondition
     {
-        private AScript _script;
+        private readonly AScript _script;
 
         public ScriptCondition(AScript script)
             : base(script.Element, null,null) {
@@ -17,8 +13,6 @@ namespace BPMNEngine.Elements.Processes.Conditions
         }
 
         public override bool Evaluate(IReadonlyVariables variables)
-        {
-            return (bool)_script.Invoke(variables);
-        }
+            => (bool)_script.Invoke(variables);
     }
 }

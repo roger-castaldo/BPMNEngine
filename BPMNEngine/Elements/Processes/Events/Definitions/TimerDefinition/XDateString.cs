@@ -1,10 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 {
@@ -13,18 +8,18 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
     [ValidParent(typeof(ExtensionElements))]
     internal class XDateString : AElement
     {
-        protected string Code => this["Code"] ?? 
+        protected string Code 
+            => this["Code"] ?? 
             SubNodes.Where(n=>n.NodeType==XmlNodeType.Text).Select(n=>n.Value).FirstOrDefault() ??
             SubNodes.Where(n=>n.NodeType==XmlNodeType.CDATA).Select(n=>((XmlCDataSection)n).Value).FirstOrDefault() ?? 
-            String.Empty;
+            string.Empty;
 
-        public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
+        public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent) 
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {
-            if (String.IsNullOrEmpty(Code))
+            if (string.IsNullOrEmpty(Code))
             {
                 err = new string[] { "No Date String Specified" };
                 return false;
@@ -34,7 +29,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 
         public DateTime GetTime(IReadonlyVariables variables)
         {
-            if (String.IsNullOrEmpty(Code))
+            if (string.IsNullOrEmpty(Code))
                 throw new Exception("Invalid Date String Specified");
             var ds = new DateString(Code);
             return ds.GetTime(variables);

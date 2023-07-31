@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BPMNEngine.Interfaces.Elements
+﻿namespace BPMNEngine.Interfaces.Elements
 {
     internal interface IParentElement : IElement
     {

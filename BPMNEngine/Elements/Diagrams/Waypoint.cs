@@ -1,11 +1,6 @@
 ﻿using Microsoft.Maui.Graphics;
 using BPMNEngine.Attributes;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
-
 namespace BPMNEngine.Elements.Diagrams
 {
     [XMLTag("di","waypoint")]
@@ -16,7 +11,7 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Edge))]
     internal class Waypoint : AElement
     {
-        public PointF Point => new PointF(
+        public PointF Point => new(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]));
         public Waypoint(XmlElement elem, XmlPrefixMap map, AElement parent)

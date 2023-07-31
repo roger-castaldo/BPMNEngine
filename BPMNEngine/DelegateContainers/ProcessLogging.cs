@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BPMNEngine.DelegateContainers
+﻿namespace BPMNEngine.DelegateContainers
 {
     /// <summary>
     /// This class is used to house all the Logging delegates for a business process. 
@@ -32,10 +26,10 @@ namespace BPMNEngine.DelegateContainers
             {
                 LogLine = (source.LogLine!=null&&append.LogLine!=null ?
                                 source.LogLine+append.LogLine
-                                : (source.LogLine!=null ? source.LogLine : append.LogLine)),
+                                : (source.LogLine??append.LogLine)),
                 LogException = (source.LogException!=null&&append.LogException!=null ?
                                 source.LogException+append.LogException
-                                : (source.LogException!=null ? source.LogException : append.LogException))
+                                : (source.LogException??append.LogException))
             };
         }
     }

@@ -1,7 +1,4 @@
 ﻿using BPMNEngine.Drawing.Icons.IconParts;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BPMNEngine.Drawing.Icons.Gateways
 {
@@ -12,7 +9,7 @@ namespace BPMNEngine.Drawing.Icons.Gateways
             new CenterPlus()
         };
 
-        protected override IIconPart[] _parts
+        protected override IIconPart[] Parts
         {
             get { return _PARTS; }
         }

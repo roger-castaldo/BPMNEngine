@@ -1,11 +1,6 @@
 ﻿using Microsoft.Maui.Graphics;
 using BPMNEngine.Attributes;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
-
 namespace BPMNEngine.Elements.Diagrams
 {
     [XMLTag("dc","Bounds")]
@@ -21,7 +16,7 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal class Bounds : AElement
     {
-        public RectF Rectangle => new RectF(
+        public RectF Rectangle => new(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]),
                     float.Parse(this["width"]),

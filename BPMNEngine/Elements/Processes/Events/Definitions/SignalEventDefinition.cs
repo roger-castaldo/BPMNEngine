@@ -1,11 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
@@ -13,25 +8,27 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     [ValidParent(typeof(AEvent))]
     internal class SignalEventDefinition : AParentElement
     {
-        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
-
-        public IEnumerable<string> SignalTypes => new string[] {}.Concat(Children
+        public IEnumerable<string> SignalTypes 
+            => Array.Empty<string>()
+                .Concat(
+                    Children
                     .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")
-                ).Concat(ExtensionElement==null || ((IParentElement) ExtensionElement).Children==null ? Array.Empty<string>() :
+                ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
                     ((IParentElement)ExtensionElement).Children
                     .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")
                 ).Distinct()
                 .DefaultIfEmpty("*");
 
+        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+            : base(elem, map, parent) { }
+
         public override bool IsValid(out string[] err)
         {
             if (SignalTypes.Any())
             {
-                List<string> errors = new List<string>();
+                var errors = new List<string>();
                 if (Parent is IntermediateThrowEvent)
                 {
                     if (SignalTypes.Count() > 1)
@@ -39,11 +36,11 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
                     bool found = elems
                             .Any(catcher => catcher.Children
-                            .Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Contains(SignalTypes.First()))
+                            .Any(child => child is SignalEventDefinition definition && definition.SignalTypes.Contains(SignalTypes.First()))
                         ) ||
                         elems
                             .Any(catcher => catcher.Children
-                            .Any(child => child is SignalEventDefinition && ((SignalEventDefinition)child).SignalTypes.Contains("*"))
+                            .Any(child => child is SignalEventDefinition definition && definition.SignalTypes.Contains("*"))
                         );
                     if (!found)
                         errors.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");

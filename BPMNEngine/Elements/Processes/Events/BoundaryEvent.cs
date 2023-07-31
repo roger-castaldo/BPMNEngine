@@ -1,10 +1,5 @@
 ﻿using BPMNEngine.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 using BPMNEngine.Elements.Processes.Events.Definitions;
-using System.Linq;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
@@ -13,12 +8,9 @@ namespace BPMNEngine.Elements.Processes.Events
     [RequiredAttribute("attachedToRef")]
     internal class BoundaryEvent : AHandlingEvent
     {
-        public BoundaryEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public string AttachedToID => this["attachedToRef"];
 
-        public string AttachedToID => this["attachedToRef"]; 
-
-        public bool CancelActivity => this["cancelActivity"]==null ? true : bool.Parse(this["cancelActivity"]); 
+        public bool CancelActivity => this["cancelActivity"]==null || bool.Parse(this["cancelActivity"]);
 
         public new IEnumerable<string> Outgoing
         {
@@ -28,13 +20,15 @@ namespace BPMNEngine.Elements.Processes.Events
                 if (Children.Any(c => c is CompensationEventDefinition))
                 {
                     var association = Definition.LocateElementsOfType<Association>()
-                        .FirstOrDefault(asc => asc.sourceRef==ID);
-                    if (association!=null)  
-                        result = result.Concat(new string[] {association.ID});
+                        .FirstOrDefault(asc => asc.SourceRef==ID);
+                    if (association!=null)
+                        result = result.Concat(new string[] { association.ID });
                 }
                 return result;
             }
         }
+        public BoundaryEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {

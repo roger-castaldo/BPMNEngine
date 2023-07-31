@@ -1,11 +1,8 @@
 ﻿using BPMNEngine.Interfaces.State;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
-using System.Xml;
 
 namespace BPMNEngine.State
 {
@@ -13,22 +10,22 @@ namespace BPMNEngine.State
     {
         private class ReadOnlyProcessLog : IReadOnlyStateContainer
         {
-            private readonly ProcessLog _log;
-            private readonly int _length;
+            private readonly ProcessLog log;
+            private readonly int length;
 
             public ReadOnlyProcessLog(ProcessLog log, int length)
             {
-                _log=log;
-                _length=length;
+                this.log=log;
+                this.length=length;
             }
 
             private string Content
             {
                 get
                 {
-                    _log._stateLock.EnterReadLock();
-                    var result = _log._content.ToString()[.._length];
-                    _log._stateLock.ExitReadLock();
+                    log.stateLock.EnterReadLock();
+                    var result = log.content.ToString()[..length];
+                    log.stateLock.ExitReadLock();
                     return result;
                 }
             }
@@ -45,30 +42,20 @@ namespace BPMNEngine.State
             }
         }
 
-        private readonly ReaderWriterLockSlim _stateLock;
-        private readonly StringBuilder _content;
+        private readonly ReaderWriterLockSlim stateLock;
+        private readonly StringBuilder content;
 
         public ProcessLog(ReaderWriterLockSlim stateLock)
         {
-            _stateLock = stateLock;
-            _content = new StringBuilder();
+            this.stateLock = stateLock;
+            content = new StringBuilder();
         }
 
         public void LogLine(string elementID, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
         {
-            _stateLock.EnterWriteLock();
-            _content.AppendFormat("{0}|{1}|{2}|{3}[{4}]|Element[{5}]|{6}\r\n", new object[]
-                {
-                timestamp.ToString(Constants.DATETIME_FORMAT),
-                level,
-                assembly.Name,
-                fileName,
-                lineNumber,
-                elementID,
-                message
-                }
-            );
-            _stateLock.ExitWriteLock();
+            stateLock.EnterWriteLock();
+            content.AppendLine($"{timestamp.ToString(Constants.DATETIME_FORMAT)}|{level}|{assembly.Name}|{fileName}[{lineNumber}]|Element[{elementID}]|{message}");
+            stateLock.ExitWriteLock();
         }
 
         public void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
@@ -84,13 +71,8 @@ namespace BPMNEngine.State
             bool isInner = false;
             while (exception != null)
             {
-                sb.AppendLine(string.Format(@"{2}MESSAGE:{0}
-STACKTRACE:{1}", new object[]
-            {
-                exception.Message,
-                exception.StackTrace,
-                isInner ? "INNER_EXCEPTION:" : ""
-            }));
+                sb.AppendLine(@$"{(isInner ? "INNER_EXCEPTION:" : "")}MESSAGE:{exception.Message}
+STACKTRACE:{exception.StackTrace}");
                 isInner = true;
                 exception = exception.InnerException;
             }
@@ -101,29 +83,29 @@ STACKTRACE:{1}", new object[]
         {
             reader.MoveToContent();
             reader.Read();
-            _content.Clear();
+            content.Clear();
             if (reader.NodeType == XmlNodeType.CDATA)
             {
-                _content.Append(reader.Value);
+                content.Append(reader.Value);
                 reader.Read();
             }
         }
 
         public void Load(Utf8JsonReader reader)
         {
-            _content.Clear();
-            _content.Append(reader.GetString());
+            content.Clear();
+            content.Append(reader.GetString());
             reader.Read();
         }
 
         public IReadOnlyStateContainer Clone()
         {
-            return new ReadOnlyProcessLog(this, _content.Length);
+            return new ReadOnlyProcessLog(this, content.Length);
         }
 
         public void Dispose()
         {
-            _content.Clear();
+            content.Clear();
         }
     }
 }

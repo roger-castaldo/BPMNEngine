@@ -1,10 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Conditions;
-using System.Linq;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
@@ -15,18 +10,17 @@ namespace BPMNEngine.Elements.Processes
     [ValidParent(typeof(IProcess))]
     internal class SequenceFlow : AFlowElement, ISequenceFlow
     {
-        private readonly string _conditionExpression;
-        public string conditionExpression =>_conditionExpression;
+        public string ConditionExpression { get; private init; }
 
         public SequenceFlow(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) {
-            _conditionExpression=null;
+            ConditionExpression=null;
             if (elem.Attributes["conditionExpression"]!=null)
-                _conditionExpression=elem.Attributes["conditionExpression"].Value;
+                ConditionExpression=elem.Attributes["conditionExpression"].Value;
             else
-                _conditionExpression = elem.ChildNodes.Cast<XmlNode>()
-                    .Where(xn => xn.NodeType==XmlNodeType.Element && map.isMatch("bpmn", "conditionExpression", xn.Name))
-                    .Select(xn => xn.ChildNodes[0] is XmlCDataSection ? ((XmlCDataSection)xn.ChildNodes[0]).InnerText : xn.InnerText)
+                ConditionExpression = elem.ChildNodes.Cast<XmlNode>()
+                    .Where(xn => xn.NodeType==XmlNodeType.Element && map.IsMatch("bpmn", "conditionExpression", xn.Name))
+                    .Select(xn => xn.ChildNodes[0] is XmlCDataSection section ? section.InnerText : xn.InnerText)
                     .FirstOrDefault();
         }
 
@@ -38,7 +32,7 @@ namespace BPMNEngine.Elements.Processes
             if (ExtensionElement != null)
             {
                 return !((ExtensionElements)ExtensionElement).Children
-                    .Any(ie=>ie is ConditionSet && !((ConditionSet)ie).Evaluate(variables));
+                    .Any(ie=>ie is ConditionSet set && !set.Evaluate(variables));
             }
             return true;
         }

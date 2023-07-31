@@ -1,9 +1,4 @@
 ﻿using BPMNEngine.DelegateContainers;
-using BPMNEngine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine
 {

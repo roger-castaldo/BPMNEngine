@@ -1,10 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BPMNEngine.DelegateContainers
 {
@@ -16,12 +11,7 @@ namespace BPMNEngine.DelegateContainers
     /// </summary>
     public class StepValidations
     {
-        private static readonly StepValidations _DEFAULT_VALIDATOR = new StepValidations()
-        {
-            IsEventStartValid=new IsEventStartValid(_DefaultEventStartValid),
-            IsProcessStartValid= new IsProcessStartValid(_DefaultProcessStartValid),
-            IsFlowValid= new IsFlowValid(_DefaultFlowValid)
-        };
+        private static readonly StepValidations _DEFAULT_VALIDATOR = new();
 
         /// <summary>
         /// A delegate called to validate if an event can start
@@ -51,7 +41,7 @@ namespace BPMNEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsEventStartValid IsEventStartValid { get; init; }
+        public IsEventStartValid IsEventStartValid { get; init; } = new(DefaultEventStartValid);
         /// <summary>
         /// A delegate called to validate if a process is valid to start
         /// <code>
@@ -80,7 +70,7 @@ namespace BPMNEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsProcessStartValid IsProcessStartValid { get; init; }
+        public IsProcessStartValid IsProcessStartValid { get; init; } = new(DefaultProcessStartValid);
         /// <summary>
         /// A delegate called to validate if a flow is valid to run
         /// <code>
@@ -108,22 +98,22 @@ namespace BPMNEngine.DelegateContainers
         /// }
         /// </code>
         /// </summary>
-        public IsFlowValid IsFlowValid {get; init; }
+        public IsFlowValid IsFlowValid { get; init; } = new(DefaultFlowValid);
 
-        private static bool _DefaultEventStartValid(IElement Event, IReadonlyVariables variables) { return true; }
-        private static bool _DefaultProcessStartValid(IElement Event, IReadonlyVariables variables) { return true; }
-        private static bool _DefaultFlowValid(IElement flow, IReadonlyVariables variables) { return true; }
+        private static bool DefaultEventStartValid(IElement Event, IReadonlyVariables variables) { return true; }
+        private static bool DefaultProcessStartValid(IElement Event, IReadonlyVariables variables) { return true; }
+        private static bool DefaultFlowValid(IElement flow, IReadonlyVariables variables) { return true; }
 
         internal static StepValidations Merge(StepValidations source, StepValidations append)
         {
             if (source==null&&append==null) return Merge(_DEFAULT_VALIDATOR, null);
-            if (source==null) return Merge(_DEFAULT_VALIDATOR,append);
-            if (append==null) return Merge(_DEFAULT_VALIDATOR,source);
+            if (source==null) return Merge(_DEFAULT_VALIDATOR, append);
+            if (append==null) return Merge(_DEFAULT_VALIDATOR, source);
             return new StepValidations()
             {
-                IsEventStartValid = append.IsEventStartValid??(source.IsEventStartValid??new IsEventStartValid(_DefaultEventStartValid)),
-                IsProcessStartValid = append.IsProcessStartValid??(source.IsProcessStartValid??new IsProcessStartValid(_DefaultProcessStartValid)),
-                IsFlowValid = append.IsFlowValid??(source.IsFlowValid ?? new IsFlowValid(_DefaultFlowValid))
+                IsEventStartValid = append.IsEventStartValid??(source.IsEventStartValid??new IsEventStartValid(DefaultEventStartValid)),
+                IsProcessStartValid = append.IsProcessStartValid??(source.IsProcessStartValid??new IsProcessStartValid(DefaultProcessStartValid)),
+                IsFlowValid = append.IsFlowValid??(source.IsFlowValid ?? new IsFlowValid(DefaultFlowValid))
             };
         }
     }

@@ -1,11 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Events.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
+﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
@@ -43,7 +36,7 @@ namespace BPMNEngine.Elements.Processes.Events
             {
                 sb = (SubProcess)source.SubProcess;
                 cost = 3;
-                string sid = (this.SubProcess==null ? null : this.SubProcess.ID);
+                var sid = SubProcess?.ID;
                 if (sid==null)
                 {
                     while (sb!=null)

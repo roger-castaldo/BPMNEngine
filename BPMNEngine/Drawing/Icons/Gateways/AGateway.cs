@@ -1,11 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
-
-using BPMNEngine.Drawing.Icons.IconParts;
 using BPMNEngine.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BPMNEngine.Drawing.Icons.Gateways
 {
@@ -22,14 +16,14 @@ namespace BPMNEngine.Drawing.Icons.Gateways
             new Point((float)AGateway.IMAGE_SIZE/2f,0)
         };
 
-        protected override sealed int _ImageSize
+        protected override sealed int ImageSize
         {
             get { return IMAGE_SIZE; }
         }
 
-        protected override void _Draw(ICanvas surface, Color color)
+        protected override void InternalDraw(ICanvas surface, Color color)
         {
-            base._Draw(surface, color);
+            base.InternalDraw(surface, color);
 
             surface.StrokeColor=color;
             surface.StrokeDashPattern=null;
@@ -37,7 +31,7 @@ namespace BPMNEngine.Drawing.Icons.Gateways
 
             Diagram.DrawLines(surface, _POINTS);
 
-            surface.DrawLine(_POINTS[_POINTS.Length-1], _POINTS[0]);
+            surface.DrawLine(_POINTS[^1], _POINTS[0]);
         }
     }
 }

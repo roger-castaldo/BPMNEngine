@@ -4,30 +4,25 @@ using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements
 {
-    [XMLTag("bpmn","process")]
+    [XMLTag("bpmn", "process")]
     [RequiredAttribute("id")]
     [ValidParent(typeof(Definition))]
-    internal class Process : AParentElement,IProcess
+    internal class Process : AParentElement, IProcess
     {
-        public IEnumerable<StartEvent> StartEvents => Children
-            .OfType<StartEvent>();
-        
+        public IEnumerable<StartEvent> StartEvents
+            => Children.OfType<StartEvent>();
+
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) {}
+            : base(elem, map, parent) { }
 
         public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
         {
             if (ExtensionElement != null && ((ExtensionElements)ExtensionElement)
                 .Children
-                .Any(elem => elem is ConditionSet && !((ConditionSet)elem).Evaluate(variables)))
+                .Any(elem => elem is ConditionSet set && !set.Evaluate(variables)))
                 return false;
             return isProcessStartValid(this, variables);
         }

@@ -1,33 +1,20 @@
 ﻿using Microsoft.Maui.Graphics;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BPMNEngine.Drawing
 {
     internal class AnimatedFrame : IDisposable
     {
-        private readonly int _x;
-        public int X => _x;
+        public int X { get; private init; }
+        public int Y { get; private init; }
+        public TimeSpan? Delay { get; private init; }
+        public Size Size { get; private init; }
 
-        private readonly int _y;
-        public int Y => _y;
+        private readonly Stream data;
 
-        private TimeSpan? _delay;
-        public TimeSpan? Delay => _delay;
+        public byte[] IHDR =>Find("IHDR")?[0];
 
-        private Size _size;
-        public Size Size => _size;
-
-        private Stream _data;
-
-        public byte[] IHDR =>find("IHDR")?[0];
-
-        public List<byte[]> IDAT => find("IDAT");
+        public List<byte[]> IDAT => Find("IDAT");
 
         public AnimatedFrame(IImage image)
             : this(image, 0, 0)
@@ -35,37 +22,37 @@ namespace BPMNEngine.Drawing
 
         public AnimatedFrame(IImage image, int x, int y, TimeSpan? delay = null)
         {
-            _size = new Size(image.Width, image.Height);
-            _x = x;
-            _y = y;
-            _delay=delay;
-            _data = new MemoryStream();
-            image.Save(_data,ImageFormat.Png);
+            Size = new Size(image.Width, image.Height);
+            X = x;
+            Y = y;
+            Delay=delay;
+            data = new MemoryStream();
+            image.Save(data,ImageFormat.Png);
         }
 
-        private List<Byte[]> find(string search)
+        private List<byte[]> Find(string search)
         {
-            List<Byte[]> result = new List<byte[]>();
+            var result = new List<byte[]>();
             var searchBytes = search.Select(c => (byte)c).ToArray();
             byte[] bytes = new byte[search.Length];
             int i = 0;
             int found = 0;
-            while (i < _data.Length - 4)
+            while (i < data.Length - 4)
             {
-                _data.Flush();
-                _data.Position = i;
-                var debug = _data.Read(bytes, 0, search.Length);
+                data.Flush();
+                data.Position = i;
+                var debug = data.Read(bytes, 0, search.Length);
                 i++;
                 if (bytes.SequenceEqual(searchBytes))
                 {
-                    Byte[] rawLength = new Byte[4];
-                    _data.Position -= 8;
-                    _data.Read(rawLength, 0, 4);
+                    var rawLength = new byte[4];
+                    data.Position -= 8;
+                    data.Read(rawLength, 0, 4);
                     Array.Reverse(rawLength);
                     UInt32 length = BitConverter.ToUInt32(rawLength, 0);
-                    result.Add(new Byte[length + 12]);
-                    _data.Position -= 4;
-                    _data.Read(result[found], 0, (int)(length + 12));
+                    result.Add(new byte[length + 12]);
+                    data.Position -= 4;
+                    data.Read(result[found], 0, (int)(length + 12));
                     found++;
                 }
             }
@@ -77,7 +64,7 @@ namespace BPMNEngine.Drawing
         {
             try
             {
-                _data.Dispose();
+                data.Dispose();
             }
             catch (Exception) { }
         }

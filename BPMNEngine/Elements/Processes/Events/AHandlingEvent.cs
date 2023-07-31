@@ -1,31 +1,27 @@
 ﻿using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Variables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
     internal abstract class AHandlingEvent : AEvent
     {
-        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) : 
-            base(elem, map, parent)
-        {}
-
-        private IEnumerable<string> _types => Children
+        private IEnumerable<string> Types 
+            => Children
             .Where(child => child is ErrorEventDefinition || child is MessageEventDefinition || child is SignalEventDefinition)
-            .Select(child => (child is ErrorEventDefinition ?
-                    ((ErrorEventDefinition)child).ErrorTypes :
+            .Select(child => child is ErrorEventDefinition definition ?
+                    definition.ErrorTypes :
                     (child is MessageEventDefinition messageDefinition ?
                         messageDefinition.MessageTypes :
-                ((SignalEventDefinition)child).SignalTypes)))
+                ((SignalEventDefinition)child).SignalTypes))
             .FirstOrDefault();
 
-        private ConditionalEventDefinition _condition => Children
+        private ConditionalEventDefinition Condition 
+            => Children
             .OfType<ConditionalEventDefinition>()
             .FirstOrDefault();
+
+        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) : 
+            base(elem, map, parent) {}
 
         public int EventCost(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
         {
@@ -37,14 +33,14 @@ namespace BPMNEngine.Elements.Processes.Events
                 {
                     case EventSubTypes.Message:
                     case EventSubTypes.Signal:
-                        handlesEvent = _types.Contains((string)data)||_types.Contains("*");
+                        handlesEvent = Types.Contains((string)data)||Types.Contains("*");
                         break;
                     case EventSubTypes.Error:
                         Exception ex = (Exception)data;
-                        handlesEvent = _types.Contains(ex.Message)||_types.Contains(ex.GetType().Name)||_types.Contains("*");
+                        handlesEvent = Types.Contains(ex.Message)||Types.Contains(ex.GetType().Name)||Types.Contains("*");
                         break;
                     case EventSubTypes.Conditional:
-                        handlesEvent=_condition.IsValid(variables);
+                        handlesEvent=Condition.IsValid(variables);
                         break;
                 }
             }
@@ -66,14 +62,14 @@ namespace BPMNEngine.Elements.Processes.Events
                 case EventSubTypes.Message:
                 case EventSubTypes.Signal:
                 case EventSubTypes.Error:
-                    if (_types==null || !_types.Any())
+                    if (Types==null || !Types.Any())
                     {
                         err=new string[] { string.Format("A subtype of {0} must define the types to intercept", new object[] { SubType.Value }) };
                         return false;
                     }
                     break;
                 case EventSubTypes.Conditional:
-                    if (_condition==null)
+                    if (Condition==null)
                     {
                         err=new string[] { string.Format("A subtype of {0} must contains a ConditionalEventDefinition", new object[] { SubType.Value }) };
                         return false;

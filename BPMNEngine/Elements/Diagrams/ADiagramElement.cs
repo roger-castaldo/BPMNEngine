@@ -1,9 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
 using BPMNEngine.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
@@ -11,12 +7,10 @@ namespace BPMNEngine.Elements.Diagrams
     [RequiredAttribute("bpmnElement")]
     internal abstract class ADiagramElement : AParentElement
     {
-        public string bpmnElement { get { return this["bpmnElement"]; } }
+        public string BPMNElement => this["bpmnElement"];
 
-        protected IElement _GetLinkedElement(Definition definition)
-        {
-            return definition.LocateElement(bpmnElement);
-        }
+        protected IElement GetLinkedElement(Definition definition)
+            => definition.LocateElement(BPMNElement);
 
         public abstract RectF Rectangle { get; }
 
@@ -37,11 +31,12 @@ namespace BPMNEngine.Elements.Diagrams
         {
             if (additional==null)
                 return initial;
-            float minX = Math.Min(initial.Left, additional.Value.Left);
-            float minY = Math.Min(initial.Top, additional.Value.Top);
-            float maxX = Math.Max(initial.Left+initial.Width, additional.Value.X+additional.Value.Width);
-            float maxY = Math.Max(initial.Top + initial.Height, additional.Value.Y+additional.Value.Height);
-            return new RectF(minX, minY, Math.Abs(maxX-minX), Math.Abs(maxY-minY));
+            return new RectF(
+                Math.Min(initial.Left, additional.Value.Left),
+                Math.Min(initial.Top, additional.Value.Top),
+                Math.Abs(Math.Max(initial.Left+initial.Width, additional.Value.X+additional.Value.Width) - Math.Min(initial.Left, additional.Value.Left)),
+                Math.Abs(Math.Max(initial.Top + initial.Height, additional.Value.Y+additional.Value.Height) - Math.Min(initial.Top, additional.Value.Top))
+            );
         }
     }
 }

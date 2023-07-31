@@ -1,29 +1,33 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Immutable;
 using System.Text.RegularExpressions;
-using System.Xml;
+using System.Threading;
 
 namespace BPMNEngine
 {
     internal class XmlPrefixMap
     {
-        private static readonly Regex _regBPMNRef = new Regex(".+www\\.omg\\.org/spec/BPMN/.+/MODEL", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
-        private static readonly Regex _regBPMNDIRef = new Regex(".+www\\.omg\\.org/spec/BPMN/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
-        private static readonly Regex _regDIRef = new Regex(".+www\\.omg\\.org/spec/DD/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
-        private static readonly Regex _regDCRef = new Regex(".+www\\.omg\\.org/spec/DD/.+/DC", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
-        private static readonly Regex _regXSIRef = new Regex(".+www\\.w3\\.org/.+/XMLSchema-instance", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
-        private static readonly Regex _regEXTSRef = new Regex(".+raw\\.githubusercontent\\.com/roger-castaldo/BPMEngine/.+/Extensions", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript);
+        private static readonly Regex regBPMNRef = new(".+www\\.omg\\.org/spec/BPMN/.+/MODEL", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript,TimeSpan.FromMilliseconds(500));
+        private static readonly Regex regBPMNDIRef = new(".+www\\.omg\\.org/spec/BPMN/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
+        private static readonly Regex regDIRef = new(".+www\\.omg\\.org/spec/DD/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
+        private static readonly Regex regDCRef = new(".+www\\.omg\\.org/spec/DD/.+/DC", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
+        private static readonly Regex regXSIRef = new(".+www\\.w3\\.org/.+/XMLSchema-instance", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
+        private static readonly Regex regEXTSRef = new(".+raw\\.githubusercontent\\.com/roger-castaldo/BPMNEngine/.+/Extensions", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
 
-        private readonly ConcurrentDictionary<string, IEnumerable<string>> _prefixMaps;
-        private readonly BusinessProcess _process;
+        private readonly struct SPrefixMappingPair
+        {
+            public string Prefix { get; init; }
+            public string Value { get; init; }
+        }
+
+        private readonly ReaderWriterLockSlim locker;
+        private readonly List<SPrefixMappingPair> mappings;
+        private readonly BusinessProcess process;
 
         public XmlPrefixMap(BusinessProcess process)
         {
-            _process = process;
-            _prefixMaps = new ConcurrentDictionary<string, IEnumerable<string>>();
+            this.process = process;
+            locker = new();
+            mappings = new();
         }
 
         public bool Load(XmlElement element)
@@ -32,27 +36,33 @@ namespace BPMNEngine
             element.Attributes.Cast<XmlAttribute>().Where(att => att.Name.StartsWith("xmlns:")).ForEach(att =>
             {
                 string prefix = null;
-                if (_regBPMNRef.IsMatch(att.Value))
+                if (regBPMNRef.IsMatch(att.Value))
                     prefix = "bpmn";
-                else if (_regBPMNDIRef.IsMatch(att.Value))
+                else if (regBPMNDIRef.IsMatch(att.Value))
                     prefix = "bpmndi";
-                else if (_regDIRef.IsMatch(att.Value))
+                else if (regDIRef.IsMatch(att.Value))
                     prefix = "di";
-                else if (_regDCRef.IsMatch(att.Value))
+                else if (regDCRef.IsMatch(att.Value))
                     prefix = "dc";
-                else if (_regXSIRef.IsMatch(att.Value))
+                else if (regXSIRef.IsMatch(att.Value))
                     prefix = "xsi";
-                else if (_regEXTSRef.IsMatch(att.Value))
+                else if (regEXTSRef.IsMatch(att.Value))
                     prefix = "exts";
                 if (prefix != null)
                 {
                     changed = true;
-                    _process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Mapping prefix {0} to {1}", new object[] { prefix, att.Name.Substring(att.Name.IndexOf(':') + 1) }));
-                    if (!_prefixMaps.ContainsKey(prefix))
-                        _prefixMaps.TryAdd(prefix, Array.Empty<string>());
-                    IEnumerable<string> current;
-                    _prefixMaps.TryGetValue(prefix, out current);
-                    _prefixMaps.TryUpdate(prefix, current.Append(att.Name.Substring(att.Name.IndexOf(':') + 1)), current);
+                    process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, 
+                        $"Mapping prefix {prefix} to {att.Name[(att.Name.IndexOf(':') + 1)..]}");
+                    locker.EnterWriteLock();
+                    var val = att.Name[(att.Name.IndexOf(':')+1)..];
+                    if (!mappings.Any(m => m.Prefix.Equals(prefix, StringComparison.InvariantCultureIgnoreCase)
+                        && m.Value.Equals(val, StringComparison.InvariantCultureIgnoreCase)))
+                        mappings.Add(new()
+                        {
+                            Prefix=prefix,
+                            Value=val
+                        });
+                    locker.ExitWriteLock();
                 }
             });
             return changed;
@@ -60,17 +70,18 @@ namespace BPMNEngine
 
         public IEnumerable<string> Translate(string prefix)
         {
-            _process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Attempting to translate xml prefix {0}", new object[] { prefix }));
-            IEnumerable<string> ret;
-            _prefixMaps.TryGetValue(prefix, out ret);
-            return ret;
+            process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Attempting to translate xml prefix {0}", new object[] { prefix }));
+            locker.EnterReadLock();
+            var result = mappings.Where(m => m.Prefix.Equals(prefix, StringComparison.InvariantCultureIgnoreCase)).Select(m => m.Value).ToImmutableArray();
+            locker.ExitReadLock();
+            return result;
         }
 
-        internal bool isMatch(string prefix, string tag, string nodeName)
+        internal bool IsMatch(string prefix, string tag, string nodeName)
         {
-            _process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName, prefix, tag }));
+            process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Checking if prefix {0} matches {1}:{2}", new object[] { nodeName, prefix, tag }));
             return string.Equals($"{prefix}:{tag}", nodeName, StringComparison.InvariantCultureIgnoreCase)
-                ||Translate(prefix).Any(str => string.Equals($"{prefix}:{str}", nodeName, StringComparison.InvariantCultureIgnoreCase));
+                ||Translate(prefix).Any(t => string.Equals($"{prefix}:{t}", nodeName, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

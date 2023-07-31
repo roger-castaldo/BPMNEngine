@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BPMNEngine.DelegateContainers
+﻿namespace BPMNEngine.DelegateContainers
 {
     /// <summary>
     /// This class is used to house all the Tasks delegates for a business process. 

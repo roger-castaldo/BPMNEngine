@@ -1,11 +1,5 @@
 ﻿using Microsoft.Maui.Graphics;
 
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class Triangle : IIconPart
@@ -13,10 +7,10 @@ namespace BPMNEngine.Drawing.Icons.IconParts
         private const float _PEN_SIZE = 1.0f;
 
         private static readonly Point[] _POINTS = new Point[] {
-            new Point(24f,9f),
-            new Point(34f,30f),
-            new Point(13f,30f),
-            new Point(24f,9f)
+            new(24f,9f),
+            new(34f,30f),
+            new(13f,30f),
+            new(24f,9f)
         };
 
         private static readonly PathF _PATH;
@@ -28,7 +22,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
             _PATH.Close();
         }
 
-        private bool _filled;
+        private readonly bool _filled;
 
         public Triangle(bool filled)
         {

@@ -10,6 +10,6 @@ namespace BPMNEngine.Drawing.Icons.Events
             new OuterCircle()
         };
 
-        protected override IIconPart[] _parts { get { return _PARTS; } }
+        protected override IIconPart[] Parts { get { return _PARTS; } }
     }
 }

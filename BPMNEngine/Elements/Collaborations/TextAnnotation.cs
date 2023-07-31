@@ -1,10 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Collaborations
 {
@@ -14,17 +9,17 @@ namespace BPMNEngine.Elements.Collaborations
     [ValidParent(typeof(IProcess))]
     internal class TextAnnotation : AParentElement
     {
-        public string Content => Children
-                    .OfType<Text>()
+        public string Content 
+            => Children.OfType<Text>()
                     .Select(elem=>elem.Value)
-                    .FirstOrDefault() ?? String.Empty;
+                    .FirstOrDefault() ?? string.Empty;
 
         public TextAnnotation(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public override bool IsValid(out string[] err)
         {
-            if (String.IsNullOrEmpty(Content))
+            if (string.IsNullOrEmpty(Content))
             {
                 err = new string[] { "No content was specified." };
                 return false;

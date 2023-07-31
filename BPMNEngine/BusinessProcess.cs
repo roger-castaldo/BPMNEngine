@@ -1,5 +1,4 @@
 ﻿using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Graphics.Skia;
 using BPMNEngine.Attributes;
 using BPMNEngine.DelegateContainers;
 using BPMNEngine.Drawing;
@@ -11,21 +10,8 @@ using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces;
 using BPMNEngine.State;
-using SkiaSharp;
-using System;
 using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.Logging;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
@@ -41,20 +27,20 @@ namespace BPMNEngine
     /// </summary>
     public sealed class BusinessProcess : IDisposable
     {
-        private static readonly TimeSpan _ANIMATION_DELAY = new(0,0,1);
-        private const float _DEFAULT_PADDING = 100;
-        private const int _VARIABLE_NAME_WIDTH = 200;
-        private const int _VARIABLE_VALUE_WIDTH = 300;
-        private const int _VARIABLE_IMAGE_WIDTH = _VARIABLE_NAME_WIDTH+_VARIABLE_VALUE_WIDTH;
+        private static readonly TimeSpan ANIMATION_DELAY = new(0,0,1);
+        private const float DEFAULT_PADDING = 100;
+        private const int VARIABLE_NAME_WIDTH = 200;
+        private const int VARIABLE_VALUE_WIDTH = 300;
+        private const int VARIABLE_IMAGE_WIDTH = VARIABLE_NAME_WIDTH+VARIABLE_VALUE_WIDTH;
 
-        private readonly Guid _id;
-        private readonly List<object> _components;
-        private readonly IEnumerable<AHandlingEvent> _eventHandlers = null;
+        private readonly Guid id;
+        private readonly List<object> components;
+        private readonly IEnumerable<AHandlingEvent> eventHandlers = null;
         private readonly Definition definition;
 
         internal IElement GetElement(string id) => Elements.FirstOrDefault(elem=>elem.ID==id);
-        private IEnumerable<IElement> Elements => _components
-            .OfType<IElement>()
+        private IEnumerable<IElement> Elements 
+            => components.OfType<IElement>()
             .Traverse(elem => (elem is IParentElement element ? element.Children : Array.Empty<IElement>()));
 
         /// <summary>
@@ -62,7 +48,7 @@ namespace BPMNEngine
         /// </summary>
         public XmlDocument Document { get; private init; }
 
-        private readonly IEnumerable<SProcessRuntimeConstant> _constants;
+        private readonly IEnumerable<SProcessRuntimeConstant> constants;
         /// <summary>
         /// This is used to access the values of the process runtime and definition constants
         /// </summary>
@@ -72,8 +58,8 @@ namespace BPMNEngine
         {
             get
             {
-                if (_constants != null && _constants.Any(c => c.Name==name))
-                    return _constants.FirstOrDefault(c => c.Name==name).Value;
+                if (constants != null && constants.Any(c => c.Name==name))
+                    return constants.FirstOrDefault(c => c.Name==name).Value;
                 if (definition==null || definition.ExtensionElement==null)
                     return null;
                 var definitionVariable = ((ExtensionElements)definition.ExtensionElement).Children
@@ -97,8 +83,8 @@ namespace BPMNEngine
             get
             {
                 if (definition==null || definition.ExtensionElement==null)
-                    return _constants==null ? Array.Empty<string>() : _constants.Select(c => c.Name);
-                return (_constants==null ? Array.Empty<string>() : _constants.Select(c => c.Name))
+                    return constants==null ? Array.Empty<string>() : constants.Select(c => c.Name);
+                return (constants==null ? Array.Empty<string>() : constants.Select(c => c.Name))
                     .Concat(
                         ((ExtensionElements)definition.ExtensionElement)
                         .Children
@@ -121,7 +107,7 @@ namespace BPMNEngine
             }
         }
 
-        private readonly DelegateContainer _delegates;
+        private readonly DelegateContainer delegates;
 
         internal ATask GetTask(string taskID)
         {
@@ -143,7 +129,17 @@ namespace BPMNEngine
         /// </summary>
         /// <param name="doc">The State XML Document file to extract the values from</param>
         /// <returns>The variables extracted from the Process State Document</returns>
-        public static Dictionary<string,object> ExtractProcessVariablesFromStateDocument(XmlDocument doc) { return ProcessVariables.ExtractVariables(doc); }
+        public static Dictionary<string,object> ExtractProcessVariablesFromStateDocument(XmlDocument doc) 
+            => ProcessVariables.ExtractVariables(doc);
+
+        /// <summary>
+        /// A Utility call used to extract the variable values from a Business Process State Document at a given step index.
+        /// </summary>
+        /// <param name="doc">The State XML Document file to extract the values from</param>
+        /// <param name="stepIndex">The step index to extract the values at</param>
+        /// <returns>The variables extracted from the Process State Document</returns>
+        public static Dictionary<string, object> ExtractProcessVariablesFromStateDocument(XmlDocument doc,int stepIndex) 
+            => ProcessVariables.ExtractVariables(doc,stepIndex:stepIndex);
 
         /// <summary>
         /// Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
@@ -162,9 +158,9 @@ namespace BPMNEngine
             ProcessLogging logging=null
             )
         {
-            _id = Guid.NewGuid();
-            _constants = constants;
-            _delegates = new DelegateContainer()
+            id = Guid.NewGuid();
+            this.constants = constants;
+            delegates = new DelegateContainer()
             {
                 Events=ProcessEvents.Merge(null,events),
                 Validations=StepValidations.Merge(null,validations),
@@ -179,7 +175,7 @@ namespace BPMNEngine
             var elementMapCache = new BPMNEngine.ElementTypeCache();
             DateTime start = DateTime.Now;
             WriteLogLine((IElement)null,LogLevel.Information,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
-            _components = new List<object>();
+            components = new List<object>();
             XmlPrefixMap map = new(this);
             _=doc.ChildNodes.Cast<XmlNode>().ForEach(n =>
             {
@@ -195,15 +191,15 @@ namespace BPMNEngine
                         if (elem is AParentElement element)
                             element.LoadChildren(ref map, ref elementMapCache);
                         ((AElement)elem).LoadExtensionElement(ref map, ref elementMapCache);
-                        _components.Add(elem);
+                        components.Add(elem);
                     }
                     else
-                        _components.Add(n);
+                        components.Add(n);
                 }
                 else
-                    _components.Add(n);
+                    components.Add(n);
             });
-            definition = _components.OfType<Definition>().FirstOrDefault();
+            definition = components.OfType<Definition>().FirstOrDefault();
             if (!Elements.Any())
                 exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             else
@@ -219,7 +215,7 @@ namespace BPMNEngine
                 WriteLogException((IElement)null,new StackFrame(1, true), DateTime.Now, ex);
                 throw ex;
             }
-            _eventHandlers = Elements
+            eventHandlers = Elements
                 .OfType<AHandlingEvent>();
             WriteLogLine((IElement)null,LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
         }
@@ -271,7 +267,7 @@ namespace BPMNEngine
             ProcessLogging logging = null,
             LogLevel stateLogLevel=LogLevel.None)
         {
-            ProcessInstance ret = new(this, DelegateContainer.Merge(_delegates,new DelegateContainer()
+            ProcessInstance ret = new(this, DelegateContainer.Merge(delegates,new DelegateContainer()
             {
                 Events = events,
                 Validations = validations,
@@ -289,16 +285,10 @@ namespace BPMNEngine
         /// <param name="type">The output image format to generate, this being jpeg,png or bmp</param>
         /// <returns>A Bitmap containing a rendered image of the process</returns>
         public byte[] Diagram(ImageFormat type)
-        {
-            var tmp = Diagram(false);
-            return tmp?.AsBytes(type);
-        }
+            => Diagram(false)?.AsBytes(type);
 
-        internal byte[] Diagram(bool outputVariables,ProcessState state, ImageFormat type)
-        {
-            var tmp = Diagram(outputVariables, state:state);
-            return tmp?.AsBytes(type);
-        }
+        internal byte[] Diagram(bool outputVariables, ProcessState state, ImageFormat type)
+            => Diagram(outputVariables, state: state)?.AsBytes(type);
 
         private IImage Diagram(bool outputVariables, ProcessState state =null)
         {
@@ -310,8 +300,8 @@ namespace BPMNEngine
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             double width = 0;
             double height = 0;
-            width = definition.Diagrams.Max(d => d.Size.Width+_DEFAULT_PADDING);
-            height = definition.Diagrams.Sum(d => d.Size.Height+_DEFAULT_PADDING);
+            width = definition.Diagrams.Max(d => d.Size.Width+DEFAULT_PADDING);
+            height = definition.Diagrams.Sum(d => d.Size.Height+DEFAULT_PADDING);
             IImage ret = null;
             try
             {
@@ -319,10 +309,10 @@ namespace BPMNEngine
                 var surface = image.Canvas;
                 surface.FillColor=Colors.White;
                 surface.FillRectangle(new Rect(0, 0, width, height));
-                float padding = _DEFAULT_PADDING / 2;
+                float padding = DEFAULT_PADDING / 2;
                 definition.Diagrams.ForEach(d => { 
-                    surface.DrawImage(d.Render(state.Path, this.definition), _DEFAULT_PADDING / 2, padding, d.Size.Width, d.Size.Height); 
-                    padding += d.Size.Height + _DEFAULT_PADDING; 
+                    surface.DrawImage(d.Render(state.Path, this.definition), DEFAULT_PADDING / 2, padding, d.Size.Width, d.Size.Height); 
+                    padding += d.Size.Height + DEFAULT_PADDING; 
                 });
                 ret = image.Image;
                 if (outputVariables)
@@ -344,7 +334,7 @@ namespace BPMNEngine
             var keys = state[null];
             varHeight+=keys.Sum(key => (int)canvas.GetStringSize(key, BPMNEngine.Elements.Diagram.DefaultFont, BPMNEngine.Elements.Diagram.FONT_SIZE).Height + 2);
 
-            image = BPMNEngine.Elements.Diagram.ProduceImage(_VARIABLE_IMAGE_WIDTH, varHeight);
+            image = BPMNEngine.Elements.Diagram.ProduceImage(VARIABLE_IMAGE_WIDTH, varHeight);
             var surface = image.Canvas;
             surface.FillColor = Colors.White;
             surface.FillRectangle(0, 0, image.Width, image.Height);
@@ -355,15 +345,15 @@ namespace BPMNEngine
 
             surface.DrawRectangle(0, 0, image.Width, image.Height);
 
-            surface.DrawLine(new Point(0, (int)sz.Height + 2), new Point(_VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
-            surface.DrawLine(new Point(_VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(_VARIABLE_NAME_WIDTH, image.Height));
+            surface.DrawLine(new Point(0, (int)sz.Height + 2), new Point(VARIABLE_IMAGE_WIDTH, (int)sz.Height + 2));
+            surface.DrawLine(new Point(VARIABLE_NAME_WIDTH, (int)sz.Height + 2), new Point(VARIABLE_NAME_WIDTH, image.Height));
             surface.DrawString("Variables", new Rect(0, 2, image.Width, sz.Height), HorizontalAlignment.Center, VerticalAlignment.Center);
             float curY = sz.Height + 2;
             keys.ForEach(key =>
             {
                 string label = key;
                 SizeF szLabel = canvas.GetStringSize(label, BPMNEngine.Elements.Diagram.DefaultFont, BPMNEngine.Elements.Diagram.FONT_SIZE);
-                while (szLabel.Width > _VARIABLE_NAME_WIDTH)
+                while (szLabel.Width > VARIABLE_NAME_WIDTH)
                 {
                     if (label.EndsWith("..."))
                         label = string.Concat(label.AsSpan(0, label.Length - 4), "...");
@@ -391,7 +381,7 @@ namespace BPMNEngine
                 }
                 var sval = val.ToString();
                 Size szValue = canvas.GetStringSize(sval, BPMNEngine.Elements.Diagram.DefaultFont, BPMNEngine.Elements.Diagram.FONT_SIZE);
-                if (szValue.Width > _VARIABLE_VALUE_WIDTH)
+                if (szValue.Width > VARIABLE_VALUE_WIDTH)
                 {
                     if (sval.EndsWith("..."))
                         sval = string.Concat(sval.AsSpan(0, sval.Length - 4), "...");
@@ -400,9 +390,9 @@ namespace BPMNEngine
                     canvas.GetStringSize(sval, BPMNEngine.Elements.Diagram.DefaultFont, BPMNEngine.Elements.Diagram.FONT_SIZE);
                 }
                 surface.DrawString(label, 2, curY, HorizontalAlignment.Left);
-                surface.DrawString(sval, 2+_VARIABLE_NAME_WIDTH, curY, HorizontalAlignment.Left);
+                surface.DrawString(sval, 2+VARIABLE_NAME_WIDTH, curY, HorizontalAlignment.Left);
                 curY += (float)Math.Max(szLabel.Height, szValue.Height) + 2;
-                surface.DrawLine(new Point(0, curY), new Point(_VARIABLE_IMAGE_WIDTH, curY));
+                surface.DrawLine(new Point(0, curY), new Point(VARIABLE_IMAGE_WIDTH, curY));
             });
             return image.Image;
         }
@@ -411,14 +401,14 @@ namespace BPMNEngine
         {
             var vmap = BusinessProcess.ProduceVariablesImage(state);
             var ret = BPMNEngine.Elements.Diagram.ProduceImage(
-                (int)Math.Ceiling(diagram.Width + _DEFAULT_PADDING + vmap.Width), 
-                (int)Math.Ceiling(Math.Max(diagram.Height, vmap.Height + _DEFAULT_PADDING))
+                (int)Math.Ceiling(diagram.Width + DEFAULT_PADDING + vmap.Width), 
+                (int)Math.Ceiling(Math.Max(diagram.Height, vmap.Height + DEFAULT_PADDING))
             );
             var surface = ret.Canvas;
             surface.FillColor = Colors.White;
             surface.FillRectangle(0, 0, ret.Width, ret.Height);
             surface.DrawImage(diagram, 0, 0, diagram.Width, diagram.Height);
-            surface.DrawImage(vmap, diagram.Width + _DEFAULT_PADDING, _DEFAULT_PADDING,vmap.Width,vmap.Height);
+            surface.DrawImage(vmap, diagram.Width + DEFAULT_PADDING, DEFAULT_PADDING,vmap.Width,vmap.Height);
             return ret.Image;
         }
 
@@ -436,14 +426,14 @@ namespace BPMNEngine
 #pragma warning restore IDE0270 // Use coalesce expression
                 AnimatedPNG apng = new((outputVariables ? BusinessProcess.AppendVariables(bd, state) : bd))
                 {
-                    DefaultFrameDelay= _ANIMATION_DELAY
+                    DefaultFrameDelay= ANIMATION_DELAY
                 };
                 while (state.Path.HasNext())
                 {
                     string nxtStep = state.Path.MoveToNextStep();
                     if (nxtStep != null)
                     {
-                        double padding = _DEFAULT_PADDING / 2;
+                        double padding = DEFAULT_PADDING / 2;
                         if (definition!=null)
                         {
                             var diagram = definition.Diagrams.FirstOrDefault(d => d.RendersElement(nxtStep));
@@ -451,11 +441,11 @@ namespace BPMNEngine
                             {
                                 var rect = diagram.GetElementRectangle(nxtStep);
                                 IImage img = diagram.Render(state.Path, definition, nxtStep);
-                                apng.AddFrame(img, (int)Math.Ceiling((_DEFAULT_PADDING / 2)+rect.X)+3, (int)Math.Ceiling(padding+rect.Y)+3);
+                                apng.AddFrame(img, (int)Math.Ceiling((DEFAULT_PADDING / 2)+rect.X)+3, (int)Math.Ceiling(padding+rect.Y)+3);
                             }
                         }
                         if (outputVariables)
-                            apng.AddFrame(BusinessProcess.ProduceVariablesImage(state), (int)Math.Ceiling(bd.Width + _DEFAULT_PADDING), (int)_DEFAULT_PADDING,delay:new TimeSpan(0,0,0));
+                            apng.AddFrame(BusinessProcess.ProduceVariablesImage(state), (int)Math.Ceiling(bd.Width + DEFAULT_PADDING), (int)DEFAULT_PADDING,delay:new TimeSpan(0,0,0));
                     }
                 }
                 state.Path.FinishAnimation();
@@ -488,14 +478,14 @@ namespace BPMNEngine
             ProcessLogging logging = null,
             LogLevel stateLogLevel = LogLevel.None)
         {
-            ProcessInstance ret = new(this, DelegateContainer.Merge(_delegates, new DelegateContainer()
+            ProcessInstance ret = new(this, DelegateContainer.Merge(delegates, new DelegateContainer()
             {
                 Events = events,
                 Validations = validations,
                 Tasks = tasks,
                 Logging = logging
             }), stateLogLevel);
-            ProcessVariablesContainer variables = new(pars,this,ret);
+            ProcessVariablesContainer variables = new(pars,this);
             ret.WriteLogLine((IElement)null,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new(variables);
             var proc = Elements.OfType<Elements.Process>().FirstOrDefault(p => p.IsStartValid(ropvc, ret.Delegates.Validations.IsProcessStartValid));
@@ -531,7 +521,7 @@ namespace BPMNEngine
 
         private IEnumerable<AHandlingEvent> GetEventHandlers(EventSubTypes type,object data, AFlowNode source, IReadonlyVariables variables)
         {
-            var handlerGroup = _eventHandlers
+            var handlerGroup = eventHandlers
                 .GroupBy(handler => handler.EventCost(type, data, source, variables))
                 .OrderBy(grp => grp.Key)
                 .FirstOrDefault();
@@ -875,28 +865,23 @@ namespace BPMNEngine
 
         #region Logging
         internal void WriteLogLine(string elementID,LogLevel level,StackFrame sf,DateTime timestamp, string message)
-        {
-            WriteLogLine((IElement)(elementID == null ? null : GetElement(elementID)), level, sf, timestamp, message);
-        }
+            => WriteLogLine((IElement)(elementID == null ? null : GetElement(elementID)), level, sf, timestamp, message);
+        
         internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
-        {
-            _delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
-        }
+            => delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
 
         internal Exception WriteLogException(string elementID,StackFrame sf, DateTime timestamp, Exception exception)
-        {
-            return WriteLogException((IElement)(elementID == null ? null : GetElement(elementID)), sf, timestamp, exception);
-        }
+            => WriteLogException((IElement)(elementID == null ? null : GetElement(elementID)), sf, timestamp, exception);
         
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {
-            if (_delegates.Logging.LogException != null)
+            if (delegates.Logging.LogException != null)
             {
-                _delegates.Logging.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
+                delegates.Logging.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
                 if (exception is InvalidProcessDefinitionException processDefinitionException)
                 {
                     processDefinitionException.ProcessExceptions
-                        .ForEach(e =>{ _delegates.Logging.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, e); });
+                        .ForEach(e =>{ delegates.Logging.LogException.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, e); });
                 }
             }
             return exception;
@@ -918,7 +903,7 @@ namespace BPMNEngine
         public override bool Equals(object obj)
         {
             if (obj is BusinessProcess process)
-                return process._id == _id;
+                return process.id == id;
             return false;
         }
 
@@ -928,7 +913,7 @@ namespace BPMNEngine
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return _id.GetHashCode();
+            return id.GetHashCode();
         }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using BPMNEngine.Drawing.Icons.IconParts;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BPMNEngine.Drawing.Icons.Events
 {
@@ -14,7 +11,7 @@ namespace BPMNEngine.Drawing.Icons.Events
             new RightArrow(false)
         };
 
-        protected override IIconPart[] _parts
+        protected override IIconPart[] Parts
         {
             get { return _PARTS; }
         }

@@ -1,11 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using System.Xml.XPath;
 
 namespace UnitTest.Extensions
 {

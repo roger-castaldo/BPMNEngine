@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
-using System.Xml;
-
-namespace BPMNEngine.State
+﻿namespace BPMNEngine.State
 {
-    internal readonly struct sStepSuspension
+    internal readonly struct SStepSuspension
     {
-        public string Id { get; init; }
+        public string ID { get; init; }
         public int StepIndex { get; init; }
         public DateTime EndTime { get; init; }
     }
 
-    internal readonly struct sSuspendedStep
+    internal readonly struct SSuspendedStep
     {
         public string IncomingID { get; init; }
         public string ElementID { get; init; }
     }
 
-    internal readonly struct sDelayedStartEvent
+    internal readonly struct SDelayedStartEvent
     {
         public string IncomingID {get;init;}
 

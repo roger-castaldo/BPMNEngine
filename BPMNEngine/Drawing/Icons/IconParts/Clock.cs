@@ -1,10 +1,6 @@
 ﻿
 using Microsoft.Maui.Graphics;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace BPMNEngine.Drawing.Icons.IconParts
 {
     internal class Clock : IIconPart
@@ -12,44 +8,42 @@ namespace BPMNEngine.Drawing.Icons.IconParts
         private const float _PEN_SIZE = 2.0f;
         private const float _TICK_SIZE = 1.0f;
 
-        private struct sAngleFactorPair
+        private readonly struct SAngleFactorPair
         {
-            private float _x;
-            public float X { get { return _x; } }
-            private float _y;
-            public float Y { get { return _y; } }
+            public float X { get; private init; }
+            public float Y { get; private init; }
 
-            public sAngleFactorPair(double degrees)
+            public SAngleFactorPair(double degrees)
             {
                 degrees= degrees * Math.PI / 180;
-                _x = (float)Math.Cos(degrees);
-                _y = (float)Math.Sin(degrees);
+                X = (float)Math.Cos(degrees);
+                Y = (float)Math.Sin(degrees);
             }
         }
 
-        private static readonly sAngleFactorPair[] _ANGLES = new sAngleFactorPair[]
+        private static readonly SAngleFactorPair[] _ANGLES = new SAngleFactorPair[]
         {
-            new sAngleFactorPair(30),
-            new sAngleFactorPair(60),
-            new sAngleFactorPair(90),
-            new sAngleFactorPair(120),
-            new sAngleFactorPair(150),
-            new sAngleFactorPair(180),
-            new sAngleFactorPair(210),
-            new sAngleFactorPair(240),
-            new sAngleFactorPair(270),
-            new sAngleFactorPair(300),
-            new sAngleFactorPair(330),
-            new sAngleFactorPair(360)
+            new(30),
+            new(60),
+            new(90),
+            new(120),
+            new(150),
+            new(180),
+            new(210),
+            new(240),
+            new(270),
+            new(300),
+            new(330),
+            new(360)
         };
 
-        private static readonly sAngleFactorPair _HOUR_HAND = new sAngleFactorPair(15);
-        private static readonly sAngleFactorPair _MINUTE_HAND = new sAngleFactorPair(290);
+        private static readonly SAngleFactorPair _HOUR_HAND = new(15);
+        private static readonly SAngleFactorPair _MINUTE_HAND = new(290);
 
         public void Add(ICanvas surface, int iconSize, Color color)
         {
-            Rect rect = new Rect(8f,8f,30f,30f);
-            Point c = new Point(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
+            Rect rect = new(8f,8f,30f,30f);
+            Point c = new(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
 
             surface.StrokeColor = color;
             surface.StrokeDashPattern=null;

@@ -1,9 +1,4 @@
 ﻿using Microsoft.Maui.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace BPMNEngine.Drawing.Icons.IconParts
 {

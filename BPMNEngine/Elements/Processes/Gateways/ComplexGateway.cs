@@ -1,11 +1,5 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Variables;
-using BPMNEngine.State;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
@@ -19,8 +13,8 @@ namespace BPMNEngine.Elements.Processes.Gateways
         {
             var result = Outgoing
                 .Where(o => ((SequenceFlow)definition.LocateElement(o)).IsFlowValid(isFlowValid, variables));
-            if (!result.Any() && Default==null)
-                result = new string[] { Default };
+            if (!result.Any() && Default!=null)
+                result = new[] { Default };
             return result;
         }
     }

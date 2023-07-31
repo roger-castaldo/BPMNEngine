@@ -2,21 +2,8 @@
 using Microsoft.Maui.Graphics.Skia;
 using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
-
-using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Diagrams;
-using BPMNEngine.Elements.Processes;
-using BPMNEngine.Elements.Processes.Events;
-using BPMNEngine.Elements.Processes.Tasks;
-using BPMNEngine.Interfaces;
 using BPMNEngine.State;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements
 {
@@ -25,44 +12,31 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(Definition))]
     internal class Diagram : AParentElement
     {
+        public static readonly IFont DefaultFont = new Font("Arial");
+        public const float FONT_SIZE = 10.5f;
 
         public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public SizeF Size
-        {
-            get
-            {
-                var minX = Children.OfType<ADiagramElement>().Min(ade=>ade.Rectangle.X);
-                var maxX = Children.OfType<ADiagramElement>().Max(ade => ade.Rectangle.Width);
-                var minY = Children.OfType<ADiagramElement>().Min(ade => ade.Rectangle.Y);
-                var maxY = Children.OfType<ADiagramElement>().Max(ade => ade.Rectangle.Y+ade.Rectangle.Height);
-                return new SizeF(maxX - minX, maxY - minY);
-            }
-        }
+            => new(
+                Children.OfType<ADiagramElement>().Max(ade => ade.Rectangle.Width)-Children.OfType<ADiagramElement>().Min(ade => ade.Rectangle.X),
+                Children.OfType<ADiagramElement>().Max(ade => ade.Rectangle.Y+ade.Rectangle.Height)-Children.OfType<ADiagramElement>().Min(ade => ade.Rectangle.Y)
+            );
 
-        public static readonly IFont DefaultFont = new Font("Arial");
-        public const float FONT_SIZE = 10.5f;
-
-        public static SkiaBitmapExportContext ProduceImage(int width,int height) =>new SkiaBitmapExportContext(width, height, 1.0f, dpi: 600,transparent:true);
+        public static SkiaBitmapExportContext ProduceImage(int width,int height) 
+            => new(width, height, 1.0f, dpi: 600,transparent:true);
 
         public IImage Render(ProcessPath path, Definition definition)
-        {
-            return Render(path, definition, null);
-        }
+            => Render(path, definition, null);
 
         public IImage Render(ProcessPath path, Definition definition,string elemid)
-        {
-            return _Render(path, definition, elemid);
-        }
-
-        private IImage _Render(ProcessPath path, Definition definition, string elemid)
         {
             var size = Size;
             ADiagramElement diagElem = null;
             if (elemid!=null)
             {
-                diagElem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.bpmnElement==elemid);
+                diagElem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.BPMNElement==elemid);
                 size = new Size(diagElem.Rectangle.Width,diagElem.Rectangle.Height);
             }
             var image = ProduceImage((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
@@ -89,33 +63,21 @@ namespace BPMNEngine.Elements
 
         public RectF GetElementRectangle(string elemid)
         {
-            var elem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.bpmnElement==elemid);
+            var elem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.BPMNElement==elemid);
             return elem==null ? new RectF(0, 0, 0, 0) : elem.Rectangle;
         }
 
         public static Color GetColor(StepStatuses status)
         {
-            Color ret = Colors.Black;
-            switch (status)
+            return status switch
             {
-                case StepStatuses.Failed:
-                    ret = Colors.Red;
-                    break;
-                case StepStatuses.Succeeded:
-                    ret = Colors.Green;
-                    break;
-                case StepStatuses.Waiting:
-                case StepStatuses.Started:
-                    ret = Colors.Blue;
-                    break;
-                case StepStatuses.WaitingStart:
-                    ret=Colors.DarkGoldenrod;
-                    break;
-                case StepStatuses.Aborted:
-                    ret=Colors.Orange;
-                    break;
-            }
-            return ret;
+                StepStatuses.Failed => Colors.Red,
+                StepStatuses.Succeeded => Colors.Green,
+                StepStatuses.Waiting or StepStatuses.Started => Colors.Blue,
+                StepStatuses.WaitingStart => Colors.DarkGoldenrod,
+                StepStatuses.Aborted => Colors.Orange,
+                _ => Colors.Black,
+            };
         }
 
         public static void DrawLines(ICanvas surface, Point[] points)
@@ -142,8 +104,6 @@ namespace BPMNEngine.Elements
         }
 
         internal bool RendersElement(string nextStep)
-        {
-            return Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().Any(ade => ade.bpmnElement==nextStep);
-        }
+            => Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().Any(ade => ade.BPMNElement==nextStep);
     }
 }

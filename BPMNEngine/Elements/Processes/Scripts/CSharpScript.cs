@@ -2,10 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using BPMNEngine.Attributes;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {

@@ -8,9 +8,6 @@ using System.IO;
 using System.Collections;
 using System.Threading;
 using System.Linq;
-using Esprima.Ast;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-using System.Diagnostics;
 using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BPMNEngine.Interfaces.Elements;
+﻿using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Interfaces.Tasks

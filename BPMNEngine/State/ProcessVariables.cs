@@ -1,17 +1,7 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Maui.Graphics;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
-using System.Xml;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Variables;
 
@@ -28,24 +18,26 @@ namespace BPMNEngine.State
 
         internal class ReadOnlyProcessVariables : IReadOnlyStateVariablesContainer
         {
-            private readonly int _stepIndex;
-            private readonly ProcessVariables _processVariables;
+            private readonly int stepIndex;
+            private readonly ProcessVariables processVariables;
 
             public ReadOnlyProcessVariables(ProcessVariables processVariables,int stepIndex)
             {
-                _processVariables = processVariables;
-                _stepIndex=stepIndex;
+                this.processVariables = processVariables;
+                this.stepIndex=stepIndex;
             }
 
-            public object this[string name] => _processVariables[name,_stepIndex];
+            public object this[string name] 
+                => processVariables[name,stepIndex];
 
-            public IEnumerable<string> Keys => _processVariables[_stepIndex];
+            public IEnumerable<string> Keys 
+                => processVariables[stepIndex];
 
             public void Append(XmlWriter writer)
             {
-                _processVariables._stateLock.EnterReadLock();
-                var variables = _processVariables._variables.Where(variable => variable.StepIndex==_stepIndex);
-                _processVariables._stateLock.ExitReadLock();
+                processVariables.stateLock.EnterReadLock();
+                var variables = processVariables.variables.Where(variable => variable.StepIndex==stepIndex);
+                processVariables.stateLock.ExitReadLock();
                 _=variables.OrderBy(variable => variable.StepIndex).ForEach(variable =>
                 {
                     writer.WriteStartElement(_VARIABLE_ENTRY_ELEMENT);
@@ -93,9 +85,9 @@ namespace BPMNEngine.State
 
             public void Append(Utf8JsonWriter writer)
             {
-                _processVariables._stateLock.EnterReadLock();
-                var variables = _processVariables._variables.Where(variable => variable.StepIndex==_stepIndex);
-                _processVariables._stateLock.ExitReadLock();
+                processVariables.stateLock.EnterReadLock();
+                var variables = processVariables.variables.Where(variable => variable.StepIndex==stepIndex);
+                processVariables.stateLock.ExitReadLock();
                 writer.WriteStartArray();
                 variables.OrderBy(variable => variable.StepIndex).ForEach(variable =>
                 {
@@ -176,14 +168,14 @@ namespace BPMNEngine.State
             }
         }
 
-        private readonly ReaderWriterLockSlim _stateLock;
+        private readonly ReaderWriterLockSlim stateLock;
 
-        private readonly List<SProcessVariable> _variables;
+        private readonly List<SProcessVariable> variables;
 
         public ProcessVariables(ReaderWriterLockSlim stateLock)
         {
-            _stateLock=stateLock;
-            _variables=new List<SProcessVariable>();
+            this.stateLock=stateLock;
+            variables=new List<SProcessVariable>();
         }
 
         #region IStateContainer
@@ -201,7 +193,7 @@ namespace BPMNEngine.State
         
         public void Load(XmlReader reader)
         {
-            _variables.Clear();
+            variables.Clear();
             reader.Read();
             while(reader.NodeType==XmlNodeType.Element && reader.Name==_VARIABLE_ENTRY_ELEMENT)
             {
@@ -239,7 +231,7 @@ namespace BPMNEngine.State
                     }
                 }
                 reader.Read();
-                _variables.Add(new SProcessVariable()
+                variables.Add(new SProcessVariable()
                 {
                     Name=name,
                     Value=value,
@@ -376,7 +368,7 @@ namespace BPMNEngine.State
 
         public void Load(Utf8JsonReader reader)
         {
-            _variables.Clear();
+            variables.Clear();
             reader.Read();
             while (reader.TokenType !=JsonTokenType.EndArray)
             {
@@ -420,7 +412,7 @@ namespace BPMNEngine.State
                     }
                     reader.Read();
                 }
-                _variables.Add(new SProcessVariable()
+                variables.Add(new SProcessVariable()
                 {
                     Name=name,
                     Value=value,
@@ -431,28 +423,24 @@ namespace BPMNEngine.State
         }
 
         public IReadOnlyStateContainer Clone()
-        {
-            return new ReadOnlyProcessVariables(this, (_variables.Any() ? _variables.Max(var => var.StepIndex) : -1));
-        }
+            => new ReadOnlyProcessVariables(this, (variables.Any() ? variables.Max(var => var.StepIndex) : -1));
 
         public void Dispose()
-        {
-            _variables.Clear();
-        }
+            => variables.Clear();
         #endregion
 
         private IEnumerable<T> RunQuery<T>(Func<IEnumerable<SProcessVariable>, IEnumerable<T>> filter)
         {
-            _stateLock.EnterReadLock();
-            var results = filter(_variables).ToImmutableList();
-            _stateLock.ExitReadLock();
+            stateLock.EnterReadLock();
+            var results = filter(variables).ToImmutableList();
+            stateLock.ExitReadLock();
             return results;
         }
 
         public object this[string variableName,int stepIndex]
         {
             get {
-                var lst = RunQuery<SProcessVariable>((IEnumerable<SProcessVariable> variables) =>
+                var lst = RunQuery((IEnumerable<SProcessVariable> variables) =>
                 {
                     return variables
                     .OrderBy(var => var.StepIndex)
@@ -462,19 +450,19 @@ namespace BPMNEngine.State
             }
             set
             {
-                _stateLock.EnterWriteLock();
-                _variables.Add(new SProcessVariable()
+                stateLock.EnterWriteLock();
+                variables.Add(new SProcessVariable()
                 {
                     Name=variableName,
                     StepIndex=stepIndex,
                     Value=value
                 });
-                _stateLock.ExitWriteLock();
+                stateLock.ExitWriteLock();
             }
         }
 
         public IEnumerable<string> this[int stepIndex]
-            => RunQuery<string>((IEnumerable<SProcessVariable> variables) => { 
+            => RunQuery((IEnumerable<SProcessVariable> variables) => { 
                 return variables
                     .OrderBy(var => var.StepIndex)
                     .Where(variable => variable.StepIndex <= stepIndex)
@@ -485,13 +473,13 @@ namespace BPMNEngine.State
 
         internal void MergeVariables(int stepIndex, IVariables vars)
         {
-            _stateLock.EnterWriteLock();
+            stateLock.EnterWriteLock();
             var changes = new Queue<SProcessVariable>();
             vars.Keys.ForEach(key =>
             {
                 object left = vars[key];
-                var right = (_variables.Any(var => var.Name==key && var.StepIndex <= stepIndex) ?
-                    (SProcessVariable?)_variables
+                var right = (variables.Any(var => var.Name==key && var.StepIndex <= stepIndex) ?
+                    (SProcessVariable?)variables
                         .OrderBy(var => var.StepIndex)
                         .LastOrDefault(var => var.Name==key
                             && var.StepIndex <= stepIndex)
@@ -505,8 +493,8 @@ namespace BPMNEngine.State
                     });
             });
             while(changes.Any())
-                _variables.Add(changes.Dequeue());
-            _stateLock.ExitWriteLock();
+                variables.Add(changes.Dequeue());
+            stateLock.ExitWriteLock();
         }
 
         private static VariableTypes GetVariableType(object value)
@@ -657,12 +645,13 @@ namespace BPMNEngine.State
             return ret;
         }
 
-        public static Dictionary<string, object> ExtractVariables(XmlDocument doc)
+        public static Dictionary<string, object> ExtractVariables(XmlDocument doc,int stepIndex=-1)
         {
             Dictionary<string, object> ret = new();
             var grps = doc.GetElementsByTagName(typeof(ProcessVariables).Name).Cast<XmlNode>()
                 .SelectMany(node => node.ChildNodes.Cast<XmlNode>())
                 .Where(cnode => cnode.NodeType==XmlNodeType.Element)
+                .Where(node=>stepIndex==-1 || stepIndex>=int.Parse(node.Attributes[_PATH_STEP_INDEX].Value))                
                 .GroupBy(node => node.Attributes[_NAME].Value)
                 .Where(grp=>grp.Last().Attributes[_TYPE].Value!=VariableTypes.Null.ToString());
             grps.ForEach(grp => ret.Add(grp.Key, ConvertValue((XmlElement)grp.Last())));

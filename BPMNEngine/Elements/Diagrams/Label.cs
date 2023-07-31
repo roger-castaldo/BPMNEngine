@@ -1,13 +1,4 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Attributes;
-using BPMNEngine.Drawing;
-using BPMNEngine.Interfaces;
-using BPMNEngine.State;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
+﻿using BPMNEngine.Attributes;
 
 namespace BPMNEngine.Elements.Diagrams
 {
@@ -16,8 +7,8 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal class Label : AParentElement
     {
-        public Bounds Bounds => (Bounds)Children
-            .FirstOrDefault(elem => elem is Bounds);
+        public Bounds Bounds
+            => Children.OfType<Bounds>().FirstOrDefault();
 
         public Label(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

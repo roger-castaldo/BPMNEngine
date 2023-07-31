@@ -2,11 +2,6 @@
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace BPMNEngine.Elements.Processes.Tasks
 {
@@ -26,18 +21,15 @@ namespace BPMNEngine.Elements.Processes.Tasks
         };
 
         public new IEnumerable<string> Outgoing
-        {
-            get
-            {
-                return base.Outgoing.Where(str =>
+            => base.Outgoing.Where(str =>
                 {
                     bool add = true;
                     IElement afn = this.Definition.LocateElement(str);
                     string destID = null;
                     if (afn is MessageFlow messageFlow)
-                        destID = messageFlow.targetRef;
+                        destID = messageFlow.TargetRef;
                     else if (afn is SequenceFlow sequenceFlow)
-                        destID = sequenceFlow.targetRef;
+                        destID = sequenceFlow.TargetRef;
                     if (destID != null)
                     {
                         IElement ice = this.Definition.LocateElement(destID);
@@ -46,7 +38,5 @@ namespace BPMNEngine.Elements.Processes.Tasks
                     }
                     return add;
                 });
-            }
-        }
     }
 }
