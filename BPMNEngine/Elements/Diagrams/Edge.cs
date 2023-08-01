@@ -6,7 +6,6 @@ using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.State;
-using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Diagrams
 {

@@ -13,7 +13,7 @@ namespace BPMNEngine.State
 {
     internal sealed class ProcessPath : IStateContainer
     {
-        private readonly struct SPathEntry
+        private readonly struct SPathEntry : IStateStep
         {
             public string ElementID { get; init; }
             public StepStatuses Status { get; init; }
@@ -41,10 +41,10 @@ namespace BPMNEngine.State
                     .Where(grp => grp.Last().Status==StepStatuses.Started || grp.Last().Status==StepStatuses.Waiting)
                     .Select(grp => grp.Key);
 
-            private IEnumerable<SPathEntry> Steps
-                => path.RunQuery((IEnumerable<SPathEntry> Steps) =>
+            public IEnumerable<IStateStep> Steps
+                => path.RunQuery<IStateStep>((IEnumerable<SPathEntry> Steps) =>
                 {
-                    return Steps.Take(stepCount);
+                    return Steps.Take(stepCount).Cast<IStateStep>();
                 });
 
             public void Append(XmlWriter writer)

@@ -313,8 +313,8 @@ namespace BPMNEngine
             }
             return result;
         }
-        Dictionary<string, object> IProcessInstance.CurrentVariables 
-            => ProcessVariables.ExtractVariables(((IProcessInstance)this).CurrentState);
+        Dictionary<string, object> IProcessInstance.CurrentVariables
+            => State.CurrentState.Variables;
         #endregion
 
         byte[] IProcessInstance.Diagram(bool outputVariables,ImageFormat type)

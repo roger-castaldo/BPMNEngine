@@ -13,7 +13,7 @@ Current Test Status:
 
 # XSD
 
-Adding xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" to the bpmn:definitions will make things easier for accessing the defined xsd file for the project.  
+Adding xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" to the bpmn:definitions will make things easier for accessing the defined xsd file for the project.  
 This references all the extended elements defined below.
 
 # Internal Conditions

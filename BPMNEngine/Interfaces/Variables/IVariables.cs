@@ -3,7 +3,7 @@
     /// <summary>
     /// This interface defines a container to house the process variables and allows for editing of those variables.
     /// </summary>
-    public interface IVariables
+    public interface IVariables : IDisposable
     {
         /// <summary>
         /// Called to get or set the value of a process variable

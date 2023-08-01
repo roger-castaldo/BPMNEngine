@@ -8,7 +8,7 @@ namespace BPMNEngine.State
 {
     internal sealed class ProcessLog : IStateContainer
     {
-        private class ReadOnlyProcessLog : IReadOnlyStateContainer
+        private class ReadOnlyProcessLog : IReadonlyStateLogContainer
         {
             private readonly ProcessLog log;
             private readonly int length;
@@ -29,6 +29,8 @@ namespace BPMNEngine.State
                     return result;
                 }
             }
+
+            public string Log => Content;
 
             void IReadOnlyStateContainer.Append(XmlWriter writer)
             {

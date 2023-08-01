@@ -33,6 +33,18 @@ namespace BPMNEngine.State
             public IEnumerable<string> Keys 
                 => processVariables[stepIndex];
 
+            public Dictionary<string, object> AsExtract { 
+                get
+                {
+                    Dictionary<string, object> ret = new();
+                    Keys.ForEach(key =>
+                    {
+                        ret.Add(key, this[key]);
+                    });
+                    return ret;
+                }
+            }
+
             public void Append(XmlWriter writer)
             {
                 processVariables.stateLock.EnterReadLock();
@@ -171,11 +183,13 @@ namespace BPMNEngine.State
         private readonly ReaderWriterLockSlim stateLock;
 
         private readonly List<SProcessVariable> variables;
+        private readonly int? stepIndex;
 
-        public ProcessVariables(ReaderWriterLockSlim stateLock)
+        public ProcessVariables(ReaderWriterLockSlim stateLock,int? stepIndex=null)
         {
             this.stateLock=stateLock;
             variables=new List<SProcessVariable>();
+            this.stepIndex=stepIndex;
         }
 
         #region IStateContainer
@@ -355,17 +369,6 @@ namespace BPMNEngine.State
             };
         }
 
-        private static SFile DecodeFile(XmlElement element)
-        {
-            return new()
-            {
-                Name=element.GetAttribute(_FILE_NAME),
-                Extension=element.GetAttribute(_FILE_EXTENSION),
-                ContentType=element.GetAttribute(_FILE_CONTENT_TYPE),
-                Content=Convert.FromBase64String(((XmlCDataSection)element.ChildNodes[0]).Value)
-            };
-        }
-
         public void Load(Utf8JsonReader reader)
         {
             variables.Clear();
@@ -423,7 +426,7 @@ namespace BPMNEngine.State
         }
 
         public IReadOnlyStateContainer Clone()
-            => new ReadOnlyProcessVariables(this, (variables.Any() ? variables.Max(var => var.StepIndex) : -1));
+            => new ReadOnlyProcessVariables(this, stepIndex??(variables.Any() ? variables.Max(var => var.StepIndex) : -1));
 
         public void Dispose()
             => variables.Clear();
@@ -598,64 +601,6 @@ namespace BPMNEngine.State
                     catch (Exception) { return false; }
                 }
             }
-        }
-        private static object ConvertValue(XmlElement elem)
-        {
-            if (elem==null)
-                return null;
-            object ret = null;
-            var type = (VariableTypes)Enum.Parse(typeof(VariableTypes), elem.Attributes[_TYPE].Value);
-            if (type != VariableTypes.Null)
-            {
-                if ((elem.Attributes[_IS_ARRAY] !=null)&&bool.Parse(elem.Attributes[_IS_ARRAY].Value))
-                {
-                    var al = new ArrayList();
-                    elem.ChildNodes.Cast<XmlNode>().ForEach(node =>
-                    {
-                        if (type==VariableTypes.File)
-                            al.Add(DecodeFile((XmlElement)node));
-                        else
-                        {
-                            string text = ((XmlCDataSection)node.ChildNodes[0]).InnerText;
-                            al.Add(Utility.ExtractVariableValue(type, text));
-                        }
-                    });
-                    ret=ConvertArray(al, type);
-                }
-                else if (type == VariableTypes.File)
-                    ret = DecodeFile((XmlElement)elem.ChildNodes[0]);
-                else
-                {
-                    string text = ((XmlCDataSection)elem.ChildNodes[0]).InnerText;
-                    ret = Utility.ExtractVariableValue(type, text);
-                }
-            }
-            else
-                ret = null;
-            return ret;
-        }
-
-        public static Dictionary<string, object> ExtractVariables(IState currentState)
-        {
-            Dictionary<string, object> ret = new();
-            currentState.Keys.ForEach(key =>
-            {
-                ret.Add(key, currentState[key]);
-            });
-            return ret;
-        }
-
-        public static Dictionary<string, object> ExtractVariables(XmlDocument doc,int stepIndex=-1)
-        {
-            Dictionary<string, object> ret = new();
-            var grps = doc.GetElementsByTagName(typeof(ProcessVariables).Name).Cast<XmlNode>()
-                .SelectMany(node => node.ChildNodes.Cast<XmlNode>())
-                .Where(cnode => cnode.NodeType==XmlNodeType.Element)
-                .Where(node=>stepIndex==-1 || stepIndex>=int.Parse(node.Attributes[_PATH_STEP_INDEX].Value))                
-                .GroupBy(node => node.Attributes[_NAME].Value)
-                .Where(grp=>grp.Last().Attributes[_TYPE].Value!=VariableTypes.Null.ToString());
-            grps.ForEach(grp => ret.Add(grp.Key, ConvertValue((XmlElement)grp.Last())));
-            return ret;
         }
     }
 }

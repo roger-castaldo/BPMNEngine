@@ -67,11 +67,8 @@ namespace BPMNEngine
     /// </summary>
     public class MultipleOutgoingPathsException : Exception
     {
-        internal MultipleOutgoingPathsException(ExclusiveGateway gateway)
-            : base(string.Format("The Exclusive Gateway {0} has evaluated the outgoing paths and determine more than 1 result", new object[] { gateway.ID })) { }
-
-        internal MultipleOutgoingPathsException(EventBasedGateway gateway)
-            : base(string.Format("The Event Gateway {0} has evaluated the outgoing paths and determine more than 1 result", new object[] { gateway.ID })) { }
+        internal MultipleOutgoingPathsException(ASinglePathGateway gateway)
+            : base($"The {(gateway is ExclusiveGateway ? "Exclusive" : "Event")} Gateway {gateway.ID} has evaluated the outgoing paths and determine more than 1 result") { }
     }
 
     /// <summary>
