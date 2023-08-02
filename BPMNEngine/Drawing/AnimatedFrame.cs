@@ -11,6 +11,7 @@ namespace BPMNEngine.Drawing
         public Size Size { get; private init; }
 
         private readonly Stream data;
+        private bool disposedValue;
 
         public byte[] IHDR =>Find("IHDR")?[0];
 
@@ -59,14 +60,33 @@ namespace BPMNEngine.Drawing
             return result;
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    data.Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue=true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~AnimatedFrame()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
 
         public void Dispose()
         {
-            try
-            {
-                data.Dispose();
-            }
-            catch (Exception) { }
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

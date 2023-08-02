@@ -1,9 +1,20 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements;
 using BPMNEngine.Elements.Processes.Gateways;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Mail;
 
 namespace BPMNEngine
 {
+    internal class ExceptionComparer : EqualityComparer<Exception>
+    {
+        public override bool Equals(Exception x, Exception y)
+            =>x.Message.Equals(y.Message, StringComparison.InvariantCultureIgnoreCase);
+
+        public override int GetHashCode([DisallowNull] Exception obj)
+            =>obj.Message.ToLower().GetHashCode();
+    }
+
     /// <summary>
     /// This Exception gets thrown on the loading of a Process Definition inside a BusinessProcess class when the definition is found to be invalid.
     /// </summary>
@@ -13,7 +24,7 @@ namespace BPMNEngine
         /// <summary>
         /// The Exception(s) thrown during the validation process.
         /// </summary>
-        public IEnumerable<Exception> ProcessExceptions { get { return _processExceptions; } }
+        public IEnumerable<Exception> ProcessExceptions => _processExceptions.Distinct(new ExceptionComparer());
 
         internal InvalidProcessDefinitionException(IEnumerable<Exception> children)
             : base("The process failed validation.  The property ProcessExceptions contains the list of details.")
@@ -28,7 +39,7 @@ namespace BPMNEngine
     public class MissingAttributeException : Exception
     {
         internal MissingAttributeException(Definition definition, XmlNode n, RequiredAttribute att)
-            : base(string.Format("The element at {0} is missing a value for the attribute {1}", Utility.FindXPath(definition, n), att.Name)) { }
+            : base($"The element at {Utility.FindXPath(definition, n)} is missing a value for the attribute {att.Name}") { }
 
     }
 
@@ -38,10 +49,7 @@ namespace BPMNEngine
     public class InvalidAttributeValueException : Exception
     {
         internal InvalidAttributeValueException(Definition definition, XmlNode n, AttributeRegex ar)
-            : base(string.Format("The element at {0} has an invalid value for the attribute {1}, expected {2}", new string[]{
-                Utility.FindXPath(definition,n),
-                ar.Name,ar.Reg.ToString()
-            })) { }
+            : base($"The element at {Utility.FindXPath(definition, n)} has an invalid value for the attribute {ar.Name}, expected {ar.Reg}") { }
     }
 
     /// <summary>
@@ -49,8 +57,8 @@ namespace BPMNEngine
     /// </summary>
     public class InvalidElementException : Exception
     {
-        internal InvalidElementException(Definition definition, XmlNode n, string[] err)
-            : base(string.Format("The element at {0} has the following error(s):\n{1}", Utility.FindXPath(definition, n), String.Join("\n\t", err))) { }
+        internal InvalidElementException(Definition definition, XmlNode n, IEnumerable<string> err)
+            : base($"The element at {Utility.FindXPath(definition, n)} has the following error(s):\n{String.Join("\n\t", err.Distinct())}") { }
     }
 
     /// <summary>

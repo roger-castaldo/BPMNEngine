@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
 using BPMNEngine.Interfaces.Elements;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
@@ -24,8 +25,9 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (SignalTypes.Any())
             {
                 var errors = new List<string>();
@@ -45,13 +47,10 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     if (!found)
                         errors.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");
                 }
-                if (errors.Count > 0)
-                {
-                    err = errors.ToArray();
-                    return true;
-                }
+                err = (err??Array.Empty<string>()).Concat(errors);
+                return res && !errors.Any();
             }
-            return base.IsValid(out err);
+            return res;
         }
     }
 }

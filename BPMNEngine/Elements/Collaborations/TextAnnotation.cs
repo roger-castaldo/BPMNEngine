@@ -17,14 +17,15 @@ namespace BPMNEngine.Elements.Collaborations
         public TextAnnotation(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (string.IsNullOrEmpty(Content))
             {
-                err = new string[] { "No content was specified." };
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No content was specified." });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
     }
 }

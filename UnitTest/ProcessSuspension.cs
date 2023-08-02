@@ -35,7 +35,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _userProcess.LoadState(doc);
@@ -50,8 +50,8 @@ namespace UnitTest
         [TestMethod]
         public void TestSuspensionWithActiveSteps()
         {
-            IProcessInstance instance = null;
-            XmlDocument doc = new XmlDocument();
+            IProcessInstance instance;
+            XmlDocument doc = new();
             for (int cnt = 0; cnt<5; cnt++)
             {
                 instance = _userProcess.BeginProcess(null);
@@ -84,7 +84,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
@@ -100,7 +100,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);

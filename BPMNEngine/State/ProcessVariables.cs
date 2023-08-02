@@ -338,9 +338,9 @@ namespace BPMNEngine.State
             var extension = string.Empty;
             string contentType = null;
             byte[] content = null;
+            reader.Read();
             while (reader.TokenType!=JsonTokenType.EndObject)
             {
-                reader.Read();
                 string prop = reader.GetString();
                 reader.Read();
                 switch (prop)
@@ -358,7 +358,9 @@ namespace BPMNEngine.State
                         content = Convert.FromBase64String(reader.GetString());
                         break;
                 }
+                reader.Read();
             }
+            reader.Read();
             reader.Read();
             return new()
             {
@@ -373,6 +375,8 @@ namespace BPMNEngine.State
         {
             variables.Clear();
             reader.Read();
+            if (reader.TokenType==JsonTokenType.StartArray)
+                reader.Read();
             while (reader.TokenType !=JsonTokenType.EndArray)
             {
                 var stepIndex = 0;
@@ -409,12 +413,15 @@ namespace BPMNEngine.State
                                 }
                                 value = ConvertArray(al, type);
                             }
+                            else if (reader.TokenType==JsonTokenType.StartObject && type == VariableTypes.File)
+                                value = DecodeFile(reader);
                             else
                                 value = Utility.ExtractVariableValue(type, reader.GetString());
                             break;
                     }
                     reader.Read();
                 }
+                reader.Read();
                 variables.Add(new SProcessVariable()
                 {
                     Name=name,

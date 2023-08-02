@@ -9,6 +9,7 @@ using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
+using System.Text.Json;
 
 namespace BPMNEngine
 {
@@ -54,6 +55,19 @@ namespace BPMNEngine
         internal bool LoadState(XmlDocument doc, bool autoResume)
         {
             if (State.Load(doc))
+            {
+                WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
+                IsSuspended = State.IsSuspended;
+                if (autoResume&&IsSuspended)
+                    ((IProcessInstance)this).Resume();
+                return true;
+            }
+            return false;
+        }
+
+        internal bool LoadState(Utf8JsonReader reader, bool autoResume)
+        {
+            if (State.Load(reader))
             {
                 WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
                 IsSuspended = State.IsSuspended;

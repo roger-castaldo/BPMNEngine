@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Variables;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
@@ -9,18 +10,16 @@ namespace BPMNEngine.Elements.Processes.Events
         public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
+            var errs = new List<string>();
             if (!Outgoing.Any())
-            {
-                err = new string[] { "Intermediate Catch Events must have an outgoing path." };
-                return false;
-            }else if (Outgoing.Count() != 1)
-            {
-                err = new string[] { "Intermediate Catch Events must have only 1 outgoing path." };
-                return false;
-            }
-            return base.IsValid(out err);
+                errs.Add("Intermediate Catch Events must have an outgoing path.");
+            else if (Outgoing.Count() != 1)
+                errs.Add("Intermediate Catch Events must have only 1 outgoing path.");
+            err = (err??Array.Empty<string>()).Concat(errs);
+            return res && !errs.Any();
         }
 
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)

@@ -177,14 +177,15 @@ namespace BPMNEngine.Elements.Diagrams
             return ret;
         }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
-            if (!Children.Any(elem=>elem is Bounds))
+            var res = base.IsValid(out err);
+            if (!Children.Any(elem => elem is Bounds))
             {
-                err = new string[] { "No bounds specified." };
+                err =(err ?? Array.Empty<string>()).Concat(new string[] { "No bounds specified." });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
 
         public void Render(ICanvas surface, ProcessPath path, Definition definition)

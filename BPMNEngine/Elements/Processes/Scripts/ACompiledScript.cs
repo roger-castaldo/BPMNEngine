@@ -123,7 +123,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             return ret;
         }
 
-        protected override bool ScriptIsValid(out string[] err)
+        protected override bool ScriptIsValid(out IEnumerable<string> err)
         {
             _assembly = null;
             if (!CompileAssembly(out string error))

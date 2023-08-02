@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
@@ -12,19 +13,16 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 
         public string Type => this["type"];
         
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             var errors = new List<string>();
             if (Type == "*")
                 errors.Add("An Error Definition cannot have the type of *, this is reserved");
-            if (Parent.Parent is IntermediateThrowEvent && Type==null)
+            if ((Parent.Parent is IntermediateThrowEvent || Parent.Parent is BoundaryEvent) && Type==null)
                 errors.Add("An Error Definition for a Throw Event must have a Type defined");
-            bool isError = base.IsValid(out err);
-            isError |= errors.Count > 0;
-            if (err != null)
-                errors.AddRange(err);
-            err = errors.ToArray();
-            return isError;
+            err = (err??Array.Empty<string>()).Concat(errors);
+            return res && !errors.Any();
         }
     }
 }

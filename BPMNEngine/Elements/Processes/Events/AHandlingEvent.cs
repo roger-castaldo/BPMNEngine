@@ -50,11 +50,12 @@ namespace BPMNEngine.Elements.Processes.Events
         }
 
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (!SubType.HasValue)
             {
-                err = new string[] { string.Format("{0}s must have a subtype.",new object[] { GetType().Name }) };
+                err = (err??Array.Empty<string>()).Concat(new string[] { string.Format("{0}s must have a subtype.",new object[] { GetType().Name }) });
                 return false;
             }
             switch (SubType.Value)
@@ -64,19 +65,19 @@ namespace BPMNEngine.Elements.Processes.Events
                 case EventSubTypes.Error:
                     if (Types==null || !Types.Any())
                     {
-                        err=new string[] { string.Format("A subtype of {0} must define the types to intercept", new object[] { SubType.Value }) };
+                        err=(err ?? Array.Empty<string>()).Concat(new string[] { string.Format("A subtype of {0} must define the types to intercept", new object[] { SubType.Value }) });
                         return false;
                     }
                     break;
                 case EventSubTypes.Conditional:
                     if (Condition==null)
                     {
-                        err=new string[] { string.Format("A subtype of {0} must contains a ConditionalEventDefinition", new object[] { SubType.Value }) };
+                        err=(err ?? Array.Empty<string>()).Concat(new string[] { string.Format("A subtype of {0} must contains a ConditionalEventDefinition", new object[] { SubType.Value }) });
                         return false;
                     }
                     break;
             }
-            return base.IsValid(out err);
+            return res;
         }
         protected abstract int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables);
 

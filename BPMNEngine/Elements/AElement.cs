@@ -54,7 +54,7 @@ namespace BPMNEngine.Elements
             return this["name"]??String.Empty;
         }
 
-        public virtual bool IsValid(out string[] err)
+        public virtual bool IsValid(out IEnumerable<string> err)
         {
             err = null;
             return true;

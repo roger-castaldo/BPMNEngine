@@ -59,7 +59,7 @@ namespace BPMNEngine.State
                         writer.WriteAttributeString(_INCOMING_ID, step.IncomingID);
                     if (step.EndTime.HasValue)
                         writer.WriteAttributeString(_END_TIME, step.EndTime.Value.ToString(Constants.DATETIME_FORMAT));
-                    if (step.CompletedBy!=null)
+                    if (!string.IsNullOrEmpty(step.CompletedBy))
                         writer.WriteAttributeString(_COMPLETED_BY, step.CompletedBy);
                     if (step.OutgoingID!=null)
                     {
@@ -87,7 +87,7 @@ namespace BPMNEngine.State
                     writer.WriteStringValue(step.ElementID);
                     writer.WritePropertyName(_STEP_STATUS);
                     writer.WriteStringValue(step.Status.ToString());
-                    writer.WritePropertyName(_STEP_STATUS);
+                    writer.WritePropertyName(_START_TIME);
                     writer.WriteStringValue(step.StartTime.ToString(Constants.DATETIME_FORMAT));
                     if (step.IncomingID!=null)
                     {
@@ -99,7 +99,7 @@ namespace BPMNEngine.State
                         writer.WritePropertyName(_END_TIME);
                         writer.WriteStringValue(step.EndTime.Value.ToString(Constants.DATETIME_FORMAT));
                     }
-                    if (step.CompletedBy!=null)
+                    if (!string.IsNullOrEmpty(step.CompletedBy))
                     {
                         writer.WritePropertyName(_COMPLETED_BY);
                         writer.WriteStringValue(step.CompletedBy);
@@ -107,17 +107,12 @@ namespace BPMNEngine.State
                     if (step.OutgoingID!=null)
                     {
                         writer.WritePropertyName(_OUTGOING_ID);
-                        if (step.OutgoingID.Count()==1)
-                            writer.WriteStringValue(step.OutgoingID.First());
-                        else
+                        writer.WriteStartArray();
+                        step.OutgoingID.ForEach(outid =>
                         {
-                            writer.WriteStartArray();
-                            step.OutgoingID.ForEach(outid =>
-                            {
-                                writer.WriteStringValue(outid);
-                            });
-                            writer.WriteEndArray();
-                        }
+                            writer.WriteStringValue(outid);
+                        });
+                        writer.WriteEndArray();
                     }
                     writer.WriteEndObject();
                 });
@@ -167,6 +162,7 @@ namespace BPMNEngine.State
                 var startTime = DateTime.ParseExact(reader.GetAttribute(_START_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
                 var incomingID = reader.GetAttribute(_INCOMING_ID);
                 var endTime = (reader.GetAttribute(_END_TIME)==null ? (DateTime?)null : DateTime.ParseExact(reader.GetAttribute(_END_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture));
+                var completedBy = reader.GetAttribute(_COMPLETED_BY);
                 IEnumerable<string> outgoing;
                 if (reader.GetAttribute(_OUTGOING_ID)==null)
                 {
@@ -195,7 +191,8 @@ namespace BPMNEngine.State
                     StartTime=startTime,
                     EndTime=endTime,
                     IncomingID=incomingID,
-                    OutgoingID=outgoing
+                    OutgoingID=outgoing,
+                    CompletedBy=completedBy
                 });
             }
         }
@@ -213,11 +210,13 @@ namespace BPMNEngine.State
                     var startTime = DateTime.MinValue;
                     var incomingID = String.Empty;
                     var endTime = (DateTime?)null;
+                    string completedBy = null;
                     IEnumerable<string> outgoing = null;
+
+                    reader.Read();
 
                     while (reader.TokenType!=JsonTokenType.EndObject)
                     {
-                        reader.Read();
                         var propName = reader.GetString();
                         reader.Read();
                         switch (propName)
@@ -226,7 +225,7 @@ namespace BPMNEngine.State
                                 elementID=reader.GetString();
                                 break;
                             case _STEP_STATUS:
-                                stepStatus = (StepStatuses)Enum.Parse(typeof(StepStatuses), reader.GetString());
+                                stepStatus = Enum.Parse<StepStatuses>(reader.GetString());
                                 break;
                             case _INCOMING_ID:
                                 incomingID=reader.GetString();
@@ -236,6 +235,9 @@ namespace BPMNEngine.State
                                 break;
                             case _END_TIME:
                                 endTime = DateTime.ParseExact(reader.GetString(), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
+                                break;
+                            case _COMPLETED_BY:
+                                completedBy=reader.GetString();
                                 break;
                             case _OUTGOING_ID:
                                 outgoing = new List<string>();
@@ -247,6 +249,7 @@ namespace BPMNEngine.State
                                 }
                                 break;
                         }
+                        reader.Read();
                     }
 
                     steps.Add(new SPathEntry()
@@ -256,7 +259,8 @@ namespace BPMNEngine.State
                         StartTime=startTime,
                         EndTime=endTime,
                         IncomingID=incomingID,
-                        OutgoingID=outgoing
+                        OutgoingID=outgoing,
+                        CompletedBy=completedBy
                     });
                 }
                 reader.Read();
@@ -356,15 +360,6 @@ namespace BPMNEngine.State
                     .Select(step => step.Status)
                     .DefaultIfEmpty(StepStatuses.NotRun);
             }).LastOrDefault();
-        }
-
-        public int GetStepSuccessCount(string elementid)
-        {
-            stateLock.EnterReadLock();
-            var result = steps
-                .Count(step => step.ElementID==elementid && step.Status == StepStatuses.Succeeded);
-            stateLock.ExitReadLock();
-            return result;
         }
 
         public int CurrentStepIndex(string elementid)

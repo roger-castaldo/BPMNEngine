@@ -220,23 +220,27 @@ namespace BPMNEngine
             stateEvent.EnterWriteLock();
             try
             {
+                reader.Read();
                 while (reader.Read())
                 {
-                    switch (reader.GetString())
+                    if (reader.TokenType==JsonTokenType.PropertyName)
                     {
-                        case PROCESS_SUSPENDED_ATTRIBUTE:
-                            reader.Read();
-                            IsSuspended = reader.GetBoolean();
-                            break;
-                        case "ProcessLog":
-                            log.Load(reader);
-                            break;
-                        case "ProcessPath":
-                            Path.Load(reader);
-                            break;
-                        case "ProcessVariables":
-                            variables.Load(reader);
-                            break;
+                        switch (reader.GetString())
+                        {
+                            case PROCESS_SUSPENDED_ATTRIBUTE:
+                                reader.Read();
+                                IsSuspended = reader.GetBoolean();
+                                break;
+                            case "ProcessLog":
+                                log.Load(reader);
+                                break;
+                            case "ProcessPath":
+                                Path.Load(reader);
+                                break;
+                            case "ProcessVariables":
+                                variables.Load(reader);
+                                break;
+                        }
                     }
                 }
             }

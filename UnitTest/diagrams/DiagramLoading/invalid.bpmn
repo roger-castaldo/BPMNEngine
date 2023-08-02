@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"  xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" />
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci6">
+		  <bpmn:timerEventDefinition>
+			  <exts:DateString/>
+		  </bpmn:timerEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq6" attachedToRef="StartEvent_1">
+	  </bpmn:boundaryEvent>
+	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq7" attachedToRef="StartEvent_1">
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+	  </bpmn:boundaryEvent>
+	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq8" attachedToRef="StartEvent_1">
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+		  <bpmn:outgoing>StartEvent_1</bpmn:outgoing>
+	  </bpmn:boundaryEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">

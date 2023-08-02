@@ -63,8 +63,6 @@ namespace BPMNEngine.State
         public void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
         {
             LogLine(elementID, assembly, fileName, lineNumber, LogLevel.Error, timestamp, GenerateExceptionLine(exception));
-            if (exception is InvalidProcessDefinitionException processDefinitionException)
-                processDefinitionException.ProcessExceptions.ForEach(e => LogLine(elementID, assembly, fileName, lineNumber, LogLevel.Error, timestamp, GenerateExceptionLine(e)));
         }
 
         private static string GenerateExceptionLine(Exception exception)
@@ -96,6 +94,7 @@ STACKTRACE:{exception.StackTrace}");
         public void Load(Utf8JsonReader reader)
         {
             content.Clear();
+            reader.Read();
             content.Append(reader.GetString());
             reader.Read();
         }

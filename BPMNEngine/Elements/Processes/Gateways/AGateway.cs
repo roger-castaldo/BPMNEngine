@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
@@ -22,19 +23,16 @@ namespace BPMNEngine.Elements.Processes.Gateways
             return result;
         }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             var errs = new List<string>();
             if (!Incoming.Any())
                 errs.Add($"A {GetType().Name} must have at least 1 incoming path.");
             if (!Outgoing.Any())
                 errs.Add($"A {GetType().Name} must have at least 1 outgoing path.");
-            if (errs.Count > 0)
-            {
-                err = errs.ToArray();
-                return false;
-            }
-            return base.IsValid(out err);
+            err = (err??Array.Empty<string>()).Concat(errs);
+            return res && !errs.Any();
         }
     }
 }

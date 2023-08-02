@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
@@ -12,19 +13,16 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 
         public string Name => this["name"];
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             var errors = new List<string>();
             if (Name == "*")
                 errors.Add("A Message Definition cannot have the name of *, this is reserved");
             if (Parent.Parent is IntermediateThrowEvent && Name == null)
                 errors.Add("A Message Definition for a Throw Event must have a Name defined");
-            bool isError = base.IsValid(out err);
-            isError |= errors.Count > 0;
-            if (err != null)
-                errors.AddRange(err);
-            err = errors.ToArray();
-            return isError;
+            err = (err??Array.Empty<string>()).Concat(errors);
+            return res&&!errors.Any();
         }
     }
 }

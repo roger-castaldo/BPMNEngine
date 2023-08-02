@@ -71,14 +71,15 @@ namespace BPMNEngine.Elements.Diagrams
             surface.FillPath(path);
         }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (Points.Count()<2)
             {
-                err = new string[] { "At least 2 points are required." };
+                err = (err??Array.Empty<string>()).Concat(new string[] { "At least 2 points are required." });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
 
         public void Render(ICanvas surface, ProcessPath path,Definition definition)

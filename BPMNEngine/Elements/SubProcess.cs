@@ -4,6 +4,7 @@ using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
+using System.Linq;
 
 namespace BPMNEngine.Elements
 {
@@ -26,25 +27,24 @@ namespace BPMNEngine.Elements
         public IEnumerable<StartEvent> StartEvents 
             => Children.OfType<StartEvent>();
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
-            if (base.IsValid(out err))
+            var res = base.IsValid(out err);
+            bool hasStart = Children.Any(elem => elem is StartEvent || (elem is IntermediateCatchEvent ice && ice.SubType.HasValue));
+            bool hasEnd = Children.Any(elem=>elem is EndEvent);
+            bool hasIncoming = this.Incoming!=null || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
+            var terr = new List<string>();
+            if (!(hasStart && hasEnd && hasIncoming))
             {
-                bool hasStart = Children.Any(elem => elem is StartEvent || (elem is IntermediateCatchEvent ice && ice.SubType.HasValue));
-                bool hasEnd = Children.Any(elem=>elem is EndEvent);
-                bool hasIncoming = this.Incoming!=null || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
-                if (hasStart && hasEnd && hasIncoming)
-                    return true;
-                var terr = new List<string>();
                 if (!hasStart)
                     terr.Add("A Sub Process Must have a StartEvent or valid IntermediateCatchEvent");
                 if (!hasIncoming)
                     terr.Add("A Sub Process Must have a valid Incoming path, achieved through an incoming flow or IntermediateCatchEvent");
                 if (!hasEnd)
                     terr.Add("A Sub Process Must have an EndEvent");
-                err = terr.ToArray();
+                err = (err??Array.Empty<string>()).Concat(terr);
             }
-            return false;
+            return res && !terr.Any();
         }
     }
 }

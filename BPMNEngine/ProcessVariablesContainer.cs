@@ -5,7 +5,7 @@ namespace BPMNEngine
 {
     internal sealed class ProcessVariablesContainer : IVariables
     {
-        private readonly ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim locker = new();
         private readonly List<string> nulls;
         private readonly Dictionary<string, object> variables;
         private readonly BusinessProcess process = null;

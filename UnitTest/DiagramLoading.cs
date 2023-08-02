@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using System.Xml;
 using BPMNEngine.Interfaces.Elements;
+using System.Text;
 
 namespace UnitTest
 {
@@ -15,7 +16,7 @@ namespace UnitTest
         [TestMethod]
         public void LoadInvalidDiagram()
         {
-            var logExceptionMoq = new Mock<LogException>();
+            var log = new StringBuilder();
 
             XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/invalid.bpmn");
             bool loaded = false;
@@ -23,7 +24,10 @@ namespace UnitTest
             {
                 BusinessProcess proc = new(doc,
                     logging: new BPMNEngine.DelegateContainers.ProcessLogging() {
-                        LogException=logExceptionMoq.Object
+                        LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                        {
+                            log.AppendLine($"{callingElement?.ID}|{exception.Message}");
+                        }
                     }
                 );
                 loaded=true;
@@ -31,7 +35,17 @@ namespace UnitTest
             {
             }
             Assert.IsFalse(loaded);
-            logExceptionMoq.Verify(x => x.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), It.IsAny<Exception>()), Times.AtLeastOnce());
+
+            var res = log.ToString();
+
+            Assert.IsTrue(res.Contains("Start Events must have an outgoing path"));
+            Assert.IsTrue(res.Contains("Intermediate Catch Events must have an outgoing path."));
+            Assert.IsTrue(res.Contains("No Date String Specified"));
+            Assert.IsTrue(res.Contains("dc:Bounds[0] is missing a value for the attribute x"));
+            Assert.IsTrue(res.Contains("dc:Bounds[0] has an invalid value for the attribute y, expected ^-?\\d+(\\.\\d+)?$"));
+            Assert.IsTrue(res.Contains("Boundary Events must have an outgoing path."));
+            Assert.IsTrue(res.Contains("Boundary Events cannot have an incoming path."));
+            Assert.IsTrue(res.Contains("Boundary Events can only have one outgoing path."));
         }
 
         [TestMethod]

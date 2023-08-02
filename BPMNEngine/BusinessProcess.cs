@@ -8,6 +8,7 @@ using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Scheduling;
+using System.Text.Json;
 
 namespace BPMNEngine
 {
@@ -203,7 +204,7 @@ namespace BPMNEngine
                 .Where(ar => !ar.IsValid(elem))
                 .Select(ar => new InvalidAttributeValueException(elem.Definition, elem.Element, ar))
             );
-            if (!elem.IsValid(out string[] err))
+            if (!elem.IsValid(out IEnumerable<string> err))
                 result = result.Append(new InvalidElementException(elem.Definition, elem.Element, err));
             if (elem.ExtensionElement != null)
                 result = result.Concat(ValidateElement((ExtensionElements)elem.ExtensionElement));
@@ -215,6 +216,21 @@ namespace BPMNEngine
                     .SelectMany(res=>res)
                 );
             return result;
+        }
+
+        private ProcessInstance ProduceInstance(ProcessEvents events,
+            StepValidations validations,
+            ProcessTasks tasks,
+            ProcessLogging logging,
+            LogLevel stateLogLevel)
+        {
+            return new ProcessInstance(this, DelegateContainer.Merge(delegates, new DelegateContainer()
+            {
+                Events = events,
+                Validations = validations,
+                Tasks = tasks,
+                Logging = logging
+            }), stateLogLevel);
         }
 
         /// <summary>
@@ -236,19 +252,38 @@ namespace BPMNEngine
             ProcessLogging logging = null,
             LogLevel stateLogLevel=LogLevel.None)
         {
-            ProcessInstance ret = new(this, DelegateContainer.Merge(delegates,new DelegateContainer()
-            {
-                Events = events,
-                Validations = validations,
-                Tasks = tasks,
-                Logging = logging
-            }), stateLogLevel);
+            ProcessInstance ret = ProduceInstance(events,validations,tasks,logging,stateLogLevel);
             if (ret.LoadState(doc, autoResume))
                 return ret;
             return null;
         }
 
-        
+        /// <summary>
+        /// Called to load a Process Instance from a stored State Document
+        /// </summary>
+        /// <param name="reader">The json based process state</param>
+        /// <param name="autoResume">set true if the process was suspended and needs to resume once loaded</param>
+        /// <param name="events">The Process Events delegates container</param>
+        /// <param name="validations">The Process Validations delegates container</param>
+        /// <param name="tasks">The Process Tasks delegates container</param>
+        /// <param name="logging">The Process Logging delegates container</param>
+        /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
+        /// <returns>an instance of IProcessInstance if successful or null it failed</returns>
+        public IProcessInstance LoadState(Utf8JsonReader reader,
+            bool autoResume = false,
+            ProcessEvents events = null,
+            StepValidations validations = null,
+            ProcessTasks tasks = null,
+            ProcessLogging logging = null,
+            LogLevel stateLogLevel = LogLevel.None)
+        {
+            ProcessInstance ret = ProduceInstance(events, validations, tasks, logging, stateLogLevel);
+            if (ret.LoadState(reader, autoResume))
+                return ret;
+            return null;
+        }
+
+
         /// <summary>
         /// Called to start and instance of the defined BusinessProcess
         /// </summary>

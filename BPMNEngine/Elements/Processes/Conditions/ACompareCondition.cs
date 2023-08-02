@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Interfaces.Variables;
 using System.Collections;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
@@ -139,8 +140,9 @@ namespace BPMNEngine.Elements.Processes.Conditions
             return ret;
         }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             bool foundLeft = this["leftVariable"]!=null;
             bool foundRight = this["rightVariable"]!=null;
             var errs = new List<string>();
@@ -165,12 +167,8 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 errs.Add("Right value missing.");
             else if (!foundLeft)
                 errs.Add("Left value missing.");
-            if (errs.Count>0)
-            {
-                err = errs.ToArray();
-                return false;
-            }
-            return base.IsValid(out err);
+            err=(err??Array.Empty<string>()).Concat(errs);
+            return res&&!errs.Any();
         }
     }
 }

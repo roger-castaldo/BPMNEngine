@@ -22,14 +22,15 @@ namespace BPMNEngine.Elements.Processes.Conditions
             }
         }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (Children.Count() > 1)
             {
-                err = new string[] { "Too many children found." };
+                err = (err??Array.Empty<string>()).Concat(new string[] { "Too many children found." });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
     }
 }

@@ -3,6 +3,9 @@ using BPMNEngine;
 using BPMNEngine.Interfaces;
 using System.Collections.Generic;
 using BPMNEngine.Interfaces.Tasks;
+using System.Windows.Markup;
+using Newtonsoft.Json.Serialization;
+using System.Formats.Asn1;
 
 namespace UnitTest
 {
@@ -12,6 +15,7 @@ namespace UnitTest
         private static BusinessProcess _messageProcess;
         private static BusinessProcess _signalProcess;
         private static BusinessProcess _escalateProcess;
+        private static BusinessProcess _errorProcess;
 
         private const string _ACTION_ID = "Action";
         private const string _VALUE_ID = "ActionValue";
@@ -23,6 +27,7 @@ namespace UnitTest
             _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(ProcessTask)});
             _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
             _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
+            _errorProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/errors.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
         }
 
         [ClassCleanup]
@@ -48,6 +53,9 @@ namespace UnitTest
                     case "Escalate":
                         if (task.ID == (string)task.Variables[_VALUE_ID])
                             task.Escalate(out _);
+                        break;
+                    case "Error":
+                        task.EmitError(new System.Exception((string)task.Variables[_VALUE_ID]),out _);
                         break;
                 }
             }
@@ -158,6 +166,20 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1sr23zw"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
+        }
+
+        [TestMethod]
+        public void TestInteruptingBoundaryError()
+        {
+            IProcessInstance instance = _errorProcess.BeginProcess(new Dictionary<string, object>()
+            {
+                {_ACTION_ID,"Error" },
+                {_VALUE_ID,"interupting_catch" }
+            });
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0cezzjh"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
         }
     }

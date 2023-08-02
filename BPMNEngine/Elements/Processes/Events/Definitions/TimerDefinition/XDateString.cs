@@ -17,14 +17,15 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
         public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (string.IsNullOrEmpty(Code))
             {
-                err = new string[] { "No Date String Specified" };
+                err=(err??Array.Empty<string>()).Concat(new string[] { "No Date String Specified" });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
 
         public DateTime GetTime(IReadonlyVariables variables)

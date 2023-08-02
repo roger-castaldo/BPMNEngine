@@ -20,23 +20,24 @@ namespace BPMNEngine.Elements.Processes.Events
             return isEventStartValid(this, variables);
         }
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (Incoming.Any(id=> !Definition.MessageFlows.Any(mf=>mf.ID==id)) && !SubType.HasValue)
             {
-                err = new string[] { "Start Events cannot have an incoming path." };
-                return false;
+                err = (err ?? Array.Empty<string>()).Concat(new string[] { "Start Events cannot have an incoming path." });
+                res=false;
             }
             if (!Outgoing.Any())
             {
-                err = new string[] { "Start Events must have an outgoing path." };
-                return false;
+                err = (err ?? Array.Empty<string>()).Concat(new string[] { "Start Events must have an outgoing path." });
+                res = false;
             }else if (Outgoing.Count() > 1)
             {
-                err = new string[] { "Start Events can only have 1 outgoing path." };
-                return false;
+                err = (err??Array.Empty<string>()).Concat(new string[] { "Start Events can only have 1 outgoing path." });
+                res = false;
             }
-            return base.IsValid(out err);
+            return res;
         }
     }
 }

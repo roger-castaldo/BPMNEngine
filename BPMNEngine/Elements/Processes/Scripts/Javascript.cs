@@ -93,7 +93,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             return pars[1];
         }
 
-        protected override bool ScriptIsValid(out string[] err)
+        protected override bool ScriptIsValid(out IEnumerable<string> err)
         {
             try
             {

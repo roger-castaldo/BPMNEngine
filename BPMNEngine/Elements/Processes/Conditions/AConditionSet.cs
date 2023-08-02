@@ -15,14 +15,15 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 .Select(asc => new ScriptCondition(asc))
             );
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = new string[] { "No child elements found." };
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found." });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
     }
 }

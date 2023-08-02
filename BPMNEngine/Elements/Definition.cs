@@ -25,14 +25,15 @@ namespace BPMNEngine.Elements
         public IEnumerable<T> LocateElementsOfType<T>() where T: IElement
             => Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).OfType<T>();
 
-        public override bool IsValid(out string[] err)
+        public override bool IsValid(out IEnumerable<string> err)
         {
+            var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = new string[] { "No child elements found." };
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found." });
                 return false;
             }
-            return base.IsValid(out err);
+            return res;
         }
 
         internal BusinessProcess OwningProcess { get; set; }

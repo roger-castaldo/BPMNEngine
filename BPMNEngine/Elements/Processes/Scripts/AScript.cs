@@ -2,6 +2,7 @@
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Variables;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
@@ -64,7 +65,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         protected abstract object ScriptInvoke(IVariables variables);
         protected abstract object ScriptInvoke(IReadonlyVariables variables);
-        protected abstract bool ScriptIsValid(out string[] err);
+        protected abstract bool ScriptIsValid(out IEnumerable<string> err);
 
         public object Invoke(IVariables variables)
         {
@@ -93,11 +94,15 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
         }
 
-        public sealed override bool IsValid(out string[] err)
+        public sealed override bool IsValid(out IEnumerable<string> err)
         {
-            if (!ScriptIsValid(out err))
-                return false;
-            return base.IsValid(out err);
+            var res = base.IsValid(out err);
+            if (!ScriptIsValid(out IEnumerable<string> errs))
+            {
+                err=(err??Array.Empty<string>()).Concat(errs);
+                res=false;
+            }
+            return res;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Collections;
 using System.Threading;
 using System.Linq;
 using BPMNEngine.Interfaces.Tasks;
+using System.Text.Json;
 
 namespace UnitTest
 {
@@ -427,9 +428,17 @@ namespace UnitTest
             var doc = new XmlDocument();
             doc.LoadXml(inst.CurrentState.AsXMLDocument);
 
+            var bytes = System.Text.UTF8Encoding.UTF8.GetBytes(inst.CurrentState.AsJSONDocument);
+
             CompareVariableSets(variables, BusinessProcess.ExtractProcessVariablesFromStateDocument(doc));
 
+            CompareVariableSets(variables, BusinessProcess.ExtractProcessVariablesFromStateDocument(new Utf8JsonReader(bytes)));
+
             inst = _process.LoadState(doc);
+            Assert.IsNotNull(inst);
+            CompareVariableSets(variables, inst.CurrentVariables);
+
+            inst = _process.LoadState(new Utf8JsonReader(bytes));
             Assert.IsNotNull(inst);
             CompareVariableSets(variables, inst.CurrentVariables);
         }
