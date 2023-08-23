@@ -20,6 +20,12 @@ namespace UnitTest
         private const string _TEST_VARIABLE_VALUE = "This is a test";
         private const string _USER_ID = "User1";
         private const string _TEST_LOG_LINE = "Test Log Line";
+        private const string _TEST_FILE_VARIABLE = "TestFile";
+        private static readonly SFile[] _TEST_FILES = new SFile[]
+        {
+            new SFile(){Name="Test1",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"},
+            new SFile(){Name="Test2",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"}
+        };
 
         [ClassInitialize]
         public static void Initialize(TestContext testContext)
@@ -31,6 +37,7 @@ namespace UnitTest
                         Task.Delay(TimeSpan.FromMilliseconds(1500)).Wait();
                         task.Debug(_TEST_LOG_LINE);
                         task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUE;
+                        task.Variables[_TEST_FILE_VARIABLE]=_TEST_FILES;
                         task.UserID = _USER_ID;
                         task.MarkComplete();
                     }
@@ -48,6 +55,11 @@ namespace UnitTest
             Assert.IsNotNull(variables);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));
             Assert.AreEqual(_TEST_VARIABLE_VALUE, variables[_TEST_VARIABLE_NAME]);
+            Assert.IsTrue(variables.ContainsKey(_TEST_FILE_VARIABLE));
+            Assert.IsInstanceOfType(variables[_TEST_FILE_VARIABLE], typeof(SFile[]));
+            Assert.AreEqual(_TEST_FILES.Length, ((SFile[])variables[_TEST_FILE_VARIABLE]).Length);
+            for (var x = 0; x<_TEST_FILES.Length; x++)
+                Assert.AreEqual(_TEST_FILES[x], ((SFile[])variables[_TEST_FILE_VARIABLE])[x]);
         }
 
         private static void TestEmptyVariables(Dictionary<string,object> variables)

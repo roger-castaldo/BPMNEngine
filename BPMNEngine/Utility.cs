@@ -11,7 +11,6 @@ namespace BPMNEngine
 
         private static readonly Dictionary<Type, List<Type>> xmlChildren;
         private static readonly Dictionary<Type, XMLTag[]> tagAttributes;
-        private static readonly Type[] globalXMLChildren;
         private static readonly Dictionary<Type, ConstructorInfo> xmlConstructors;
         private static readonly Dictionary<string, Dictionary<string, Type>> idealMap;
         public static Dictionary<string, Dictionary<string, Type>> IdealMap => idealMap;
@@ -41,7 +40,6 @@ namespace BPMNEngine
                 }
             });
             xmlChildren = new Dictionary<Type, List<Type>>();
-            var globalChildren = new List<Type>();
             tmp.ForEach(t =>
             {
                 var atts = new List<Attributes.ValidParentAttribute>();
@@ -63,66 +61,39 @@ namespace BPMNEngine
                     atts.AddRange((ValidParentAttribute[])t.GetCustomAttributes(typeof(ValidParentAttribute), false));
                 atts.Select(vpa => vpa.Parent).ForEach(parent =>
                 {
-                    if (parent == null)
-                        globalChildren.Add(t);
-                    else if (parent.IsAbstract)
+                    if (parent != null)
                     {
-                        tmp.Where(c => c.IsSubclassOf(parent)).ForEach(c =>
+                        if (parent.IsAbstract)
                         {
-                            if (!xmlChildren.ContainsKey(c))
-                                xmlChildren.Add(c, new List<Type>());
-                            var types = xmlChildren[c];
-                            xmlChildren.Remove(c);
+                            tmp.Where(c => c.IsSubclassOf(parent)).ForEach(c =>
+                            {
+                                if (!xmlChildren.ContainsKey(c))
+                                    xmlChildren.Add(c, new List<Type>());
+                                var types = xmlChildren[c];
+                                xmlChildren.Remove(c);
+                                types.Add(t);
+                                xmlChildren.Add(c, types);
+                            });
+                        }
+                        else
+                        {
+                            if (!xmlChildren.ContainsKey(parent))
+                                xmlChildren.Add(parent, new List<Type>());
+                            var types = xmlChildren[parent];
+                            xmlChildren.Remove(parent);
                             types.Add(t);
-                            xmlChildren.Add(c, types);
-                        });
-                    }else
-                    {
-                        if (!xmlChildren.ContainsKey(parent))
-                            xmlChildren.Add(parent, new List<Type>());
-                        var types = xmlChildren[parent];
-                        xmlChildren.Remove(parent);
-                        types.Add(t);
-                        xmlChildren.Add(parent, types);
+                            xmlChildren.Add(parent, types);
+                        }
                     }
                 });
             });
-            globalXMLChildren = globalChildren.ToArray();
         }
 
         internal static XMLTag[] GetTagAttributes(Type t)
             => tagAttributes.TryGetValue(t,out XMLTag[] value) ? value : null;
 
-        public static Type LocateElementType(Type parent, string tagName, XmlPrefixMap map)
-        {
-            DateTime start = DateTime.Now;
-            Type ret = null;
-            if (parent != null && xmlChildren.TryGetValue(parent,out List<Type> types))
-            {
-                ret = types
-                    .FirstOrDefault(t => tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
-                if (ret!=null)
-                    return ret;
-            }
-            ret = globalXMLChildren
-                .FirstOrDefault(t => tagAttributes[t].Any(xt => xt.Matches(map, tagName)));
-            return ret;
-        }
-
         internal static IElement ConstructElementType(XmlElement element, ref XmlPrefixMap map, ref ElementTypeCache cache, AElement parent)
-        {
-            Type t = null;
-            if (cache != null)
-            {
-                if (cache.IsCached(element.Name))
-                    t = cache[element.Name];
-            }
-            else
-                t = LocateElementType(parent?.GetType(), element.Name, map);
-            if (t != null)
-                return (IElement)xmlConstructors[t].Invoke(new object[] { element, map, parent });
-            return null;
-        }
+            => cache.IsCached(element.Name) ? (IElement)xmlConstructors[cache[element.Name]].Invoke(new object[] { element, map, parent }) : null;
 
         public static string FindXPath(Definition definition, XmlNode node)
         {

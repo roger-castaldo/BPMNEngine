@@ -40,12 +40,18 @@ namespace UnitTest
 
             Assert.IsTrue(res.Contains("Start Events must have an outgoing path"));
             Assert.IsTrue(res.Contains("Intermediate Catch Events must have an outgoing path."));
+            Assert.IsTrue(res.Contains("Intermediate Catch Events must have only 1 outgoing path."));
             Assert.IsTrue(res.Contains("No Date String Specified"));
             Assert.IsTrue(res.Contains("dc:Bounds[0] is missing a value for the attribute x"));
             Assert.IsTrue(res.Contains("dc:Bounds[0] has an invalid value for the attribute y, expected ^-?\\d+(\\.\\d+)?$"));
             Assert.IsTrue(res.Contains("Boundary Events must have an outgoing path."));
             Assert.IsTrue(res.Contains("Boundary Events cannot have an incoming path."));
             Assert.IsTrue(res.Contains("Boundary Events can only have one outgoing path."));
+            Assert.IsTrue(res.Contains("At least 2 points are required."));
+            Assert.IsTrue(res.Contains("[@id='BPMNDiagram_2'] has the following error(s):\nNo child elements found."));
+            Assert.IsTrue(res.Contains("A ExclusiveGateway must have at least 1 incoming path."));
+            Assert.IsTrue(res.Contains("A ExclusiveGateway must have at least 1 outgoing path."));
+            Assert.IsTrue(res.Contains("Too many children found."));
         }
 
         [TestMethod]

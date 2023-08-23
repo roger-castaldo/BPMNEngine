@@ -144,6 +144,8 @@
 			  <exts:ConditionSet>
 				  <exts:cSharpScript>
 					  <![CDATA[
+					  if (variables["cscript"] is Exception)
+					    throw (Exception)variables["cscript"];
 					  return (int)variables["cscript"]==12;
 				    ]]>
 				  </exts:cSharpScript>

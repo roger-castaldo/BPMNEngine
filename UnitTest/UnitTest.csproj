@@ -25,6 +25,7 @@
     <None Remove="diagrams\Extensions\definition_file.bpmn" />
     <None Remove="diagrams\Extensions\definition_variable.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <None Remove="diagrams\ImageTests\all_icons.bpmn" />
@@ -58,6 +59,7 @@
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\definition_file.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />

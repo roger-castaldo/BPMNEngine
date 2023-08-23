@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"  xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"  xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1" />
 	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci6">
 		  <bpmn:timerEventDefinition>
 			  <exts:DateString/>
 		  </bpmn:timerEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwc99">
+		  <bpmn:timerEventDefinition>
+			  <exts:DateString/>
+		  </bpmn:timerEventDefinition>
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+		  <bpmn:outgoing>StartEvent_1</bpmn:outgoing>
 	  </bpmn:intermediateCatchEvent>
 	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq6" attachedToRef="StartEvent_1">
 	  </bpmn:boundaryEvent>
@@ -16,6 +23,14 @@
 		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
 		  <bpmn:outgoing>StartEvent_1</bpmn:outgoing>
 	  </bpmn:boundaryEvent>
+	  <bpmn:exclusiveGateway id="ExclusiveGateway_08ngqsl">
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:isNull variable="isnull"/>
+				  <exts:isNull variable="isnull"/>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+	  </bpmn:exclusiveGateway>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
@@ -25,6 +40,11 @@
           <dc:Bounds y="227abc" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+		<bpmndi:BPMNEdge id="SequenceFlow_1cz4osw_di" bpmnElement="SequenceFlow_1cz4osw">
+			<di:waypoint xsi:type="dc:Point" x="304" y="390" />
+		</bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
+	<bpmndi:BPMNDiagram id="BPMNDiagram_2">
+	</bpmndi:BPMNDiagram>
 </bpmn:definitions>

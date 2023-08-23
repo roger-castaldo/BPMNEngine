@@ -141,9 +141,7 @@ namespace BPMNEngine
             Path.Dispose();
             stateEvent.EnterReadLock();
             while (stateEvent.CurrentReadCount>1)
-            {
                 System.Threading.Tasks.Task.Delay(TimeSpan.FromMilliseconds(100)).Wait();
-            }
             stateEvent.ExitReadLock();
             stateEvent.EnterWriteLock();
             while (stateEvent.WaitingWriteCount>0)

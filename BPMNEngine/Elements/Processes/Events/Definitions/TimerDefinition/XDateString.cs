@@ -30,8 +30,6 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 
         public DateTime GetTime(IReadonlyVariables variables)
         {
-            if (string.IsNullOrEmpty(Code))
-                throw new Exception("Invalid Date String Specified");
             var ds = new DateString(Code);
             return ds.GetTime(variables);
         }

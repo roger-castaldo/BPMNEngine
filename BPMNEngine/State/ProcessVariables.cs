@@ -226,7 +226,7 @@ namespace BPMNEngine.State
                         {
                             reader.Read();
                             if (type==VariableTypes.File)
-                                al.Add(DecodeFile(reader));
+                                al.Add(DecodeFile(ref reader));
                             else
                                 al.Add(Utility.ExtractVariableValue(type, reader.Value));
                             reader.Read();
@@ -241,7 +241,7 @@ namespace BPMNEngine.State
                         if (reader.NodeType==XmlNodeType.CDATA)
                             value = Utility.ExtractVariableValue(type, reader.Value);
                         else
-                            value = DecodeFile(reader);
+                            value = DecodeFile(ref reader);
                     }
                 }
                 reader.Read();
@@ -315,7 +315,7 @@ namespace BPMNEngine.State
             return result;
         }
 
-        private static SFile DecodeFile(XmlReader reader)
+        private static SFile DecodeFile(ref XmlReader reader)
         {
             var name = reader.GetAttribute(_FILE_NAME);
             var extension = reader.GetAttribute(_FILE_EXTENSION);
@@ -332,7 +332,7 @@ namespace BPMNEngine.State
             return result;
         }
 
-        private static SFile DecodeFile(Utf8JsonReader reader)
+        private static SFile DecodeFile(ref Utf8JsonReader reader)
         {
             var name = string.Empty;
             var extension = string.Empty;
@@ -360,7 +360,6 @@ namespace BPMNEngine.State
                 }
                 reader.Read();
             }
-            reader.Read();
             reader.Read();
             return new()
             {
@@ -406,26 +405,29 @@ namespace BPMNEngine.State
                                 while (reader.TokenType!=JsonTokenType.EndArray)
                                 {
                                     if (type==VariableTypes.File)
-                                        al.Add(DecodeFile(reader));
+                                        al.Add(DecodeFile(ref reader));
                                     else
+                                    {
                                         al.Add(Utility.ExtractVariableValue(type, reader.GetString()));
-                                    reader.Read();
+                                        reader.Read();
+                                    }
                                 }
                                 value = ConvertArray(al, type);
                             }
                             else if (reader.TokenType==JsonTokenType.StartObject && type == VariableTypes.File)
-                                value = DecodeFile(reader);
+                                value = DecodeFile(ref reader);
                             else
                                 value = Utility.ExtractVariableValue(type, reader.GetString());
                             break;
                     }
-                    reader.Read();
+                    if (reader.TokenType!=JsonTokenType.EndObject)
+                        reader.Read();
                 }
                 reader.Read();
                 variables.Add(new SProcessVariable()
                 {
                     Name=name,
-                    Value=value,
+                    Value=(type==VariableTypes.Null ? null : value),
                     StepIndex=stepIndex
                 });
             }
@@ -494,7 +496,7 @@ namespace BPMNEngine.State
                         .LastOrDefault(var => var.Name==key
                             && var.StepIndex <= stepIndex)
                     : null);
-                if (!IsVariablesEqual(left, (right?.Value)))
+                if (!AreVariablesEqual(left, (right?.Value)))
                     changes.Enqueue(new SProcessVariable()
                     {
                         Name=key,
@@ -579,7 +581,7 @@ namespace BPMNEngine.State
             return text;
         }
 
-        internal static bool IsVariablesEqual(object left, object right)
+        internal static bool AreVariablesEqual(object left, object right)
         {
             if (left == null && right != null)
                 return false;
@@ -599,7 +601,7 @@ namespace BPMNEngine.State
                         Array aright = array1;
                         if (aleft.Length != aright.Length)
                             return false;
-                        return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => IsVariablesEqual(ival.val, aright.GetValue(ival.index)));
+                        return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => AreVariablesEqual(ival.val, aright.GetValue(ival.index)));
                     }
                 }
                 else

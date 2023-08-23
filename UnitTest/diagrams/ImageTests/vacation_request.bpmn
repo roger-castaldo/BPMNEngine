@@ -107,7 +107,9 @@
       <bpmn:incoming>SequenceFlow_1834102</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1i6f2mb</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-        <exts:DateString>+1 minute</exts:DateString>
+        <exts:DateString>
+			<![CDATA[+1 minute]]>
+		</exts:DateString>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1ariavv" sourceRef="Task_1w3xqcn" targetRef="EndEvent_1pt6tvc" />

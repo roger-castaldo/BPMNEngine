@@ -28,8 +28,12 @@
       <bpmn:incoming>SequenceFlow_0ijuqxx</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_17p85cm</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_1sl9l6m" sourceRef="ExclusiveGateway_18bue15" targetRef="ExclusiveGateway_0lnmkas" />
-    <bpmn:sequenceFlow id="SequenceFlow_0ijuqxx" sourceRef="ExclusiveGateway_18bue15" targetRef="ExclusiveGateway_0lnmkas" />
+    <bpmn:sequenceFlow id="SequenceFlow_1sl9l6m" sourceRef="ExclusiveGateway_18bue15" targetRef="ExclusiveGateway_0lnmkas" conditionExpression="inlineCondition" />
+	  <bpmn:sequenceFlow id="SequenceFlow_0ijuqxx" sourceRef="ExclusiveGateway_18bue15" targetRef="ExclusiveGateway_0lnmkas">
+		  <bpmn:conditionExpression>
+			  <![CDATA[elementCondition]]>
+		  </bpmn:conditionExpression>
+	  </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_17p85cm" sourceRef="ExclusiveGateway_0lnmkas" targetRef="EndEvent_1d1a99g" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">

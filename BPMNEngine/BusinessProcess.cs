@@ -253,9 +253,7 @@ namespace BPMNEngine
             LogLevel stateLogLevel=LogLevel.None)
         {
             ProcessInstance ret = ProduceInstance(events,validations,tasks,logging,stateLogLevel);
-            if (ret.LoadState(doc, autoResume))
-                return ret;
-            return null;
+            return ret.LoadState(doc, autoResume) ? ret : null;
         }
 
         /// <summary>
@@ -278,9 +276,7 @@ namespace BPMNEngine
             LogLevel stateLogLevel = LogLevel.None)
         {
             ProcessInstance ret = ProduceInstance(events, validations, tasks, logging, stateLogLevel);
-            if (ret.LoadState(reader, autoResume))
-                return ret;
-            return null;
+            return ret.LoadState(reader, autoResume) ? ret : null;
         }
 
 
@@ -345,19 +341,13 @@ namespace BPMNEngine
         /// <param name="obj">The Business Process instance to compare this one to.</param>
         /// <returns>true if they are the same, false if they are not.</returns>
         public override bool Equals(object obj)
-        {
-            if (obj is BusinessProcess process)
-                return process.id == id;
-            return false;
-        }
+            => obj is BusinessProcess process &&process.id==id;
 
         /// <summary>
         /// Returns the HashCode of the Business Process instance.
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode()
-        {
-            return id.GetHashCode();
-        }
+            => id.GetHashCode();
     }
 }

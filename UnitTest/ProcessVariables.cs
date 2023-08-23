@@ -30,7 +30,7 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private static Dictionary<string, object> TestProcessVariable(string variableName, object variableValue)
+        private static Dictionary<string, object> TestProcessVariable(string variableName, object variableValue,bool changeValue=false,object newValue=null)
         {
             IProcessInstance inst = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
 
@@ -50,6 +50,10 @@ namespace UnitTest
                 Assert.AreEqual(1, task.Variables.Keys.Count());
                 CompareVariableValue(variableValue, task.Variables[variableName]);
             }
+
+            if (changeValue)
+                task.Variables[variableName]=newValue;
+
             task.MarkComplete();
 
             Assert.IsTrue(Utility.WaitForCompletion(inst));
@@ -377,7 +381,54 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestStateXMLVariableStorage()
+        public void TestVariableChange()
+        {
+            var variableName = "TestDateTime";
+            var variableValue = DateTime.Now;
+            var altVariableValue = "Test Value";
+            Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue,changeValue:true);
+            Assert.IsNotNull(results);
+            Assert.IsTrue(!results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==0);
+
+            results = ProcessVariables.TestProcessVariable(variableName, null, changeValue: true,newValue:variableValue);
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==1);
+            CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
+
+            results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: altVariableValue);
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==1);
+            CompareVariableValue(altVariableValue, (results.TryGetValue(variableName, out value) ? value : null));
+
+            results = ProcessVariables.TestProcessVariable(variableName, null, changeValue: true);
+            Assert.IsNotNull(results);
+            Assert.IsTrue(!results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==0);
+
+            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] {variableValue,variableValue}, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==1);
+            CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value: null));
+
+            results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==1);
+            CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value : null));
+
+            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue,variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            Assert.IsNotNull(results);
+            Assert.IsTrue(results.ContainsKey(variableName));
+            Assert.IsTrue(results.Count==1);
+            CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value : null));
+        }
+
+        [TestMethod]
+        public void TestStateVariableStorage()
         {
             Stream str = Utility.LoadResource("DiagramLoading/start_to_stop.bpmn");
             byte[] data = new byte[str.Length];
@@ -401,8 +452,24 @@ namespace UnitTest
                 {"TestByte", System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345")},
                 {"TestNull",null },
                 { "TestFile",new SFile(){Name="start_to_stop",Extension="bpmn",Content=data } },
-                {"TestArray","This is a test".ToCharArray() },
-                {"TestGuid",new Guid("a4966f14-0108-48ba-a793-8be9982bc411") }
+                {"TestGuid",new Guid("a4966f14-0108-48ba-a793-8be9982bc411") },
+
+                {"TestDateTimeArray",new DateTime[]{DateTime.Now,DateTime.Now } },
+                {"TestIntegerArray",new int[]{int.MinValue,int.MaxValue } },
+                {"TestShortArray",new short[]{short.MinValue,short.MaxValue } },
+                {"TestLongArray",new long[] { long.MinValue, long.MaxValue } },
+                {"TestUnsignedIntegerArray",new uint[] { uint.MinValue, uint.MaxValue } },
+                {"TestUnsignedShortArray",new ushort[] { ushort.MinValue, ushort.MaxValue } },
+                {"TestUnsignedLongArray",new ulong[] { ulong.MinValue, ulong.MaxValue } },
+                {"TestDoubleArray",new double[] { double.MinValue, double.MaxValue } },
+                {"TestDecimalArray",new decimal[] { decimal.MinValue, decimal.MaxValue } },
+                {"TestStringArray",new string[]{"This is a test string","This is also a test string" } },
+                {"TestCharArray",new char[]{'c','d' } },
+                {"TestBooleanArray",new bool[]{true,false } },
+                {"TestFloatArray",new float[] { float.MinValue, float.MaxValue }},
+                {"TestByteArray", new byte[][]{System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345"),System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 678910") } },
+                { "TestFileArray",new SFile[]{new SFile(){Name="start_to_stop",Extension="bpmn",Content=data },new SFile(){Name="start_to_stop",Extension="bpmn",Content=data } } },
+                {"TestGuidArray",new Guid[]{new Guid("a4966f14-0108-48ba-a793-8be9982bc411"),new Guid("a4966f14-0108-48ba-a793-8be9982bc412") } }
             };
 
             var taskVariables = new Dictionary<string, object>();

@@ -70,11 +70,6 @@ namespace BPMNEngine.Elements
             Definition.Info(this, message, pars);
         }
 
-        protected void Error(string message)
-        {
-            Definition.Error(this, message);
-        }
-
         protected Exception Exception(Exception exception)
         {
             return Definition.Exception(this, exception);

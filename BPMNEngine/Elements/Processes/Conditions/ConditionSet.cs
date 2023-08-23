@@ -17,7 +17,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 return Conditions.First().Evaluate(variables);
             }catch(Exception ex)
             {
-                Error(ex.Message);
+                Exception(ex);
                 return false;
             }
         }

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using BPMNEngine.Interfaces.Elements;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace UnitTest.Extensions
 {
@@ -36,6 +38,36 @@ namespace UnitTest.Extensions
                 Assert.Fail(e.Message);
             }
             Scripts.CheckResults(instance);
+        }
+
+        [TestMethod]
+        public void TestCSharpException()
+        {
+            var cache = new ConcurrentQueue<string>();
+            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp_exception.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
+            {
+                LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                {
+                    var ex = exception;
+                    while (ex!=null)
+                    {
+                        cache.Enqueue(ex.Message);
+                        ex= ex.InnerException;
+                    }
+                }
+            });
+            IProcessInstance instance = null;
+            try
+            {
+                instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+            }
+            catch (Exception e)
+            {
+                instance=null;
+                Assert.Fail(e.Message);
+            }
+            Assert.IsFalse(instance.WaitForCompletion(TimeSpan.FromSeconds(2)));
+            Assert.IsTrue(cache.Any(str => str.Contains("ERROR!!!")));
         }
 
         [TestMethod]
