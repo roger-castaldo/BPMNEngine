@@ -11,6 +11,8 @@
     <None Remove="diagrams\Delegates\start_complete_triggers.bpmn" />
     <None Remove="diagrams\Delegates\task_checks.bpmn" />
     <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
+    <None Remove="diagrams\DiagramLoading\no_definition.bpmn" />
+    <None Remove="diagrams\DiagramLoading\no_elements.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
     <None Remove="diagrams\EmissionHandling\errors.bpmn" />
     <None Remove="diagrams\EmissionHandling\escalations.bpmn" />
@@ -46,6 +48,8 @@
     <EmbeddedResource Include="diagrams\Delegates\task_checks.bpmn" />
     <EmbeddedResource Include="diagrams\Delegates\start_complete_triggers.bpmn" />
     <EmbeddedResource Include="diagrams\Delegates\path_valid_checks.bpmn" />
+    <EmbeddedResource Include="diagrams\DiagramLoading\no_definition.bpmn" />
+    <EmbeddedResource Include="diagrams\DiagramLoading\no_elements.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
     <EmbeddedResource Include="diagrams\EmissionHandling\errors.bpmn" />

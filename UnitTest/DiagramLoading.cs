@@ -14,6 +14,66 @@ namespace UnitTest
     public class DiagramLoading
     {
         [TestMethod]
+        public void LoadWithNoDefinition()
+        {
+            var log = new StringBuilder();
+
+            XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/no_definition.bpmn");
+            bool loaded = false;
+            try
+            {
+                BusinessProcess proc = new(doc,
+                    logging: new BPMNEngine.DelegateContainers.ProcessLogging()
+                    {
+                        LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                        {
+                            log.AppendLine($"{callingElement?.ID}|{exception.Message}");
+                        }
+                    }
+                );
+                loaded=true;
+            }
+            catch (Exception)
+            {
+            }
+            Assert.IsFalse(loaded);
+
+            var res = log.ToString();
+
+            Assert.IsTrue(res.Contains("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
+        }
+
+        [TestMethod]
+        public void LoadEmptyDocument()
+        {
+            var log = new StringBuilder();
+
+            XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/no_elements.bpmn");
+            bool loaded = false;
+            try
+            {
+                BusinessProcess proc = new(doc,
+                    logging: new BPMNEngine.DelegateContainers.ProcessLogging()
+                    {
+                        LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                        {
+                            log.AppendLine($"{callingElement?.ID}|{exception.Message}");
+                        }
+                    }
+                );
+                loaded=true;
+            }
+            catch (Exception)
+            {
+            }
+            Assert.IsFalse(loaded);
+
+            var res = log.ToString();
+
+            Assert.IsTrue(res.Contains("Unable to load a bussiness process from the supplied document.  No bpmn elements were located."));
+        }
+
+        [TestMethod]
         public void LoadInvalidDiagram()
         {
             var log = new StringBuilder();
@@ -52,6 +112,12 @@ namespace UnitTest
             Assert.IsTrue(res.Contains("A ExclusiveGateway must have at least 1 incoming path."));
             Assert.IsTrue(res.Contains("A ExclusiveGateway must have at least 1 outgoing path."));
             Assert.IsTrue(res.Contains("Too many children found."));
+            Assert.IsTrue(res.Contains("An Error Definition cannot have the type of *, this is reserved"));
+            Assert.IsTrue(res.Contains("An Error Definition for a Throw Event must have a Type defined"));
+            Assert.IsTrue(res.Contains("A Message Definition cannot have the name of *, this is reserved"));
+            Assert.IsTrue(res.Contains("A Message Definition for a Throw Event must have a Name defined"));
+            Assert.IsTrue(res.Contains("A Signal Definition cannot have the type of *, this is reserved"));
+            Assert.IsTrue(res.Contains("A Signal Definition for a Throw Event must have a Type defined"));
         }
 
         [TestMethod]

@@ -4,6 +4,9 @@ using BPMNEngine.Interfaces;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Xml;
 
 namespace UnitTest
 {

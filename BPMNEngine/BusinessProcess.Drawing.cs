@@ -27,10 +27,6 @@ namespace BPMNEngine
 
         private IImage Diagram(bool outputVariables, ProcessState state = null)
         {
-            if (definition==null)
-                throw new DiagramException("Process definition is null or missing");
-            if (!definition.Diagrams.Any())
-                throw new DiagramException("Process definition does not contain any Diagrams");
             state??=new ProcessState(this, null, null, null);
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             double width = 0;
@@ -155,11 +151,7 @@ namespace BPMNEngine
             try
             {
                 state.Path.StartAnimation();
-                IImage bd = Diagram(false, state);
-#pragma warning disable IDE0270 // Use coalesce expression
-                if (bd==null)
-                    throw new DiagramException("Unable to create first diagram frame");
-#pragma warning restore IDE0270 // Use coalesce expression
+                IImage bd = Diagram(false, state)??throw new DiagramException("Unable to create first diagram frame");
                 AnimatedPNG apng = new((outputVariables ? BusinessProcess.AppendVariables(bd, state) : bd))
                 {
                     DefaultFrameDelay= ANIMATION_DELAY

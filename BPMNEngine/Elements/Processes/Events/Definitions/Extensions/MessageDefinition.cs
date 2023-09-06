@@ -5,7 +5,6 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
     [XMLTag("exts", "MessageDefinition")]
     [ValidParent(typeof(ExtensionElements))]
-    [ValidParent(typeof(MessageEventDefinition))]
     internal class MessageDefinition : AElement
     {
         public MessageDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
@@ -19,7 +18,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
             var errors = new List<string>();
             if (Name == "*")
                 errors.Add("A Message Definition cannot have the name of *, this is reserved");
-            if (Parent.Parent is IntermediateThrowEvent && Name == null)
+            if (Parent.Parent.Parent is IntermediateThrowEvent && Name == null)
                 errors.Add("A Message Definition for a Throw Event must have a Name defined");
             err = (err??Array.Empty<string>()).Concat(errors);
             return res&&!errors.Any();

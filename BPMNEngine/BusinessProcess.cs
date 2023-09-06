@@ -171,7 +171,7 @@ namespace BPMNEngine
             });
             definition = components.OfType<Definition>().FirstOrDefault();
             if (!Elements.Any())
-                exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
+                exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No bpmn elements were located."));
             else
             {
                 if (definition==null)

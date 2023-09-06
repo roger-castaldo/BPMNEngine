@@ -11,11 +11,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     {
         public IEnumerable<string> SignalTypes 
             => Array.Empty<string>()
-                .Concat(
-                    Children
-                    .OfType<SignalDefinition>()
-                    .Select(ed => ed.Type ?? "*")
-                ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
+                .Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
                     ((IParentElement)ExtensionElement).Children
                     .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")

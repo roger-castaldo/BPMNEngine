@@ -6,7 +6,6 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
     [XMLTag("exts", "SignalDefinition")]
     [ValidParent(typeof(ExtensionElements))]
-    [ValidParent(typeof(SignalEventDefinition))]
     internal class SignalDefinition : AElement
     {
         public SignalDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
@@ -20,7 +19,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
             var errors = new List<string>();
             if (Type == "*")
                 errors.Add("A Signal Definition cannot have the type of *, this is reserved");
-            if (Parent.Parent is IntermediateThrowEvent && Type == null)
+            if (Parent.Parent.Parent is IntermediateThrowEvent && Type == null)
                 errors.Add("A Signal Definition for a Throw Event must have a Type defined");
             err = (err??Array.Empty<string>()).Concat(errors);
             return res&&!errors.Any();

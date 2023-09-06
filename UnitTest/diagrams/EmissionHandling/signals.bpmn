@@ -45,19 +45,25 @@
     <bpmn:boundaryEvent id="BoundaryEvent_1bbj59j" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_0lsmigx</bpmn:outgoing>
 		<bpmn:signalEventDefinition>
-			<exts:SignalDefinition type="interupting_catch"/>
+			<bpmn:extensionElements>
+			    <exts:SignalDefinition type="interupting_catch"/>
+		    </bpmn:extensionElements>
 		</bpmn:signalEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:boundaryEvent id="BoundaryEvent_1sdut64" cancelActivity="false" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_1kkxec6</bpmn:outgoing>
 		<bpmn:signalEventDefinition>
-			<exts:SignalDefinition type="non_interupting_catch"/>
+			<bpmn:extensionElements>
+			    <exts:SignalDefinition type="non_interupting_catch"/>
+		    </bpmn:extensionElements>
 		</bpmn:signalEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_0ms7d2m">
       <bpmn:outgoing>SequenceFlow_0lpf0us</bpmn:outgoing>
 		<bpmn:signalEventDefinition>
-			<exts:SignalDefinition type="external_catch"/>
+			<bpmn:extensionElements>
+			    <exts:SignalDefinition type="external_catch"/>
+			</bpmn:extensionElements>
 		</bpmn:signalEventDefinition>
     </bpmn:intermediateCatchEvent>
   </bpmn:process>

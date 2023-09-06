@@ -11,10 +11,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     {
         public IEnumerable<string> ErrorTypes
             => Array.Empty<string>()
-                .Concat(Children
-                    .OfType<ErrorDefinition>()
-                    .Select(ed => ed.Type ?? "*")
-                ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
+                .Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
                     ((IParentElement)ExtensionElement).Children
                     .OfType<ErrorDefinition>()
                     .Select(ed => ed.Type ?? "*")

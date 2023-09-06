@@ -31,6 +31,50 @@
 			  </exts:ConditionSet>
 		  </bpmn:extensionElements>
 	  </bpmn:exclusiveGateway>
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci7">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition type="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci8">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci9">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition name="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci10">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci11">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition type="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci12">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateThrowEvent>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">

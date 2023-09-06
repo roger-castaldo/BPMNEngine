@@ -11,11 +11,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     {
         public IEnumerable<string> MessageTypes 
             => Array.Empty<string>()
-                .Concat(
-                    Children
-                    .OfType<MessageDefinition>()
-                    .Select(ed => ed.Name ?? "*")
-                ).Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
+                .Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
                     ((IParentElement)ExtensionElement).Children
                     .OfType<MessageDefinition>()
                     .Select(ed => ed.Name ?? "*")

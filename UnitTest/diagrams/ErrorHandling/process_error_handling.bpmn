@@ -56,7 +56,9 @@
     <bpmn:boundaryEvent id="BoundaryEvent_0hxboq6" attachedToRef="Task_11szmyl">
       <bpmn:outgoing>SequenceFlow_0ma5klp</bpmn:outgoing>
 		<bpmn:errorEventDefinition>
-			<exts:ErrorDefinition type="Test Error 1"/>
+			<bpmn:extensionElements>
+			    <exts:ErrorDefinition type="Test Error 1"/>
+			</bpmn:extensionElements>
 		</bpmn:errorEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0ma5klp" sourceRef="BoundaryEvent_0hxboq6" targetRef="ExclusiveGateway_0x10osz" />
