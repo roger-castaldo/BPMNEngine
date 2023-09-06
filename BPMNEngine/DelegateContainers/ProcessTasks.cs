@@ -89,9 +89,9 @@
         /// </summary>
         public StartManualTask BeginManualTask { get; init; }
         /// <summary>
-        /// A delegate called to execute a Recieve Task
+        /// A delegate called to execute a Receive Task
         /// </summary>
-        public ProcessTask ProcessRecieveTask { get; init; }
+        public ProcessTask ProcessReceiveTask { get; init; }
         /// <summary>
         /// A delegate called to execute a Script Task.  This is called after any internal script extension elements have been processed.
         /// </summary>
@@ -153,7 +153,7 @@
             {
                 ProcessBusinessRuleTask = append.ProcessBusinessRuleTask??source.ProcessBusinessRuleTask,
                 BeginManualTask = append.BeginManualTask??source.BeginManualTask,
-                ProcessRecieveTask = append.ProcessRecieveTask ?? source.ProcessRecieveTask,
+                ProcessReceiveTask = append.ProcessReceiveTask ?? source.ProcessReceiveTask,
                 ProcessScriptTask = append.ProcessScriptTask ?? source.ProcessScriptTask,
                 ProcessSendTask = append.ProcessSendTask ?? source.ProcessSendTask,
                 ProcessServiceTask = append.ProcessServiceTask ?? source.ProcessServiceTask,

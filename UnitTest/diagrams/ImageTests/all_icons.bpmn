@@ -96,7 +96,7 @@
       <bpmn:incoming>SequenceFlow_19vsmsj</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0p3gmvg</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:receiveTask id="ReceiveTask_0f49tya" name="recieve task item">
+    <bpmn:receiveTask id="ReceiveTask_0f49tya" name="receive task item">
       <bpmn:incoming>SequenceFlow_0p3gmvg</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0hucplv</bpmn:outgoing>
     </bpmn:receiveTask>

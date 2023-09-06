@@ -189,7 +189,7 @@ namespace BPMNEngine
                         BusinessProcess.TriggerDelegateAsync(instance.Delegates.Tasks.BeginManualTask, new object[] { new Tasks.ManualTask(tsk, variables, instance) });
                         break;
                     case "ReceiveTask":
-                        delTask = instance.Delegates.Tasks.ProcessRecieveTask;
+                        delTask = instance.Delegates.Tasks.ProcessReceiveTask;
                         break;
                     case "ScriptTask":
                         ((ScriptTask)tsk).ProcessTask(task, instance.Delegates.Tasks.ProcessScriptTask);

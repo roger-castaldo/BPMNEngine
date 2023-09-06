@@ -99,12 +99,12 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestRecieveTask()
+        public void TestReceiveTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
-                ProcessRecieveTask = taskDelegateMock.Object,
+                ProcessReceiveTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
@@ -114,18 +114,18 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestRecieveTaskInstanceOverride()
+        public void TestReceiveTaskInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
-                ProcessRecieveTask = taskProcessDelegateMock.Object,
+                ProcessReceiveTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
             var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
             {
-                ProcessRecieveTask = taskInstanceDelegateMock.Object
+                ProcessReceiveTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
