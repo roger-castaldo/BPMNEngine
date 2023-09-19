@@ -32,16 +32,9 @@ namespace UnitTest
 
         private static Dictionary<string, object> TestProcessVariable(string variableName, object variableValue,bool changeValue=false,object newValue=null)
         {
-            IProcessInstance inst = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
+            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
 
-            int cnt = 0;
-            IUserTask task = inst.GetUserTask("UserTask_15dj2au");
-            while (cnt<5 && task==null)
-            {
-                Thread.Sleep(1000);
-                task = inst.GetUserTask("UserTask_15dj2au");
-                cnt++;
-            }
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(10), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
             if (variableValue==null)
                 Assert.AreEqual(0, task.Variables.Keys.Count());
@@ -56,8 +49,8 @@ namespace UnitTest
 
             task.MarkComplete();
 
-            Assert.IsTrue(Utility.WaitForCompletion(inst));
-            return inst.CurrentVariables;
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+            return instance.CurrentVariables;
         }
 
         [TestMethod]
@@ -479,9 +472,9 @@ namespace UnitTest
 
             variables.Remove("TestNull");
 
-            Thread.Sleep(1000);
-            IUserTask task = inst.GetUserTask("UserTask_15dj2au");
+            Assert.IsTrue(inst.WaitForUserTask(TimeSpan.FromSeconds(10), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
+
             foreach (string key in task.Variables.Keys)
                 taskVariables.Add(key, task.Variables[key]);
             task.MarkComplete();

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml;
 using BPMNEngine.Interfaces.Tasks;
+using System;
 
 namespace UnitTest
 {
@@ -47,9 +48,10 @@ namespace UnitTest
                 {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
             });
             Assert.IsNotNull(instance);
-            Thread.Sleep(5*1000);
-            IUserTask task = instance.GetUserTask("UserTask_15dj2au");
+
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
+
             Assert.AreEqual(1, task.Variables.Keys.Count());
             Assert.AreEqual(_TEST_VARIABLE_VALUE, task.Variables[_TEST_VARIABLE_NAME]);
             task.UserID = _TEST_USER_IDS[0];
@@ -85,7 +87,7 @@ namespace UnitTest
             Thread.Sleep(6*1000);
             while (idx<3)
             {
-                IUserTask task = instance.GetUserTask(_TaskNames[idx]);
+                Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), _TaskNames[idx], out IUserTask task));
                 Assert.IsNotNull(task);
                 Assert.IsNull(instance.GetUserTask(_TaskNames[idx+(idx==0 ? 1 : -1)]));
                 Assert.AreEqual(1, task.Variables.Keys.Count());
@@ -93,7 +95,6 @@ namespace UnitTest
                 task.UserID = _TEST_USER_IDS[idx];
                 task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUES[idx];
                 task.MarkComplete();
-                Thread.Sleep(5*1000);
                 idx++;
             }
             Assert.IsTrue(Utility.WaitForCompletion(instance));
@@ -117,10 +118,10 @@ namespace UnitTest
                 {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
             });
             Assert.IsNotNull(instance);
-            Thread.Sleep(5*1000);
-            IUserTask task = instance.GetUserTask("UserTask_15dj2au");
-            Assert.IsNotNull(task);
 
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));
+            Assert.IsNotNull(task);
+            
             Assert.AreEqual("UserTask_15dj2au", task.ID);
             Assert.AreEqual(task.ID, task["id"]);
 

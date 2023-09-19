@@ -10,6 +10,7 @@ using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
 using System.Text.Json;
+using System.Collections.Concurrent;
 
 namespace BPMNEngine
 {
@@ -19,35 +20,58 @@ namespace BPMNEngine
         public Guid ID { get; private init; }
         public ProcessState State { get; private init; }
 
-        private ManualResetEvent processLock=null;
-        private ManualResetEvent ProcessLock
+        private ManualResetEventSlim processLock =null;
+        private ManualResetEventSlim ProcessLock
         {
             get
             {
-                processLock ??= new ManualResetEvent(false);
+                processLock ??= new ManualResetEventSlim(false);
                 return processLock;
             }
         }
-        private ManualResetEvent mreSuspend=null;
-        public ManualResetEvent MreSuspend
+        private ManualResetEventSlim mreSuspend =null;
+        public ManualResetEventSlim MreSuspend
         {
             get
             {
-                mreSuspend ??= new ManualResetEvent(false);
+                mreSuspend ??= new ManualResetEventSlim(false);
                 return mreSuspend;
             }
         }
+
+        private readonly ConcurrentDictionary<string, ManualResetEventSlim> waitingTasks;
 
         private readonly LogLevel stateLogLevel;
         public DelegateContainer Delegates { get; private init; }
         public bool IsSuspended { get; private set; }
         private bool isComplete = false;
+        private bool disposedValue;
 
         internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevel stateLogLevel)
         {
             ID = Guid.NewGuid();
             Process = process;
-            Delegates=delegates;
+            waitingTasks = new();
+            Delegates=DelegateContainer.Merge(delegates,new DelegateContainer()
+            {
+                Events= new DelegateContainers.ProcessEvents()
+                {
+                    Tasks = new DelegateContainers.ProcessEvents.BasicEvents()
+                    {
+                        Started = (IStepElement element, IReadonlyVariables variables) =>
+                        {
+                            if (waitingTasks.Remove(element.ID,out var task))
+                            {
+                                try
+                                {
+                                    task.Set();
+                                    task.Dispose();
+                                }catch(Exception) { }
+                            }
+                        }
+                    }
+                }
+            });
             State = new ProcessState(Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
             this.stateLogLevel=stateLogLevel;
         }
@@ -148,15 +172,7 @@ namespace BPMNEngine
             }
         }
 
-        public void Dispose()
-        {
-            if (State.ActiveSteps.Any())
-                throw new ActiveStepsException();
-            StepScheduler.Instance.UnloadProcess(this);
-            State.Dispose();
-            processLock?.Dispose();
-            mreSuspend?.Dispose();
-        }
+        
         public override bool Equals(object obj)
         {
             if (obj is ProcessInstance pi)
@@ -215,7 +231,7 @@ namespace BPMNEngine
             var cnt = 0;
             while (State.ActiveSteps.Any() && cnt<10)
             {
-                if (!MreSuspend.WaitOne(5000))
+                if (!MreSuspend.Wait(5000))
                     break;
                 cnt++;
             }
@@ -230,6 +246,47 @@ namespace BPMNEngine
                 });
         }
 
+        private void WaitForTask(string taskID,TimeSpan? timeout=null)
+        {
+            if (!waitingTasks.TryGetValue(taskID, out var manualResetEventSlim))
+            {
+                manualResetEventSlim = new ManualResetEventSlim(false);
+                waitingTasks.TryAdd(taskID, manualResetEventSlim);
+            }
+            if (timeout.HasValue)
+                manualResetEventSlim.Wait(timeout.Value);
+            else
+                manualResetEventSlim.Wait();
+        }
+
+        #region UserTasks
+        IUserTask IProcessInstance.GetUserTask(string taskID)
+        {
+            IUserTask ret = null;
+            if (State.Path.GetStatus(taskID)==StepStatuses.Waiting)
+            {
+                ATask elem = Process.GetTask(taskID);
+                if (elem != null && elem is UserTask)
+                    ret = new BPMNEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
+            }
+            return ret;
+        }
+
+        bool IProcessInstance.WaitForUserTask(string taskID, out IUserTask task)
+            => ((IProcessInstance)this).WaitForUserTask(TimeSpan.Zero, taskID, out task);
+
+        bool IProcessInstance.WaitForUserTask(int millisecondsTimeout, string taskID, out IUserTask task)
+            => ((IProcessInstance)this).WaitForUserTask(TimeSpan.FromMilliseconds(millisecondsTimeout), taskID, out task);
+
+        bool IProcessInstance.WaitForUserTask(TimeSpan timeout, string taskID, out IUserTask task)
+        {
+            WaitForTask(taskID, timeout.Equals(TimeSpan.Zero) ? null : timeout);
+            task = ((IProcessInstance)this).GetUserTask(taskID);
+            return task!=null;
+        }
+        #endregion
+
+        #region ManualTasks
         IManualTask IProcessInstance.GetManualTask(string taskID)
         {
             IManualTask ret = null;
@@ -242,17 +299,19 @@ namespace BPMNEngine
             return ret;
         }
 
-        IUserTask IProcessInstance.GetUserTask(string taskID)
+        bool IProcessInstance.WaitForManualTask(string taskID, out IManualTask task)
+            => ((IProcessInstance)this).WaitForManualTask(TimeSpan.Zero, taskID, out task);
+
+        bool IProcessInstance.WaitForManualTask(int millisecondsTimeout, string taskID, out IManualTask task)
+            => ((IProcessInstance)this).WaitForManualTask(TimeSpan.FromMilliseconds(millisecondsTimeout), taskID, out task);
+
+        bool IProcessInstance.WaitForManualTask(TimeSpan timeout, string taskID, out IManualTask task)
         {
-            IUserTask ret = null;
-            if (State.Path.GetStatus(taskID)==StepStatuses.Waiting)
-            {
-                ATask elem = Process.GetTask(taskID);
-                if (elem != null && elem is UserTask)
-                    ret = new BPMNEngine.Tasks.UserTask((ATask)elem, new ProcessVariablesContainer(taskID, this), this);
-            }
-            return ret;
+            WaitForTask(taskID, timeout.Equals(TimeSpan.Zero) ? null : timeout);
+            task = ((IProcessInstance)this).GetManualTask(taskID);
+            return task!=null;
         }
+        #endregion
 
         #region Logging
         internal void WriteLogLine(string elementID, LogLevel level, StackFrame sf, DateTime timestamp, string message)
@@ -278,51 +337,18 @@ namespace BPMNEngine
 
         #region ProcessLock
         bool IProcessInstance.WaitForCompletion()
-        {
-            var result = true;
-            if (!isComplete)
-            {
-                result = ProcessLock.WaitOne();
-                result = result || isComplete;
-            }
-            return result;
-        }
+            => ((IProcessInstance)this).WaitForCompletion(TimeSpan.Zero);
         bool IProcessInstance.WaitForCompletion(int millisecondsTimeout)
-        {
-            var result = true;
-            if (!isComplete)
-            {
-                result = ProcessLock.WaitOne(millisecondsTimeout);
-                result = result || isComplete;
-            }
-            return result;
-        }
+            => ((IProcessInstance)this).WaitForCompletion(TimeSpan.FromMilliseconds(millisecondsTimeout));
         bool IProcessInstance.WaitForCompletion(TimeSpan timeout)
         {
             var result = true;
             if (!isComplete)
             {
-                result = ProcessLock.WaitOne(timeout);
-                result = result || isComplete;
-            }
-            return result;
-        }
-        bool IProcessInstance.WaitForCompletion(int millisecondsTimeout, bool exitContext)
-        {
-            var result = true;
-            if (!isComplete)
-            {
-                result = ProcessLock.WaitOne(millisecondsTimeout,exitContext);
-                result = result || isComplete;
-            }
-            return result;
-        }
-        bool IProcessInstance.WaitForCompletion(TimeSpan timeout, bool exitContext)
-        {
-            var result = true;
-            if (!isComplete)
-            {
-                result = ProcessLock.WaitOne(timeout, exitContext);
+                if (timeout.Equals(TimeSpan.Zero))
+                    ProcessLock.Wait();
+                else 
+                    result = ProcessLock.Wait(timeout);
                 result = result || isComplete;
             }
             return result;
@@ -336,6 +362,41 @@ namespace BPMNEngine
 
         byte[] IProcessInstance.Animate(bool outputVariables)
             => Process.Animate(outputVariables, State);
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    if (State.ActiveSteps.Any())
+                        throw new ActiveStepsException();
+                    StepScheduler.Instance.UnloadProcess(this);
+                    State.Dispose();
+                    processLock?.Dispose();
+                    mreSuspend?.Dispose();
+                    waitingTasks.Clear();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue=true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~ProcessInstance()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
 
         #endregion
     }

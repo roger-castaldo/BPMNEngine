@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest.Extensions
 {
@@ -26,8 +27,8 @@ namespace UnitTest.Extensions
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
 
-            Task.Delay(TimeSpan.FromSeconds(1)).Wait();
-            var task = instance.GetUserTask("UserTask_15dj2au");
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));
+            
             Assert.IsNotNull(task);
             Assert.IsTrue(task.Variables.FullKeys.Contains(_FILE_NAME));
             var file = (SFile)task.Variables[_FILE_NAME];

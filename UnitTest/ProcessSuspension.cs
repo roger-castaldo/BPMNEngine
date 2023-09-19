@@ -70,8 +70,7 @@ namespace UnitTest
             instance = _userProcess.LoadState(doc);
             Assert.IsNotNull(instance);
             instance.Resume();
-            System.Threading.Thread.Sleep(4*1000);
-            IUserTask task = instance.GetUserTask("UserTask_07o8pvs");
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_07o8pvs", out IUserTask task));
             Assert.IsNotNull(task);
             task.MarkComplete();
             Assert.IsTrue(Utility.WaitForCompletion(instance));

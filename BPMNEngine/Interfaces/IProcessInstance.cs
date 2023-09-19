@@ -75,23 +75,8 @@ namespace BPMNEngine.Interfaces
         /// <returns>the result of calling WaitOne(timeout) on the Process Complete manual reset event</returns>
         bool WaitForCompletion(TimeSpan timeout);
 
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete including a timeout and exit context
-        /// </summary>
-        /// <param name="millisecondsTimeout">The timeout for the process to complete</param>
-        /// <param name="exitContext">The exitContext variable</param>
-        /// <returns>the result of calling WaitOne(millisecondsTimeout,exitContext) on the Process Complete manual reset event</returns>
-        bool WaitForCompletion(int millisecondsTimeout, bool exitContext);
-
-        /// <summary>
-        /// Used to lock a Thread into waiting for the process to complete including a timeout and exit context
-        /// </summary>
-        /// <param name="timeout">The timeout for the process to complete</param>
-        /// <param name="exitContext">The exitContext variable</param>
-        /// <returns>the result of calling WaitOne(timeout,exitContext) on the Process Complete manual reset event</returns>
-        bool WaitForCompletion(TimeSpan timeout, bool exitContext);
-
         #endregion
+        #region UserTasks
         /// <summary>
         /// Used to get an Active User Task by supplying the task ID
         /// </summary>
@@ -99,11 +84,64 @@ namespace BPMNEngine.Interfaces
         /// <returns>The User task specified from the business process. If it cannot be found or the Task is not waiting it will return null.</returns>
         IUserTask GetUserTask(string taskID);
         /// <summary>
+        /// Used to lock a Thread into waiting for a user task to be ready
+        /// </summary>
+        /// <param name="taskID">The id of the task to wait for</param>
+        /// <param name="task">The User task specified if the task was successfully started</param>
+        /// <returns>the result of calling WaitOne on the User Task manual reset event</returns>
+        bool WaitForUserTask(string taskID,out IUserTask task);
+
+        /// <summary>
+        /// Used to lock a Thread into waiting for a user task to be ready
+        /// </summary>
+        /// <param name="millisecondsTimeout">The timeout for the user task to start</param>
+        /// <param name="taskID">The id of the task to wait for</param>
+        /// <param name="task">The User task specified if the task was successfully started</param>
+        /// <returns>the result of calling WaitOne(millisecondsTimeout) on the User Task manual reset event</returns>
+        bool WaitForUserTask(int millisecondsTimeout,string taskID, out IUserTask task);
+
+        /// <summary>
+        /// Used to lock a Thread into waiting for a user task to be ready
+        /// </summary>
+        /// <param name="timeout">The timeout for the user task to start</param>
+        /// <param name="taskID">The id of the task to wait for</param>
+        /// <param name="task">The User task specified if the task was successfully started</param>
+        /// <returns>the result of calling WaitOne(timeout) on the User Task manual reset event</returns>
+        bool WaitForUserTask(TimeSpan timeout, string taskID, out IUserTask task);
+        #endregion
+        #region ManualTasks
+        /// <summary>
         /// Used to get an Active Manual Task by supplying the task ID
         /// </summary>
         /// <param name="taskID">The id of the task to load</param>
         /// <returns>The User task specified from the business process. If it cannot be found or the Task is not waiting it will return null.</returns>
         IManualTask GetManualTask(string taskID);
+        /// <summary>
+        /// Used to lock a Thread into waiting for a Manual task to be ready
+        /// </summary>
+        /// <param name="taskID">The id of the task to wait for</param>
+        /// <param name="task">The Manual task specified if the task was successfully started</param>
+        /// <returns>the result of calling WaitOne on the Manual Task manual reset event</returns>
+        bool WaitForManualTask(string taskID, out IManualTask task);
+
+        /// <summary>
+        /// Used to lock a Thread into waiting for a Manual task to be ready
+        /// </summary>
+        /// <param name="millisecondsTimeout">The timeout for the Manual task to start</param>
+        /// <param name="taskID">The id of the task to wait for</param>
+        /// <param name="task">The Manual task specified if the task was successfully started</param>
+        /// <returns>the result of calling WaitOne(millisecondsTimeout) on the Manual Task manual reset event</returns>
+        bool WaitForManualTask(int millisecondsTimeout, string taskID, out IManualTask task);
+
+        /// <summary>
+        /// Used to lock a Thread into waiting for a Manual task to be ready
+        /// </summary>
+        /// <param name="timeout">The timeout for the Manual task to start</param>
+        /// <param name="taskID">The id of the task to wait for</param>
+        /// <param name="task">The Manual task specified if the task was successfully started</param>
+        /// <returns>the result of calling WaitOne(timeout) on the Manual Task manual reset event</returns>
+        bool WaitForManualTask(TimeSpan timeout, string taskID, out IManualTask task);
+        #endregion
         /// <summary>
         /// Used to get the current variable values for this process instance
         /// </summary>

@@ -29,9 +29,10 @@ namespace UnitTest
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
 
             Assert.IsNotNull(instance);
-            Thread.Sleep(5*1000);
-            IUserTask task = instance.GetUserTask("UserTask_15dj2au");
+
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
+
             Assert.AreEqual(1, task.Variables.FullKeys.Count());
             Assert.IsTrue(task.Variables.FullKeys.Contains(VARIABLE_NAME));
             Assert.AreEqual(VARIABLE_VALUE, task.Variables[VARIABLE_NAME]);
