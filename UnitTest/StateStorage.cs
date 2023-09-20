@@ -28,13 +28,13 @@ namespace UnitTest
         };
 
         [ClassInitialize]
-        public static void Initialize(TestContext testContext)
+        public static void Initialize()
         {
             _singleTaskProcess = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
                 tasks: new() {
                     BeginUserTask=(IUserTask task) =>
                     {
-                        Task.Delay(TimeSpan.FromMilliseconds(1500)).Wait();
+                        Task.Delay(TimeSpan.FromSeconds(2)).Wait();
                         task.Debug(_TEST_LOG_LINE);
                         task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUE;
                         task.Variables[_TEST_FILE_VARIABLE]=_TEST_FILES;
@@ -93,7 +93,7 @@ namespace UnitTest
         public void TestXMLStorage()
         {
             var inst = _singleTaskProcess.BeginProcess(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
-            Task.Delay(TimeSpan.FromMilliseconds(500)).Wait();
+            Assert.IsTrue(inst.WaitForUserTask("UserTask_15dj2au", out _));
             Assert.IsTrue(inst.CurrentState.ActiveElements.Any());
             Assert.IsTrue(inst.WaitForCompletion());
 
@@ -112,7 +112,7 @@ namespace UnitTest
         public void TestJsonStorage()
         {
             var inst = _singleTaskProcess.BeginProcess(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
-            Task.Delay(TimeSpan.FromMilliseconds(500)).Wait();
+            Assert.IsTrue(inst.WaitForUserTask("UserTask_15dj2au", out _));
             Assert.IsTrue(inst.CurrentState.ActiveElements.Any());
             Assert.IsTrue(inst.WaitForCompletion());
 
