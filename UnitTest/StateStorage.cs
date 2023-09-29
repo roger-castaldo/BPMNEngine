@@ -28,7 +28,9 @@ namespace UnitTest
         };
 
         [ClassInitialize]
-        public static void Initialize()
+#pragma warning disable IDE0060 // Remove unused parameter
+        public static void Initialize(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             _singleTaskProcess = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
                 tasks: new() {
@@ -73,7 +75,7 @@ namespace UnitTest
             Assert.IsNotNull(steps);
             Assert.IsTrue(steps.Any(s => s.ElementID=="UserTask_15dj2au" && s.Status==StepStatuses.Waiting));
             Assert.IsTrue(steps.Any(s => s.ElementID=="UserTask_15dj2au" && s.Status==StepStatuses.Succeeded && s.CompletedBy==_USER_ID && s.OutgoingID.Contains("SequenceFlow_1nn72ou")));
-            Assert.IsTrue(steps.Any(s => s.ElementID=="EndEvent_181ulmj" && s.Status==StepStatuses.Succeeded && (s.OutgoingID==null || s.OutgoingID.Count()==0)));
+            Assert.IsTrue(steps.Any(s => s.ElementID=="EndEvent_181ulmj" && s.Status==StepStatuses.Succeeded && (s.OutgoingID==null || !s.OutgoingID.Any())));
         }
 
         private static void TestLog(string log)
@@ -82,7 +84,7 @@ namespace UnitTest
             Assert.IsTrue(log.Contains("Debug"));
         }
 
-        private void TestCurrentState(IState currentState)
+        private static void TestCurrentState(IState currentState)
         {
             Assert.IsTrue(!currentState.ActiveElements.Any());
             Assert.IsTrue(currentState.Keys.Any(k => k==_TEST_VARIABLE_NAME));

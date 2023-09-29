@@ -22,7 +22,9 @@ namespace UnitTest
 
 
         [ClassInitialize()]
+#pragma warning disable IDE0060 // Remove unused parameter
         public static void Initialize(TestContext testContext)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { 
                 BeginUserTask= new StartUserTask(BeginUserTask) 
@@ -52,15 +54,10 @@ namespace UnitTest
         {
             XmlDocument xml = new();
             xml.LoadXml(state.AsXMLDocument);
-            XmlNode node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='WaitingStart']", name));
+            XmlNode node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name));
             if (node!=null)
             {
-                DateTime? start = DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture);
-            }
-            node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name));
-            if (node!=null)
-            {
-                return DateTime.ParseExact(node.Attributes["endTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture).Subtract((((DateTime?)null).HasValue ? ((DateTime?)null).Value : DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture)));
+                return DateTime.ParseExact(node.Attributes["endTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture).Subtract((((DateTime?)null)??DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture)));
             }
             return null;
         }
