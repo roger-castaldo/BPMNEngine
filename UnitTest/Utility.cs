@@ -24,21 +24,21 @@ namespace UnitTest
             Stream src = LoadResource(path);
             if (src==null)
                 return null;
-            XmlDocument ret = new XmlDocument();
+            var ret = new XmlDocument();
             ret.Load(src);
             return ret;
         }
 
         public static bool StepCompleted(IState state,string name)
         {
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.LoadXml(state.AsXMLDocument);
             return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
         }
 
         public static bool StepAborted(IState state, string name)
         {
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.LoadXml(state.AsXMLDocument);
             return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
         }

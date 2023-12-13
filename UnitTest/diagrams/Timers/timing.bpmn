@@ -18,7 +18,16 @@
     <bpmn:boundaryEvent id="BoundaryEvent_1s99zkc" cancelActivity="false" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_1bbe50i</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-			<exts:DateString>+30 seconds</exts:DateString>
+		  <bpmn:extensionElements>
+		      <exts:Javascript>
+			      <![CDATA[
+				    const seconds = 30;
+				    var date = new Date();
+				    date.setSeconds(date.getSeconds() + seconds);
+				    return date;
+				    ]]>
+		      </exts:Javascript>
+		  </bpmn:extensionElements>
 		</bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_13bmvkv">

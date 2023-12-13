@@ -16,6 +16,7 @@ namespace UnitTest
         private static BusinessProcess _signalProcess;
         private static BusinessProcess _escalateProcess;
         private static BusinessProcess _errorProcess;
+        private static BusinessProcess _throwCatchProcess;
 
         private const string _ACTION_ID = "Action";
         private const string _VALUE_ID = "ActionValue";
@@ -28,6 +29,7 @@ namespace UnitTest
             _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
             _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
             _errorProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/errors.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
+            _throwCatchProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/throw_catching.bpmn"));
         }
 
         [ClassCleanup]
@@ -36,6 +38,8 @@ namespace UnitTest
             _messageProcess.Dispose();
             _signalProcess.Dispose();
             _escalateProcess.Dispose();
+            _errorProcess.Dispose();
+            _throwCatchProcess.Dispose();
         }
 
         private static void ProcessTask(ITask task)
@@ -181,6 +185,18 @@ namespace UnitTest
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0cezzjh"));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
+        }
+
+        private static readonly string[] ThrowCatchSteps = new[] { "Event_0ms842d", "Event_03kuv0p", "Event_1p2py1q", "Event_176mo0n", "Event_0juephw", "Event_1p6l3ai" };
+
+        [TestMethod]
+        public void TestThrowCatchInternal()
+        {
+            IProcessInstance instance = _throwCatchProcess.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+            foreach (var step in ThrowCatchSteps)
+                Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, step));
         }
     }
 }

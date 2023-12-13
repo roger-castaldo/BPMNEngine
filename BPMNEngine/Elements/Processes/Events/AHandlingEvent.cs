@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Variables;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
@@ -37,7 +38,10 @@ namespace BPMNEngine.Elements.Processes.Events
                         break;
                     case EventSubTypes.Error:
                         Exception ex = (Exception)data;
-                        handlesEvent = Types.Contains(ex.Message)||Types.Contains(ex.GetType().Name)||Types.Contains("*");
+                        if (ex is IntermediateProcessExcepion intermediateProcessExcepion)
+                            handlesEvent = Types.Contains(intermediateProcessExcepion.ProcessMessage)||Types.Contains(intermediateProcessExcepion.Message)||Types.Contains("*");
+                        else
+                            handlesEvent = Types.Contains(ex.Message)||Types.Contains(ex.GetType().Name)||Types.Contains("*");
                         break;
                     case EventSubTypes.Conditional:
                         handlesEvent=Condition.IsValid(variables);

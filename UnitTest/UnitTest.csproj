@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -18,6 +18,7 @@
     <None Remove="diagrams\EmissionHandling\escalations.bpmn" />
     <None Remove="diagrams\EmissionHandling\messages.bpmn" />
     <None Remove="diagrams\EmissionHandling\signals.bpmn" />
+    <None Remove="diagrams\EmissionHandling\throw_catching.bpmn" />
     <None Remove="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <None Remove="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
@@ -27,6 +28,7 @@
     <None Remove="diagrams\Extensions\definition_file.bpmn" />
     <None Remove="diagrams\Extensions\definition_variable.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp_compilation_error.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
@@ -56,6 +58,7 @@
     <EmbeddedResource Include="diagrams\EmissionHandling\escalations.bpmn" />
     <EmbeddedResource Include="diagrams\EmissionHandling\signals.bpmn" />
     <EmbeddedResource Include="diagrams\EmissionHandling\messages.bpmn" />
+    <EmbeddedResource Include="diagrams\EmissionHandling\throw_catching.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
@@ -63,6 +66,7 @@
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\definition_file.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_compilation_error.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />

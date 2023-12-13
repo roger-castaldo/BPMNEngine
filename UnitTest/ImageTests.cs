@@ -17,12 +17,12 @@ namespace UnitTest
             System.Diagnostics.Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
         }
 
-        private void Trace(string message)
+        private static void Trace(string message)
         {
             System.Diagnostics.Trace.WriteLine(message);
         }
 
-        private void Trace(string message, object[] pars)
+        private static void Trace(string message, object[] pars)
         {
             Trace(String.Format(message, pars));
         }
@@ -30,13 +30,14 @@ namespace UnitTest
         [TestMethod]
         public void TestPngImageGeneration()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
             Exception ex = null;
-            byte[] data = null;
+            byte[] data;
             try
             {
                 data = bp.Diagram(Microsoft.Maui.Graphics.ImageFormat.Png);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 ex=e;
                 data=null;
@@ -46,7 +47,7 @@ namespace UnitTest
             Assert.IsTrue(data.Length > 0);
             string tmpFile = Path.GetTempFileName();
             Trace("Writing png with all icons to {0}",new object[] { tmpFile });
-            BinaryWriter bw = new BinaryWriter(new FileStream(tmpFile, FileMode.Create, FileAccess.Write, FileShare.None));
+            var bw = new BinaryWriter(new FileStream(tmpFile, FileMode.Create, FileAccess.Write, FileShare.None));
             bw.Write(data);
             bw.Flush();
             bw.Close();
@@ -55,9 +56,9 @@ namespace UnitTest
         [TestMethod]
         public void TestJpegImageGeneration()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
             Exception ex = null;
-            byte[] data = null;
+            byte[] data;
             try
             {
                 data = bp.Diagram(Microsoft.Maui.Graphics.ImageFormat.Jpeg);
@@ -76,12 +77,12 @@ namespace UnitTest
         [TestMethod]
         public void TestVariableOutput()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
             IProcessInstance instance = bp.LoadState(Utility.LoadResourceDocument("ImageTests/vacation_state.xml"));
             Assert.IsNotNull(instance);
             Exception ex = null;
-            byte[] data = null;
-            byte[] nonState = null;
+            byte[] data;
+            byte[] nonState;
             try
             {
                 data = instance.Diagram(true, Microsoft.Maui.Graphics.ImageFormat.Png);
@@ -91,6 +92,7 @@ namespace UnitTest
             {
                 ex=e;
                 data=null;
+                nonState=null;
             }
             Assert.IsNull(ex);
             Assert.IsNotNull(data);
@@ -102,12 +104,12 @@ namespace UnitTest
         [TestMethod()]
         public void TestAnimateProcess()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
             IProcessInstance instance = bp.LoadState(Utility.LoadResourceDocument("ImageTests/vacation_state.xml"));
             Assert.IsNotNull(instance);
             Exception ex = null;
-            byte[] data = null;
-            byte[] nonState = null;
+            byte[] data;
+            byte[] nonState;
             try
             {
                 data = instance.Animate(true);
@@ -117,6 +119,7 @@ namespace UnitTest
             {
                 ex=e;
                 data=null;
+                nonState = null;
             }
             Assert.IsNull(ex);
             Assert.IsNotNull(data);

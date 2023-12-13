@@ -71,6 +71,13 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
+        public void TestCSharpCompilationException()
+        {
+            var err = Assert.ThrowsException<InvalidProcessDefinitionException>(() => new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp_compilation_error.bpmn")));
+            Assert.IsTrue(err.ProcessExceptions.Any(ex => ex.Message.Contains("Unable to compile script Code.  Errors:")));
+        }
+
+        [TestMethod]
         public void TestVBScript()
         {
             var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/visual_basic.bpmn"));

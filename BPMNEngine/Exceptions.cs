@@ -20,16 +20,15 @@ namespace BPMNEngine
     /// </summary>
     public class InvalidProcessDefinitionException : Exception
     {
-        private readonly IEnumerable<Exception> _processExceptions;
         /// <summary>
         /// The Exception(s) thrown during the validation process.
         /// </summary>
-        public IEnumerable<Exception> ProcessExceptions => _processExceptions.Distinct(new ExceptionComparer());
+        public IEnumerable<Exception> ProcessExceptions { get; private init; }
 
         internal InvalidProcessDefinitionException(IEnumerable<Exception> children)
             : base("The process failed validation.  The property ProcessExceptions contains the list of details.")
         {
-            _processExceptions = children;
+            ProcessExceptions = children.Distinct(new ExceptionComparer()).ToArray();
         }
     }
 
@@ -94,5 +93,20 @@ namespace BPMNEngine
     {
         internal ActiveStepsException()
             : base("An attempt was made to dispose of a Process Instance with active steps") { }
+    }
+
+    /// <summary>
+    /// This Exception is thrown by an Intermediate Throw Event when an Error Message is defined
+    /// </summary>
+    public class IntermediateProcessExcepion : Exception
+    {
+        /// <summary>
+        /// Houses the error message string defined inside the ErrorMessage definition from within the process document
+        /// </summary>
+        public string ProcessMessage { get; private init; }
+        internal IntermediateProcessExcepion(string message)
+            : base($"An Intermediate Event threw the following error: {message}") {
+            ProcessMessage=message;
+        }
     }
 }

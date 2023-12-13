@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Xml;
 using BPMNEngine.Interfaces.Elements;
 using System.Text;
+using System.Linq;
 
 namespace UnitTest
 {
@@ -76,27 +77,9 @@ namespace UnitTest
         [TestMethod]
         public void LoadInvalidDiagram()
         {
-            var log = new StringBuilder();
+            var err = Assert.ThrowsException<InvalidProcessDefinitionException>(() => new BusinessProcess(Utility.LoadResourceDocument("DiagramLoading/invalid.bpmn")));
 
-            XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/invalid.bpmn");
-            bool loaded = false;
-            try
-            {
-                BusinessProcess proc = new(doc,
-                    logging: new BPMNEngine.DelegateContainers.ProcessLogging() {
-                        LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
-                        {
-                            log.AppendLine($"{callingElement?.ID}|{exception.Message}");
-                        }
-                    }
-                );
-                loaded=true;
-            }catch(Exception)
-            {
-            }
-            Assert.IsFalse(loaded);
-
-            var res = log.ToString();
+            var res = String.Join('\n', err.ProcessExceptions.Select(e => e.Message));
 
             Assert.IsTrue(res.Contains("Start Events must have an outgoing path"));
             Assert.IsTrue(res.Contains("Intermediate Catch Events must have an outgoing path."));
@@ -118,6 +101,18 @@ namespace UnitTest
             Assert.IsTrue(res.Contains("A Message Definition for a Throw Event must have a Name defined"));
             Assert.IsTrue(res.Contains("A Signal Definition cannot have the type of *, this is reserved"));
             Assert.IsTrue(res.Contains("A Signal Definition for a Throw Event must have a Type defined"));
+            Assert.IsTrue(res.Contains("Intermediate Throw Events must have only 1 incoming path."));
+            Assert.IsTrue(res.Contains("A throw event can only have one signal to be thrown."));
+            Assert.IsTrue(res.Contains("A throw event can only have one message to be thrown."));
+            Assert.IsTrue(res.Contains("A throw event can only have one error to be thrown."));
+            Assert.IsTrue(res.Contains("A throw event cannot signal with a wildcard signal."));
+            Assert.IsTrue(res.Contains("A throw event cannot error with a wildcard error."));
+            Assert.IsTrue(res.Contains("A throw event cannot message with a wildcard message."));
+            Assert.IsTrue(res.Contains("A throw must have a signal to throw."));
+            Assert.IsTrue(res.Contains("A throw must have a error to throw."));
+            Assert.IsTrue(res.Contains("A throw must have a message to throw."));
+            Assert.IsTrue(res.Contains("No child elements to render."));
+            Assert.IsTrue(res.Contains("No child elements found in Process."));
         }
 
         [TestMethod]

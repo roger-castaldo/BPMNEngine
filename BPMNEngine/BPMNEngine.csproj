@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
     <RootNamespace>BPMNEngine</RootNamespace>
     <PackageId>BPMNEngine</PackageId>
     <Version>3.0-beta1</Version>
@@ -56,18 +56,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-    <PackageReference Include="Microsoft.Maui.Graphics" Version="7.0.92" />
-    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="7.0.92" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.3" />
     <PackageReference Include="Vsxmd" Version="1.4.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.CodeDom" Version="7.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.6.0" />
-	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
-	<PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.3" />
-	<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.3" />
+    <PackageReference Include="System.CodeDom" Version="8.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.8.0" />
+	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
+	<PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" />
+	<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.6" />
   </ItemGroup>
 </Project>

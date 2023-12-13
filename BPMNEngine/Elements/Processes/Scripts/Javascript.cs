@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Variables;
+using System;
 using System.Reflection;
 
 namespace BPMNEngine.Elements.Processes.Scripts
@@ -89,8 +90,25 @@ namespace BPMNEngine.Elements.Processes.Scripts
             if (IsCondition)
                 return bool.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
             else if (IsTimerEvent)
-                return DateTime.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
+                return ConvertJsDateToDateTime(_toObject.Invoke(ret, Array.Empty<object>()));
             return pars[1];
+        }
+
+        static DateTime ConvertJsDateToDateTime(object jsDate)
+        {
+            // Assuming 'jsDate' is the value returned from Jint representing a JavaScript Date
+            // Convert the JavaScript timestamp to a .NET DateTime object
+            if (jsDate is double timestamp)
+            {
+                // JavaScript Date represents time in milliseconds since January 1, 1970 (UTC)
+                var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                return unixEpoch.AddMilliseconds(timestamp).ToLocalTime();
+            }
+            else if (jsDate is DateTime)
+                return TimeZoneInfo.ConvertTime((DateTime)jsDate, TimeZoneInfo.Local);
+
+            // Handle other cases if needed
+            throw new ArgumentException("Invalid JavaScript Date format.");
         }
 
         protected override bool ScriptIsValid(out IEnumerable<string> err)

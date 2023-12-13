@@ -34,7 +34,7 @@
 	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci7">
 		  <bpmn:errorEventDefinition>
 			  <bpmn:extensionElements>
-				  <exts:ErrorDefinition type="*"/>
+				  <exts:ErrorDefinition type="error_not_sent"/>
 			  </bpmn:extensionElements>
 		  </bpmn:errorEventDefinition>
 	  </bpmn:intermediateCatchEvent>
@@ -49,7 +49,7 @@
 	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci9">
 		  <bpmn:messageEventDefinition>
 			  <bpmn:extensionElements>
-				  <exts:MessageDefinition name="*"/>
+				  <exts:MessageDefinition name="message_not_sent"/>
 			  </bpmn:extensionElements>
 		  </bpmn:messageEventDefinition>
 	  </bpmn:intermediateCatchEvent>
@@ -64,7 +64,7 @@
 	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci11">
 		  <bpmn:signalEventDefinition>
 			  <bpmn:extensionElements>
-				  <exts:SignalDefinition type="*"/>
+				  <exts:SignalDefinition type="signal_not_sent"/>
 			  </bpmn:extensionElements>
 		  </bpmn:signalEventDefinition>
 	  </bpmn:intermediateCatchEvent>
@@ -75,7 +75,71 @@
 			  </bpmn:extensionElements>
 		  </bpmn:signalEventDefinition>
 	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci13">
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci14">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition type="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci15">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition type="error1"/>
+				  <exts:ErrorDefinition type="error2"/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci16">
+		  <bpmn:errorEventDefinition/>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci17">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition name="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci18">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition name="message1"/>
+				  <exts:MessageDefinition name="message2"/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci18">
+		  <bpmn:messageEventDefinition/>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci19">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition type="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci20">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition type="signal1"/>
+				  <exts:SignalDefinition type="signal2"/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci20">
+		  <bpmn:signalEventDefinition/>
+	  </bpmn:intermediateThrowEvent>
   </bpmn:process>
+	<bpmn:process id="Process_2" isExecutable="false">
+	</bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
@@ -88,6 +152,8 @@
 			<di:waypoint xsi:type="dc:Point" x="304" y="390" />
 		</bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
+	  <bpmndi:BPMNPlane id="BPMNPlane_2" bpmnElement="Process_2">
+	  </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 	<bpmndi:BPMNDiagram id="BPMNDiagram_2">
 	</bpmndi:BPMNDiagram>
