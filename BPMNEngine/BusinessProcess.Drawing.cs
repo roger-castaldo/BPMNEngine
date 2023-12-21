@@ -27,7 +27,7 @@ namespace BPMNEngine
 
         private IImage Diagram(bool outputVariables, ProcessState state = null)
         {
-            state??=new ProcessState(this, null, null, null);
+            state??=new ProcessState(null,this, null, null, null);
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
             double width = 0;
             double height = 0;

@@ -315,12 +315,24 @@ namespace BPMNEngine
                 if (start!=null)
                 {
                     ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.ID));
-                    BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Processes.Started, new object[] { proc, new ReadOnlyProcessVariablesContainer(variables) });
-                    BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Events.Started, new object[] { start, new ReadOnlyProcessVariablesContainer(variables) });
+                    BusinessProcess.TriggerDelegateAsync(
+                        ret.Delegates.Events.Processes.Started, 
+                        proc, 
+                        new ReadOnlyProcessVariablesContainer(variables)
+                    );
+                    BusinessProcess.TriggerDelegateAsync(
+                        ret.Delegates.Events.Events.Started, 
+                        start, 
+                        new ReadOnlyProcessVariablesContainer(variables)
+                    );
                     ret.State.Path.StartFlowNode(start, null);
                     variables.Keys.ForEach(key => ret.State[start.ID, key] = variables[key]);
                     ret.State.Path.SucceedFlowNode(start);
-                    BusinessProcess.TriggerDelegateAsync(ret.Delegates.Events.Events.Completed, new object[] { start, new ReadOnlyProcessVariablesContainer(start.ID, ret) });
+                    BusinessProcess.TriggerDelegateAsync(
+                        ret.Delegates.Events.Events.Completed, 
+                        start, 
+                        new ReadOnlyProcessVariablesContainer(start.ID, ret)
+                    );
                     return ret;
                 }
             }

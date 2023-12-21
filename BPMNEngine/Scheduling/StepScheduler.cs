@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -171,6 +172,7 @@ namespace BPMNEngine.Scheduling
                 backgroundMREEvent.Set();
         }
 
+        [ExcludeFromCodeCoverage]
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -200,6 +202,7 @@ namespace BPMNEngine.Scheduling
         //     Dispose(disposing: false);
         // }
 
+        [ExcludeFromCodeCoverage]
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

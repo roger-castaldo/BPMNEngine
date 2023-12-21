@@ -2,6 +2,7 @@
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Tasks
 {
@@ -35,7 +36,7 @@ namespace BPMNEngine.Tasks
         public string ID
             => task.ID;
 
-        public IEnumerable<XmlNode> SubNodes
+        public ImmutableArray<XmlNode> SubNodes
             => task.SubNodes;
 
         public IElement ExtensionElement

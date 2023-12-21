@@ -72,7 +72,7 @@ namespace BPMNEngine
                     }
                 }
             });
-            State = new ProcessState(Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
+            State = new ProcessState(ID,Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
             this.stateLogLevel=stateLogLevel;
         }
 
@@ -174,13 +174,7 @@ namespace BPMNEngine
 
         
         public override bool Equals(object obj)
-        {
-            if (obj is ProcessInstance pi)
-            {
-                return pi.ID == ID && pi.Process.Equals(Process);
-            }
-            return false;
-        }
+            => obj is ProcessInstance pi && pi.ID == ID && pi.Process.Equals(Process);
         public override int GetHashCode()
             => ID.GetHashCode()&Process.GetHashCode();
 
@@ -322,9 +316,6 @@ namespace BPMNEngine
                 State.LogLine(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
             Delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
         }
-
-        internal Exception WriteLogException(string elementID, StackFrame sf, DateTime timestamp, Exception exception)
-            => WriteLogException((IElement)(elementID == null ? null : Process.GetElement(elementID)), sf, timestamp, exception);
 
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {

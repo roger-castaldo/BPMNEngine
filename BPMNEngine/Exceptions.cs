@@ -109,4 +109,10 @@ namespace BPMNEngine
             ProcessMessage=message;
         }
     }
+
+    internal class StateLockTimeoutException : Exception
+    {
+        public StateLockTimeoutException(Guid? stateID, int currentReadCount,int waitingWriteCount)
+            : base($"Locking of the state {stateID} for reading/writing has timed out. [CurrentReadCount: {currentReadCount},WaitingWriteCount: {waitingWriteCount}]") { }
+    }
 }

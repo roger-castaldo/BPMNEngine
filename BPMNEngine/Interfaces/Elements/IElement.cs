@@ -1,4 +1,6 @@
-﻿namespace BPMNEngine.Interfaces.Elements
+﻿using System.Collections.Immutable;
+
+namespace BPMNEngine.Interfaces.Elements
 {
     /// <summary>
     /// This interface is the parent interface for ALL process elements (which are XML nodes)
@@ -13,7 +15,7 @@
         /// <summary>
         /// The child XMLNodes from the process element
         /// </summary>
-        IEnumerable<XmlNode> SubNodes { get; }
+        ImmutableArray<XmlNode> SubNodes { get; }
 
         /// <summary>
         /// This is called to get an attribute value from the process element

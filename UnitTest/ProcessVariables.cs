@@ -341,6 +341,17 @@ namespace UnitTest
             str.Close();
             var variableValue = new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content=data };
             var variableArray = new SFile[] { variableValue, variableValue };
+
+            Assert.IsTrue(variableArray[0].Equals(variableArray[1]));
+            Assert.AreEqual(variableArray[0].GetHashCode(), variableArray[1].GetHashCode());
+            Assert.IsTrue(variableArray[0]==variableArray[1]);
+            Assert.IsFalse(variableArray[0]!=variableArray[1]);
+
+            Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="stop_to_start", Extension="bpmn", ContentType="text/xml", Content=data }));
+            Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="xml", ContentType="text/xml", Content=data }));
+            Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/text", Content=data }));
+            Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content=new byte[] { 0, 0, 0, 0 } }));
+
             Dictionary<string, object> results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
@@ -472,7 +483,7 @@ namespace UnitTest
 
             variables.Remove("TestNull");
 
-            Assert.IsTrue(inst.WaitForUserTask(TimeSpan.FromSeconds(10), "UserTask_15dj2au", out IUserTask task));
+            Assert.IsTrue(inst.WaitForUserTask(10*1000, "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
 
             foreach (string key in task.Variables.Keys)

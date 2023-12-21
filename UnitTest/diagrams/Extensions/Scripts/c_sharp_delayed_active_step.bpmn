@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_1615fdu</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="EndEvent_1d1a99g">
+      <bpmn:incoming>SequenceFlow_0pjm12v</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_1615fdu" sourceRef="StartEvent_1" targetRef="ScriptTask_0x2hx7v" />
+    <bpmn:sequenceFlow id="SequenceFlow_0pjm12v" sourceRef="ScriptTask_0x2hx7v" targetRef="EndEvent_1d1a99g" />
+    <bpmn:scriptTask id="ScriptTask_0x2hx7v" name="Test Script">
+      <bpmn:incoming>SequenceFlow_1615fdu</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0pjm12v</bpmn:outgoing>
+		<bpmn:extensionElements>
+			<exts:cSharpScript>
+				<![CDATA[
+				System.Threading.Tasks.Task.Delay(TimeSpan.FromMinutes(5)).Wait();
+				]]>
+			</exts:cSharpScript>
+		</bpmn:extensionElements>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="268" y="191" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="241" y="227" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1d1a99g_di" bpmnElement="EndEvent_1d1a99g">
+        <dc:Bounds x="486" y="191" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="459" y="227" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1615fdu_di" bpmnElement="SequenceFlow_1615fdu">
+        <di:waypoint xsi:type="dc:Point" x="304" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="345" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="279.5" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0pjm12v_di" bpmnElement="SequenceFlow_0pjm12v">
+        <di:waypoint xsi:type="dc:Point" x="445" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="486" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="420.5" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ScriptTask_0x2hx7v_di" bpmnElement="ScriptTask_0x2hx7v">
+        <dc:Bounds x="345" y="169" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

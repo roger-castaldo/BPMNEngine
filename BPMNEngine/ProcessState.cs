@@ -112,14 +112,15 @@ namespace BPMNEngine
 
         private readonly ProcessLog log;
         private readonly ProcessVariables variables;
-        private readonly ReaderWriterLockSlim stateEvent = new(LockRecursionPolicy.NoRecursion);
+        private readonly StateLock stateEvent;
         private readonly OnStateChange onStateChange;
         internal ProcessPath Path { get; private init; }
         internal bool IsSuspended { get; set; }
         internal BusinessProcess Process { get; private init; }
 
-        internal ProcessState(BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
+        internal ProcessState(Guid? id,BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
         {
+            stateEvent = new(id);
             Process = process;
             log = new ProcessLog(stateEvent);
             variables = new ProcessVariables(stateEvent);
@@ -129,6 +130,7 @@ namespace BPMNEngine
 
         private ProcessState(int? stepIndex=null)
         {
+            stateEvent = new(null);
             log = new ProcessLog(stateEvent);
             variables = new ProcessVariables(stateEvent,stepIndex:stepIndex);
             Path = new ProcessPath(null, null, null, stateEvent, new delTriggerStateChange(StateChanged));
@@ -215,6 +217,7 @@ namespace BPMNEngine
 
         internal bool Load(Utf8JsonReader reader)
         {
+            var foundItem = false;
             stateEvent.EnterWriteLock();
             try
             {
@@ -226,25 +229,29 @@ namespace BPMNEngine
                         switch (reader.GetString())
                         {
                             case PROCESS_SUSPENDED_ATTRIBUTE:
+                                foundItem=true;
                                 reader.Read();
                                 IsSuspended = reader.GetBoolean();
                                 break;
                             case "ProcessLog":
+                                foundItem=true;
                                 log.Load(reader);
                                 break;
                             case "ProcessPath":
+                                foundItem=true;
                                 Path.Load(reader);
                                 break;
                             case "ProcessVariables":
+                                foundItem=true;
                                 variables.Load(reader);
                                 break;
                         }
                     }
                 }
             }
-            catch (Exception) { return false; }
+            catch (Exception) { foundItem= false; }
             stateEvent.ExitWriteLock();
-            return true;
+            return foundItem;
         }
 
         public static IInternalState LoadState(XmlDocument doc,int? stepIndex=null)

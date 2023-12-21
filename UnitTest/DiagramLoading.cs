@@ -113,6 +113,16 @@ namespace UnitTest
             Assert.IsTrue(res.Contains("A throw must have a message to throw."));
             Assert.IsTrue(res.Contains("No child elements to render."));
             Assert.IsTrue(res.Contains("No child elements found in Process."));
+            Assert.IsTrue(res.Contains("No content for the text annotation was specified."));
+            Assert.IsTrue(res.Contains("Not enough child elements found for an And Condition"));
+            Assert.IsTrue(res.Contains("No child elements found within a condition set."));
+            Assert.IsTrue(res.Contains("Not enough child elements found for an Or Condition"));
+            Assert.IsTrue(res.Contains("No bounds specified for the shape."));
+            Assert.IsTrue(res.Contains("End Events cannot have an outgoing path."));
+            Assert.IsTrue(res.Contains("End Events must have an incoming path."));
+            Assert.IsTrue(res.Contains("No bounds for the label are specified."));
+            Assert.IsTrue(res.Contains("No child elements found in the definition."));
+            Assert.IsTrue(res.Contains("Collaboration requires at least 1 child element."));
         }
 
         [TestMethod]

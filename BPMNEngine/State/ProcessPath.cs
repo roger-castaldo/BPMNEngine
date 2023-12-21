@@ -28,24 +28,22 @@ namespace BPMNEngine.State
         {
             private readonly ProcessPath path;
             private readonly int stepCount;
-
             public ReadOnlyProcessPath(ProcessPath path,int stepCount)
             {
-                this.path = path;
-                this.stepCount = stepCount;
+                this.path= path;
+                this.stepCount= stepCount;
             }
 
-            public IEnumerable<string> ActiveSteps 
+            public IEnumerable<string> ActiveSteps
                 => Steps
                     .GroupBy(step => step.ElementID)
                     .Where(grp => grp.Last().Status==StepStatuses.Started || grp.Last().Status==StepStatuses.Waiting)
                     .Select(grp => grp.Key);
 
-            public IEnumerable<IStateStep> Steps
-                => path.RunQuery<IStateStep>((IEnumerable<SPathEntry> Steps) =>
-                {
-                    return Steps.Take(stepCount).Cast<IStateStep>();
-                });
+            public IEnumerable<IStateStep> Steps 
+                => path.RunQuery<IStateStep>((IEnumerable<SPathEntry> Steps) 
+                    =>Steps.Take(stepCount).Cast<IStateStep>()
+                );
 
             public void Append(XmlWriter writer)
             {
@@ -126,11 +124,11 @@ namespace BPMNEngine.State
         private readonly ProcessStepError error;
         internal int LastStep { get; private set; }
 
-        private readonly ReaderWriterLockSlim stateLock;
+        private readonly StateLock stateLock;
         private readonly BusinessProcess process;
         private readonly ProcessState.delTriggerStateChange triggerChange;
 
-        public ProcessPath(ProcessStepComplete complete, ProcessStepError error, BusinessProcess process,ReaderWriterLockSlim stateLock, ProcessState.delTriggerStateChange triggerChange)
+        public ProcessPath(ProcessStepComplete complete, ProcessStepError error, BusinessProcess process, StateLock stateLock, ProcessState.delTriggerStateChange triggerChange)
         {
             this.complete = complete;
             this.error = error;
@@ -272,7 +270,7 @@ namespace BPMNEngine.State
         private IEnumerable<T> RunQuery<T>(Func<IEnumerable<SPathEntry>,IEnumerable<T>> filter)
         {
             stateLock.EnterReadLock();
-            var results = filter(steps).ToImmutableList();
+            var results = filter(steps).ToImmutableArray();
             stateLock.ExitReadLock();
             return results;
         }
@@ -345,8 +343,7 @@ namespace BPMNEngine.State
                     .Select(grp => new SStepSuspension()
                     {
                         EndTime=grp.Last().step.EndTime.Value,
-                        ID=grp.Key,
-                        StepIndex=grp.Last().index
+                        ID=grp.Key
                     });
         });
 
@@ -364,16 +361,14 @@ namespace BPMNEngine.State
 
         public int CurrentStepIndex(string elementid)
         {
-            stateLock.EnterReadLock();
-            var result = steps
-                .Any(step=>step.ElementID==elementid)
-                ? steps
+            var results = RunQuery<int>((IEnumerable<SPathEntry> steps) =>
+            {
+                return steps
                     .Select((step, index) => new { step, index })
-                    .Where(pair=>pair.step.ElementID== elementid)
-                    .Max(pair=>pair.index)
-                : -1;
-            stateLock.ExitReadLock();
-            return result;
+                    .Where(pair => pair.step.ElementID== elementid)
+                    .Select(step => step.index);
+            });
+            return (results.Any() ? results.Max() : -1);
         }
 
         public bool ProcessGateway(AGateway gw,string sourceID)
@@ -439,7 +434,7 @@ namespace BPMNEngine.State
                                 i => steps
                                     .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
                              );
-                        result = counts.Count(c => c==counts.Max())==1;
+                        result = counts.All(c => c==counts.Max());
                     }
                 }
             }

@@ -19,12 +19,22 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestDefinitionVariableUsage()
         {
+            var readonlyKeysValid = false;
             BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_VARIABLE_NAME]);
             Assert.IsInstanceOfType(process[_VARIABLE_NAME], typeof(string));
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { });
+            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, events:new BPMNEngine.DelegateContainers.ProcessEvents(){
+                Tasks = new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                {
+                    Completed=(element, variables) =>
+                    {
+                        readonlyKeysValid = variables.FullKeys.Contains(_VARIABLE_NAME)
+                        && variables.Keys.Contains(_RESULT_VARIABLE_NAME);
+                    }
+                }
+            });
             Assert.IsNotNull(instance);
 
             Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));
@@ -41,6 +51,8 @@ namespace UnitTest.Extensions
             Assert.IsFalse(variables.ContainsKey(_VARIABLE_NAME));
             Assert.IsTrue(variables.ContainsKey(_RESULT_VARIABLE_NAME));
             Assert.AreEqual(string.Format(_RESULT_FORMAT, process[_VARIABLE_NAME]), variables[_RESULT_VARIABLE_NAME]);
+            Task.Delay(TimeSpan.FromSeconds(5)).Wait(); 
+            Assert.IsTrue(readonlyKeysValid);
         }
     }
 }

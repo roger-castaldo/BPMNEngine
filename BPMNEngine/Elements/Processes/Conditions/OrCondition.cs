@@ -15,9 +15,9 @@ namespace BPMNEngine.Elements.Processes.Conditions
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
-            if (Children.Count() < 2)
+            if (Children.Length < 2)
             {
-                err =(err ?? Array.Empty<string>()).Concat(new string[] { "Not enough child elements found" });
+                err =(err ?? Array.Empty<string>()).Concat(new string[] { "Not enough child elements found for an Or Condition" });
                 return false;
             }
             return res;

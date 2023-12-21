@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Variables;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace BPMNEngine
@@ -80,6 +81,7 @@ namespace BPMNEngine
             => Keys.Concat(process==null ? Array.Empty<string>() : process.Keys)
             .Distinct();
 
+        [ExcludeFromCodeCoverage]
         private void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -105,7 +107,7 @@ namespace BPMNEngine
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);
         // }
-
+        [ExcludeFromCodeCoverage]
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method

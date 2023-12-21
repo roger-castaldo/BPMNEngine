@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"  xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+	<bpmn:definitions/>
   <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" />
+	  <bpmn:textAnnotation id="TextAnnotation_04fw4hh"/>
+	  <bpmn:extensionElements>
+		  <exts:ConditionSet>
+			  <exts:andCondition>
+				  <exts:isEqualCondition leftVariable="andequal1">
+					  <exts:right>12</exts:right>
+				  </exts:isEqualCondition>
+			  </exts:andCondition>
+		  </exts:ConditionSet>
+	  </bpmn:extensionElements>
+	  <bpmn:startEvent id="StartEvent_1">
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:andCondition>
+				  </exts:andCondition>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+	  </bpmn:startEvent>
 	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci6">
 		  <bpmn:timerEventDefinition>
 			  <exts:DateString/>
 		  </bpmn:timerEventDefinition>
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:orCondition>
+					  <exts:isEqualCondition leftVariable="andequal1">
+						  <exts:right>12</exts:right>
+					  </exts:isEqualCondition>
+				  </exts:orCondition>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
 	  </bpmn:intermediateCatchEvent>
 	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwc99">
 		  <bpmn:timerEventDefinition>
@@ -137,11 +164,30 @@
 	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci20">
 		  <bpmn:signalEventDefinition/>
 	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:endEvent id="EndEvent_1">
+	  </bpmn:endEvent>
+	  <bpmn:endEvent id="EndEvent_2">
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+	  </bpmn:endEvent>
+
+	  <bpmn:startEvent id="StartEvent_2">
+	  </bpmn:startEvent>
+	  <bpmn:startEvent id="StartEvent_3">
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+	  </bpmn:startEvent>
+	  <bpmn:startEvent id="StartEvent_4">
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci7</bpmn:outgoing>
+	  </bpmn:startEvent>
+
+	  <bpmn:collaboration/>
   </bpmn:process>
 	<bpmn:process id="Process_2" isExecutable="false">
 	</bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+		<bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_2"/>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="268" y="191" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -151,6 +197,8 @@
 		<bpmndi:BPMNEdge id="SequenceFlow_1cz4osw_di" bpmnElement="SequenceFlow_1cz4osw">
 			<di:waypoint xsi:type="dc:Point" x="304" y="390" />
 		</bpmndi:BPMNEdge>
+		<bpmndi:BPMNLabel>
+		</bpmndi:BPMNLabel>
     </bpmndi:BPMNPlane>
 	  <bpmndi:BPMNPlane id="BPMNPlane_2" bpmnElement="Process_2">
 	  </bpmndi:BPMNPlane>

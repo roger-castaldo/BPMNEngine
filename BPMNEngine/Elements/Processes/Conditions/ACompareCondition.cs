@@ -17,7 +17,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         protected object GetLeft(IReadonlyVariables variables)
         {
             return this["leftVariable"] != null?
-                ExtractVariable(variables, this["leftVariable"])
+                ACompareCondition.ExtractVariable(variables, this["leftVariable"])
                 : SubNodes
                     .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "left", n.Name) || n.Name == "left"))
                     .Select(n => n.InnerText)
@@ -27,7 +27,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         protected object GetRight(IReadonlyVariables variables)
         {
             return this["rightVariable"] != null
-                ? ExtractVariable(variables, this["rightVariable"])
+                ? ACompareCondition.ExtractVariable(variables, this["rightVariable"])
                 : SubNodes
                     .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "right", n.Name) || n.Name == "right"))
                     .Select(n => n.InnerText)
@@ -62,7 +62,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             }
         }
 
-        private object ExtractVariable(object source, string name)
+        private static object ExtractVariable(object source, string name)
         {
             object ret = null;
             if (source is IReadonlyVariables readonlyVariables)
@@ -70,13 +70,13 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 if (!name.Contains('.'))
                     ret = readonlyVariables[name];
                 else if (readonlyVariables[name[..name.IndexOf('.')]] != null)
-                    ret = ExtractVariable(readonlyVariables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+                    ret = ACompareCondition.ExtractVariable(readonlyVariables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
             } else if (source is IVariables variables)
             {
                 if (!name.Contains('.'))
                     ret = variables[name];
                 else if (variables[name[..name.IndexOf('.')]] != null)
-                    ret = ExtractVariable(variables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+                    ret = ACompareCondition.ExtractVariable(variables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
             }else if (source is Hashtable hashtable)
             {
                 if (!name.Contains('.'))
@@ -86,12 +86,12 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 } else
                 {
                     if (hashtable.ContainsKey(name[..name.IndexOf('.')]))
-                        ret = ExtractVariable(hashtable[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+                        ret = ACompareCondition.ExtractVariable(hashtable[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
                 }
             }else if (source is Array arr)
             {
                 var al = new ArrayList();
-                arr.Cast<object>().ForEach(o => al.Add(ExtractVariable(o, name)));
+                arr.Cast<object>().ForEach(o => al.Add(ACompareCondition.ExtractVariable(o, name)));
                 if (al.Count > 0)
                 {
                     ret = Array.CreateInstance(al[0].GetType(), al.Count);

@@ -11,7 +11,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
         public ATask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        private static readonly EventSubTypes[] _blockedSubTypes = new EventSubTypes[]
+        private static readonly EventSubTypes[] _blockedSubTypes = new[]
         {
             EventSubTypes.Signal,
             EventSubTypes.Escalation,
@@ -24,7 +24,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
             => base.Outgoing.Where(str =>
                 {
                     bool add = true;
-                    IElement afn = this.Definition.LocateElement(str);
+                    IElement afn = Definition.LocateElement(str);
                     string destID = null;
                     if (afn is MessageFlow messageFlow)
                         destID = messageFlow.TargetRef;
@@ -32,7 +32,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
                         destID = sequenceFlow.TargetRef;
                     if (destID != null)
                     {
-                        IElement ice = this.Definition.LocateElement(destID);
+                        IElement ice = Definition.LocateElement(destID);
                         if (ice is IntermediateCatchEvent intermediateCatchEvent)
                             add = !intermediateCatchEvent.SubType.HasValue || !_blockedSubTypes.Contains(intermediateCatchEvent.SubType.Value);
                     }

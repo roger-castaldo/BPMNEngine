@@ -12,7 +12,13 @@
     <bpmn:boundaryEvent id="BoundaryEvent_14c0tw1" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_0i45gta</bpmn:outgoing>
 		<bpmn:timerEventDefinition>
-			<exts:DateString>+45 seconds</exts:DateString>
+			<bpmn:extensionElements>
+				<exts:cSharpScript>
+					<![CDATA[
+				    return DateTime.Now.AddSeconds(45);
+				    ]]>
+				</exts:cSharpScript>
+			</bpmn:extensionElements>
 		</bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:boundaryEvent id="BoundaryEvent_1s99zkc" cancelActivity="false" attachedToRef="Task_0peqa8k">

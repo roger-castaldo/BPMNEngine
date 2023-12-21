@@ -20,7 +20,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found." });
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found within a condition set." });
                 return false;
             }
             return res;

@@ -96,18 +96,14 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         static DateTime ConvertJsDateToDateTime(object jsDate)
         {
-            // Assuming 'jsDate' is the value returned from Jint representing a JavaScript Date
-            // Convert the JavaScript timestamp to a .NET DateTime object
             if (jsDate is double timestamp)
             {
-                // JavaScript Date represents time in milliseconds since January 1, 1970 (UTC)
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
                 return unixEpoch.AddMilliseconds(timestamp).ToLocalTime();
             }
-            else if (jsDate is DateTime)
-                return TimeZoneInfo.ConvertTime((DateTime)jsDate, TimeZoneInfo.Local);
+            else if (jsDate is DateTime time)
+                return TimeZoneInfo.ConvertTime(time, TimeZoneInfo.Local);
 
-            // Handle other cases if needed
             throw new ArgumentException("Invalid JavaScript Date format.");
         }
 

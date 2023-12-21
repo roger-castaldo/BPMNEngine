@@ -10,6 +10,7 @@ using BPMNEngine.Interfaces.Elements;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 
 namespace UnitTest.Extensions
 {
@@ -223,8 +224,24 @@ namespace UnitTest.Extensions
                 instance=null;
                 Assert.Fail(e.Message);
             }
-            Assert.IsFalse(instance.WaitForCompletion(TimeSpan.FromSeconds(2)));
+            Assert.IsFalse(instance.WaitForCompletion(2*1000));
             Assert.IsTrue(cache.Any(str => str.Contains(errorMessage)));
+        }
+
+        [TestMethod]
+        public void TestConditionalBoundary()
+        {
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Conditions/conditional_boundary.bpmn"));
+
+            var instance = process.BeginProcess(new()
+            {
+                {"canUseCondition",true }
+            });
+
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Event_0bzc3s9"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Flow_1itqwbt"));
         }
     }
 }

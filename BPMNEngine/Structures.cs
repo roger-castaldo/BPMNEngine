@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Elements;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BPMNEngine
 {
@@ -46,27 +47,15 @@ namespace BPMNEngine
             {
                 return fle.Name.Equals(Name,StringComparison.InvariantCultureIgnoreCase) &&
                     fle.Extension.Equals(Extension, StringComparison.InvariantCultureIgnoreCase) &&
-                    DataEquals(fle.Content);
+                    string.Equals(fle.ContentType??ContentType??String.Empty,ContentType??fle.ContentType??string.Empty,StringComparison.InvariantCultureIgnoreCase) &&
+                    Content.Length==fle.Content.Length &&
+                    !Content.Select((b, i) => new { val = b, index = i }).Any(o => fle.Content[o.index]!=o.val);
             }
             return false;
         }
 
-        /// <summary>
-        /// Called to get a HashCode calculation for the object
-        /// </summary>
-        /// <returns>an integer value hashcode</returns>
         public override int GetHashCode()
-        {
-            return $"{Name}.{Extension}:{Convert.ToBase64String(Content)}"
-                .GetHashCode();
-        }
-
-        private bool DataEquals(byte[] content)
-        {
-            if (Content.Length==content.Length)
-                return !Content.Select((b, i) => new { val = b, index = i }).Any(o => content[o.index]!=o.val);
-            return false;
-        }
+            => $"{Name}.{Extension}[{ContentType}]:{Convert.ToBase64String(Content)}".GetHashCode();
 
         /// <summary>
         /// Compares left and right files

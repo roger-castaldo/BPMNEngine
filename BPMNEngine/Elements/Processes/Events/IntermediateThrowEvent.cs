@@ -12,25 +12,23 @@ namespace BPMNEngine.Elements.Processes.Events
             {
                 if (SubType.HasValue)
                 {
-                    switch (SubType.Value)
+                    return SubType.Value switch
                     {
-                        case EventSubTypes.Signal:
-                            return Children
-                                .OfType<SignalEventDefinition>()
-                                .Select(child => child.SignalTypes.First())
-                                .FirstOrDefault();
-                        case EventSubTypes.Error:
-                            return Children
+                        EventSubTypes.Signal => Children
+                                    .OfType<SignalEventDefinition>()
+                                    .Select(child => child.SignalTypes.First())
+                                    .FirstOrDefault(),
+                        EventSubTypes.Error => Children
                                 .OfType<ErrorEventDefinition>()
                                 .Select(child => child.ErrorTypes.First())
-                                .Select(err=>new IntermediateProcessExcepion(err))
-                                .FirstOrDefault();
-                        case EventSubTypes.Message:
-                            return Children
-                                .OfType<MessageEventDefinition>()
-                                .Select(child => child.MessageTypes.First())
-                                .FirstOrDefault();
-                    }
+                                .Select(err => new IntermediateProcessExcepion(err))
+                                .FirstOrDefault(),
+                        EventSubTypes.Message => Children
+                                                        .OfType<MessageEventDefinition>()
+                                                        .Select(child => child.MessageTypes.First())
+                                                        .FirstOrDefault(),
+                        _ => null
+                    };
                 }
                 return null;
             }

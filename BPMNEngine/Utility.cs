@@ -127,7 +127,7 @@ namespace BPMNEngine
 
         public static int FindElementIndex(Definition definition, XmlElement element)
         {
-            definition?.Debug(null,"Locating Element Index for element {0}", new object[] { element.Name });
+            definition?.LogLine(LogLevel.Debug,null,"Locating Element Index for element {0}", new object[] { element.Name });
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
                 return 1;

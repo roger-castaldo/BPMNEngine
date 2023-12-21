@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Elements.Processes;
 using BPMNEngine.Interfaces.Elements;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Elements
 {
@@ -24,7 +25,7 @@ namespace BPMNEngine.Elements
             }
         }
 
-        public IEnumerable<XmlNode> SubNodes => Element.ChildNodes.Cast<XmlNode>();
+        public ImmutableArray<XmlNode> SubNodes { get; private init; }
 
         public string this[string attributeName] => Element.Attributes.Cast<XmlAttribute>()
                     .Where(att => att.Name.ToLower()==attributeName.ToLower())
@@ -37,6 +38,7 @@ namespace BPMNEngine.Elements
             Element = elem;
             ExtensionElement = null;
             Parent = parent;
+            SubNodes  = elem.ChildNodes.Cast<XmlNode>().ToImmutableArray();
             if (SubNodes != null)
             {
                 var tags = Utility.GetTagAttributes(typeof(ExtensionElements));
@@ -60,20 +62,14 @@ namespace BPMNEngine.Elements
             return true;
         }
 
-        protected void Debug(string message, object[] pars)
-        {
-            Definition.Debug(this, message, pars);
-        }
+        protected void Debug(string message, params object?[] pars)
+            => Definition.LogLine(LogLevel.Debug, this, message, pars);
 
-        protected void Info(string message, object[] pars)
-        {
-            Definition.Info(this, message, pars);
-        }
+        protected void Info(string message, params object?[] pars)
+            => Definition.LogLine(LogLevel.Information, this, message, pars);
 
         protected Exception Exception(Exception exception)
-        {
-            return Definition.Exception(this, exception);
-        }
+            => Definition.Exception(this, exception);
 
         internal void LoadExtensionElement(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {

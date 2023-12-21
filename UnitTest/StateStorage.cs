@@ -6,7 +6,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -92,6 +94,7 @@ namespace UnitTest
         }
 
         [TestMethod]
+        [Timeout(300000)]
         public void TestXMLStorage()
         {
             var inst = _singleTaskProcess.BeginProcess(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
@@ -111,6 +114,7 @@ namespace UnitTest
         }
 
         [TestMethod]
+        [Timeout(300000)]
         public void TestJsonStorage()
         {
             var inst = _singleTaskProcess.BeginProcess(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
@@ -126,6 +130,13 @@ namespace UnitTest
             TestEmptyVariables(BusinessProcess.ExtractProcessVariablesFromStateDocument(new Utf8JsonReader(data), 2));
             TestSteps(BusinessProcess.ExtractProcessSteps(new Utf8JsonReader(data)));
             TestLog(BusinessProcess.ExtractProcessLog(new Utf8JsonReader(data)));
+        }
+
+        [TestMethod]
+        public void TestLoadingInvalidState()
+        {
+            Assert.ThrowsException<NullReferenceException>(() => BusinessProcess.ExtractProcessLog(new XmlDocument()));
+            Assert.ThrowsException<NullReferenceException>(() => BusinessProcess.ExtractProcessLog(new Utf8JsonReader(UTF8Encoding.UTF8.GetBytes("{}"))));
         }
     }
 }

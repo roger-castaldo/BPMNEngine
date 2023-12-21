@@ -7,6 +7,7 @@ using System.Reflection;
 using BPMNEngine.Interfaces.Elements;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace UnitTest.Extensions
 {
@@ -75,6 +76,22 @@ namespace UnitTest.Extensions
         {
             var err = Assert.ThrowsException<InvalidProcessDefinitionException>(() => new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp_compilation_error.bpmn")));
             Assert.IsTrue(err.ProcessExceptions.Any(ex => ex.Message.Contains("Unable to compile script Code.  Errors:")));
+        }
+
+        [TestMethod]
+        public void TestActiveStepsException()
+        {
+            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp_delayed_active_step.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
+            {
+                LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                {
+                    System.Diagnostics.Debug.WriteLine(exception.Message);
+                }
+            });
+            IProcessInstance instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+            Assert.IsNotNull(instance);
+            Task.Delay(TimeSpan.FromSeconds(5)).Wait();
+            Assert.ThrowsException<ActiveStepsException>(() => instance.Dispose());
         }
 
         [TestMethod]

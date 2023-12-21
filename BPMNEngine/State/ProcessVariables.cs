@@ -45,12 +45,23 @@ namespace BPMNEngine.State
                 }
             }
 
+            private IEnumerable<SProcessVariable> Variables
+            {
+                get
+                {
+                    processVariables.stateLock.EnterReadLock();
+                    var result = processVariables.variables
+                        .Where(variable => variable.StepIndex==stepIndex)
+                        .OrderBy(variable => variable.StepIndex)
+                        .ToImmutableArray();
+                    processVariables.stateLock.ExitReadLock();
+                    return result;
+                }
+            }
+
             public void Append(XmlWriter writer)
             {
-                processVariables.stateLock.EnterReadLock();
-                var variables = processVariables.variables.Where(variable => variable.StepIndex==stepIndex);
-                processVariables.stateLock.ExitReadLock();
-                _=variables.OrderBy(variable => variable.StepIndex).ForEach(variable =>
+                Variables.ForEach(variable =>
                 {
                     writer.WriteStartElement(_VARIABLE_ENTRY_ELEMENT);
                     writer.WriteAttributeString(_PATH_STEP_INDEX, variable.StepIndex.ToString());
@@ -97,11 +108,8 @@ namespace BPMNEngine.State
 
             public void Append(Utf8JsonWriter writer)
             {
-                processVariables.stateLock.EnterReadLock();
-                var variables = processVariables.variables.Where(variable => variable.StepIndex==stepIndex);
-                processVariables.stateLock.ExitReadLock();
                 writer.WriteStartArray();
-                variables.OrderBy(variable => variable.StepIndex).ForEach(variable =>
+                Variables.ForEach(variable =>
                 {
                     writer.WriteStartObject();
                     writer.WritePropertyName(_PATH_STEP_INDEX);
@@ -180,12 +188,12 @@ namespace BPMNEngine.State
             }
         }
 
-        private readonly ReaderWriterLockSlim stateLock;
+        private readonly StateLock stateLock;
 
         private readonly List<SProcessVariable> variables;
         private readonly int? stepIndex;
 
-        public ProcessVariables(ReaderWriterLockSlim stateLock,int? stepIndex=null)
+        public ProcessVariables(StateLock stateLock,int? stepIndex=null)
         {
             this.stateLock=stateLock;
             variables=new List<SProcessVariable>();
@@ -444,7 +452,7 @@ namespace BPMNEngine.State
         private IEnumerable<T> RunQuery<T>(Func<IEnumerable<SProcessVariable>, IEnumerable<T>> filter)
         {
             stateLock.EnterReadLock();
-            var results = filter(variables).ToImmutableList();
+            var results = filter(variables).ToImmutableArray();
             stateLock.ExitReadLock();
             return results;
         }

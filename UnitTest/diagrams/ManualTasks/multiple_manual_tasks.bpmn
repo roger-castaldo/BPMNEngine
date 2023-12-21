@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>SequenceFlow_16v03hu</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_16v03hu" sourceRef="StartEvent_1" targetRef="ManualTask_15dj2au" />
+    <bpmn:manualTask id="ManualTask_15dj2au" name="Task 1">
+      <bpmn:incoming>SequenceFlow_16v03hu</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1v06ypi</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1v06ypi" sourceRef="ManualTask_15dj2au" targetRef="ManualTask_06twx0q" />
+    <bpmn:sequenceFlow id="SequenceFlow_0wato6a" sourceRef="ManualTask_06twx0q" targetRef="ManualTask_1qxmpii" />
+    <bpmn:endEvent id="EndEvent_1y5q3ib">
+      <bpmn:incoming>SequenceFlow_0gb1g17</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="SequenceFlow_0gb1g17" sourceRef="ManualTask_1qxmpii" targetRef="EndEvent_1y5q3ib" />
+    <bpmn:manualTask id="ManualTask_06twx0q" name="Task 2">
+      <bpmn:incoming>SequenceFlow_1v06ypi</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0wato6a</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:manualTask id="ManualTask_1qxmpii" name="Task 3">
+      <bpmn:incoming>SequenceFlow_0wato6a</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0gb1g17</bpmn:outgoing>
+    </bpmn:manualTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="268" y="191" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="241" y="227" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_16v03hu_di" bpmnElement="SequenceFlow_16v03hu">
+        <di:waypoint xsi:type="dc:Point" x="304" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="334" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="274" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ManualTask_15dj2au_di" bpmnElement="ManualTask_15dj2au">
+        <dc:Bounds x="334" y="169" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1v06ypi_di" bpmnElement="SequenceFlow_1v06ypi">
+        <di:waypoint xsi:type="dc:Point" x="434" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="474" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="409" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_0wato6a_di" bpmnElement="SequenceFlow_0wato6a">
+        <di:waypoint xsi:type="dc:Point" x="574" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="621" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="552.5" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="EndEvent_1y5q3ib_di" bpmnElement="EndEvent_1y5q3ib">
+        <dc:Bounds x="755" y="191" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="728" y="227" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_0gb1g17_di" bpmnElement="SequenceFlow_0gb1g17">
+        <di:waypoint xsi:type="dc:Point" x="721" y="209" />
+        <di:waypoint xsi:type="dc:Point" x="755" y="209" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="693" y="199" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ManualTask_06twx0q_di" bpmnElement="ManualTask_06twx0q">
+        <dc:Bounds x="474" y="169" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ManualTask_1qxmpii_di" bpmnElement="ManualTask_1qxmpii">
+        <dc:Bounds x="621" y="169" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

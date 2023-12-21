@@ -22,7 +22,7 @@ namespace BPMNEngine.Elements.Collaborations
             var res = base.IsValid(out err);
             if (string.IsNullOrEmpty(Content))
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No content was specified." });
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No content for the text annotation was specified." });
                 return false;
             }
             return res;

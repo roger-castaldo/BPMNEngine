@@ -30,7 +30,7 @@ namespace BPMNEngine.Elements
             var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found." });
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found in the definition." });
                 return false;
             }
             return res;
@@ -38,24 +38,8 @@ namespace BPMNEngine.Elements
 
         internal BusinessProcess OwningProcess { get; set; }
 
-        internal void Debug(IElement element,string message)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Debug, new StackFrame(2, true), DateTime.Now, message);
-
-        internal void Debug(IElement element, string message, object[] pars)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Debug, new StackFrame(2, true), DateTime.Now, string.Format(message,pars));
-
-        internal void Info(IElement element,string message)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Information, new StackFrame(2, true), DateTime.Now, message);
-        internal void Info(IElement element, string message, object[] pars)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Information, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
-        internal void Error(IElement element, string message)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Error, new StackFrame(2, true), DateTime.Now, message);
-        internal void Error(IElement element, string message, object[] pars)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Error, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
-        internal void Fatal(IElement element, string message)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Critical, new StackFrame(2, true), DateTime.Now, message);
-        internal void Fatal(IElement element, string message, object[] pars)
-            => OwningProcess?.WriteLogLine(element, LogLevel.Critical, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
+        internal void LogLine(LogLevel level, IElement element, string message, params object?[] pars)
+            => OwningProcess?.WriteLogLine(element, level, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
         internal Exception Exception(IElement element, Exception exception)
         {
             OwningProcess?.WriteLogException(element, new StackFrame(2, true), DateTime.Now, exception);

@@ -10,44 +10,28 @@ namespace BPMNEngine.State
     {
         private class ReadOnlyProcessLog : IReadonlyStateLogContainer
         {
-            private readonly ProcessLog log;
-            private readonly int length;
-
-            public ReadOnlyProcessLog(ProcessLog log, int length)
-            {
-                this.log=log;
-                this.length=length;
+            public ReadOnlyProcessLog(ProcessLog log, int length){
+                Log = log.content.ToString()[..length];
             }
 
-            private string Content
-            {
-                get
-                {
-                    log.stateLock.EnterReadLock();
-                    var result = log.content.ToString()[..length];
-                    log.stateLock.ExitReadLock();
-                    return result;
-                }
-            }
-
-            public string Log => Content;
+            public string Log { get; private init; }
 
             void IReadOnlyStateContainer.Append(XmlWriter writer)
             {
-                writer.WriteCData(Content);
+                writer.WriteCData(Log);
             }
 
 
             void IReadOnlyStateContainer.Append(Utf8JsonWriter writer)
             {
-                writer.WriteStringValue(Content);
+                writer.WriteStringValue(Log);
             }
         }
 
-        private readonly ReaderWriterLockSlim stateLock;
+        private readonly StateLock stateLock;
         private readonly StringBuilder content;
 
-        public ProcessLog(ReaderWriterLockSlim stateLock)
+        public ProcessLog(StateLock stateLock)
         {
             this.stateLock = stateLock;
             content = new StringBuilder();

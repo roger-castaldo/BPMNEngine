@@ -16,10 +16,10 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
             if (
                 ExtensionElement!=null &&
                 ((ExtensionElements)ExtensionElement).Children != null &&
-                !((ExtensionElements)ExtensionElement).Children.Any(ie => ie is ConditionSet set && !set.Evaluate(variables))
+                ((ExtensionElements)ExtensionElement).Children.Any(ie => ie is ConditionSet set && set.Evaluate(variables))
             )
-                return false;
-            return true;
+                return true;
+            return false;
         }
     }
 }

@@ -15,7 +15,7 @@ namespace BPMNEngine.Elements
             var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found." });
+                err = (err??Array.Empty<string>()).Concat(new string[] { "Collaboration requires at least 1 child element." });
                 return false;
             }
             return res;

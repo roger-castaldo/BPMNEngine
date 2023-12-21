@@ -3,7 +3,6 @@
     internal readonly struct SStepSuspension
     {
         public string ID { get; init; }
-        public int StepIndex { get; init; }
         public DateTime EndTime { get; init; }
     }
 

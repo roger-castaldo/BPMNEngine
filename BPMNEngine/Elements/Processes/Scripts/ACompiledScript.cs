@@ -85,9 +85,6 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         protected sealed override object ScriptInvoke(IVariables variables)
         {
-            Debug("Attempting to compile script to execute for script element {0}",new object[] { ID });
-            if (!CompileAssembly(out string errors))
-                throw new Exception(errors);
             Debug("Creating new instance of compiled script class for script element {0}", new object[] { ID });
             object o = _assembly.CreateInstance(ClassName);
             Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { ID });
@@ -105,22 +102,13 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         protected sealed override object ScriptInvoke(IReadonlyVariables variables)
         {
-            Debug("Attempting to compile script to execute for script element {0}", new object[] { ID });
-            if (!CompileAssembly(out string errors))
-                throw new Exception(errors);
             Debug("Creating new instance of compiled script class for script element {0}", new object[] { ID });
             object o = _assembly.CreateInstance(ClassName);
             Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { ID });
             MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = new object[] { variables };
             Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { ID });
-            object ret = mi.Invoke(o, args);
-            if (mi.ReturnType == typeof(void))
-            {
-                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { ID });
-                ret = args[0];
-            }
-            return ret;
+            return mi.Invoke(o, args);
         }
 
         protected override bool ScriptIsValid(out IEnumerable<string> err)

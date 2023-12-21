@@ -5,7 +5,6 @@ using BPMNEngine.Drawing;
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
-using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.State;
 using BPMNEngine.Interfaces.Elements;
@@ -28,161 +27,12 @@ namespace BPMNEngine.Elements.Diagrams
         public Shape(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public BPMIcons? GetIcon(Definition definition)
-        {
-            BPMIcons? ret = null;
-            var elem = GetLinkedElement(definition);
-            if (elem != null)
-            {
-                if (elem is AEvent evnt)
-                {
-                    if (elem is StartEvent)
-                    {
-                        ret = BPMIcons.StartEvent;
-                        if (evnt.SubType.HasValue)
-                        {
-                            switch (evnt.SubType.Value)
-                            {
-                                case EventSubTypes.Message:
-                                    ret = BPMIcons.MessageStartEvent;
-                                    break;
-                                case EventSubTypes.Conditional:
-                                    ret = BPMIcons.ConditionalStartEvent;
-                                    break;
-                                case EventSubTypes.Signal:
-                                    ret = BPMIcons.SignalStartEvent;
-                                    break;
-                                case EventSubTypes.Timer:
-                                    ret = BPMIcons.TimerStartEvent;
-                                    break;
-                            }
-                        }
-                    }
-                    else if (elem is IntermediateThrowEvent)
-                    {
-                        ret = BPMIcons.IntermediateThrowEvent;
-                        if (evnt.SubType.HasValue)
-                        {
-                            switch (evnt.SubType.Value)
-                            {
-                                case EventSubTypes.Message:
-                                    ret = BPMIcons.MessageIntermediateThrowEvent;
-                                    break;
-                                case EventSubTypes.Compensation:
-                                    ret = BPMIcons.CompensationIntermediateThrowEvent;
-                                    break;
-                                case EventSubTypes.Escalation:
-                                    ret = BPMIcons.EscalationIntermediateThrowEvent;
-                                    break;
-                                case EventSubTypes.Link:
-                                    ret = BPMIcons.LinkIntermediateThrowEvent;
-                                    break;
-                                case EventSubTypes.Signal:
-                                    ret = BPMIcons.SignalIntermediateThrowEvent;
-                                    break;
-                                case EventSubTypes.Timer:
-                                    ret = BPMIcons.TimerStartEvent;
-                                    break;
-                            }
-                        }
-                    }
-                    else if (elem is IntermediateCatchEvent)
-                    {
-                        if (evnt.SubType.HasValue)
-                        {
-                            switch (evnt.SubType.Value)
-                            {
-                                case EventSubTypes.Conditional:
-                                    ret = BPMIcons.ConditionalIntermediateCatchEvent;
-                                    break;
-                                case EventSubTypes.Link:
-                                    ret = BPMIcons.LinkIntermediateCatchEvent;
-                                    break;
-                                case EventSubTypes.Message:
-                                    ret = BPMIcons.MessageIntermediateCatchEvent;
-                                    break;
-                                case EventSubTypes.Signal:
-                                    ret = BPMIcons.SignalIntermediateCatchEvent;
-                                    break;
-                                case EventSubTypes.Timer:
-                                    ret = BPMIcons.TimerIntermediateCatchEvent;
-                                    break;
-                            }
-                        }
-                    }
-                    else if (elem is EndEvent)
-                    {
-                        ret = BPMIcons.EndEvent;
-                        if (evnt.SubType.HasValue)
-                        {
-                            switch (evnt.SubType.Value)
-                            {
-                                case EventSubTypes.Compensation:
-                                    ret = BPMIcons.CompensationEndEvent;
-                                    break;
-                                case EventSubTypes.Escalation:
-                                    ret = BPMIcons.EscalationEndEvent;
-                                    break;
-                                case EventSubTypes.Message:
-                                    ret = BPMIcons.MessageEndEvent;
-                                    break;
-                                case EventSubTypes.Signal:
-                                    ret = BPMIcons.SignalEndEvent;
-                                    break;
-                                case EventSubTypes.Error:
-                                    ret = BPMIcons.ErrorEndEvent;
-                                    break;
-                                case EventSubTypes.Terminate:
-                                    ret = BPMIcons.TerminateEndEvent;
-                                    break;
-                            }
-                        }
-                    }
-                    else if (elem is BoundaryEvent)
-                    {
-                        switch (evnt.SubType.Value)
-                        {
-                            case EventSubTypes.Message:
-                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingMessageBoundaryEvent : BPMIcons.NonInteruptingMessageBoundaryEvent);
-                                break;
-                            case EventSubTypes.Conditional:
-                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingConditionalBoundaryEvent : BPMIcons.NonInteruptingConditionalBoundaryEvent);
-                                break;
-                            case EventSubTypes.Escalation:
-                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingEscalationBoundaryEvent : BPMIcons.NonInteruptingEscalationBoundaryEvent);
-                                break;
-                            case EventSubTypes.Signal:
-                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingSignalBoundaryEvent : BPMIcons.NonInteruptingSignalBoundaryEvent);
-                                break;
-                            case EventSubTypes.Timer:
-                                ret = (((BoundaryEvent)evnt).CancelActivity ? BPMIcons.InteruptingTimerBoundaryEvent : BPMIcons.NonInteruptingTimerBoundaryEvent);
-                                break;
-                            case EventSubTypes.Error:
-                                ret=BPMIcons.InteruptingErrorBoundaryEvent;
-                                break;
-                            case EventSubTypes.Compensation:
-                                ret=BPMIcons.InteruptingCompensationBoundaryEvent;
-                                break;
-                        }
-                    }
-                }
-                else if (elem is AGateway)
-                    ret = (BPMIcons)Enum.Parse(typeof(BPMIcons), elem.GetType().Name);
-                else if (elem is ATask)
-                {
-                    if (Enum.TryParse(typeof(BPMIcons), elem.GetType().Name, out object obj))
-                        ret = (BPMIcons)obj;
-                }
-            }
-            return ret;
-        }
-
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
             if (!Children.Any(elem => elem is Bounds))
             {
-                err =(err ?? Array.Empty<string>()).Concat(new string[] { "No bounds specified." });
+                err =(err ?? Array.Empty<string>()).Concat(new string[] { "No bounds specified for the shape." });
                 return false;
             }
             return res;

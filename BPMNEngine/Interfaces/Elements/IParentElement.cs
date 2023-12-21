@@ -1,7 +1,9 @@
-﻿namespace BPMNEngine.Interfaces.Elements
+﻿using System.Collections.Immutable;
+
+namespace BPMNEngine.Interfaces.Elements
 {
     internal interface IParentElement : IElement
     {
-        IEnumerable<IElement> Children { get; }
+        ImmutableArray<IElement> Children { get; }
     }
 }

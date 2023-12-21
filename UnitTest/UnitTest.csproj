@@ -21,6 +21,7 @@
     <None Remove="diagrams\EmissionHandling\throw_catching.bpmn" />
     <None Remove="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <None Remove="diagrams\ErrorHandling\process_error_handling.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\conditional_boundary.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
@@ -29,12 +30,15 @@
     <None Remove="diagrams\Extensions\definition_variable.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp_compilation_error.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp_delayed_active_step.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <None Remove="diagrams\ImageTests\all_icons.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_request.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_state.xml" />
+    <None Remove="diagrams\ManualTasks\multiple_manual_tasks.bpmn" />
+    <None Remove="diagrams\ManualTasks\single_manual_task.bpmn" />
     <None Remove="diagrams\ProcessEnd\sub_process_end.bpmn" />
     <None Remove="diagrams\ProcessEnd\sub_process_terminate.bpmn" />
     <None Remove="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
@@ -61,11 +65,13 @@
     <EmbeddedResource Include="diagrams\EmissionHandling\throw_catching.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\no_error_handling.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\conditional_boundary.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\definition_file.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_delayed_active_step.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_compilation_error.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
@@ -75,6 +81,8 @@
     <EmbeddedResource Include="diagrams\ImageTests\all_icons.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\vacation_state.xml" />
+    <EmbeddedResource Include="diagrams\ManualTasks\multiple_manual_tasks.bpmn" />
+    <EmbeddedResource Include="diagrams\ManualTasks\single_manual_task.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_end.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate.bpmn" />

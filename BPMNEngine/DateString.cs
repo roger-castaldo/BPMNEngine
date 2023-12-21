@@ -1,105 +1,90 @@
 ﻿using BPMNEngine.Interfaces.Variables;
+using System;
 using System.Text.RegularExpressions;
 
 namespace BPMNEngine
 {
-    internal class DateString
+    /// <summary>
+    /// This class is used to convert a date string into a datetime value, uses the similar 
+    /// concepts as the strtotime found in php
+    /// </summary>
+    public class DateString
     {
+        private const string ValidFirstRegexString = "now|today|tomorrow|yesterday";
         private const string ValidUnits = "year|month|week|day|hour|minute|second";
-        private static readonly Regex basicRelativeRegex = new(@"^(last|next) +(" + ValidUnits + ")$", RegexOptions.Compiled | RegexOptions.IgnoreCase,TimeSpan.FromMinutes(500));
-        private static readonly Regex simpleRelativeRegex = new(@"^([+-]?\d+) *(" + ValidUnits + ")s?$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(500));
-        private static readonly Regex completeRelativeRegex = new(@"^(\d+) *(" + ValidUnits + ")s?( +ago)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(500));
-        private static readonly Regex variableRegex = new("^[+-]?\\$\\{([^}]+)\\}$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(500));
+        private const string VariableRegexString = @"\$\{([^}]+)\}";
+        private const string UnitShiftRegexString = @"last +|next +|[+-]?\d+ *";
+        private const string AgoRegexString = @" +ago";
+        private static readonly Regex fullRegex = new($"(({ValidFirstRegexString})|(({UnitShiftRegexString}|{VariableRegexString} *)(({ValidUnits})s?|{VariableRegexString})({AgoRegexString})?))", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
+        private static readonly Regex firstRegex = new($"^({ValidFirstRegexString})$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
+        private static readonly Regex relativeRegex = new($"^({UnitShiftRegexString})({ValidUnits})s?({AgoRegexString})?$", RegexOptions.Compiled | RegexOptions.IgnoreCase,TimeSpan.FromMinutes(5));
+        private static readonly Regex variableRegex = new(VariableRegexString, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
 
-        private readonly string value;
+        private readonly string[] data;
 
+        /// <summary>
+        /// creates an instance
+        /// </summary>
+        /// <param name="value">the date string that is meant to be converted</param>
         public DateString(string value)
         {
-            this.value = value.Trim() + " ";
+            var idx = 0;
+            var tmp = new List<string>();
+            fullRegex.Matches(value)
+                .ForEach(match =>
+                {
+                    if (idx<match.Index)
+                        tmp.Add(value[idx..match.Index]);
+                    tmp.Add(match.Value);
+                    idx = match.Index + match.Length;
+                });
+            if (idx+1<value.Length)
+                tmp.Add(value[idx..]);
+            data=tmp
+                .Select(v=>v.Trim())
+                .Where(v=>!string.IsNullOrEmpty(v))
+                .ToArray();
         }
 
+        /// <summary>
+        /// Converts the date string into an actual datetime object
+        /// </summary>
+        /// <param name="variables">The process variables currently avaialbe (this is used when variables exist in the string e.g. ${variablename})</param>
+        /// <returns>A DateTime build from the string</returns>
+        /// <exception cref="Exception">Occurs when the string is determined unparsable</exception>
         public DateTime GetTime(IReadonlyVariables variables)
         {
             DateTime ret = DateTime.Now;
             bool isFirst = true;
-            string buffer = "";
-            Match m;
-            value.ForEach(c =>
+            data.ForEach(line =>
             {
-                switch (c)
+                var current = variableRegex.Replace(line,m=> $"{variables[m.Groups[1].Value]}");
+                if (isFirst && firstRegex.IsMatch(current))
                 {
-                    case ' ':
-                        if (variableRegex.IsMatch(buffer))
-                        {
-                            m = variableRegex.Match(buffer);
-                            buffer = buffer.Replace("${" + m.Groups[1].Value + "}", string.Format("{0}", variables[m.Groups[1].Value]));
-                        }
-                        if (isFirst)
-                        {
-                            switch (buffer.ToLower())
-                            {
-                                case "now":
-                                case "today":
-                                    buffer = "";
-                                    ret = DateTime.Now;
-                                    isFirst = false;
-                                    break;
-                                case "tomorrow":
-                                    buffer = "";
-                                    ret = DateTime.Now.AddDays(1);
-                                    isFirst = false;
-                                    break;
-                                case "yesterday":
-                                    buffer = "";
-                                    ret = DateTime.Now.AddDays(-1);
-                                    isFirst = false;
-                                    break;
-                            }
-                        }
-                        if (buffer != "")
-                        {
-                            if (basicRelativeRegex.IsMatch(buffer))
-                            {
-                                m = basicRelativeRegex.Match(buffer);
-                                ret = DateString.AddOffset(m.Groups[2].Value, (m.Groups[1].Value.ToLower() == "next" ? 1 : -1), ret);
-                                buffer = "";
-                            }
-                            else if (simpleRelativeRegex.IsMatch(buffer))
-                            {
-                                m = simpleRelativeRegex.Match(buffer);
-                                ret = DateString.AddOffset(m.Groups[2].Value, int.Parse(m.Groups[1].Value), ret);
-                                buffer = "";
-                            }
-                            else if (completeRelativeRegex.IsMatch(buffer))
-                            {
-                                m = completeRelativeRegex.Match(buffer);
-                                ret = DateString.AddOffset(m.Groups[2].Value, int.Parse(m.Groups[1].Value) * (m.Groups[3].Value != "" ? -1 : 1), ret);
-                                buffer = "";
-                            }
-                            else if (isFirst)
-                            {
-                                if (DateTime.TryParse(buffer, out DateTime tmp))
-                                {
-                                    isFirst = false;
-                                    buffer = "";
-                                    ret = tmp;
-                                }
-                                else
-                                    buffer += c;
-                            }
-                            else
-                                buffer += c;
-                        }
-                        break;
-                    default:
-                        buffer += c;
-                        break;
+                    isFirst=false;
+                    ret = line.ToLower() switch
+                    {
+                        "now" => DateTime.Now,
+                        "today" => DateTime.Today,
+                        "tomorrow" => DateTime.Now.AddDays(1),
+                        "yesterday" => DateTime.Now.AddDays(-1)
+                    };
                 }
+                else if (relativeRegex.IsMatch(current))
+                {
+                    var m = relativeRegex.Match(current);
+                    ret = AddOffset(m.Groups[2].Value, m.Groups[1].Value.Trim().ToLower() switch
+                    {
+                        "next" => 1,
+                        "last" => -1,
+                        _ => int.Parse(m.Groups[1].Value)
+                    } * (m.Groups.Count==3||string.IsNullOrEmpty(m.Groups[3].Value) ? 1 : -1), ret);
+                }
+                else if (isFirst && DateTime.TryParse(current, out var tmp))
+                    ret=tmp;
+                else
+                    throw new FormatException($"Invalid Date String Specified [{current}]");
             });
-            if (buffer != "")
-            {
-                throw new Exception(string.Format("Invalid Date String Specified [{0}]", buffer));
-            }
             return ret;
         }
 

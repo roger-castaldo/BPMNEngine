@@ -18,7 +18,7 @@ namespace BPMNEngine.Elements.Diagrams
             var res = base.IsValid(out err);
             if (Bounds == null)
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No bounds specified." });
+                err = (err??Array.Empty<string>()).Concat(new string[] { "No bounds for the label are specified." });
                 return false;
             }
             return res;

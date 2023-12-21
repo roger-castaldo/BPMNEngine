@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_0c5hn50" targetNamespace="http://bpmn.io/schema/bpmn" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions">
+  <bpmn:process id="Process_1cw6e7i" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_0wm629p">
+      <bpmn:outgoing>Flow_0idb9xg</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_15093lf">
+      <bpmn:incoming>Flow_0idb9xg</bpmn:incoming>
+      <bpmn:outgoing>Flow_19r7i87</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0idb9xg" sourceRef="StartEvent_0wm629p" targetRef="Activity_15093lf" />
+    <bpmn:boundaryEvent id="Event_0bzc3s9" attachedToRef="Activity_15093lf">
+      <bpmn:outgoing>Flow_1itqwbt</bpmn:outgoing>
+      <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_0tqdeqt">
+        <bpmn:condition xsi:type="bpmn:tFormalExpression" />
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:isEqualCondition rightVariable="canUseCondition">
+					  <exts:left>True</exts:left>
+				  </exts:isEqualCondition>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+      </bpmn:conditionalEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:exclusiveGateway id="Gateway_000mair">
+      <bpmn:incoming>Flow_19r7i87</bpmn:incoming>
+      <bpmn:incoming>Flow_1itqwbt</bpmn:incoming>
+      <bpmn:outgoing>Flow_02xbpir</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_19r7i87" sourceRef="Activity_15093lf" targetRef="Gateway_000mair" />
+    <bpmn:endEvent id="Event_0ma9gfo">
+      <bpmn:incoming>Flow_02xbpir</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_02xbpir" sourceRef="Gateway_000mair" targetRef="Event_0ma9gfo" />
+    <bpmn:sequenceFlow id="Flow_1itqwbt" sourceRef="Event_0bzc3s9" targetRef="Gateway_000mair" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1cw6e7i">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_0wm629p">
+        <dc:Bounds x="152" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15093lf_di" bpmnElement="Activity_15093lf">
+        <dc:Bounds x="250" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_000mair_di" bpmnElement="Gateway_000mair" isMarkerVisible="true">
+        <dc:Bounds x="435" y="125" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ma9gfo_di" bpmnElement="Event_0ma9gfo">
+        <dc:Bounds x="552" y="132" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0u7059p_di" bpmnElement="Event_0bzc3s9">
+        <dc:Bounds x="292" y="92" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0idb9xg_di" bpmnElement="Flow_0idb9xg">
+        <di:waypoint x="188" y="150" />
+        <di:waypoint x="250" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19r7i87_di" bpmnElement="Flow_19r7i87">
+        <di:waypoint x="350" y="150" />
+        <di:waypoint x="435" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02xbpir_di" bpmnElement="Flow_02xbpir">
+        <di:waypoint x="485" y="150" />
+        <di:waypoint x="552" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1itqwbt_di" bpmnElement="Flow_1itqwbt">
+        <di:waypoint x="310" y="92" />
+        <di:waypoint x="310" y="72" />
+        <di:waypoint x="460" y="72" />
+        <di:waypoint x="460" y="125" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
