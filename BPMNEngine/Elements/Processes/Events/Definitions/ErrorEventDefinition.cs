@@ -7,7 +7,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "errorEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class ErrorEventDefinition : AParentElement
+    internal class ErrorEventDefinition : AParentElement, IEventDefinition
     {
         private IEnumerable<string> BaseTypes
             => Array.Empty<string>()
@@ -19,6 +19,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                 ).Distinct();
         public IEnumerable<string> ErrorTypes
             => BaseTypes.DefaultIfEmpty("*");
+
+        public EventSubTypes Type => EventSubTypes.Error;
 
         public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }

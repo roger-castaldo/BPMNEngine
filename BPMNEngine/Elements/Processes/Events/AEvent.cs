@@ -2,6 +2,7 @@
 using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
+using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
@@ -9,46 +10,13 @@ namespace BPMNEngine.Elements.Processes.Events
     internal abstract class AEvent : AFlowNode
     {
         public EventSubTypes? SubType
-        {
-            get
-            {
-                EventSubTypes? ret = null;
-                Children.ForEach(ie =>
-                {
-                    switch (ie.GetType().Name)
-                    {
-                        case "MessageEventDefinition":
-                            ret = EventSubTypes.Message;
-                            break;
-                        case "TimerEventDefinition":
-                            ret = EventSubTypes.Timer;
-                            break;
-                        case "ConditionalEventDefinition":
-                            ret = EventSubTypes.Conditional;
-                            break;
-                        case "SignalEventDefinition":
-                            ret = EventSubTypes.Signal;
-                            break;
-                        case "EscalationEventDefinition":
-                            ret = EventSubTypes.Escalation;
-                            break;
-                        case "LinkEventDefinition":
-                            ret = EventSubTypes.Link;
-                            break;
-                        case "CompensationEventDefinition":
-                            ret = EventSubTypes.Compensation;
-                            break;
-                        case "ErrorEventDefinition":
-                            ret = EventSubTypes.Error;
-                            break;
-                        case "TerminateEventDefinition":
-                            ret = EventSubTypes.Terminate;
-                            break;
-                    }
-                });
-                return ret;
-            }
-        }
+            => (
+            Children.Any(elem=>elem is IEventDefinition) ? 
+            Children
+            .OfType<IEventDefinition>()
+            .Select(ie => ie.Type)
+            .First()
+            : null);
 
         public AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

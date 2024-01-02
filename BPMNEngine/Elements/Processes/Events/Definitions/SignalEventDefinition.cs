@@ -7,7 +7,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "signalEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class SignalEventDefinition : AParentElement
+    internal class SignalEventDefinition : AParentElement, IEventDefinition
     {
         private IEnumerable<string> BaseTypes
             => Array.Empty<string>()
@@ -23,6 +23,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
 
         public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
+
+        public EventSubTypes Type => EventSubTypes.Signal;
 
         public override bool IsValid(out IEnumerable<string> err)
         {

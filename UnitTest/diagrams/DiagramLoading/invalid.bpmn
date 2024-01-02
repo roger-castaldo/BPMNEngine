@@ -6,10 +6,20 @@
 	  <bpmn:extensionElements>
 		  <exts:ConditionSet>
 			  <exts:andCondition>
-				  <exts:isEqualCondition leftVariable="andequal1">
+				  <exts:isEqualCondition leftVariable="andequal1" rightVariable="andequal2">
 					  <exts:right>12</exts:right>
+					  <exts:left>12</exts:left>
 				  </exts:isEqualCondition>
 			  </exts:andCondition>
+		  </exts:ConditionSet>
+		  <exts:ConditionSet>
+			<exts:isEqualCondition/>
+		  </exts:ConditionSet>
+		  <exts:ConditionSet>
+			<exts:isEqualCondition rightVariable="andequal1"/>
+		  </exts:ConditionSet>
+		  <exts:ConditionSet>
+			  <exts:isEqualCondition leftVariable="andequal1"/>
 		  </exts:ConditionSet>
 	  </bpmn:extensionElements>
 	  <bpmn:startEvent id="StartEvent_1">

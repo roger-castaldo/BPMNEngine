@@ -282,5 +282,22 @@ namespace UnitTest
             Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='BoundaryEvent_0hxboq6'][@status='Succeeded']"));
             Assert.IsNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='SequenceFlow_08tdtwz'][@status='Succeeded']"));
         }
+
+        [TestMethod()]
+        public void TestIntermediateCatchEventsAttachedToTask()
+        {
+            var process = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/catch_event_checking.bpmn"));
+            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            Assert.IsNotNull(instance);
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+
+            var state = instance.CurrentState;
+
+            Assert.IsFalse(Utility.StepCompleted(state, "Event_131x4qh"));
+            Assert.IsFalse(Utility.StepCompleted(state, "Event_1dtsax8"));
+            Assert.IsFalse(Utility.StepCompleted(state, "Event_0crhvev"));
+            Assert.IsFalse(Utility.StepCompleted(state, "Event_1got9d6"));
+            Assert.IsTrue(Utility.StepCompleted(state, "Flow_1sww23a"));
+        }
     }
 }

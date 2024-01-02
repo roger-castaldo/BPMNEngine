@@ -1,16 +1,19 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition;
 using BPMNEngine.Elements.Processes.Scripts;
+using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
     [XMLTag("bpmn", "timerEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class TimerEventDefinition : AParentElement
+    internal class TimerEventDefinition : AParentElement,IEventDefinition
     {
         public TimerEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
+
+        public EventSubTypes Type => EventSubTypes.Timer;
 
         public TimeSpan? GetTimeout(IReadonlyVariables variables) {
             DateTime now = DateTime.Now;

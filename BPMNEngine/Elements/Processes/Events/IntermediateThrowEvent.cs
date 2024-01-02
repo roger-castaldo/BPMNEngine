@@ -10,27 +10,25 @@ namespace BPMNEngine.Elements.Processes.Events
         {
             get
             {
-                if (SubType.HasValue)
+                if (!SubType.HasValue)
+                    return null;
+                return SubType.Value switch
                 {
-                    return SubType.Value switch
-                    {
-                        EventSubTypes.Signal => Children
-                                    .OfType<SignalEventDefinition>()
-                                    .Select(child => child.SignalTypes.First())
-                                    .FirstOrDefault(),
-                        EventSubTypes.Error => Children
-                                .OfType<ErrorEventDefinition>()
-                                .Select(child => child.ErrorTypes.First())
-                                .Select(err => new IntermediateProcessExcepion(err))
+                    EventSubTypes.Signal => Children
+                                .OfType<SignalEventDefinition>()
+                                .Select(child => child.SignalTypes.First())
                                 .FirstOrDefault(),
-                        EventSubTypes.Message => Children
-                                                        .OfType<MessageEventDefinition>()
-                                                        .Select(child => child.MessageTypes.First())
-                                                        .FirstOrDefault(),
-                        _ => null
-                    };
-                }
-                return null;
+                    EventSubTypes.Error => Children
+                            .OfType<ErrorEventDefinition>()
+                            .Select(child => child.ErrorTypes.First())
+                            .Select(err => new IntermediateProcessExcepion(err))
+                            .FirstOrDefault(),
+                    EventSubTypes.Message => Children
+                                                    .OfType<MessageEventDefinition>()
+                                                    .Select(child => child.MessageTypes.First())
+                                                    .FirstOrDefault(),
+                    _ => null
+                };
             }
         }
 

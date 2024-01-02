@@ -123,6 +123,10 @@ namespace UnitTest
             Assert.IsTrue(res.Contains("No bounds for the label are specified."));
             Assert.IsTrue(res.Contains("No child elements found in the definition."));
             Assert.IsTrue(res.Contains("Collaboration requires at least 1 child element."));
+            Assert.IsTrue(res.Contains("Right value specified more than once."));
+            Assert.IsTrue(res.Contains("Left value specified more than once."));
+            Assert.IsTrue(res.Contains("Right and Left value missing."));
+            Assert.IsTrue(res.Contains("Left value missing."));
         }
 
         [TestMethod]

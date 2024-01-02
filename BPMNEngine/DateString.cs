@@ -67,7 +67,8 @@ namespace BPMNEngine
                         "now" => DateTime.Now,
                         "today" => DateTime.Today,
                         "tomorrow" => DateTime.Now.AddDays(1),
-                        "yesterday" => DateTime.Now.AddDays(-1)
+                        "yesterday" => DateTime.Now.AddDays(-1),
+                        _ => throw new NotImplementedException()
                     };
                 }
                 else if (relativeRegex.IsMatch(current))

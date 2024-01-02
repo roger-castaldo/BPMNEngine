@@ -45,6 +45,7 @@
     <None Remove="diagrams\ProcessSuspension\timer.bpmn" />
     <None Remove="diagrams\ProcessSuspension\user_task.bpmn" />
     <None Remove="diagrams\Tasks\all_tasks.bpmn" />
+    <None Remove="diagrams\Tasks\catch_event_checking.bpmn" />
     <None Remove="diagrams\Timers\timing.bpmn" />
     <None Remove="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <None Remove="diagrams\UserTasks\single_user_task.bpmn" />
@@ -89,6 +90,7 @@
     <EmbeddedResource Include="diagrams\ProcessSuspension\timer.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\user_task.bpmn" />
     <EmbeddedResource Include="diagrams\Tasks\all_tasks.bpmn" />
+    <EmbeddedResource Include="diagrams\ErrorHandling\catch_event_checking.bpmn" />
     <EmbeddedResource Include="diagrams\Timers\timing.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\single_user_task.bpmn" />

@@ -68,7 +68,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             if (IsCondition)
                 return bool.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
             else if (IsTimerEvent)
-                return DateTime.Parse(_toObject.Invoke(ret, Array.Empty<object>()).ToString());
+                return ConvertJsDateToDateTime(ret);
             return pars[1];
         }
 
@@ -103,6 +103,8 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
             else if (jsDate is DateTime time)
                 return TimeZoneInfo.ConvertTime(time, TimeZoneInfo.Local);
+            else if (jsDate is string str)
+                return DateTime.Parse(str);
 
             throw new ArgumentException("Invalid JavaScript Date format.");
         }

@@ -27,50 +27,54 @@ namespace UnitTest
             public Exception Error => null;
         }
 
-        private const long MAX_TICK_DELTA = 1000_000;
-        private static bool DatesAreEqual(DateTime d1,DateTime d2)
+        private const long MAX_TICK_DELTA = 1_000_000;
+        private static bool DatesAreEqual(DateTime time,string timeToConvert,IReadonlyVariables? variables=null)
         {
-            System.Diagnostics.Trace.WriteLine(Math.Abs(d1.Ticks-d2.Ticks));
-            return Math.Max(Math.Abs(d1.Ticks-d2.Ticks), MAX_TICK_DELTA)==MAX_TICK_DELTA;
+            var start = DateTime.Now;
+            var d2 = new StrToTime(timeToConvert).GetTime(variables);
+            var conversionTime = DateTime.Now.Subtract(start);
+            var delta = Math.Abs(time.Subtract(d2).Ticks)-conversionTime.Ticks;
+            System.Diagnostics.Trace.WriteLine($"Conversion Time: {conversionTime}, Delta: {delta}");
+            return Math.Max(delta, MAX_TICK_DELTA)==MAX_TICK_DELTA;
         }
 
         [TestMethod]
         public void TestDateStrings()
         {
-            Assert.IsTrue(DatesAreEqual(DateTime.Now, new StrToTime("now").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Today, new StrToTime("today").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), new StrToTime("tomorrow").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-1), new StrToTime("yesterday").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddYears(1), new StrToTime("next year").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddYears(-1), new StrToTime("last year").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMonths(1), new StrToTime("next month").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMonths(-1), new StrToTime("last month").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(7), new StrToTime("next week").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-7), new StrToTime("last week").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), new StrToTime("next day").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-1), new StrToTime("last day").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddHours(1), new StrToTime("next hour").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddHours(-1), new StrToTime("last hour").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMinutes(1), new StrToTime("next minute").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMinutes(-1), new StrToTime("last minute").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddSeconds(1), new StrToTime("next second").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddSeconds(-1), new StrToTime("last second").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(2), new StrToTime("2 days").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-2), new StrToTime("-2 days").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), new StrToTime("1 day").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-1), new StrToTime("-1day").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-5), new StrToTime("5 days ago").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-6), new StrToTime("6days ago").GetTime(null)));
-            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), new StrToTime("1day").GetTime(null)));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now, "now",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Today, "today",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), "tomorrow",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-1), "yesterday",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddYears(1), "next year",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddYears(-1), "last year",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMonths(1), "next month",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMonths(-1), "last month",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(7), "next week",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-7), "last week",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), "next day",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-1), "last day",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddHours(1), "next hour",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddHours(-1), "last hour",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMinutes(1), "next minute",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddMinutes(-1), "last minute",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddSeconds(1), "next second",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddSeconds(-1), "last second",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(2), "2 days",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-2), "-2 days",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), "1 day",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-1), "-1day",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-5), "5 days ago",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(-6), "6days ago",null));
+            Assert.IsTrue(DatesAreEqual(DateTime.Now.AddDays(1), "1day",null));
 
-            Assert.IsTrue(DatesAreEqual(DateTime.Today, new StrToTime(DateTime.Today.ToString()).GetTime(null)));
+            Assert.IsTrue(DatesAreEqual(DateTime.Today, DateTime.Today.ToString(),null));
 
 
-            Assert.IsTrue(DatesAreEqual(DateTime.Today.AddDays(5), new StrToTime("today ${five} ${days}").GetTime(new ReadonlyVariablesImplementation(new()
+            Assert.IsTrue(DatesAreEqual(DateTime.Today.AddDays(5), "today ${five} ${days}",new ReadonlyVariablesImplementation(new()
             {
                 {"five",5 },
                 {"days","days" }
-            }))));
+            })));
 
             var current = "not valid";
             var exception = Assert.ThrowsException<FormatException>(() =>

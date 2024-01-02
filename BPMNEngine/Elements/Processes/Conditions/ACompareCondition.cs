@@ -70,13 +70,13 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 if (!name.Contains('.'))
                     ret = readonlyVariables[name];
                 else if (readonlyVariables[name[..name.IndexOf('.')]] != null)
-                    ret = ACompareCondition.ExtractVariable(readonlyVariables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+                    ret = ExtractVariable(readonlyVariables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
             } else if (source is IVariables variables)
             {
                 if (!name.Contains('.'))
                     ret = variables[name];
                 else if (variables[name[..name.IndexOf('.')]] != null)
-                    ret = ACompareCondition.ExtractVariable(variables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+                    ret = ExtractVariable(variables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
             }else if (source is Hashtable hashtable)
             {
                 if (!name.Contains('.'))
@@ -86,12 +86,12 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 } else
                 {
                     if (hashtable.ContainsKey(name[..name.IndexOf('.')]))
-                        ret = ACompareCondition.ExtractVariable(hashtable[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+                        ret = ExtractVariable(hashtable[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
                 }
             }else if (source is Array arr)
             {
                 var al = new ArrayList();
-                arr.Cast<object>().ForEach(o => al.Add(ACompareCondition.ExtractVariable(o, name)));
+                arr.Cast<object>().ForEach(o => al.Add(ExtractVariable(o, name)));
                 if (al.Count > 0)
                 {
                     ret = Array.CreateInstance(al[0].GetType(), al.Count);
@@ -102,43 +102,20 @@ namespace BPMNEngine.Elements.Processes.Conditions
         }
 
         private static object ConvertToType(string value, Type type, IReadonlyVariables variables)
+        =>type.FullName switch
         {
-            object ret = value;
-            switch (type.FullName)
-            {
-                case "System.Boolean":
-                    ret = bool.Parse(value);
-                    break;
-                case "System.Byte[]":
-                    ret = Convert.FromBase64String(value);
-                    break;
-                case "System.Char":
-                    ret = value[0];
-                    break;
-                case "System.DateTime":
-                    ret = new DateString(value).GetTime(variables);
-                    break;
-                case "System.Decimal":
-                    ret = decimal.Parse(value);
-                    break;
-                case "System.Double":
-                    ret = double.Parse(value);
-                    break;
-                case "System.Single":
-                    ret = float.Parse(value);
-                    break;
-                case "System.Int32":
-                    ret = int.Parse(value);
-                    break;
-                case "System.Int64":
-                    ret = long.Parse(value);
-                    break;
-                case "System.Int16":
-                    ret = short.Parse(value);
-                    break;
-            }
-            return ret;
-        }
+            "System.Boolean" => bool.Parse(value),
+            "System.Byte[]" => Convert.FromBase64String(value),
+            "System.Char" => value[0],
+            "System.DateTime" => new DateString(value).GetTime(variables),
+            "System.Decimal" => decimal.Parse(value),
+            "System.Double" => double.Parse(value),
+            "System.Single" => float.Parse(value),
+            "System.Int32" => int.Parse(value),
+            "System.Int64" => long.Parse(value),
+            "System.Int16" => short.Parse(value),
+            _ => value
+        }; 
 
         public override bool IsValid(out IEnumerable<string> err)
         {

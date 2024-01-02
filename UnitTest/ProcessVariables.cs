@@ -343,6 +343,7 @@ namespace UnitTest
             var variableArray = new SFile[] { variableValue, variableValue };
 
             Assert.IsTrue(variableArray[0].Equals(variableArray[1]));
+            Assert.IsFalse(variableArray[0].Equals("testing"));
             Assert.AreEqual(variableArray[0].GetHashCode(), variableArray[1].GetHashCode());
             Assert.IsTrue(variableArray[0]==variableArray[1]);
             Assert.IsFalse(variableArray[0]!=variableArray[1]);
