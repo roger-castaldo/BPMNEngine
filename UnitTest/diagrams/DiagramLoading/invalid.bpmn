@@ -192,6 +192,8 @@
 	  </bpmn:startEvent>
 
 	  <bpmn:collaboration/>
+
+	  <bpmn:subProcess id="Activity_01eulv2"/>
   </bpmn:process>
 	<bpmn:process id="Process_2" isExecutable="false">
 	</bpmn:process>

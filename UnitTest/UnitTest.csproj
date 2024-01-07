@@ -44,6 +44,7 @@
     <None Remove="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
     <None Remove="diagrams\ProcessSuspension\timer.bpmn" />
     <None Remove="diagrams\ProcessSuspension\user_task.bpmn" />
+    <None Remove="diagrams\SubProcesses\subprocesses.bpmn" />
     <None Remove="diagrams\Tasks\all_tasks.bpmn" />
     <None Remove="diagrams\Tasks\catch_event_checking.bpmn" />
     <None Remove="diagrams\Timers\timing.bpmn" />
@@ -89,6 +90,7 @@
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\timer.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\user_task.bpmn" />
+    <EmbeddedResource Include="diagrams\SubProcesses\subprocesses.bpmn" />
     <EmbeddedResource Include="diagrams\Tasks\all_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\catch_event_checking.bpmn" />
     <EmbeddedResource Include="diagrams\Timers\timing.bpmn" />

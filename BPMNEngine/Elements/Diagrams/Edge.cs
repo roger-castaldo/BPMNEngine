@@ -38,7 +38,7 @@ namespace BPMNEngine.Elements.Diagrams
                     });
                     Label l = Label;
                     _rectangle = new RectF(_rectangle.Value.X-3.5f, _rectangle.Value.Y-3.5f, _rectangle.Value.Width+6.5f, _rectangle.Value.Height+6.5f);
-                    if (l != null)
+                    if (l != null && l.Bounds!=null)
                         _rectangle = MergeRectangle(_rectangle.Value,l.Bounds.Rectangle);
                 }
                 return _rectangle.Value;
@@ -122,7 +122,7 @@ namespace BPMNEngine.Elements.Diagrams
                 }
             }
 
-            if (Label!=null)
+            if (Label!=null && Label.Bounds!=null)
             {
                 surface.FontColor = color;
                 surface.DrawString(elem.ToString(), Label.Bounds.Rectangle, HorizontalAlignment.Center, VerticalAlignment.Center);

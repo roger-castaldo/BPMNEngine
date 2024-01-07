@@ -32,7 +32,7 @@ namespace BPMNEngine.Elements
             var res = base.IsValid(out err);
             bool hasStart = Children.Any(elem => elem is StartEvent || (elem is IntermediateCatchEvent ice && ice.SubType.HasValue));
             bool hasEnd = Children.Any(elem=>elem is EndEvent);
-            bool hasIncoming = this.Incoming!=null || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
+            bool hasIncoming = Incoming.Any() || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
             var terr = new List<string>();
             if (!(hasStart && hasEnd && hasIncoming))
             {

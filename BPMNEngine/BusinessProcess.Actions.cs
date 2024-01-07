@@ -57,6 +57,13 @@ namespace BPMNEngine
                         }
                     });
                 }
+                if (elem is SubProcess subProcess)
+                {
+                    ReadOnlyProcessVariablesContainer vars = new(sourceID, instance);
+                    subProcess.Children
+                        .Where(child=>instance.State.Path.AbortableSteps.Contains(child.ID))
+                        .ForEach(child=>AbortStep(instance, sourceID, child, vars));
+                }
             }
             WriteLogLine(sourceID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Process Step[{0}] has been completed", sourceID));
             if (outgoingID != null)
@@ -322,40 +329,47 @@ namespace BPMNEngine
                     evnt, 
                     new ReadOnlyProcessVariablesContainer(evnt.ID, instance)
                 );
-                if (evnt is EndEvent event1 && event1.IsProcessEnd)
+                if (evnt is EndEvent endEvent)
                 {
-                    if (!event1.IsTermination)
+                    var sp = endEvent.SubProcess as SubProcess;
+                    if (sp!=null && 
+                        (
+                            !endEvent.IsProcessEnd
+                            ||(endEvent.IsProcessEnd && !endEvent.IsTermination)
+                        )
+                    ){
+                        instance.State.Path.SucceedFlowNode(sp);
+                        BusinessProcess.TriggerDelegateAsync(
+                            instance.Delegates.Events.SubProcesses.Completed,
+                            sp,
+                            new ReadOnlyProcessVariablesContainer(sp.ID, instance)
+                        );
+                    }
+                    else if (endEvent.IsProcessEnd)
                     {
-                        SubProcess sp = (SubProcess)event1.SubProcess;
-                        if (sp != null)
+                        if (!endEvent.IsTermination)
                         {
-                            instance.State.Path.SucceedFlowNode(sp);
-                            BusinessProcess.TriggerDelegateAsync(
-                                instance.Delegates.Events.SubProcesses.Completed, 
-                                sp, 
-                                new ReadOnlyProcessVariablesContainer(sp.ID, instance)
-                            );
+                            if (sp==null)
+                            {
+                                BusinessProcess.TriggerDelegateAsync(
+                                    instance.Delegates.Events.Processes.Completed,
+                                    endEvent.Process,
+                                    new ReadOnlyProcessVariablesContainer(evnt.ID, instance)
+                                );
+                                instance.CompleteProcess();
+                            }
                         }
                         else
                         {
+                            ReadOnlyProcessVariablesContainer vars = new(evnt.ID, instance);
+                            instance.State.AbortableSteps.ForEach(str => { AbortStep(instance, evnt.ID, GetElement(str), vars); });
                             BusinessProcess.TriggerDelegateAsync(
-                                instance.Delegates.Events.Processes.Completed, 
-                                event1.Process, 
+                                instance.Delegates.Events.Processes.Completed,
+                                endEvent.Process,
                                 new ReadOnlyProcessVariablesContainer(evnt.ID, instance)
                             );
                             instance.CompleteProcess();
                         }
-                    }
-                    else
-                    {
-                        ReadOnlyProcessVariablesContainer vars = new(evnt.ID, instance);
-                        instance.State.AbortableSteps.ForEach(str => { AbortStep(instance, evnt.ID, GetElement(str), vars); });
-                        BusinessProcess.TriggerDelegateAsync(
-                            instance.Delegates.Events.Processes.Completed,
-                            event1.Process, 
-                            new ReadOnlyProcessVariablesContainer(evnt.ID, instance)
-                        );
-                        instance.CompleteProcess();
                     }
                 }
             }

@@ -120,13 +120,15 @@ namespace UnitTest
             Assert.IsTrue(res.Contains("No bounds specified for the shape."));
             Assert.IsTrue(res.Contains("End Events cannot have an outgoing path."));
             Assert.IsTrue(res.Contains("End Events must have an incoming path."));
-            Assert.IsTrue(res.Contains("No bounds for the label are specified."));
             Assert.IsTrue(res.Contains("No child elements found in the definition."));
             Assert.IsTrue(res.Contains("Collaboration requires at least 1 child element."));
             Assert.IsTrue(res.Contains("Right value specified more than once."));
             Assert.IsTrue(res.Contains("Left value specified more than once."));
             Assert.IsTrue(res.Contains("Right and Left value missing."));
             Assert.IsTrue(res.Contains("Left value missing."));
+            Assert.IsTrue(res.Contains("A Sub Process Must have a StartEvent or valid IntermediateCatchEvent"));
+            Assert.IsTrue(res.Contains("A Sub Process Must have a valid Incoming path, achieved through an incoming flow or IntermediateCatchEvent"));
+            Assert.IsTrue(res.Contains("A Sub Process Must have an EndEvent"));
         }
 
         [TestMethod]

@@ -291,7 +291,7 @@ namespace BPMNEngine
         /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
         /// <returns>a process instance if the process was successfully started</returns>
         public IProcessInstance BeginProcess(
-            Dictionary<string,object> pars,
+            Dictionary<string,object> pars=null,
             ProcessEvents events = null,
             StepValidations validations = null,
             ProcessTasks tasks = null,
