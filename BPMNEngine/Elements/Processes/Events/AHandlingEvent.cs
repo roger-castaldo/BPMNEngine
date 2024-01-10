@@ -1,6 +1,5 @@
 ﻿using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Variables;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace BPMNEngine.Elements.Processes.Events
 {

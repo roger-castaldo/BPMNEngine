@@ -7,7 +7,6 @@ using BPMNEngine.Interfaces.State;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.Json;
-using System.Threading;
 
 namespace BPMNEngine.State
 {
@@ -330,6 +329,16 @@ namespace BPMNEngine.State
             return steps
                     .GroupBy(step => step.ElementID)
                     .Where(grp => grp.Last().Status==StepStatuses.Started)
+                    .Select(grp => grp.Key);
+        });
+
+        public IEnumerable<string> WaitingSteps
+        => RunQuery((IEnumerable<SPathEntry> steps) =>
+        {
+            return steps
+                    .GroupBy(step => step.ElementID)
+                    .Where(grp => grp.Last().Status==StepStatuses.Started
+                    || grp.Last().Status==StepStatuses.Waiting)
                     .Select(grp => grp.Key);
         });
 

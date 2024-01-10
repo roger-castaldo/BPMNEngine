@@ -1,6 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Variables;
 using System.Collections;
-using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
@@ -65,30 +64,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         private static object ExtractVariable(object source, string name)
         {
             object ret = null;
-            if (source is IReadonlyVariables readonlyVariables)
-            {
-                if (!name.Contains('.'))
-                    ret = readonlyVariables[name];
-                else if (readonlyVariables[name[..name.IndexOf('.')]] != null)
-                    ret = ExtractVariable(readonlyVariables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
-            } else if (source is IVariables variables)
-            {
-                if (!name.Contains('.'))
-                    ret = variables[name];
-                else if (variables[name[..name.IndexOf('.')]] != null)
-                    ret = ExtractVariable(variables[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
-            }else if (source is Hashtable hashtable)
-            {
-                if (!name.Contains('.'))
-                {
-                    if (hashtable.ContainsKey(name))
-                        ret = hashtable[name];
-                } else
-                {
-                    if (hashtable.ContainsKey(name[..name.IndexOf('.')]))
-                        ret = ExtractVariable(hashtable[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
-                }
-            }else if (source is Array arr)
+            if (source is Array arr)
             {
                 var al = new ArrayList();
                 arr.Cast<object>().ForEach(o => al.Add(ExtractVariable(o, name)));
@@ -96,6 +72,25 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 {
                     ret = Array.CreateInstance(al[0].GetType(), al.Count);
                     al.Cast<object>().Select((v, i) => new { value = v, index = i }).ForEach(o => ((Array)ret).SetValue(o.value, o.index));
+                }
+                ret=al.ToArray();
+            }
+            else if (source is IVariablesContainer variablesContainer)
+            {
+                if (!name.Contains('.'))
+                    ret = variablesContainer[name];
+                else if (variablesContainer[name[..name.IndexOf('.')]] != null)
+                    ret = ExtractVariable(variablesContainer[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
+            }else if (source is IDictionary dictionary)
+            {
+                if (!name.Contains('.'))
+                {
+                    if (dictionary.Keys.OfType<object>().Any(o=>o.ToString().Equals(name,StringComparison.InvariantCultureIgnoreCase)))
+                        ret = dictionary[name];
+                } else
+                {
+                    if (dictionary.Keys.OfType<object>().Any(o => o.ToString().Equals(name[..name.IndexOf('.')], StringComparison.InvariantCultureIgnoreCase)))
+                        ret = ExtractVariable(dictionary[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
                 }
             }
             return ret;

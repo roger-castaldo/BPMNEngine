@@ -1,6 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using System.Linq;
-using System.Net.WebSockets;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {

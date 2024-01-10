@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Interfaces.Variables;
-using System;
 using System.Text.RegularExpressions;
 
 namespace BPMNEngine

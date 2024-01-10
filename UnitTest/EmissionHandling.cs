@@ -3,9 +3,6 @@ using BPMNEngine;
 using BPMNEngine.Interfaces;
 using System.Collections.Generic;
 using BPMNEngine.Interfaces.Tasks;
-using System.Windows.Markup;
-using Newtonsoft.Json.Serialization;
-using System.Formats.Asn1;
 
 namespace UnitTest
 {

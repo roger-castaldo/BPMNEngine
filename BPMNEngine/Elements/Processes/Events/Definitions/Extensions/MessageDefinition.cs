@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {

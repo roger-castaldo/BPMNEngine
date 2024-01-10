@@ -1,14 +1,12 @@
 ﻿using BPMNEngine;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
-using Esprima;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
 using System.Threading.Tasks;
 using System.Xml;
 

@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
 using System.Text;
-using BPMNEngine.Interfaces.Variables;
 using System.Security.Cryptography;
 
 namespace BPMNEngine.Elements.Processes.Scripts
@@ -83,7 +82,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
         }
 
-        protected sealed override object ScriptInvoke(IVariables variables)
+        protected override void ScriptInvoke<T>(T variables, out object result)
         {
             Debug("Creating new instance of compiled script class for script element {0}", new object[] { ID });
             object o = _assembly.CreateInstance(ClassName);
@@ -91,24 +90,13 @@ namespace BPMNEngine.Elements.Processes.Scripts
             MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = new object[] { variables };
             Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { ID });
-            object ret = mi.Invoke(o, args);
-            if (mi.ReturnType == typeof(void))
+            if (mi.ReturnType==typeof(void))
             {
-                Debug("Collecting the returned value from new instance of compiled script class for script element {0}", new object[] { ID });
-                ret = args[0];
+                mi.Invoke(o, args);
+                result=null;
             }
-            return ret;
-        }
-
-        protected sealed override object ScriptInvoke(IReadonlyVariables variables)
-        {
-            Debug("Creating new instance of compiled script class for script element {0}", new object[] { ID });
-            object o = _assembly.CreateInstance(ClassName);
-            Debug("Accesing method from new instance of compiled script class for script element {0}", new object[] { ID });
-            MethodInfo mi = o.GetType().GetMethod(FunctionName);
-            object[] args = new object[] { variables };
-            Debug("Executing method from new instance of compiled script class for script element {0}", new object[] { ID });
-            return mi.Invoke(o, args);
+            else
+                result = mi.Invoke(o, args);
         }
 
         protected override bool ScriptIsValid(out IEnumerable<string> err)

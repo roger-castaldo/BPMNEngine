@@ -21,10 +21,13 @@
     <None Remove="diagrams\EmissionHandling\throw_catching.bpmn" />
     <None Remove="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <None Remove="diagrams\ErrorHandling\process_error_handling.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\compare_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\conditional_boundary.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\contains_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\sub_process_start_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <None Remove="diagrams\Extensions\definition_file.bpmn" />
     <None Remove="diagrams\Extensions\definition_variable.bpmn" />
@@ -67,10 +70,13 @@
     <EmbeddedResource Include="diagrams\EmissionHandling\throw_catching.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\no_error_handling.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\compare_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\conditional_boundary.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\contains_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\sub_process_start_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\definition_file.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_delayed_active_step.bpmn" />

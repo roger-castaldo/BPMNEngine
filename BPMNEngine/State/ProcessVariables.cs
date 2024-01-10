@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Text.Json;
-using System.Threading;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Variables;
 

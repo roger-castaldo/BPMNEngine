@@ -14,19 +14,13 @@ namespace BPMNEngine.Elements.Processes.Conditions
         {
             object right = GetRight(variables);
             object left = GetLeft(variables);
-            if (left == null && right != null)
-                return false;
-            else if (left != null && right == null)
-                return false;
-            else if (left==null && right==null)
-                return false;
-            else
+            if (left != null && right!=null)
             {
                 if (left is Array array)
                     return array.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0);
-                else if (left is Hashtable hashtable)
-                    return hashtable.Keys.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0)
-                        || hashtable.Values.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0);
+                else if (left is IDictionary dictionary)
+                    return dictionary.Keys.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0)
+                        || dictionary.Values.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0);
                 else if (left.ToString().Contains(right.ToString()))
                     return true;
             }

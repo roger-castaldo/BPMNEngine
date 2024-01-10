@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Elements;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BPMNEngine
 {

@@ -2,7 +2,6 @@
 using BPMNEngine.Elements;
 using BPMNEngine.Elements.Processes.Gateways;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Mail;
 
 namespace BPMNEngine
 {

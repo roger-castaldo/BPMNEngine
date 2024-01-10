@@ -1,7 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
 using BPMNEngine.Interfaces.Elements;
-using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {

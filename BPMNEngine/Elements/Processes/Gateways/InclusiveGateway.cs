@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {

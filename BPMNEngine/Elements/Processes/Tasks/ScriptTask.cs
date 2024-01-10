@@ -1,7 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Scripts;
 using BPMNEngine.Interfaces.Tasks;
-using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Tasks
 {
@@ -20,10 +19,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
                     .OfType<AScript>()
                     .FirstOrDefault();
                 if (script != null)
-                {
-                    IVariables vars = (ProcessVariablesContainer)script.Invoke(task.Variables);
-                    vars.Keys.ToArray().ForEach(str => task.Variables[str]=vars[str]);
-                }
+                    script.Invoke(task.Variables);
             }
             processScriptTask?.Invoke(task);
         }

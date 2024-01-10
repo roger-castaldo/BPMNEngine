@@ -2,7 +2,6 @@
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Interfaces.Variables;
-using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
@@ -63,16 +62,15 @@ namespace BPMNEngine.Elements.Processes.Scripts
             _map = map;
         }
 
-        protected abstract object ScriptInvoke(IVariables variables);
-        protected abstract object ScriptInvoke(IReadonlyVariables variables);
+        protected abstract void ScriptInvoke<T>(T variables, out object result) where T : IVariablesContainer;
         protected abstract bool ScriptIsValid(out IEnumerable<string> err);
 
-        public object Invoke(IVariables variables)
+        public void Invoke(IVariables variables)
         {
             Info("Attempting to process script {0}", new object[] { ID });
             try
             {
-                return ScriptInvoke(variables);
+                ScriptInvoke<IVariables>(variables,out _);
             }
             catch (Exception e) {
                 Exception(e);
@@ -85,7 +83,8 @@ namespace BPMNEngine.Elements.Processes.Scripts
             Info("Attempting to process script {0}", new object[] { ID });
             try
             {
-                return ScriptInvoke(variables);
+                ScriptInvoke<IReadonlyVariables>(variables,out object result);
+                return result;
             }
             catch (Exception e)
             {

@@ -1,7 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
-using System.Linq;
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {

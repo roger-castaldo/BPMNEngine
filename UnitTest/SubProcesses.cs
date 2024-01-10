@@ -1,4 +1,5 @@
 ﻿using BPMNEngine;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -34,11 +35,20 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        [TestMethod]
-        public void TestSubProcessCompletion()
+        private static IProcessInstance StartProcess()
         {
             var instance = _process.BeginProcess();
             Assert.IsNotNull(instance);
+            Assert.IsTrue(instance.WaitForManualTask(MAIN_TASK_ID, out _));
+            Assert.IsTrue(instance.WaitForManualTask(SUB_TASK_ID, out _));
+            Assert.IsTrue(instance.WaitForManualTask(SUB_SUB_TASK_ID, out _));
+            return instance;
+        }
+
+        [TestMethod]
+        public void TestSubProcessCompletion()
+        {
+            var instance = StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.MarkComplete();
@@ -52,8 +62,7 @@ namespace UnitTest
         [TestMethod]
         public void TestSubTaskSignal()
         {
-            var instance = _process.BeginProcess();
-            Assert.IsNotNull(instance);
+            var instance = StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.Signal(SIGNAL, out bool isAborted);
@@ -71,8 +80,7 @@ namespace UnitTest
         [TestMethod]
         public void TestSubSubProcessCompletion()
         {
-            var instance = _process.BeginProcess();
-            Assert.IsNotNull(instance);
+            var instance = StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.MarkComplete();
@@ -86,8 +94,7 @@ namespace UnitTest
         [TestMethod]
         public void TestSubSubTaskSignal()
         {
-            var instance = _process.BeginProcess();
-            Assert.IsNotNull(instance);
+            var instance = StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.Signal(SIGNAL,out bool isAborted);
@@ -105,8 +112,7 @@ namespace UnitTest
         [TestMethod]
         public void TestMainTaskSignal()
         {
-            var instance = _process.BeginProcess();
-            Assert.IsNotNull(instance);
+            var instance = StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(MAIN_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.Signal(SIGNAL, out bool isAborted);

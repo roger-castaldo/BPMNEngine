@@ -2,7 +2,6 @@
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces;
-using BPMNEngine.State;
 using System.Threading;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
@@ -242,15 +241,18 @@ namespace BPMNEngine
 
         private void WaitForTask(string taskID,TimeSpan? timeout=null)
         {
-            if (!waitingTasks.TryGetValue(taskID, out var manualResetEventSlim))
+            if (!State.WaitingSteps.Contains(taskID))
             {
-                manualResetEventSlim = new ManualResetEventSlim(false);
-                waitingTasks.TryAdd(taskID, manualResetEventSlim);
+                if (!waitingTasks.TryGetValue(taskID, out var manualResetEventSlim))
+                {
+                    manualResetEventSlim = new ManualResetEventSlim(false);
+                    waitingTasks.TryAdd(taskID, manualResetEventSlim);
+                }
+                if (timeout.HasValue)
+                    manualResetEventSlim.Wait(timeout.Value);
+                else
+                    manualResetEventSlim.Wait();
             }
-            if (timeout.HasValue)
-                manualResetEventSlim.Wait(timeout.Value);
-            else
-                manualResetEventSlim.Wait();
         }
 
         #region UserTasks

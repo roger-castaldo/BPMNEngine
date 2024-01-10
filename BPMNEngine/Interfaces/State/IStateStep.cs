@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BPMNEngine.Interfaces.State
+﻿namespace BPMNEngine.Interfaces.State
 {
     /// <summary>
     /// Houses the step information from a state to indicate statuses and timestamps for given elements

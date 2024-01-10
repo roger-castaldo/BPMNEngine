@@ -8,7 +8,6 @@ using BPMNEngine.State;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
-using System.Threading;
 
 namespace BPMNEngine
 {
@@ -281,6 +280,9 @@ namespace BPMNEngine
 
         internal IEnumerable<string> ActiveSteps 
             => Path.ActiveSteps;
+
+        internal IEnumerable<string> WaitingSteps 
+            => Path.WaitingSteps;
 
         internal void MergeVariables(ITask task, IVariables vars)
         {

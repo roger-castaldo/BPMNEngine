@@ -4,7 +4,6 @@ using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
-using System.Linq;
 
 namespace BPMNEngine.Elements
 {
