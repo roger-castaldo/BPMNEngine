@@ -2,9 +2,9 @@ name: .NET-Test-6x-CodeIO
 
 on:
   push:
-    branches: [ '3.0' ]
+    branches: [ 'master' ]
   pull_request:
-    branches: [ '3.0' ]
+    branches: [ 'master' ]
 
 jobs:
   build:

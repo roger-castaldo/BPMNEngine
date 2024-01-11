@@ -17,10 +17,10 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: |
-          7.0.x
+          8.0.x
     - name: Restore dependencies
-      run: dotnet restore  -p:TargetFramework=net7.0 UnitTest
-    - name: Build-7.0
-      run: dotnet build --framework net7.0 --no-restore UnitTest
-    - name: Test-7.0
-      run: dotnet test --framework net7.0 --no-build --verbosity normal UnitTest
+      run: dotnet restore  -p:TargetFramework=net8.0 UnitTest
+    - name: Build-8.0
+      run: dotnet build --framework net8.0 --no-restore UnitTest
+    - name: Test-8.0
+      run: dotnet test --framework net8.0 --no-build --verbosity normal UnitTest
