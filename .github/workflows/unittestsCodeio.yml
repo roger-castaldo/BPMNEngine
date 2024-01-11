@@ -1,4 +1,6 @@
 name: .NET-Test-6x-CodeIO
+env: 
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 on:
   push:
