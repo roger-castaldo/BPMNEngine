@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>netcoreapp3.1;net461;net6.0;</TargetFrameworks>
+	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -11,27 +11,45 @@
     <None Remove="diagrams\Delegates\start_complete_triggers.bpmn" />
     <None Remove="diagrams\Delegates\task_checks.bpmn" />
     <None Remove="diagrams\DiagramLoading\invalid.bpmn" />
+    <None Remove="diagrams\DiagramLoading\no_definition.bpmn" />
+    <None Remove="diagrams\DiagramLoading\no_elements.bpmn" />
     <None Remove="diagrams\DiagramLoading\start_to_stop.bpmn" />
+    <None Remove="diagrams\EmissionHandling\errors.bpmn" />
     <None Remove="diagrams\EmissionHandling\escalations.bpmn" />
     <None Remove="diagrams\EmissionHandling\messages.bpmn" />
     <None Remove="diagrams\EmissionHandling\signals.bpmn" />
+    <None Remove="diagrams\EmissionHandling\throw_catching.bpmn" />
     <None Remove="diagrams\ErrorHandling\no_error_handling.bpmn" />
     <None Remove="diagrams\ErrorHandling\process_error_handling.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\compare_conditions.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\conditional_boundary.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\contains_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
+    <None Remove="diagrams\Extensions\Conditions\sub_process_start_conditions.bpmn" />
     <None Remove="diagrams\Extensions\Custom\custom_extension.bpmn" />
+    <None Remove="diagrams\Extensions\definition_file.bpmn" />
+    <None Remove="diagrams\Extensions\definition_variable.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp_compilation_error.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp_delayed_active_step.bpmn" />
+    <None Remove="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\javascript.bpmn" />
     <None Remove="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <None Remove="diagrams\ImageTests\all_icons.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_request.bpmn" />
     <None Remove="diagrams\ImageTests\vacation_state.xml" />
+    <None Remove="diagrams\ManualTasks\multiple_manual_tasks.bpmn" />
+    <None Remove="diagrams\ManualTasks\single_manual_task.bpmn" />
     <None Remove="diagrams\ProcessEnd\sub_process_end.bpmn" />
     <None Remove="diagrams\ProcessEnd\sub_process_terminate.bpmn" />
     <None Remove="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
     <None Remove="diagrams\ProcessSuspension\timer.bpmn" />
     <None Remove="diagrams\ProcessSuspension\user_task.bpmn" />
+    <None Remove="diagrams\SubProcesses\subprocesses.bpmn" />
+    <None Remove="diagrams\Tasks\all_tasks.bpmn" />
+    <None Remove="diagrams\Tasks\catch_event_checking.bpmn" />
     <None Remove="diagrams\Timers\timing.bpmn" />
     <None Remove="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <None Remove="diagrams\UserTasks\single_user_task.bpmn" />
@@ -41,30 +59,46 @@
     <EmbeddedResource Include="diagrams\Delegates\task_checks.bpmn" />
     <EmbeddedResource Include="diagrams\Delegates\start_complete_triggers.bpmn" />
     <EmbeddedResource Include="diagrams\Delegates\path_valid_checks.bpmn" />
+    <EmbeddedResource Include="diagrams\DiagramLoading\no_definition.bpmn" />
+    <EmbeddedResource Include="diagrams\DiagramLoading\no_elements.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\invalid.bpmn" />
     <EmbeddedResource Include="diagrams\DiagramLoading\start_to_stop.bpmn" />
+    <EmbeddedResource Include="diagrams\EmissionHandling\errors.bpmn" />
     <EmbeddedResource Include="diagrams\EmissionHandling\escalations.bpmn" />
     <EmbeddedResource Include="diagrams\EmissionHandling\signals.bpmn" />
     <EmbeddedResource Include="diagrams\EmissionHandling\messages.bpmn" />
+    <EmbeddedResource Include="diagrams\EmissionHandling\throw_catching.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\process_error_handling.bpmn" />
     <EmbeddedResource Include="diagrams\ErrorHandling\no_error_handling.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\compare_conditions.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\conditional_boundary.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\contains_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\path_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\event_start_condition.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Conditions\process_start_condition.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Conditions\sub_process_start_conditions.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Custom\custom_extension.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\definition_file.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_delayed_active_step.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_compilation_error.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp_exception.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\javascript.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\visual_basic.bpmn" />
     <EmbeddedResource Include="diagrams\Extensions\Scripts\c_sharp.bpmn" />
+    <EmbeddedResource Include="diagrams\Extensions\definition_variable.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\all_icons.bpmn" />
-    <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="diagrams\ImageTests\vacation_request.bpmn" />
     <EmbeddedResource Include="diagrams\ImageTests\vacation_state.xml" />
+    <EmbeddedResource Include="diagrams\ManualTasks\multiple_manual_tasks.bpmn" />
+    <EmbeddedResource Include="diagrams\ManualTasks\single_manual_task.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_end.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate_abort.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessEnd\sub_process_terminate.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\timer.bpmn" />
     <EmbeddedResource Include="diagrams\ProcessSuspension\user_task.bpmn" />
+    <EmbeddedResource Include="diagrams\SubProcesses\subprocesses.bpmn" />
+    <EmbeddedResource Include="diagrams\Tasks\all_tasks.bpmn" />
+    <EmbeddedResource Include="diagrams\ErrorHandling\catch_event_checking.bpmn" />
     <EmbeddedResource Include="diagrams\Timers\timing.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\multiple_user_tasks.bpmn" />
     <EmbeddedResource Include="diagrams\UserTasks\single_user_task.bpmn" />
@@ -72,27 +106,22 @@
 
   <ItemGroup>
     <PackageReference Include="Jint" Version="3.0.0-beta-1138" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
-    <PackageReference Include="coverlet.collector" Version="3.1.2">
+    <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="coverlet.msbuild" Version="6.0.0">
+        <PrivateAssets>all</PrivateAssets>
+	<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' != 'net461'">
-	    <PackageReference Include="SkiaSharp" Version="2.88.0" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'" />
-		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.0" Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'" />
-    </ItemGroup>
-
-	<!--<ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-	</ItemGroup>-->
-
   <ItemGroup>
-    <ProjectReference Include="..\BpmEngine\BpmEngine.csproj" />
+    <ProjectReference Include="..\BPMNEngine\BPMNEngine.csproj" />
   </ItemGroup>
 
 </Project>

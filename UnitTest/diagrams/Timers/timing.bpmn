@@ -1,24 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0xusmz3</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Task_0peqa8k">
+    <bpmn:userTask id="Task_0peqa8k">
       <bpmn:incoming>SequenceFlow_0xusmz3</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0fq51im</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_0xusmz3" sourceRef="StartEvent_1" targetRef="Task_0peqa8k" />
     <bpmn:boundaryEvent id="BoundaryEvent_14c0tw1" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_0i45gta</bpmn:outgoing>
 		<bpmn:timerEventDefinition>
-			<exts:DateString>+45 seconds</exts:DateString>
+			<bpmn:extensionElements>
+				<exts:cSharpScript>
+					<![CDATA[
+				    return DateTime.Now.AddSeconds(45);
+				    ]]>
+				</exts:cSharpScript>
+			</bpmn:extensionElements>
 		</bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:boundaryEvent id="BoundaryEvent_1s99zkc" cancelActivity="false" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_1bbe50i</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-			<exts:DateString>+30 seconds</exts:DateString>
+		  <bpmn:extensionElements>
+		      <exts:Javascript>
+			      <![CDATA[
+				    const seconds = 30;
+				    var date = new Date();
+				    date.setSeconds(date.getSeconds() + seconds);
+				    return date;
+				    ]]>
+		      </exts:Javascript>
+		  </bpmn:extensionElements>
 		</bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_13bmvkv">

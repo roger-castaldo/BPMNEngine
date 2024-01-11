@@ -1,26 +1,40 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
+using System.IO;
 
 namespace UnitTest
 {
     [TestClass]
     public class ImageTests
     {
+        [TestInitialize] public void Init() {
+            System.Diagnostics.Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+        }
+
+        private static void Trace(string message)
+        {
+            System.Diagnostics.Trace.WriteLine(message);
+        }
+
+        private static void Trace(string message, object[] pars)
+        {
+            Trace(String.Format(message, pars));
+        }
 
         [TestMethod]
         public void TestPngImageGeneration()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
             Exception ex = null;
-            byte[] data = null;
+            byte[] data;
             try
             {
-                data = bp.Diagram(ImageOuputTypes.Png);
-            }catch(Exception e)
+                data = bp.Diagram(Microsoft.Maui.Graphics.ImageFormat.Png);
+            }
+            catch (Exception e)
             {
                 ex=e;
                 data=null;
@@ -28,17 +42,23 @@ namespace UnitTest
             Assert.IsNull(ex);
             Assert.IsNotNull(data);
             Assert.IsTrue(data.Length > 0);
+            string tmpFile = Path.GetTempFileName();
+            Trace("Writing png with all icons to {0}",new object[] { tmpFile });
+            var bw = new BinaryWriter(new FileStream(tmpFile, FileMode.Create, FileAccess.Write, FileShare.None));
+            bw.Write(data);
+            bw.Flush();
+            bw.Close();
         }
 
         [TestMethod]
         public void TestJpegImageGeneration()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/all_icons.bpmn"));
             Exception ex = null;
-            byte[] data = null;
+            byte[] data;
             try
             {
-                data = bp.Diagram(ImageOuputTypes.Jpeg);
+                data = bp.Diagram(Microsoft.Maui.Graphics.ImageFormat.Jpeg);
             }
             catch (Exception e)
             {
@@ -54,21 +74,22 @@ namespace UnitTest
         [TestMethod]
         public void TestVariableOutput()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
             IProcessInstance instance = bp.LoadState(Utility.LoadResourceDocument("ImageTests/vacation_state.xml"));
             Assert.IsNotNull(instance);
             Exception ex = null;
-            byte[] data = null;
-            byte[] nonState = null;
+            byte[] data;
+            byte[] nonState;
             try
             {
-                data = instance.Diagram(true, ImageOuputTypes.Png);
-                nonState = bp.Diagram(ImageOuputTypes.Png);
+                data = instance.Diagram(true, Microsoft.Maui.Graphics.ImageFormat.Png);
+                nonState = bp.Diagram(Microsoft.Maui.Graphics.ImageFormat.Png);
             }
             catch (Exception e)
             {
                 ex=e;
                 data=null;
+                nonState=null;
             }
             Assert.IsNull(ex);
             Assert.IsNotNull(data);
@@ -80,12 +101,12 @@ namespace UnitTest
         [TestMethod()]
         public void TestAnimateProcess()
         {
-            BusinessProcess bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
+            var bp = new BusinessProcess(Utility.LoadResourceDocument("ImageTests/vacation_request.bpmn"));
             IProcessInstance instance = bp.LoadState(Utility.LoadResourceDocument("ImageTests/vacation_state.xml"));
             Assert.IsNotNull(instance);
             Exception ex = null;
-            byte[] data = null;
-            byte[] nonState = null;
+            byte[] data;
+            byte[] nonState;
             try
             {
                 data = instance.Animate(true);
@@ -95,6 +116,7 @@ namespace UnitTest
             {
                 ex=e;
                 data=null;
+                nonState = null;
             }
             Assert.IsNull(ex);
             Assert.IsNotNull(data);

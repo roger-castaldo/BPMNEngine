@@ -1,11 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using System;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using System.Xml.XPath;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System;
+using BPMNEngine.Interfaces.Elements;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTest.Extensions
 {
@@ -64,8 +67,10 @@ namespace UnitTest.Extensions
                 vars.Add(key,variables[key]);
             IProcessInstance processInstance = _pathProcess.BeginProcess(vars);
             Assert.IsNotNull(processInstance);
-            Assert.IsTrue(processInstance.WaitForCompletion(30*1000));
-            return processInstance.CurrentState;
+            Assert.IsTrue(Utility.WaitForCompletion(processInstance));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(processInstance.CurrentState.AsXMLDocument);
+            return doc;
         }
 
         private bool _StepRan(BusinessProcess process,XmlDocument xmlDocument, string name)
@@ -163,7 +168,7 @@ namespace UnitTest.Extensions
         {
             IProcessInstance instance = _startProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             instance = _startProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", false } });
             Assert.IsNull(instance);
         }
@@ -173,14 +178,68 @@ namespace UnitTest.Extensions
         {
             IProcessInstance instance = _eventProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
-            Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
-            Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Default"));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsTrue(_StepRan(_eventProcess, doc, "Can Start"));
+            Assert.IsFalse(_StepRan(_eventProcess, doc, "Default"));
             instance = _eventProcess.BeginProcess(null);
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
-            Assert.IsFalse(_StepRan(_eventProcess, instance.CurrentState, "Can Start"));
-            Assert.IsTrue(_StepRan(_eventProcess, instance.CurrentState, "Default"));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            Assert.IsFalse(_StepRan(_eventProcess, doc, "Can Start"));
+            Assert.IsTrue(_StepRan(_eventProcess, doc, "Default"));
+        }
+
+        [TestMethod]
+        public void TestConditionException()
+        {
+            var errorMessage = "This is a script condition error";
+            var cache = new ConcurrentQueue<string>();
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Conditions/path_conditions.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
+            {
+                LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
+                {
+                    var ex = exception;
+                    while (ex!=null)
+                    {
+                        cache.Enqueue(ex.Message);
+                        ex= ex.InnerException;
+                    }
+                },
+                LogLine=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message) =>
+                {
+
+                }
+            });
+            IProcessInstance instance = null;
+            try
+            {
+                instance = process.BeginProcess(new Dictionary<string, object> { { "cscript", new Exception(errorMessage) } });
+            }
+            catch (Exception e)
+            {
+                instance=null;
+                Assert.Fail(e.Message);
+            }
+            Assert.IsFalse(instance.WaitForCompletion(2*1000));
+            Assert.IsTrue(cache.Any(str => str.Contains(errorMessage)));
+        }
+
+        [TestMethod]
+        public void TestConditionalBoundary()
+        {
+            var process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Conditions/conditional_boundary.bpmn"));
+
+            var instance = process.BeginProcess(new()
+            {
+                {"canUseCondition",true }
+            });
+
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Event_0bzc3s9"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Flow_1itqwbt"));
         }
     }
 }

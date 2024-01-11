@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.State;
+using System;
 using System.IO;
-using System.Reflection;
-using System.Text;
 using System.Xml;
 
 namespace UnitTest
@@ -17,7 +15,7 @@ namespace UnitTest
             {
                 ret = typeof(Utility).Assembly.GetManifestResourceStream("UnitTest.diagrams."+path.Replace("/", "."));
             }
-            catch (Exception ex) { }
+            catch (Exception) { }
             return ret;
         }
 
@@ -26,53 +24,33 @@ namespace UnitTest
             Stream src = LoadResource(path);
             if (src==null)
                 return null;
-            XmlDocument ret = new XmlDocument();
+            var ret = new XmlDocument();
             ret.Load(src);
             return ret;
         }
 
-        public static bool AreHashtablesEqual(Hashtable left,Hashtable right)
+        public static bool StepCompleted(IState state,string name)
         {
-            if (
-                (left==null && right!=null)||
-                (left!=null&&right==null)
-               )
-                return false;
-            else if (left==null&&right==null)
-                return true;
-            else if (left.Count!=right.Count)
-                return false;
-            foreach (object key in left.Keys)
-            {
-                if (!right.ContainsKey(key))
-                    return false;
-                else if (
-                    (left[key]==null && right[key]!=null)||
-                    (left[key]!=null && right[key]==null)
-                    )
-                    return false;
-                else if (left[key]!=null&&right[key]!=null)
-                {
-                    if (!left[key].Equals(right[key]))
-                        return false;
-                }
-            }
-            foreach (object key in right.Keys)
-            {
-                if (!left.ContainsKey(key))
-                    return false;
-            }
-            return true;
+            var doc = new XmlDocument();
+            doc.LoadXml(state.AsXMLDocument);
+            return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
         }
 
-        public static bool StepCompleted(XmlDocument state,string name)
+        public static bool StepAborted(IState state, string name)
         {
-            return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
+            var doc = new XmlDocument();
+            doc.LoadXml(state.AsXMLDocument);
+            return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
         }
 
-        public static bool StepAborted(XmlDocument state, string name)
+        private static readonly TimeSpan DEFAULT_PROCESS_WAIT = TimeSpan.FromMinutes(5);
+
+        public static bool WaitForCompletion(IProcessInstance instance,TimeSpan? waitTime=null)
         {
-            return state.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
+            var result = instance.WaitForCompletion(waitTime??DEFAULT_PROCESS_WAIT);
+            if (!result)
+                Console.WriteLine(instance.CurrentState.AsXMLDocument);
+            return result;
         }
     }
 }

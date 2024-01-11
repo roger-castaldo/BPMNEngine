@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
+using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
@@ -36,8 +35,8 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            XmlDocument doc = new();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _userProcess.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -45,7 +44,36 @@ namespace UnitTest
             IUserTask task = instance.GetUserTask("UserTask_07o8pvs");
             Assert.IsNotNull(task);
             task.MarkComplete();
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+        }
+
+        [TestMethod]
+        public void TestSuspensionWithActiveSteps()
+        {
+            IProcessInstance instance;
+            XmlDocument doc = new();
+            for (int cnt = 0; cnt<5; cnt++)
+            {
+                instance = _userProcess.BeginProcess(null);
+                Assert.IsNotNull(instance);
+                instance.Suspend();
+                System.Threading.Thread.Sleep(1000);
+                doc.LoadXml(instance.CurrentState.AsXMLDocument);
+                instance.Dispose();
+
+                if (doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']")!=null)
+                    break;
+            }
+
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']"));
+
+            instance = _userProcess.LoadState(doc);
+            Assert.IsNotNull(instance);
+            instance.Resume();
+            Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_07o8pvs", out IUserTask task));
+            Assert.IsNotNull(task);
+            task.MarkComplete();
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
         }
 
         [TestMethod]
@@ -55,13 +83,13 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            XmlDocument doc = new();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
             Assert.IsNotNull(instance);
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
         }
 
         [TestMethod]
@@ -71,14 +99,40 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(instance.CurrentState.InnerXml);
+            XmlDocument doc = new();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(30*1000);
             instance.Resume();
-            Assert.IsTrue(instance.WaitForCompletion(1000));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+        }
+
+        [TestMethod]
+        public void TestNotSuspended()
+        {
+            IProcessInstance instance = _timerProcess.BeginProcess(null);
+            Assert.IsNotNull(instance);
+            System.Threading.Thread.Sleep(5*1000);
+            instance.Suspend();
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(instance.CurrentState.AsXMLDocument);
+            instance.Dispose();
+            instance = _timerProcess.LoadState(doc);
+            Assert.IsNotNull(instance);
+            Exception exception = null;
+            instance.Resume();
+            try
+            {
+                instance.Resume();
+            }catch(Exception e)
+            {
+                exception=e;
+            }
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
+            Assert.IsNotNull(exception);
+            Assert.IsInstanceOfType(exception, typeof(NotSuspendedException));
         }
     }
 }

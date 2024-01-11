@@ -1,16 +1,220 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"  xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+	<bpmn:definitions/>
   <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" />
+	  <bpmn:textAnnotation id="TextAnnotation_04fw4hh"/>
+	  <bpmn:extensionElements>
+		  <exts:ConditionSet>
+			  <exts:andCondition>
+				  <exts:isEqualCondition leftVariable="andequal1" rightVariable="andequal2">
+					  <exts:right>12</exts:right>
+					  <exts:left>12</exts:left>
+				  </exts:isEqualCondition>
+			  </exts:andCondition>
+		  </exts:ConditionSet>
+		  <exts:ConditionSet>
+			<exts:isEqualCondition/>
+		  </exts:ConditionSet>
+		  <exts:ConditionSet>
+			<exts:isEqualCondition rightVariable="andequal1"/>
+		  </exts:ConditionSet>
+		  <exts:ConditionSet>
+			  <exts:isEqualCondition leftVariable="andequal1"/>
+		  </exts:ConditionSet>
+	  </bpmn:extensionElements>
+	  <bpmn:startEvent id="StartEvent_1">
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:andCondition>
+				  </exts:andCondition>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+	  </bpmn:startEvent>
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci6">
+		  <bpmn:timerEventDefinition>
+			  <exts:DateString/>
+		  </bpmn:timerEventDefinition>
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:orCondition>
+					  <exts:isEqualCondition leftVariable="andequal1">
+						  <exts:right>12</exts:right>
+					  </exts:isEqualCondition>
+				  </exts:orCondition>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwc99">
+		  <bpmn:timerEventDefinition>
+			  <exts:DateString/>
+		  </bpmn:timerEventDefinition>
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+		  <bpmn:outgoing>StartEvent_1</bpmn:outgoing>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq6" attachedToRef="StartEvent_1">
+	  </bpmn:boundaryEvent>
+	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq7" attachedToRef="StartEvent_1">
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+	  </bpmn:boundaryEvent>
+	  <bpmn:boundaryEvent id="BoundaryEvent_0hxboq8" attachedToRef="StartEvent_1">
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+		  <bpmn:outgoing>StartEvent_1</bpmn:outgoing>
+	  </bpmn:boundaryEvent>
+	  <bpmn:exclusiveGateway id="ExclusiveGateway_08ngqsl">
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:isNull variable="isnull"/>
+				  <exts:isNull variable="isnull"/>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+	  </bpmn:exclusiveGateway>
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci7">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition type="error_not_sent"/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci8">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci9">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition name="message_not_sent"/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci10">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_01lwci11">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition type="signal_not_sent"/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateCatchEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci12">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci13">
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci14">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition type="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci15">
+		  <bpmn:errorEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:ErrorDefinition type="error1"/>
+				  <exts:ErrorDefinition type="error2"/>
+			  </bpmn:extensionElements>
+		  </bpmn:errorEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci16">
+		  <bpmn:errorEventDefinition/>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci17">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition name="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci18">
+		  <bpmn:messageEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:MessageDefinition name="message1"/>
+				  <exts:MessageDefinition name="message2"/>
+			  </bpmn:extensionElements>
+		  </bpmn:messageEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci18">
+		  <bpmn:messageEventDefinition/>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci19">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition type="*"/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci20">
+		  <bpmn:signalEventDefinition>
+			  <bpmn:extensionElements>
+				  <exts:SignalDefinition type="signal1"/>
+				  <exts:SignalDefinition type="signal2"/>
+			  </bpmn:extensionElements>
+		  </bpmn:signalEventDefinition>
+	  </bpmn:intermediateThrowEvent>
+	  <bpmn:intermediateThrowEvent id="IntermediateThrowEvent_01lwci20">
+		  <bpmn:signalEventDefinition/>
+	  </bpmn:intermediateThrowEvent>
+
+	  <bpmn:endEvent id="EndEvent_1">
+	  </bpmn:endEvent>
+	  <bpmn:endEvent id="EndEvent_2">
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+	  </bpmn:endEvent>
+
+	  <bpmn:startEvent id="StartEvent_2">
+	  </bpmn:startEvent>
+	  <bpmn:startEvent id="StartEvent_3">
+		  <bpmn:incoming>IntermediateCatchEvent_01lwci6</bpmn:incoming>
+	  </bpmn:startEvent>
+	  <bpmn:startEvent id="StartEvent_4">
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci6</bpmn:outgoing>
+		  <bpmn:outgoing>IntermediateCatchEvent_01lwci7</bpmn:outgoing>
+	  </bpmn:startEvent>
+
+	  <bpmn:collaboration/>
+
+	  <bpmn:subProcess id="Activity_01eulv2"/>
   </bpmn:process>
+	<bpmn:process id="Process_2" isExecutable="false">
+	</bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+		<bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_2"/>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="268" y="191" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="241" y="227" width="90" height="20" />
+          <dc:Bounds y="227abc" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+		<bpmndi:BPMNEdge id="SequenceFlow_1cz4osw_di" bpmnElement="SequenceFlow_1cz4osw">
+			<di:waypoint xsi:type="dc:Point" x="304" y="390" />
+		</bpmndi:BPMNEdge>
+		<bpmndi:BPMNLabel>
+		</bpmndi:BPMNLabel>
     </bpmndi:BPMNPlane>
+	  <bpmndi:BPMNPlane id="BPMNPlane_2" bpmnElement="Process_2">
+	  </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
+	<bpmndi:BPMNDiagram id="BPMNDiagram_2">
+	</bpmndi:BPMNDiagram>
 </bpmn:definitions>

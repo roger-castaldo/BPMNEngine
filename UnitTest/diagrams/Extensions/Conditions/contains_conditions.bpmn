@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_0lffqmk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="16.3.0">
+  <bpmn:process id="Process_1fowm83" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1i8oew0">
+      <bpmn:outgoing>Flow_06gof12</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="Gateway_0yphkgi">
+      <bpmn:incoming>Flow_06gof12</bpmn:incoming>
+      <bpmn:outgoing>Flow_0124fzt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0obucim</bpmn:outgoing>
+      <bpmn:outgoing>Flow_06n50fk</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ydpcz9</bpmn:outgoing>
+		<bpmn:outgoing>Flow_0ydpca9</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_06gof12" sourceRef="StartEvent_1i8oew0" targetRef="Gateway_0yphkgi" />
+    <bpmn:exclusiveGateway id="Gateway_1sih6zv">
+      <bpmn:incoming>Flow_0124fzt</bpmn:incoming>
+      <bpmn:incoming>Flow_0obucim</bpmn:incoming>
+      <bpmn:incoming>Flow_06n50fk</bpmn:incoming>
+      <bpmn:incoming>Flow_0ydpcz9</bpmn:incoming>
+		<bpmn:incoming>Flow_0ydpca9</bpmn:incoming>
+      <bpmn:outgoing>Flow_13vd5kj</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0124fzt" name="Array Contains" sourceRef="Gateway_0yphkgi" targetRef="Gateway_1sih6zv">
+		<bpmn:extensionElements>
+			<exts:ConditionSet>
+				<exts:containsCondition leftVariable="array_value">
+					<exts:right>test_value</exts:right>
+				</exts:containsCondition>
+			</exts:ConditionSet>
+		</bpmn:extensionElements>
+	</bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0obucim" name="Dictionary Keys" sourceRef="Gateway_0yphkgi" targetRef="Gateway_1sih6zv">
+		<bpmn:extensionElements>
+			<exts:ConditionSet>
+				<exts:containsCondition leftVariable="dictionary_keys_value">
+					<exts:right>test_value</exts:right>
+					</exts:containsCondition>
+				</exts:ConditionSet>
+		</bpmn:extensionElements>
+	</bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_06n50fk" name="Dictionary Values" sourceRef="Gateway_0yphkgi" targetRef="Gateway_1sih6zv">
+		<bpmn:extensionElements>
+			<exts:ConditionSet>
+				<exts:containsCondition leftVariable="dictionary_values_value">
+					<exts:right>test_value</exts:right>
+				</exts:containsCondition>
+			</exts:ConditionSet>
+		</bpmn:extensionElements>
+	</bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0ydpcz9" name="Array Sub Variable" sourceRef="Gateway_0yphkgi" targetRef="Gateway_1sih6zv">
+		<bpmn:extensionElements>
+			<exts:ConditionSet>
+				<exts:containsCondition leftVariable="array_sub_value.name">
+					<exts:right>test_value</exts:right>
+				</exts:containsCondition>
+			</exts:ConditionSet>
+		</bpmn:extensionElements>
+	</bpmn:sequenceFlow>
+	  <bpmn:sequenceFlow id="Flow_0ydpca9" name="string contains" sourceRef="Gateway_0yphkgi" targetRef="Gateway_1sih6zv">
+		  <bpmn:extensionElements>
+			  <exts:ConditionSet>
+				  <exts:containsCondition leftVariable="string_value">
+					  <exts:right>test</exts:right>
+				  </exts:containsCondition>
+			  </exts:ConditionSet>
+		  </bpmn:extensionElements>
+	  </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_0etzg9e">
+      <bpmn:incoming>Flow_13vd5kj</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_13vd5kj" sourceRef="Gateway_1sih6zv" targetRef="Event_0etzg9e" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1fowm83">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1i8oew0">
+        <dc:Bounds x="152" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0yphkgi_di" bpmnElement="Gateway_0yphkgi" isMarkerVisible="true">
+        <dc:Bounds x="225" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1sih6zv_di" bpmnElement="Gateway_1sih6zv" isMarkerVisible="true">
+        <dc:Bounds x="455" y="185" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0etzg9e_di" bpmnElement="Event_0etzg9e">
+        <dc:Bounds x="572" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_06gof12_di" bpmnElement="Flow_06gof12">
+        <di:waypoint x="188" y="210" />
+        <di:waypoint x="225" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0124fzt_di" bpmnElement="Flow_0124fzt">
+        <di:waypoint x="250" y="185" />
+        <di:waypoint x="250" y="100" />
+        <di:waypoint x="480" y="100" />
+        <di:waypoint x="480" y="185" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="329" y="82" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0obucim_di" bpmnElement="Flow_0obucim">
+        <di:waypoint x="250" y="185" />
+        <di:waypoint x="250" y="150" />
+        <di:waypoint x="480" y="150" />
+        <di:waypoint x="480" y="185" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="327" y="132" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06n50fk_di" bpmnElement="Flow_06n50fk">
+        <di:waypoint x="250" y="235" />
+        <di:waypoint x="250" y="280" />
+        <di:waypoint x="480" y="280" />
+        <di:waypoint x="480" y="235" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="322" y="262" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ydpcz9_di" bpmnElement="Flow_0ydpcz9">
+        <di:waypoint x="275" y="210" />
+        <di:waypoint x="455" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="341" y="192" width="49" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13vd5kj_di" bpmnElement="Flow_13vd5kj">
+        <di:waypoint x="505" y="210" />
+        <di:waypoint x="572" y="210" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_0xusmz3</bpmn:outgoing>
@@ -22,20 +22,26 @@
     <bpmn:boundaryEvent id="BoundaryEvent_1qem8ws" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_0lsmigx</bpmn:outgoing>
       <bpmn:messageEventDefinition>
+		  <bpmn:extensionElements>
 			<exts:MessageDefinition name="interupting_catch"/>
+	      </bpmn:extensionElements>
 		</bpmn:messageEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0lsmigx" sourceRef="BoundaryEvent_1qem8ws" targetRef="ExclusiveGateway_0akec3e" />
     <bpmn:boundaryEvent id="BoundaryEvent_0cezzjh" cancelActivity="false" attachedToRef="Task_0peqa8k">
       <bpmn:outgoing>SequenceFlow_1kkxec6</bpmn:outgoing>
       <bpmn:messageEventDefinition>
+		  <bpmn:extensionElements>
 			<exts:MessageDefinition name="non_interupting_catch"/>
+		  </bpmn:extensionElements>
 		</bpmn:messageEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1rztezm">
       <bpmn:outgoing>SequenceFlow_0lpf0us</bpmn:outgoing>
       <bpmn:messageEventDefinition>
-			<exts:MessageDefinition name="external_catch"/>
+		  <bpmn:extensionElements>
+			  <exts:MessageDefinition name="external_catch"/>
+	        </bpmn:extensionElements>
 		</bpmn:messageEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1kkxec6" sourceRef="BoundaryEvent_0cezzjh" targetRef="ParallelGateway_0kizlka" />

@@ -19,8 +19,10 @@ jobs:
         dotnet-version: |
           6.0.x
     - name: Restore dependencies
-      run: dotnet restore UnitTest
+      run: dotnet restore -p:TargetFramework=net6.0 UnitTest
     - name: Build-6.0
       run: dotnet build --framework net6.0 --no-restore UnitTest
     - name: Test-6.0
-      run: dotnet test --framework net6.0 --no-build --verbosity normal --filter "ClassName!=UnitTest.ImageTests" UnitTest
+      run: dotnet test --framework net6.0 --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover UnitTest
+    - name: Codecov coverage upload
+      uses: codecov/codecov-action@v3.1.1

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_1" isExecutable="false">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>SequenceFlow_11bx67x</bpmn:outgoing>
@@ -56,7 +56,9 @@
     <bpmn:boundaryEvent id="BoundaryEvent_0hxboq6" attachedToRef="Task_11szmyl">
       <bpmn:outgoing>SequenceFlow_0ma5klp</bpmn:outgoing>
 		<bpmn:errorEventDefinition>
-			<exts:ErrorDefinition type="Test Error 1"/>
+			<bpmn:extensionElements>
+			    <exts:ErrorDefinition type="Test Error 1"/>
+			</bpmn:extensionElements>
 		</bpmn:errorEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_0ma5klp" sourceRef="BoundaryEvent_0hxboq6" targetRef="ExclusiveGateway_0x10osz" />

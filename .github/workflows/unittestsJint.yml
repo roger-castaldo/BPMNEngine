@@ -19,7 +19,7 @@ jobs:
         dotnet-version: |
           6.0.x
     - name: Restore dependencies
-      run: dotnet restore UnitTest
+      run: dotnet restore -p:TargetFramework=net6.0 UnitTest
     - name: Build-6.0
       run: dotnet build --framework net6.0 --no-restore UnitTest
     - name: Test-6.0

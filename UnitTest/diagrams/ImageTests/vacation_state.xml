@@ -2,7 +2,7 @@
 <ProcessState isSuspended="False">
   <ProcessPath>
     <sPathEntry elementID="StartEvent_0ikjhwl" status="Waiting" startTime="20220419094629283" />
-    <sPathEntry elementID="StartEvent_0ikjhwl" status="Succeeded" startTime="20220419094629283" endTime="20220419094629296" outgoingID="SequenceFlow_1kh3jxa" />
+    <sPathEntry elementID="StartEvent_0ikjhwl" status="Failed" startTime="20220419094629283" endTime="20220419094629296" outgoingID="SequenceFlow_1kh3jxa" />
     <sPathEntry elementID="SequenceFlow_1kh3jxa" status="Succeeded" startTime="20220419094629300" incomingID="StartEvent_0ikjhwl" endTime="20220419094629300" outgoingID="Task_16n77qg" />
     <sPathEntry elementID="Task_16n77qg" status="Waiting" startTime="20220419094629307" incomingID="SequenceFlow_1kh3jxa" />
     <sPathEntry elementID="Task_16n77qg" status="Succeeded" startTime="20220419094629307" incomingID="SequenceFlow_1kh3jxa" endTime="20220419094631597" CompletedByID="manager" outgoingID="SequenceFlow_1jma3bu" />
@@ -13,9 +13,9 @@
     <sPathEntry elementID="IntermediateThrowEvent_03o2ijn" status="Waiting" startTime="20220419094631609" incomingID="SequenceFlow_1834102" />
     <sPathEntry elementID="IntermediateThrowEvent_03o2ijn" status="Succeeded" startTime="20220419094631609" incomingID="SequenceFlow_1834102" endTime="20220419094731612" outgoingID="SequenceFlow_1i6f2mb" />
     <sPathEntry elementID="SequenceFlow_1i6f2mb" status="Succeeded" startTime="20220419094731626" incomingID="IntermediateThrowEvent_03o2ijn" endTime="20220419094731626" outgoingID="Task_1g7k3ya" />
-    <sPathEntry elementID="Task_1g7k3ya" status="Waiting" startTime="20220419094731629" incomingID="SequenceFlow_1i6f2mb" />
-    <sPathEntry elementID="Task_1g7k3ya" status="Succeeded" startTime="20220419094731629" incomingID="SequenceFlow_1i6f2mb" endTime="20220419094734266" CompletedByID="manager" outgoingID="SequenceFlow_1ix78mx" />
-    <sPathEntry elementID="SequenceFlow_1ix78mx" status="Succeeded" startTime="20220419094734272" incomingID="Task_1g7k3ya" endTime="20220419094734272" outgoingID="ExclusiveGateway_0wsjber" />
+    <sPathEntry elementID="Task_1g7k3ya" status="Failed" startTime="20220419094731629" incomingID="SequenceFlow_1i6f2mb" />
+    <sPathEntry elementID="Task_1g7k3ya" status="WaitingStart" startTime="20220419094731629" incomingID="SequenceFlow_1i6f2mb" endTime="20220419094734266" CompletedByID="manager" outgoingID="SequenceFlow_1ix78mx" />
+    <sPathEntry elementID="SequenceFlow_1ix78mx" status="Aborted" startTime="20220419094734272" incomingID="Task_1g7k3ya" endTime="20220419094734272" outgoingID="ExclusiveGateway_0wsjber" />
     <sPathEntry elementID="ExclusiveGateway_0wsjber" status="Waiting" startTime="20220419094734275" incomingID="SequenceFlow_1ix78mx" />
     <sPathEntry elementID="ExclusiveGateway_0wsjber" status="Succeeded" startTime="20220419094734275" incomingID="SequenceFlow_1ix78mx" endTime="20220419094734276" outgoingID="SequenceFlow_157id57" />
     <sPathEntry elementID="SequenceFlow_157id57" status="Succeeded" startTime="20220419094734279" incomingID="ExclusiveGateway_0wsjber" endTime="20220419094734279" outgoingID="ExclusiveGateway_194d97k" />
@@ -41,7 +41,4 @@
     <sVariableEntry pathStepIndex="0" name="test" type="UnsignedLong" isArray="False"><![CDATA[0]]></sVariableEntry>
     <sVariableEntry pathStepIndex="3" name="approved" type="String" isArray="False"><![CDATA[Y]]></sVariableEntry>
   </ProcessVariables>
-  <SuspendedSteps>
-    <sStepSuspension id="IntermediateThrowEvent_03o2ijn" stepIndex="9" endTime="20220419094731611" />
-  </SuspendedSteps>
 </ProcessState>

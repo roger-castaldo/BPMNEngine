@@ -6,15 +6,15 @@ task objects.  Thanks to our authorized private software [HRForms.App](https://w
 Current Test Status:
 
 [![.NET-Test-6x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x.yml)\
-[![.NET-Test-6x-SkiaSharp-2.88.0](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x-Skia.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests6x-Skia.yml)\
-[![.NET-Test-3x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x.yml)\
-[![.NET-Test-3x-SkiaSharp-2.88.0](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x-Skia.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests3x-Skia.yml)\
-[![.NET-Test-Framework-4.6.1](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests461.yml)\
-[![Jint-3.0.0-beta-1138](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml)
+[![.NET-Test-7x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests7x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests7x.yml)\
+[![.NET-Test-8x](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests8x.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittests8x.yml)\
+[![Jint-3.0.0-beta-1138](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/unittestsJint.yml)\
+[![CodeQL](https://github.com/roger-castaldo/BPMEngine/actions/workflows/codeql.yml/badge.svg?no-cache)](https://github.com/roger-castaldo/BPMEngine/actions/workflows/codeql.yml)\
+[![codecov](https://codecov.io/gh/roger-castaldo/BPMEngine/branch/master/graph/badge.svg?token=OX96XIOJQX)](https://codecov.io/gh/roger-castaldo/BPMEngine)
 
 # XSD
 
-Adding xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMEngine/master/Extensions" to the bpmn:definitions will make things easier for accessing the defined xsd file for the project.  
+Adding xmlns:exts="https://raw.githubusercontent.com/roger-castaldo/BPMNEngine/master/Extensions" to the bpmn:definitions will make things easier for accessing the defined xsd file for the project.  
 This references all the extended elements defined below.
 
 # Internal Conditions

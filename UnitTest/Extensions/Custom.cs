@@ -1,10 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Org.Reddragonit.BpmEngine;
-using Org.Reddragonit.BpmEngine.Interfaces;
-using System;
+using BPMNEngine;
+using BPMNEngine.Interfaces;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
+using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest.Extensions
 {
@@ -18,14 +17,14 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCustomExtension()
         {
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), processTask: new ProcessTask(_ProcessTask));
+            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(ProcessTask) });
             Assert.IsNotNull(process);
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>()
             {
                 {_VARIABLE_NAME,_VARIABLE_VALUE }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             Dictionary<string, object> variables = instance.CurrentVariables;
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_VARIABLE_NAME));
@@ -33,13 +32,13 @@ namespace UnitTest.Extensions
 
             instance = process.BeginProcess(new Dictionary<string, object>(){});
             Assert.IsNotNull(instance);
-            Assert.IsTrue(instance.WaitForCompletion(30*1000));
+            Assert.IsTrue(Utility.WaitForCompletion(instance));
             variables = instance.CurrentVariables;
             Assert.AreEqual(0, variables.Count);
             Assert.IsFalse(variables.ContainsKey(_VARIABLE_NAME));
         }
 
-        private void _ProcessTask(ITask task)
+        private void ProcessTask(ITask task)
         {
             if (task.ExtensionElement!=null)
             {
