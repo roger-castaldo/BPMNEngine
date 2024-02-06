@@ -18,8 +18,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
                     .Children
                     .OfType<AScript>()
                     .FirstOrDefault();
-                if (script != null)
-                    script.Invoke(task.Variables);
+                script?.Invoke(task.Variables);
             }
             processScriptTask?.Invoke(task);
         }

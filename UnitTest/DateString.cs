@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using StrToTime = BPMNEngine.DateString;
 
 namespace UnitTest
@@ -11,18 +12,18 @@ namespace UnitTest
     {
         private class ReadonlyVariablesImplementation : IReadonlyVariables
         {
-            private readonly Dictionary<string, object> data;
+            private readonly IImmutableDictionary<string, object> data;
 
             public ReadonlyVariablesImplementation(Dictionary<string, object> data)
             {
-                this.data=data;
+                this.data=data.ToImmutableDictionary();
             }
 
             public object this[string name] => data[name];
 
-            public IEnumerable<string> Keys => data.Keys;
+            public ImmutableArray<string> Keys => data.Keys.ToImmutableArray();
 
-            public IEnumerable<string> FullKeys => data.Keys;
+            public ImmutableArray<string> FullKeys => data.Keys.ToImmutableArray();
 
             public Exception Error => null;
         }

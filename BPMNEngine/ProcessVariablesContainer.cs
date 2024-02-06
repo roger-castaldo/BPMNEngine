@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Variables;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
@@ -65,21 +66,25 @@ namespace BPMNEngine
             }
         }
 
-        public IEnumerable<string> Keys
+        public ImmutableArray<string> Keys
         {
             get
             {
                 locker.EnterReadLock();
                 var result = variables.Keys
-                    .Concat(nulls);
+                    .Concat(nulls)
+                    .ToImmutableArray();
                 locker.ExitReadLock();
                 return result;
             }
         }
 
-        public IEnumerable<string> FullKeys
-            => Keys.Concat(process==null ? Array.Empty<string>() : process.Keys)
-            .Distinct();
+        public ImmutableArray<string> FullKeys
+            => Array.Empty<string>()
+            .Concat(Keys)
+            .Concat(process==null ? Array.Empty<string>() : process.Keys)
+            .Distinct()
+            .ToImmutableArray();
 
         [ExcludeFromCodeCoverage]
         private void Dispose(bool disposing)

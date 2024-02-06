@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Variables;
+using System.Collections.Immutable;
 
 namespace BPMNEngine
 {
@@ -8,9 +9,9 @@ namespace BPMNEngine
 
         public object this[string name] { get => variables[name]; set => throw new Exception("Unable to change variable values in readonly process variables container."); }
 
-        public IEnumerable<string> Keys => variables.Keys;
+        public ImmutableArray<string> Keys => variables.Keys;
 
-        public IEnumerable<string> FullKeys => variables.FullKeys;
+        public ImmutableArray<string> FullKeys => variables.FullKeys;
 
         public Exception Error { get; private init; }
 

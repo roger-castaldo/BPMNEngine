@@ -4,6 +4,7 @@ using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Elements
 {
@@ -12,8 +13,8 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(Definition))]
     internal class Process : AParentElement, IProcess
     {
-        public IEnumerable<StartEvent> StartEvents
-            => Children.OfType<StartEvent>();
+        public ImmutableArray<StartEvent> StartEvents
+            => Children.OfType<StartEvent>().ToImmutableArray();
 
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
