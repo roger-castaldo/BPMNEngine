@@ -18,7 +18,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestDefinitionVariableUsage()
         {
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_file.bpmn"));
+            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/definition_file.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_FILE_NAME]);
             Assert.IsInstanceOfType(process[_FILE_NAME], typeof(SFile));

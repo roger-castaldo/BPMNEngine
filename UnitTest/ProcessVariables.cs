@@ -19,6 +19,7 @@ namespace UnitTest
         private static BusinessProcess _process;
 
         [ClassInitialize()]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Required to run properly")]
         public static void Initialize(TestContext testContext)
         {
             _process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"));
@@ -37,10 +38,10 @@ namespace UnitTest
             Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(10), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
             if (variableValue==null)
-                Assert.AreEqual(0, task.Variables.Keys.Count());
+                Assert.AreEqual(0, task.Variables.Keys.Length);
             else
             {
-                Assert.AreEqual(1, task.Variables.Keys.Count());
+                Assert.AreEqual(1, task.Variables.Keys.Length);
                 CompareVariableValue(variableValue, task.Variables[variableName]);
             }
 
@@ -473,8 +474,8 @@ namespace UnitTest
                 {"TestBooleanArray",new bool[]{true,false } },
                 {"TestFloatArray",new float[] { float.MinValue, float.MaxValue }},
                 {"TestByteArray", new byte[][]{System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345"),System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 678910") } },
-                { "TestFileArray",new SFile[]{new SFile(){Name="start_to_stop",Extension="bpmn",Content=data },new SFile(){Name="start_to_stop",Extension="bpmn",Content=data } } },
-                {"TestGuidArray",new Guid[]{new Guid("a4966f14-0108-48ba-a793-8be9982bc411"),new Guid("a4966f14-0108-48ba-a793-8be9982bc412") } }
+                { "TestFileArray",new SFile[]{new(){Name="start_to_stop",Extension="bpmn",Content=data },new(){Name="start_to_stop",Extension="bpmn",Content=data } } },
+                {"TestGuidArray",new Guid[]{new("a4966f14-0108-48ba-a793-8be9982bc411"),new("a4966f14-0108-48ba-a793-8be9982bc412") } }
             };
 
             var taskVariables = new Dictionary<string, object>();

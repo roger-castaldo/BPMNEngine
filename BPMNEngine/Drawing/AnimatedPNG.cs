@@ -53,7 +53,7 @@ namespace BPMNEngine.Drawing
             surface.DrawImage(initialImage, 0, 0, g.Width, g.Height);
             parts = new List<AnimatedFrame>()
             {
-                new AnimatedFrame(g.Image)
+                new(g.Image)
             };
         }
 

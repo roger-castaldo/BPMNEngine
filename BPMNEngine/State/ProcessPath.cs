@@ -12,16 +12,16 @@ namespace BPMNEngine.State
 {
     internal sealed class ProcessPath : IStateContainer
     {
-        private record SPathEntry(string elementID,StepStatuses status,DateTime startTime,string incomingID,DateTime? endTime=null,string completedBy=null,IEnumerable<string> outgoing=null) 
+        private record SPathEntry 
             : IStateStep
         {
-            public string ElementID { get; } = elementID;
-            public StepStatuses Status { get; } = status;
-            public DateTime StartTime { get; } = startTime;
-            public string IncomingID { get; } = incomingID;
-            public DateTime? EndTime { get; } = endTime;
-            public string CompletedBy { get; } = completedBy;
-            public IImmutableList<string> OutgoingID { get; }= (outgoing??Array.Empty<string>()).ToImmutableList();
+            public string ElementID { get; init; }
+            public StepStatuses Status { get; init; }
+            public DateTime StartTime { get; init; }
+            public string IncomingID { get; init; }
+            public DateTime? EndTime { get; init; }
+            public string CompletedBy { get; init; }
+            public IImmutableList<string> OutgoingID { get; init; }
         }
 
         private class ReadOnlyProcessPath : IReadonlyProcessPathContainer
@@ -62,8 +62,8 @@ namespace BPMNEngine.State
                         writer.WriteAttributeString(_COMPLETED_BY, step.CompletedBy);
                     if (step.OutgoingID!=null)
                     {
-                        if (step.OutgoingID.Count()==1)
-                            writer.WriteAttributeString(_OUTGOING_ID, step.OutgoingID.First());
+                        if (step.OutgoingID.Count==1)
+                            writer.WriteAttributeString(_OUTGOING_ID, step.OutgoingID[0]);
                         else
                             step.OutgoingID.ForEach(outid =>
                             {
@@ -183,7 +183,16 @@ namespace BPMNEngine.State
                     outgoing = new string[] { reader.GetAttribute(_OUTGOING_ID) };
                     reader.Read();
                 }
-                steps.Add(new SPathEntry(elementID,stepStatus,startTime, incomingID, endTime,completedBy,outgoing));
+                steps.Add(new()
+                {
+                    ElementID=elementID,
+                    Status=stepStatus,
+                    StartTime=startTime,
+                    IncomingID=incomingID,
+                    EndTime=endTime,
+                    CompletedBy=completedBy,
+                    OutgoingID=outgoing.ToImmutableArray()
+                });
             }
         }
 
@@ -242,7 +251,16 @@ namespace BPMNEngine.State
                         reader.Read();
                     }
 
-                    steps.Add(new SPathEntry(elementID, stepStatus, startTime, incomingID, endTime, completedBy, outgoing));
+                    steps.Add(new()
+                    {
+                        ElementID=elementID,
+                        Status=stepStatus,
+                        StartTime=startTime,
+                        IncomingID=incomingID,
+                        EndTime=endTime,
+                        CompletedBy=completedBy,
+                        OutgoingID=outgoing?.ToImmutableArray()??null
+                    });
                 }
                 reader.Read();
             }
@@ -397,7 +415,12 @@ namespace BPMNEngine.State
                             .DefaultIfEmpty(StepStatuses.NotRun)
                             .FirstOrDefault()!=StepStatuses.Waiting)
                     {
-                        steps.Add(new SPathEntry(gw.ID,StepStatuses.Waiting,DateTime.Now,sourceID));
+                        steps.Add(new(){
+                            ElementID=gw.ID,
+                            Status=StepStatuses.Waiting,
+                            StartTime=DateTime.Now,
+                            IncomingID=sourceID
+                        });
                         changed=true;
                     }
                 }
@@ -427,7 +450,13 @@ namespace BPMNEngine.State
             }
             if (result)
             {
-                steps.Add(new SPathEntry(gw.ID,StepStatuses.Started,DateTime.Now,sourceID));
+                steps.Add(new()
+                {
+                    ElementID=gw.ID,
+                    Status=StepStatuses.Started,
+                    StartTime=DateTime.Now,
+                    IncomingID=sourceID
+                });
                 changed=true;
             }
             stateLock.ExitWriteLock();
@@ -472,7 +501,16 @@ namespace BPMNEngine.State
                 if (lastStep.Status==StepStatuses.WaitingStart)
                     start=lastStep.StartTime;
             }
-            steps.Add(new SPathEntry(elementID, status, start, incomingID, end, completedBy, outgoingID));
+            steps.Add(new()
+            {
+                ElementID=elementID,
+                Status=status,
+                StartTime=start,
+                IncomingID=incomingID,
+                EndTime=end,
+                CompletedBy=completedBy,
+                OutgoingID=outgoingID?.ToImmutableArray()??null
+            });
             stateLock.ExitWriteLock();
             triggerChange();
         }

@@ -60,7 +60,6 @@ namespace BPMNEngine.Elements.Processes.Scripts
             object[] pars = new object[] { "variables", variables };
             Debug("Invoking Javascript Engine for script element {0}", new object[] { ID });
             _setValue.Invoke(engine, pars);
-            result = null;
             if (Code.Contains("return "))
                 result = _getCompletionValue.Invoke(_execute.Invoke(engine, new object[] { string.Format(_codeExecReturnFormat, Code) }), Array.Empty<object>());
             else

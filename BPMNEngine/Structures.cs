@@ -53,7 +53,9 @@ namespace BPMNEngine
             return false;
         }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public override int GetHashCode()
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
             => $"{Name}.{Extension}[{ContentType}]:{Convert.ToBase64String(Content)}".GetHashCode();
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace UnitTest.Extensions
         public void TestDefinitionVariableUsage()
         {
             var readonlyKeysValid = false;
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
+            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_VARIABLE_NAME]);
             Assert.IsInstanceOfType(process[_VARIABLE_NAME], typeof(string));

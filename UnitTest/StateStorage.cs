@@ -24,8 +24,8 @@ namespace UnitTest
         private const string _TEST_FILE_VARIABLE = "TestFile";
         private static readonly SFile[] _TEST_FILES = new SFile[]
         {
-            new SFile(){Name="Test1",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"},
-            new SFile(){Name="Test2",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"}
+            new(){Name="Test1",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"},
+            new(){Name="Test2",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"}
         };
 
         [ClassInitialize]

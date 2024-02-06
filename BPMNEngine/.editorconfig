@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# IDE0022: Use block body for method
+csharp_style_expression_bodied_methods = when_on_single_line
