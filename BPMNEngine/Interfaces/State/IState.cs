@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Elements;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Interfaces.State
 {
@@ -17,7 +18,7 @@ namespace BPMNEngine.Interfaces.State
         /// <summary>
         /// Called to get a list of all process variable names available
         /// </summary>
-        IEnumerable<string> Keys { get; }
+        IImmutableList<string> Keys { get; }
         /// <summary>
         /// Called to convert the state into a loadable xml document
         /// </summary>
@@ -29,6 +30,18 @@ namespace BPMNEngine.Interfaces.State
         /// <summary>
         /// Called to obtain a list of all elements that are active (Started or Waiting)
         /// </summary>
-        IEnumerable<IElement> ActiveElements { get; }
+        IImmutableList<IElement> ActiveElements { get; }
+        /// <summary>
+        /// Called to obtain a readonly dictionary of the current variables in the state
+        /// </summary>
+        IImmutableDictionary<string, object> Variables { get; }
+        /// <summary>
+        /// Called to obtain a readonly list of the step state information
+        /// </summary>
+        IImmutableList<IStateStep> Steps { get; }
+        /// <summary>
+        /// Called to obtain a copy of the current log content found within the state
+        /// </summary>
+        string Log { get; }
     }
 }

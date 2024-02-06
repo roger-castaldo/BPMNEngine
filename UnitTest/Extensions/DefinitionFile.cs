@@ -36,7 +36,7 @@ namespace UnitTest.Extensions
 
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             
-            Dictionary<string, object> variables = instance.CurrentVariables;
+            var variables = instance.CurrentVariables;
             Assert.AreEqual(1,variables.Count);
             Assert.IsFalse(variables.ContainsKey(_FILE_NAME));
             Assert.IsTrue(variables.ContainsKey(_RESULT_VARIABLE_NAME));

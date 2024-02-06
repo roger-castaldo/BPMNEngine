@@ -10,6 +10,7 @@ using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
 using System.Text.Json;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 
 namespace BPMNEngine
 {
@@ -183,8 +184,8 @@ namespace BPMNEngine
         object IProcessInstance.this[string name]
             =>Process[name];
 
-        IEnumerable<string> IProcessInstance.Keys
-            =>Process.Keys;
+        IImmutableList<string> IProcessInstance.Keys
+            =>Process.Keys.ToImmutableList();
 
         IState IProcessInstance.CurrentState 
             =>State.CurrentState;
@@ -346,7 +347,7 @@ namespace BPMNEngine
             }
             return result;
         }
-        Dictionary<string, object> IProcessInstance.CurrentVariables
+        IImmutableDictionary<string, object> IProcessInstance.CurrentVariables
             => State.CurrentState.Variables;
         #endregion
 

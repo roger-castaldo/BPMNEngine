@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using Microsoft.Maui.Graphics;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Interfaces
 {
@@ -31,7 +32,7 @@ namespace BPMNEngine.Interfaces
         /// <summary>
         /// Called to obtain the names of all process runtime and definition constants
         /// </summary>
-        IEnumerable<string> Keys { get; }
+        IImmutableList<string> Keys { get; }
         /// <summary>
         /// Called to Resume a suspended process.  Will fail if the process is not currently suspended.
         /// </summary>
@@ -145,6 +146,6 @@ namespace BPMNEngine.Interfaces
         /// <summary>
         /// Used to get the current variable values for this process instance
         /// </summary>
-        Dictionary<string,object> CurrentVariables { get; }
+        IImmutableDictionary<string,object> CurrentVariables { get; }
     }
 }

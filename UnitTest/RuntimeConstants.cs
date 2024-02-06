@@ -40,7 +40,7 @@ namespace UnitTest
             task.MarkComplete();
 
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            Dictionary<string, object> variables = instance.CurrentVariables;
+            var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(RESULT_VARIABLE_NAME));

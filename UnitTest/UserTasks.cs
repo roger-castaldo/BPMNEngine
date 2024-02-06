@@ -58,7 +58,7 @@ namespace UnitTest
             task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUES[0];
             task.MarkComplete();
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            Dictionary<string, object> variables = instance.CurrentVariables;
+            var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));
@@ -98,7 +98,7 @@ namespace UnitTest
                 idx++;
             }
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            Dictionary<string, object> variables = instance.CurrentVariables;
+            var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));

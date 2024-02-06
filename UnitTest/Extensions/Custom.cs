@@ -25,7 +25,7 @@ namespace UnitTest.Extensions
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            Dictionary<string, object> variables = instance.CurrentVariables;
+            var variables = instance.CurrentVariables;
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_VARIABLE_NAME));
             Assert.AreEqual(_RESULT_VARIABLE_VALUE, variables[_VARIABLE_NAME]);

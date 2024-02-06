@@ -4,6 +4,7 @@ using BPMNEngine.Interfaces.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -52,7 +53,7 @@ namespace UnitTest
             _singleTaskProcess.Dispose();
         }
 
-        private static void TestVariables(Dictionary<string,object> variables)
+        private static void TestVariables(IImmutableDictionary<string,object> variables)
         {
             Assert.IsNotNull(variables);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));
@@ -64,7 +65,7 @@ namespace UnitTest
                 Assert.AreEqual(_TEST_FILES[x], ((SFile[])variables[_TEST_FILE_VARIABLE])[x]);
         }
 
-        private static void TestEmptyVariables(Dictionary<string,object> variables)
+        private static void TestEmptyVariables(IImmutableDictionary<string,object> variables)
         {
             Assert.IsNotNull(variables);
             Assert.AreEqual(0, variables.Count);

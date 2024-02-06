@@ -132,7 +132,7 @@ namespace UnitTest.Extensions
         {
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            Dictionary<string, object> variables = instance.CurrentVariables;
+            var variables = instance.CurrentVariables;
             Assert.IsNotNull(variables);
             Assert.AreEqual(2, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_varName));

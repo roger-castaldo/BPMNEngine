@@ -29,10 +29,10 @@ namespace BPMNEngine.State
             public object this[string name] 
                 => processVariables[name,stepIndex];
 
-            public IEnumerable<string> Keys 
+            public IImmutableList<string> Keys 
                 => processVariables[stepIndex];
 
-            public Dictionary<string, object> AsExtract { 
+            public IImmutableDictionary<string, object> AsExtract { 
                 get
                 {
                     Dictionary<string, object> ret = new();
@@ -40,11 +40,11 @@ namespace BPMNEngine.State
                     {
                         ret.Add(key, this[key]);
                     });
-                    return ret;
+                    return ret.ToImmutableDictionary();
                 }
             }
 
-            private IEnumerable<SProcessVariable> Variables
+            private ImmutableArray<SProcessVariable> Variables
             {
                 get
                 {
@@ -480,7 +480,7 @@ namespace BPMNEngine.State
             }
         }
 
-        public IEnumerable<string> this[int stepIndex]
+        public IImmutableList<string> this[int stepIndex]
             => RunQuery((IEnumerable<SProcessVariable> variables) => { 
                 return variables
                     .OrderBy(var => var.StepIndex)
@@ -488,7 +488,7 @@ namespace BPMNEngine.State
                     .GroupBy(variable => variable.Name)
                     .Where(grp => grp.Last().Value != null)
                     .Select(grp => grp.Key);
-            });
+            }).ToImmutableList();
 
         internal void MergeVariables(int stepIndex, IVariables vars)
         {
