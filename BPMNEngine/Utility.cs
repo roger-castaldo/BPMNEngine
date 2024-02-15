@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements;
 using BPMNEngine.Interfaces.Elements;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -155,7 +156,12 @@ namespace BPMNEngine
                     ret = text[0];
                     break;
                 case VariableTypes.DateTime:
-                    ret = DateTime.Parse(text);
+                    if (!DateTime.TryParse(text,out DateTime dt))
+                    {
+                        if (!DateTime.TryParseExact(text, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture,DateTimeStyles.None,out dt))
+                            throw new FormatException($"Unable to parse date {text}");
+                    }
+                    ret = dt;
                     break;
                 case VariableTypes.Decimal:
                     ret = decimal.Parse(text);
