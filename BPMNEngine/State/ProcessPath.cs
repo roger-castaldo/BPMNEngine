@@ -4,26 +4,18 @@ using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
+using BPMNEngine.State.Objects;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Reflection.PortableExecutable;
+using System.Runtime.Serialization;
 using System.Text.Json;
+using System.Xml.Serialization;
 
 namespace BPMNEngine.State
 {
     internal sealed class ProcessPath : IStateContainer
     {
-        private record SPathEntry 
-            : IStateStep
-        {
-            public string ElementID { get; init; }
-            public StepStatuses Status { get; init; }
-            public DateTime StartTime { get; init; }
-            public string IncomingID { get; init; }
-            public DateTime? EndTime { get; init; }
-            public string CompletedBy { get; init; }
-            public IImmutableList<string> OutgoingID { get; init; }
-        }
-
         private class ReadOnlyProcessPath : IReadonlyProcessPathContainer
         {
             private readonly ProcessPath path;
@@ -41,85 +33,25 @@ namespace BPMNEngine.State
                     .Select(grp => grp.Key)
                     .ToImmutableList();
 
-            public IImmutableList<IStateStep> Steps 
-                => path.RunQuery<IStateStep>((IEnumerable<SPathEntry> Steps) 
-                    =>Steps.Take(stepCount).Cast<IStateStep>()
+            public IImmutableList<IStateStep> Steps
+                => path.RunQuery<IStateStep>((IEnumerable<IStateStep> Steps)
+                    => Steps.Take(stepCount)
                 ).ToImmutableList();
 
             public void Append(XmlWriter writer)
-            {
-                Steps.ForEach(step =>
-                {
-                    writer.WriteStartElement(_PATH_ENTRY_ELEMENT);
-                    writer.WriteAttributeString(_ELEMENT_ID, step.ElementID);
-                    writer.WriteAttributeString(_STEP_STATUS, step.Status.ToString());
-                    writer.WriteAttributeString(_START_TIME, step.StartTime.ToString(Constants.DATETIME_FORMAT));
-                    if (step.IncomingID!=null)
-                        writer.WriteAttributeString(_INCOMING_ID, step.IncomingID);
-                    if (step.EndTime.HasValue)
-                        writer.WriteAttributeString(_END_TIME, step.EndTime.Value.ToString(Constants.DATETIME_FORMAT));
-                    if (!string.IsNullOrEmpty(step.CompletedBy))
-                        writer.WriteAttributeString(_COMPLETED_BY, step.CompletedBy);
-                    if (step.OutgoingID!=null)
-                    {
-                        if (step.OutgoingID.Count==1)
-                            writer.WriteAttributeString(_OUTGOING_ID, step.OutgoingID[0]);
-                        else
-                            step.OutgoingID.ForEach(outid =>
-                            {
-                                writer.WriteStartElement(_OUTGOING_ELEM);
-                                writer.WriteValue(outid);
-                                writer.WriteEndElement();
-                            });
-                    }
-                    writer.WriteEndElement();
-                });
-            }
+                => Steps.OfType<IStateComponent>()
+                    .ForEach(step => step.Write(writer));
 
             public void Append(Utf8JsonWriter writer)
             {
                 writer.WriteStartArray();
-                Steps.ForEach(step =>
-                {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName(_ELEMENT_ID);
-                    writer.WriteStringValue(step.ElementID);
-                    writer.WritePropertyName(_STEP_STATUS);
-                    writer.WriteStringValue(step.Status.ToString());
-                    writer.WritePropertyName(_START_TIME);
-                    writer.WriteStringValue(step.StartTime.ToString(Constants.DATETIME_FORMAT));
-                    if (step.IncomingID!=null)
-                    {
-                        writer.WritePropertyName(_INCOMING_ID);
-                        writer.WriteStringValue(step.IncomingID);
-                    }
-                    if (step.EndTime.HasValue)
-                    {
-                        writer.WritePropertyName(_END_TIME);
-                        writer.WriteStringValue(step.EndTime.Value.ToString(Constants.DATETIME_FORMAT));
-                    }
-                    if (!string.IsNullOrEmpty(step.CompletedBy))
-                    {
-                        writer.WritePropertyName(_COMPLETED_BY);
-                        writer.WriteStringValue(step.CompletedBy);
-                    }
-                    if (step.OutgoingID!=null)
-                    {
-                        writer.WritePropertyName(_OUTGOING_ID);
-                        writer.WriteStartArray();
-                        step.OutgoingID.ForEach(outid =>
-                        {
-                            writer.WriteStringValue(outid);
-                        });
-                        writer.WriteEndArray();
-                    }
-                    writer.WriteEndObject();
-                });
+                Steps.OfType<IStateComponent>()
+                    .ForEach(step => step.Write(writer));
                 writer.WriteEndArray();
             }
         }
 
-        private readonly List<SPathEntry> steps = new();
+        private readonly List<IStateStep> steps = new();
 
         private readonly ProcessStepComplete complete;
         private readonly ProcessStepError error;
@@ -140,135 +72,39 @@ namespace BPMNEngine.State
         }
 
         #region IStateContainer
-        private const string _PATH_ENTRY_ELEMENT = "sPathEntry";
-        private const string _STEP_STATUS = "status";
-        private const string _ELEMENT_ID = "elementID";
-        private const string _START_TIME = "startTime";
-        private const string _END_TIME = "endTime";
-        private const string _OUTGOING_ID = "outgoingID";
-        private const string _INCOMING_ID = "incomingID";
-        private const string _OUTGOING_ELEM = "outgoing";
-        private const string _COMPLETED_BY = "CompletedByID";
-
-        public void Load(XmlReader reader)
+        public XmlReader Load(XmlReader reader, Version version)
         {
             steps.Clear();
             reader.Read();
-            while (reader.NodeType==XmlNodeType.Element && reader.Name==_PATH_ENTRY_ELEMENT)
+            while (true)
             {
-                var elementID = reader.GetAttribute(_ELEMENT_ID);
-                var stepStatus = (StepStatuses)Enum.Parse(typeof(StepStatuses), reader.GetAttribute(_STEP_STATUS));
-                var startTime = DateTime.ParseExact(reader.GetAttribute(_START_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
-                var incomingID = reader.GetAttribute(_INCOMING_ID);
-                var endTime = (reader.GetAttribute(_END_TIME)==null ? (DateTime?)null : DateTime.ParseExact(reader.GetAttribute(_END_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture));
-                var completedBy = reader.GetAttribute(_COMPLETED_BY);
-                IEnumerable<string> outgoing;
-                if (reader.GetAttribute(_OUTGOING_ID)==null)
-                {
-                    outgoing = new List<string>();
-                    reader.Read();
-                    while (reader.NodeType==XmlNodeType.Element && reader.Name==_OUTGOING_ELEM)
-                    {
-                        reader.Read();
-                        ((List<string>)outgoing).Add(reader.Value);
-                        reader.Read();
-                        if (reader.NodeType==XmlNodeType.EndElement && reader.Name==_OUTGOING_ELEM)
-                            reader.Read();
-                    }
-                    if (reader.NodeType==XmlNodeType.EndElement && reader.Name==_PATH_ENTRY_ELEMENT)
-                        reader.Read();
-                }
-                else
-                {
-                    outgoing = new string[] { reader.GetAttribute(_OUTGOING_ID) };
-                    reader.Read();
-                }
-                steps.Add(new()
-                {
-                    ElementID=elementID,
-                    Status=stepStatus,
-                    StartTime=startTime,
-                    IncomingID=incomingID,
-                    EndTime=endTime,
-                    CompletedBy=completedBy,
-                    OutgoingID=outgoing.ToImmutableArray()
-                });
+                var step = new StateStep();
+                if (!step.CanRead(reader,version))
+                    break;
+                reader=step.Read(reader,version);
+                steps.Add(step);
             }
+            return reader;
         }
 
-        public void Load(Utf8JsonReader reader)
+        public Utf8JsonReader Load(Utf8JsonReader reader, Version version)
         {
             steps.Clear();
             reader.Read();
+            if (reader.TokenType==JsonTokenType.StartArray)
+                reader.Read();
             while (reader.TokenType!=JsonTokenType.EndArray)
             {
-                if (reader.TokenType==JsonTokenType.StartObject)
-                {
-                    var elementID = string.Empty;
-                    var stepStatus = StepStatuses.NotRun;
-                    var startTime = DateTime.MinValue;
-                    var incomingID = String.Empty;
-                    var endTime = (DateTime?)null;
-                    string completedBy = null;
-                    IEnumerable<string> outgoing = null;
-
-                    reader.Read();
-
-                    while (reader.TokenType!=JsonTokenType.EndObject)
-                    {
-                        var propName = reader.GetString();
-                        reader.Read();
-                        switch (propName)
-                        {
-                            case _ELEMENT_ID:
-                                elementID=reader.GetString();
-                                break;
-                            case _STEP_STATUS:
-                                stepStatus = Enum.Parse<StepStatuses>(reader.GetString());
-                                break;
-                            case _INCOMING_ID:
-                                incomingID=reader.GetString();
-                                break;
-                            case _START_TIME:
-                                startTime = DateTime.ParseExact(reader.GetString(), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
-                                break;
-                            case _END_TIME:
-                                endTime = DateTime.ParseExact(reader.GetString(), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
-                                break;
-                            case _COMPLETED_BY:
-                                completedBy=reader.GetString();
-                                break;
-                            case _OUTGOING_ID:
-                                outgoing = new List<string>();
-                                reader.Read();
-                                while (reader.TokenType!=JsonTokenType.EndArray)
-                                {
-                                    ((List<string>)outgoing).Add(reader.GetString());
-                                    reader.Read();
-                                }
-                                break;
-                        }
-                        reader.Read();
-                    }
-
-                    steps.Add(new()
-                    {
-                        ElementID=elementID,
-                        Status=stepStatus,
-                        StartTime=startTime,
-                        IncomingID=incomingID,
-                        EndTime=endTime,
-                        CompletedBy=completedBy,
-                        OutgoingID=outgoing?.ToImmutableArray()??null
-                    });
-                }
-                reader.Read();
+                var step = new StateStep();
+                if (!step.CanRead(reader,version))
+                    break;
+                reader=step.Read(reader,version);
+                steps.Add(step);
             }
-            if (reader.TokenType==JsonTokenType.EndArray)
-                reader.Read();
+            return reader;
         }
 
-        private IEnumerable<T> RunQuery<T>(Func<IEnumerable<SPathEntry>,IEnumerable<T>> filter)
+        private IEnumerable<T> RunQuery<T>(Func<IEnumerable<IStateStep>,IEnumerable<T>> filter)
         {
             stateLock.EnterReadLock();
             var results = filter(steps).ToImmutableArray();
@@ -288,7 +124,7 @@ namespace BPMNEngine.State
         #endregion
 
         internal IEnumerable<SSuspendedStep> ResumeSteps
-            => RunQuery((IEnumerable<SPathEntry> steps)=> {
+            => RunQuery((IEnumerable<IStateStep> steps)=> {
                 return steps
                             .GroupBy(step => step.ElementID)
                             .Where(grp => grp.Last().Status==StepStatuses.Suspended && !grp.Last().EndTime.HasValue)
@@ -300,7 +136,7 @@ namespace BPMNEngine.State
             });
 
         internal IEnumerable<SDelayedStartEvent> DelayedEvents
-        => RunQuery((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<IStateStep> steps) =>
         {
             return steps
                 .GroupBy(step => step.ElementID)
@@ -314,7 +150,7 @@ namespace BPMNEngine.State
         });
 
         public IEnumerable<string> AbortableSteps
-        => RunQuery((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<IStateStep> steps) =>
         {
             return steps
                     .GroupBy(step => step.ElementID)
@@ -326,7 +162,7 @@ namespace BPMNEngine.State
         });
 
         public IEnumerable<string> ActiveSteps
-        => RunQuery((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<IStateStep> steps) =>
         {
             return steps
                     .GroupBy(step => step.ElementID)
@@ -335,7 +171,7 @@ namespace BPMNEngine.State
         });
 
         public IEnumerable<string> WaitingSteps
-        => RunQuery((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<IStateStep> steps) =>
         {
             return steps
                     .GroupBy(step => step.ElementID)
@@ -345,7 +181,7 @@ namespace BPMNEngine.State
         });
 
         public IEnumerable<SStepSuspension> SuspendedSteps
-        => RunQuery((IEnumerable<SPathEntry> steps) =>
+        => RunQuery((IEnumerable<IStateStep> steps) =>
         {
             return steps
                     .Select((step, index) => new { step, index })
@@ -360,7 +196,7 @@ namespace BPMNEngine.State
 
         public StepStatuses GetStatus(string elementid)
         {
-            return RunQuery((IEnumerable<SPathEntry> steps) =>
+            return RunQuery((IEnumerable<IStateStep> steps) =>
             {
                 return steps
                     .Take(LastStep==int.MaxValue ? steps.Count() : LastStep+1)
@@ -372,7 +208,7 @@ namespace BPMNEngine.State
 
         public int CurrentStepIndex(string elementid)
         {
-            var results = RunQuery<int>((IEnumerable<SPathEntry> steps) =>
+            var results = RunQuery<int>((IEnumerable<IStateStep> steps) =>
             {
                 return steps
                     .Select((step, index) => new { step, index })
@@ -415,12 +251,7 @@ namespace BPMNEngine.State
                             .DefaultIfEmpty(StepStatuses.NotRun)
                             .FirstOrDefault()!=StepStatuses.Waiting)
                     {
-                        steps.Add(new(){
-                            ElementID=gw.ID,
-                            Status=StepStatuses.Waiting,
-                            StartTime=DateTime.Now,
-                            IncomingID=sourceID
-                        });
+                        steps.Add(new StateStep(gw.ID,StepStatuses.Waiting,DateTime.Now,sourceID));
                         changed=true;
                     }
                 }
@@ -450,13 +281,7 @@ namespace BPMNEngine.State
             }
             if (result)
             {
-                steps.Add(new()
-                {
-                    ElementID=gw.ID,
-                    Status=StepStatuses.Started,
-                    StartTime=DateTime.Now,
-                    IncomingID=sourceID
-                });
+                steps.Add(new StateStep(gw.ID,StepStatuses.Started,DateTime.Now,sourceID));
                 changed=true;
             }
             stateLock.ExitWriteLock();
@@ -501,16 +326,7 @@ namespace BPMNEngine.State
                 if (lastStep.Status==StepStatuses.WaitingStart)
                     start=lastStep.StartTime;
             }
-            steps.Add(new()
-            {
-                ElementID=elementID,
-                Status=status,
-                StartTime=start,
-                IncomingID=incomingID,
-                EndTime=end,
-                CompletedBy=completedBy,
-                OutgoingID=outgoingID?.ToImmutableArray()??null
-            });
+            steps.Add(new StateStep(elementID, status, start, incomingID, end, completedBy, outgoingID?.ToImmutableArray()??null));
             stateLock.ExitWriteLock();
             triggerChange();
         }

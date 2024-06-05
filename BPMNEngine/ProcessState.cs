@@ -7,6 +7,7 @@ using BPMNEngine.Scheduling;
 using BPMNEngine.State;
 using System.Collections.Immutable;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text.Json;
 
@@ -15,7 +16,9 @@ namespace BPMNEngine
     internal sealed class ProcessState : IDisposable
     {
         private const string PROCESS_STATE_ELEMENT = "ProcessState";
+        private const string STATE_VERSION_ATTRIBUTE = "Version";
         private const string PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
+        internal static readonly Version CURRENT_VERSION = new Version("2.0");
 
         internal delegate void delTriggerStateChange();
 
@@ -54,6 +57,7 @@ namespace BPMNEngine
                     });
                     writer.WriteStartDocument();
                     writer.WriteStartElement(PROCESS_STATE_ELEMENT);
+                    writer.WriteAttributeString(STATE_VERSION_ATTRIBUTE, CURRENT_VERSION.ToString());                    
                     writer.WriteAttributeString(PROCESS_SUSPENDED_ATTRIBUTE, isSuspended.ToString());
 
                     Components.ForEach(comp =>
@@ -79,6 +83,8 @@ namespace BPMNEngine
                     using var ms = new MemoryStream();
                     var writer = new Utf8JsonWriter(ms);
                     writer.WriteStartObject();
+                    writer.WritePropertyName(STATE_VERSION_ATTRIBUTE);
+                    writer.WriteStringValue(CURRENT_VERSION.ToString());
                     writer.WritePropertyName(PROCESS_SUSPENDED_ATTRIBUTE);
                     writer.WriteBooleanValue(isSuspended);
 
@@ -176,6 +182,7 @@ namespace BPMNEngine
             }
             if (reader.NodeType ==XmlNodeType.Element && reader.Name==PROCESS_STATE_ELEMENT)
             {
+                var version = new Version(reader.GetAttribute(STATE_VERSION_ATTRIBUTE)??"1.0");
                 IsSuspended = bool.Parse(reader.GetAttribute(PROCESS_SUSPENDED_ATTRIBUTE));
                 reader.Read();
                 try
@@ -187,13 +194,18 @@ namespace BPMNEngine
                             switch (reader.Name)
                             {
                                 case "ProcessLog":
-                                    log.Load(reader);
+                                    reader=log.Load(reader,version);
                                     break;
                                 case "ProcessPath":
-                                    Path.Load(reader);
+                                    reader=Path.Load(reader,version);
                                     break;
                                 case "ProcessVariables":
-                                    variables.Load(reader);
+                                    reader=variables.Load(reader,version);
+                                    break;
+                                case "SuspendedSteps":
+                                    if (version>=CURRENT_VERSION)
+                                        throw new Exception("Reading error...");
+                                    reader.Skip();
                                     break;
                                 default:
                                     throw new Exception("Reading error...");
@@ -224,6 +236,7 @@ namespace BPMNEngine
             try
             {
                 reader.Read();
+                var version = new Version("1.0");
                 while (reader.Read())
                 {
                     if (reader.TokenType==JsonTokenType.PropertyName)
@@ -235,17 +248,28 @@ namespace BPMNEngine
                                 reader.Read();
                                 IsSuspended = reader.GetBoolean();
                                 break;
+                            case STATE_VERSION_ATTRIBUTE:
+                                foundItem=true;
+                                reader.Read();
+                                version=new Version(reader.GetString());
+                                break;
                             case "ProcessLog":
                                 foundItem=true;
-                                log.Load(reader);
+                                reader=log.Load(reader,version);
                                 break;
                             case "ProcessPath":
                                 foundItem=true;
-                                Path.Load(reader);
+                                reader=Path.Load(reader,version);
                                 break;
                             case "ProcessVariables":
                                 foundItem=true;
-                                variables.Load(reader);
+                                reader=variables.Load(reader,version);
+                                break;
+                            case "SuspendedSteps":
+                                if (version>=CURRENT_VERSION)
+                                    throw new Exception("Reading error...");
+                                reader.Read();
+                                reader.Skip();
                                 break;
                         }
                     }

@@ -61,11 +61,11 @@ namespace UnitTest
                 doc.LoadXml(instance.CurrentState.AsXMLDocument);
                 instance.Dispose();
 
-                if (doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']")!=null)
+                if (doc.SelectSingleNode("/ProcessState/ProcessPath/StateStep[@status='Suspended']")!=null)
                     break;
             }
 
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']"));
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/StateStep[@status='Suspended']"));
 
             instance = _userProcess.LoadState(doc);
             Assert.IsNotNull(instance);

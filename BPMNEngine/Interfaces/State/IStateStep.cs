@@ -6,7 +6,7 @@ namespace BPMNEngine.Interfaces.State
     /// Houses the step information from a state to indicate statuses and timestamps for given elements
     /// during the execution of the procesas
     /// </summary>
-    public interface IStateStep
+    public interface IStateStep 
     {
         /// <summary>
         /// The ID of the element for this step

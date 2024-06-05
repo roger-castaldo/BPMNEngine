@@ -54,7 +54,7 @@ namespace UnitTest
         {
             XmlDocument xml = new();
             xml.LoadXml(state.AsXMLDocument);
-            XmlNode node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name));
+            XmlNode node = xml.SelectSingleNode(string.Format("/ProcessState/ProcessPath/StateStep[@elementID='{0}'][@status='Succeeded']", name));
             if (node!=null)
             {
                 return DateTime.ParseExact(node.Attributes["endTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture).Subtract((((DateTime?)null)??DateTime.ParseExact(node.Attributes["startTime"].Value, DATETIME_FORMAT, CultureInfo.InvariantCulture)));

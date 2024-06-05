@@ -78,7 +78,7 @@ namespace UnitTest.Extensions
             XmlNode node = process.Document.SelectSingleNode(string.Format("/*[local-name()='definitions']/*[local-name()='process']/*[local-name()='sequenceFlow'][@name='{0}']", name));
             if (node==null)
                 return false;
-            return xmlDocument.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']",node.Attributes["id"].Value))!=null;
+            return Utility.StepCompleted(xmlDocument, node.Attributes["id"].Value);
         }
 
         [TestMethod]

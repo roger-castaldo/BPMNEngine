@@ -244,9 +244,7 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1as7z3k'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "IntermediateCatchEvent_1as7z3k"));
         }
 
         [TestMethod()]
@@ -260,9 +258,7 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1r5p299'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "IntermediateCatchEvent_1r5p299"));
         }
 
         [TestMethod()]
@@ -276,11 +272,9 @@ namespace UnitTest
                 {_ERROR_MESSAGE_NAME,_DEFINED_ERROR_MESSAGE }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='BoundaryEvent_0hxboq6'][@status='Succeeded']"));
-            Assert.IsNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='SequenceFlow_08tdtwz'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0hxboq6"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "SequenceFlow_08tdtwz"));
         }
 
         [TestMethod()]

@@ -59,9 +59,7 @@ namespace UnitTest
             Assert.AreEqual(1, variables.Count);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));
             Assert.AreEqual(_TEST_VARIABLE_VALUES[0], variables[_TEST_VARIABLE_NAME]);
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='ManualTask_15dj2au'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "ManualTask_15dj2au"));
         }
 
         private static readonly string[] _TaskNames = new string[]
@@ -88,9 +86,9 @@ namespace UnitTest
 #pragma warning restore IDE0018 // Inline variable declaration
                 Assert.IsTrue(idx switch
                 {
-                    0=> instance.WaitForManualTask(TimeSpan.FromSeconds(5), _TaskNames[idx], out task),
-                    1=> instance.WaitForManualTask(5*1000, _TaskNames[idx], out task),
-                    _=> instance.WaitForManualTask(_TaskNames[idx], out task)
+                    0 => instance.WaitForManualTask(TimeSpan.FromSeconds(5), _TaskNames[idx], out task),
+                    1 => instance.WaitForManualTask(5*1000, _TaskNames[idx], out task),
+                    _ => instance.WaitForManualTask(_TaskNames[idx], out task)
                 });
                 Assert.IsNotNull(task);
                 Assert.IsNull(instance.GetManualTask(_TaskNames[idx+(idx==0 ? 1 : -1)]));
@@ -108,9 +106,9 @@ namespace UnitTest
             Assert.AreEqual(_TEST_VARIABLE_VALUES[2], variables[_TEST_VARIABLE_NAME]);
             XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode($"/ProcessState/ProcessPath/sPathEntry[@elementID='{_TaskNames[0]}'][@status='Succeeded']"));
-            Assert.IsNotNull(doc.SelectSingleNode($"/ProcessState/ProcessPath/sPathEntry[@elementID='{_TaskNames[1]}'][@status='Succeeded']"));
-            Assert.IsNotNull(doc.SelectSingleNode($"/ProcessState/ProcessPath/sPathEntry[@elementID='{_TaskNames[2]}'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.StepCompleted(doc, _TaskNames[0]));
+            Assert.IsTrue(Utility.StepCompleted(doc, _TaskNames[1]));
+            Assert.IsTrue(Utility.StepCompleted(doc, _TaskNames[2]));
         }
 
         [TestMethod()]

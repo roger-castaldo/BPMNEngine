@@ -66,7 +66,7 @@ namespace UnitTest
             Assert.AreEqual(_TEST_VARIABLE_VALUES[0], variables[_TEST_VARIABLE_NAME]);
             XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='UserTask_15dj2au'][@status='Succeeded'][@CompletedByID='{0}']", _TEST_USER_IDS[0])));
+            Assert.IsTrue(Utility.StepAchievedStatus(doc,"UserTask_15dj2au", StepStatuses.Succeeded, _TEST_USER_IDS[0]));
         }
 
         private static readonly string[] _TaskNames = new string[]
@@ -106,9 +106,9 @@ namespace UnitTest
             Assert.AreEqual(_TEST_VARIABLE_VALUES[2], variables[_TEST_VARIABLE_NAME]);
             XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded'][@CompletedByID='{1}']",new object[] { _TaskNames[0], _TEST_USER_IDS[0] })));
-            Assert.IsNotNull(doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded'][@CompletedByID='{1}']", new object[] { _TaskNames[1], _TEST_USER_IDS[1] })));
-            Assert.IsNotNull(doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded'][@CompletedByID='{1}']", new object[] { _TaskNames[2], _TEST_USER_IDS[2] })));
+            Assert.IsTrue(Utility.StepAchievedStatus(doc, _TaskNames[0], StepStatuses.Succeeded, _TEST_USER_IDS[0]));
+            Assert.IsTrue(Utility.StepAchievedStatus(doc, _TaskNames[1], StepStatuses.Succeeded, _TEST_USER_IDS[1]));
+            Assert.IsTrue(Utility.StepAchievedStatus(doc, _TaskNames[2], StepStatuses.Succeeded, _TEST_USER_IDS[2]));
         }
 
         [TestMethod()]

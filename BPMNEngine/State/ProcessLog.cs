@@ -62,7 +62,7 @@ STACKTRACE:{exception.StackTrace}");
             return sb.ToString();
         }
 
-        public void Load(XmlReader reader)
+        public XmlReader Load(XmlReader reader,Version version)
         {
             reader.MoveToContent();
             reader.Read();
@@ -72,14 +72,15 @@ STACKTRACE:{exception.StackTrace}");
                 content.Append(reader.Value);
                 reader.Read();
             }
+            return reader;
         }
 
-        public void Load(Utf8JsonReader reader)
+        public Utf8JsonReader Load(Utf8JsonReader reader, Version version)
         {
             content.Clear();
             reader.Read();
             content.Append(reader.GetString());
-            reader.Read();
+            return reader;
         }
 
         public IReadOnlyStateContainer Clone()
