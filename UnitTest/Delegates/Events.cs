@@ -21,37 +21,37 @@ namespace UnitTest.Delegates
         private static void FlowCompleted(IElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("{0}_{1}_Completed", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static void ElementStarted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("{0}_{1}_Started", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static void ElementCompleted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("{0}_{1}_Completed", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static void InstanceFlowCompleted(IElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static void InstanceElementStarted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("Instance_{0}_{1}_Started", new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("Instance_{0}_{1}_Started", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static void InstanceElementCompleted(IStepElement element, IReadonlyVariables variables)
         {
             Assert.IsNotNull(variables[_TEST_ID_NAME]);
-            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("Instance_{0}_{1}_Completed", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static bool IsProcessStartValid(IElement process, IReadonlyVariables variables)
@@ -74,27 +74,27 @@ namespace UnitTest.Delegates
                 },
                 events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new()
                     {
                         Started=new OnElementEvent(ElementStarted),
                         Completed=new OnElementEvent(ElementCompleted)
                     },
-                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new()
                     {
                         Started=new OnElementEvent(ElementStarted),
                         Completed=new OnElementEvent(ElementCompleted)
                     },
-                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new()
                     {
                         Started=new OnElementEvent(ElementStarted),
                         Completed=new OnElementEvent(ElementCompleted)
                     },
-                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new()
                     {
                         Started=new OnElementEvent(ElementStarted),
                         Completed=new OnElementEvent(ElementCompleted)
                     },
-                    Flows=new BPMNEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    Flows=new()
                     {
                         SequenceFlow=new OnFlowComplete(FlowCompleted),
                         MessageFlow=new OnFlowComplete(FlowCompleted)
@@ -120,7 +120,7 @@ namespace UnitTest.Delegates
         {
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}{1}_{2}_{3}", new object[] { (instanceVersion ? "Instance_" : ""),instanceID, name, evnt }))
+                if (str==string.Format("{0}{1}_{2}_{3}", [(instanceVersion ? "Instance_" : ""),instanceID, name, evnt]))
                     return true;
             }
             return false;
@@ -191,27 +191,27 @@ namespace UnitTest.Delegates
             IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } },
                 events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new()
                     {
                         Started=new OnElementEvent(InstanceElementStarted),
                         Completed=new OnElementEvent(InstanceElementCompleted)
                     },
-                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new()
                     {
                         Started=new OnElementEvent(InstanceElementStarted),
                         Completed=new OnElementEvent(InstanceElementCompleted)
                     },
-                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new()
                     {
                         Started=new OnElementEvent(InstanceElementStarted),
                         Completed=new OnElementEvent(InstanceElementCompleted)
                     },
-                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new()
                     {
                         Started=new OnElementEvent(InstanceElementStarted),
                         Completed=new OnElementEvent(InstanceElementCompleted)
                     },
-                    Flows=new BPMNEngine.DelegateContainers.ProcessEvents.FlowEvents()
+                    Flows=new()
                     {
                         SequenceFlow=new OnFlowComplete(InstanceFlowCompleted),
                         MessageFlow=new OnFlowComplete(InstanceFlowCompleted)

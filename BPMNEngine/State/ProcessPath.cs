@@ -14,9 +14,10 @@ using System.Xml.Serialization;
 
 namespace BPMNEngine.State
 {
-    internal sealed class ProcessPath : IStateContainer
+    internal sealed class ProcessPath(ProcessStepComplete complete, ProcessStepError error, BusinessProcess process, StateLock stateLock, ProcessState.delTriggerStateChange triggerChange) 
+        : IStateContainer
     {
-        private class ReadOnlyProcessPath : IReadonlyProcessPathContainer
+        private sealed record ReadOnlyProcessPath : IReadonlyProcessPathContainer
         {
             private readonly ProcessPath path;
             private readonly int stepCount;
@@ -51,25 +52,10 @@ namespace BPMNEngine.State
             }
         }
 
-        private readonly List<IStateStep> steps = new();
+        private readonly List<IStateStep> steps = [];
+        private bool disposedValue;
 
-        private readonly ProcessStepComplete complete;
-        private readonly ProcessStepError error;
-        internal int LastStep { get; private set; }
-
-        private readonly StateLock stateLock;
-        private readonly BusinessProcess process;
-        private readonly ProcessState.delTriggerStateChange triggerChange;
-
-        public ProcessPath(ProcessStepComplete complete, ProcessStepError error, BusinessProcess process, StateLock stateLock, ProcessState.delTriggerStateChange triggerChange)
-        {
-            this.complete = complete;
-            this.error = error;
-            LastStep = int.MaxValue;
-            this.process=process;
-            this.stateLock=stateLock;
-            this.triggerChange=triggerChange;
-        }
+        internal int LastStep { get; private set; } = int.MaxValue;
 
         #region IStateContainer
         public XmlReader Load(XmlReader reader, Version version)
@@ -113,13 +99,25 @@ namespace BPMNEngine.State
         }
 
         public IReadOnlyStateContainer Clone()
+            =>new ReadOnlyProcessPath(this, steps.Count);
+
+        private void Dispose(bool disposing)
         {
-            return new ReadOnlyProcessPath(this, steps.Count);
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    steps.Clear();
+                }
+                disposedValue=true;
+            }
         }
 
         public void Dispose()
         {
-            steps.Clear();
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -223,60 +221,54 @@ namespace BPMNEngine.State
             var result = true;
             var changed = false;
             stateLock.EnterWriteLock();
-            if (gw is ParallelGateway)
+            if (gw is ParallelGateway && gw.Incoming.Count()>1)
             {
-                if (gw.Incoming.Count()>1)
+                if (steps
+                    .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
+                    .Where(step => step.ElementID==gw.ID)
+                    .Select(step => step.Status)
+                    .DefaultIfEmpty(StepStatuses.NotRun)
+                    .FirstOrDefault()!=StepStatuses.Waiting)
+                    result = false;
+                else
                 {
-                    if (steps
+                    var counts = gw.Incoming
+                        .Select(i =>
+                            steps
+                            .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
+                         );
+                    if (counts.Any(c => c!=counts.Max()))
+                        result=false;
+                }
+                if (!result && steps
                         .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
                         .Where(step => step.ElementID==gw.ID)
                         .Select(step => step.Status)
                         .DefaultIfEmpty(StepStatuses.NotRun)
                         .FirstOrDefault()!=StepStatuses.Waiting)
-                        result = false;
-                    else
-                    {
-                        var counts = gw.Incoming
-                            .Select(i =>
-                                steps
-                                .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
-                             );
-                        if (counts.Any(c => c!=counts.Max()))
-                            result=false;
-                    }
-                    if (!result && steps
-                            .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
-                            .Where(step => step.ElementID==gw.ID)
-                            .Select(step => step.Status)
-                            .DefaultIfEmpty(StepStatuses.NotRun)
-                            .FirstOrDefault()!=StepStatuses.Waiting)
-                    {
-                        steps.Add(new StateStep(gw.ID,StepStatuses.Waiting,DateTime.Now,sourceID));
-                        changed=true;
-                    }
+                {
+                    steps.Add(new StateStep(gw.ID, StepStatuses.Waiting, DateTime.Now, sourceID));
+                    changed=true;
                 }
             }
-            else if (gw is ExclusiveGateway)
+            else if (gw is ExclusiveGateway && gw.Incoming.Count()>1)
             {
-                if (gw.Incoming.Count()>1)
+                var currentStatus = steps
+                    .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
+                    .Where(step => step.ElementID==gw.ID)
+                    .Select(step => step.Status)
+                    .DefaultIfEmpty(StepStatuses.NotRun)
+                    .FirstOrDefault();
+                if (currentStatus==StepStatuses.Started)
+                    result=false;
+                else if (currentStatus==StepStatuses.Succeeded)
                 {
-                    var currentStatus = steps
-                        .Take((LastStep==int.MaxValue ? steps.Count : LastStep+1))
-                        .Where(step => step.ElementID==gw.ID)
-                        .Select(step => step.Status)
-                        .DefaultIfEmpty(StepStatuses.NotRun)
-                        .FirstOrDefault();
-                    if (currentStatus==StepStatuses.Started)
-                        result=false;
-                    else if (currentStatus==StepStatuses.Succeeded)
-                    {
-                        var counts = gw.Incoming
-                            .Select(
-                                i => steps
-                                    .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
-                             );
-                        result = counts.All(c => c==counts.Max());
-                    }
+                    var counts = gw.Incoming
+                        .Select(
+                            i => steps
+                                .Count(step => step.ElementID==i && step.Status == StepStatuses.Succeeded)
+                         );
+                    result = counts.All(c => c==counts.Max());
                 }
             }
             if (result)
@@ -291,9 +283,7 @@ namespace BPMNEngine.State
         }
 
         internal void StartAnimation()
-        {
-            LastStep = -1;
-        }
+            =>LastStep = -1;
 
         internal string MoveToNextStep()
         {
@@ -313,14 +303,12 @@ namespace BPMNEngine.State
         }
 
         internal void FinishAnimation()
-        {
-            LastStep = int.MaxValue;
-        }
+            =>LastStep = int.MaxValue;
 
         private void AddPathEntry(string elementID, StepStatuses status, DateTime start, string incomingID = null, IEnumerable<string> outgoingID = null, DateTime? end = null, string completedBy = null)
         {
             stateLock.EnterWriteLock();
-            if (steps.Any(step => step.ElementID==elementID))
+            if (steps.Exists(step => step.ElementID==elementID))
             {
                 var lastStep = steps.Last(step=>step.ElementID==elementID);
                 if (lastStep.Status==StepStatuses.WaitingStart)
@@ -399,16 +387,16 @@ namespace BPMNEngine.State
             Error(node, error);
         }
 
-        private async void Complete(string incoming, string outgoing) 
-            => await System.Threading.Tasks.Task.Run(() => complete.Invoke(incoming, outgoing));
+        private void Complete(string incoming, string outgoing) 
+            => System.Threading.Tasks.Task.Run(() => complete.Invoke(incoming, outgoing));
 
-        private async void Error(IElement step, Exception ex) 
-            => await System.Threading.Tasks.Task.Run(() => error.Invoke(step,ex));
+        private void Error(IElement step, Exception ex) 
+            => System.Threading.Tasks.Task.Run(() => error.Invoke(step,ex));
 
         internal void ProcessFlowElement(IFlowElement flowElement)
         {
             WriteLogLine(flowElement.ID, LogLevel.Debug, "Processing Flow Element in Process Path");
-            AddPathEntry(flowElement.ID,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.SourceRef, outgoingID:new string[] { flowElement.TargetRef }, end:DateTime.Now);
+            AddPathEntry(flowElement.ID,StepStatuses.Succeeded,DateTime.Now,incomingID:flowElement.SourceRef, outgoingID:[flowElement.TargetRef], end:DateTime.Now);
             Complete(flowElement.ID, flowElement.TargetRef);
         }
 

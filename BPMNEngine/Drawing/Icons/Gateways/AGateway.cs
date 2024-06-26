@@ -6,20 +6,18 @@ namespace BPMNEngine.Drawing.Icons.Gateways
     internal abstract class AGateway : AIcon
     {
         private const float _PEN_SIZE = 2.0f;
-        public new const int IMAGE_SIZE = 63;
+        public new const float IMAGE_SIZE = 63;
 
-        private static readonly Point[] _POINTS = new Point[] {
-            new Point((float)AGateway.IMAGE_SIZE/2f,0),
-            new Point((float)AGateway.IMAGE_SIZE-2,(float)AGateway.IMAGE_SIZE/2f),
-            new Point((float)AGateway.IMAGE_SIZE/2f,(float)AGateway.IMAGE_SIZE-2),
-            new Point(0,(float)AGateway.IMAGE_SIZE/2f),
-            new Point((float)AGateway.IMAGE_SIZE/2f,0)
-        };
+        private static readonly Point[] _POINTS = [
+            new(AGateway.IMAGE_SIZE/2f,0),
+            new(AGateway.IMAGE_SIZE-2,AGateway.IMAGE_SIZE/2f),
+            new(AGateway.IMAGE_SIZE/2f,AGateway.IMAGE_SIZE-2),
+            new(0,AGateway.IMAGE_SIZE/2f),
+            new(AGateway.IMAGE_SIZE/2f,0)
+        ];
 
         protected override sealed int ImageSize
-        {
-            get { return IMAGE_SIZE; }
-        }
+            => (int)IMAGE_SIZE;
 
         protected override void InternalDraw(ICanvas surface, Color color)
         {

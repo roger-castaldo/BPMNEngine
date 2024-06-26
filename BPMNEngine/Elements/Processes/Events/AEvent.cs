@@ -6,7 +6,7 @@ using BPMNEngine.Interfaces.Variables;
 namespace BPMNEngine.Elements.Processes.Events
 {
     [ValidParent(typeof(IProcess))]
-    internal abstract class AEvent : AFlowNode
+    internal abstract record AEvent : AFlowNode
     {
         public EventSubTypes? SubType
             => (
@@ -17,15 +17,13 @@ namespace BPMNEngine.Elements.Processes.Events
             .First()
             : null);
 
-        public AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
+        protected AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public TimeSpan? GetTimeout(IReadonlyVariables variables)
-        {
-            return Children
+            =>Children
                 .OfType<TimerEventDefinition>()
                 .Select(ie => ie.GetTimeout(variables))
                 .FirstOrDefault();
-        }
     }
 }

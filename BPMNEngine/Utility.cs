@@ -2,6 +2,7 @@
 using BPMNEngine.Elements;
 using BPMNEngine.Interfaces.Elements;
 using System.Globalization;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 
@@ -11,36 +12,38 @@ namespace BPMNEngine
     {
 
         private static readonly Dictionary<Type, List<Type>> xmlChildren;
-        private static readonly Dictionary<Type, XMLTag[]> tagAttributes;
+        private static readonly Dictionary<Type, XMLTagAttribute[]> tagAttributes;
         private static readonly Dictionary<Type, ConstructorInfo> xmlConstructors;
         private static readonly Dictionary<string, Dictionary<string, Type>> idealMap;
         public static Dictionary<string, Dictionary<string, Type>> IdealMap => idealMap;
         
         static Utility()
         {
-            xmlConstructors = new();
-            idealMap = new();
-            tagAttributes = new();
-            var tmp = new List<Type>();
-            Assembly.GetAssembly(typeof(Utility)).GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IElement))).ForEach(t =>
-            {
-                XMLTag[] tags = (XMLTag[])t.GetCustomAttributes(typeof(XMLTag), false);
-                if (tags.Length > 0)
+            xmlConstructors = [];
+            idealMap = [];
+            tagAttributes = [];
+            var tmp =
+            Assembly.GetAssembly(typeof(Utility))
+                .GetTypes()
+                .Where(t => t.GetInterfaces().Contains(typeof(IElement)))
+                .Select(t => new { Type = t, Tags = t.GetCustomAttributes<XMLTagAttribute>(false).ToArray() })
+                .Where(tt => tt.Tags.Length>0)
+                .Select(tt =>
                 {
-                    tmp.Add(t);
-                    tagAttributes.Add(t, tags);
+                    tagAttributes.Add(tt.Type, tt.Tags);
                     var tmpTypes = new Dictionary<string, Type>();
-                    if (idealMap.ContainsKey(tags[0].Prefix.ToLower()))
+                    if (idealMap.ContainsKey(tt.Tags[0].Prefix.ToLower()))
                     {
-                        tmpTypes = idealMap[tags[0].Prefix.ToLower()];
-                        idealMap.Remove(tags[0].Prefix.ToLower());
+                        tmpTypes = idealMap[tt.Tags[0].Prefix.ToLower()];
+                        idealMap.Remove(tt.Tags[0].Prefix.ToLower());
                     }
-                    xmlConstructors.Add(t, t.GetConstructor(new Type[] { typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement) }));
-                    tmpTypes.Add(tags[0].Name.ToLower(), t);
-                    idealMap.Add(tags[0].Prefix.ToLower(), tmpTypes);
-                }
-            });
-            xmlChildren = new Dictionary<Type, List<Type>>();
+                    xmlConstructors.Add(tt.Type, tt.Type.GetConstructor([typeof(XmlElement), typeof(XmlPrefixMap), typeof(AElement)]));
+                    tmpTypes.Add(tt.Tags[0].Name.ToLower(), tt.Type);
+                    idealMap.Add(tt.Tags[0].Prefix.ToLower(), tmpTypes);
+                    return tt.Type;
+                })
+                .ToArray();
+            xmlChildren = [];
             tmp.ForEach(t =>
             {
                 var atts = new List<Attributes.ValidParentAttribute>();
@@ -90,11 +93,11 @@ namespace BPMNEngine
             });
         }
 
-        internal static XMLTag[] GetTagAttributes(Type t)
-            => tagAttributes.TryGetValue(t,out XMLTag[] value) ? value : null;
+        internal static XMLTagAttribute[] GetTagAttributes(Type t)
+            => tagAttributes.TryGetValue(t,out XMLTagAttribute[] value) ? value : null;
 
         internal static IElement ConstructElementType(XmlElement element, ref XmlPrefixMap map, ref ElementTypeCache cache, AElement parent)
-            => cache.IsCached(element.Name) ? (IElement)xmlConstructors[cache[element.Name]].Invoke(new object[] { element, map, parent }) : null;
+            => cache.IsCached(element.Name) ? (IElement)xmlConstructors[cache[element.Name]].Invoke([element, map, parent]) : null;
 
         public static string FindXPath(Definition definition, XmlNode node)
         {
@@ -128,7 +131,7 @@ namespace BPMNEngine
 
         public static int FindElementIndex(Definition definition, XmlElement element)
         {
-            definition?.LogLine(LogLevel.Debug,null,"Locating Element Index for element {0}", new object[] { element.Name });
+            definition?.LogLine(LogLevel.Debug,null,$"Locating Element Index for element {element.Name}");
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
                 return 1;
@@ -140,64 +143,30 @@ namespace BPMNEngine
         }
 
         internal static object ExtractVariableValue(VariableTypes type, string text)
-        {
-            if (type == VariableTypes.Null)
-                return null;
-            object ret = null;
-            switch (type)
+            => (type) switch
             {
-                case VariableTypes.Boolean:
-                    ret = bool.Parse(text);
-                    break;
-                case VariableTypes.Byte:
-                    ret = Convert.FromBase64String(text);
-                    break;
-                case VariableTypes.Char:
-                    ret = text[0];
-                    break;
-                case VariableTypes.DateTime:
-                    if (!DateTime.TryParse(text,out DateTime dt))
-                    {
-                        if (!DateTime.TryParseExact(text, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture,DateTimeStyles.None,out dt))
-                            throw new FormatException($"Unable to parse date {text}");
-                    }
-                    ret = dt;
-                    break;
-                case VariableTypes.Decimal:
-                    ret = decimal.Parse(text);
-                    break;
-                case VariableTypes.Double:
-                    ret = double.Parse(text);
-                    break;
-                case VariableTypes.Float:
-                    ret = float.Parse(text);
-                    break;
-                case VariableTypes.Integer:
-                    ret = int.Parse(text);
-                    break;
-                case VariableTypes.Long:
-                    ret = long.Parse(text);
-                    break;
-                case VariableTypes.Short:
-                    ret = short.Parse(text);
-                    break;
-                case VariableTypes.UnsignedInteger:
-                    ret = uint.Parse(text);
-                    break;
-                case VariableTypes.UnsignedLong:
-                    ret = ulong.Parse(text);
-                    break;
-                case VariableTypes.UnsignedShort:
-                    ret = ushort.Parse(text);
-                    break;
-                case VariableTypes.String:
-                    ret = text;
-                    break;
-                case VariableTypes.Guid:
-                    ret = new Guid(text);
-                    break;
-            }
-            return ret;
-        }
+                VariableTypes.Null => null,
+                VariableTypes.Boolean => bool.Parse(text),
+                VariableTypes.Byte => Convert.FromBase64String(text),
+                VariableTypes.Char => text[0],
+                VariableTypes.DateTime => (
+                    !DateTime.TryParse(text, CultureInfo.InvariantCulture, out DateTime dt)
+                    && !DateTime.TryParseExact(text, Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt)
+                    ? throw new FormatException($"Unable to parse date {text}")
+                    : dt
+                ),
+                VariableTypes.Decimal=>decimal.Parse(text),
+                VariableTypes.Double=>double.Parse(text),
+                VariableTypes.Float=>float.Parse(text),
+                VariableTypes.Integer=>int.Parse(text),
+                VariableTypes.Long=>long.Parse(text),
+                VariableTypes.Short=>short.Parse(text),
+                VariableTypes.UnsignedInteger=>uint.Parse(text),
+                VariableTypes.UnsignedLong=>ulong.Parse(text),
+                VariableTypes.UnsignedShort=>ushort.Parse(text),
+                VariableTypes.String=>text,
+                VariableTypes.Guid=>new Guid(text),
+                _ => null
+            };
     }
 }

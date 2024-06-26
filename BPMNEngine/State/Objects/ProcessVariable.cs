@@ -10,9 +10,9 @@ using static BPMNEngine.State.ProcessVariables;
 
 namespace BPMNEngine.State.Objects
 {
-    internal class ProcessVariable : IStateComponent
+    internal record ProcessVariable : IStateComponent
     {
-        private static readonly Version ORIGINAL_VERSION = new Version("1.0");
+        private static readonly Version ORIGINAL_VERSION = new("1.0");
         private const string _ORIGINAL_PATH_ENTRY_ELEMENT = "sVariableEntry";
         private const string _PATH_STEP_INDEX = "pathStepIndex";
         private const string _NAME = "name";

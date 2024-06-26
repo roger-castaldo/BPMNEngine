@@ -3,17 +3,16 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    internal abstract class AHandlingEvent : AEvent
+    internal abstract record AHandlingEvent : AEvent
     {
-        private IEnumerable<string> Types 
+        private IEnumerable<string> Types
             => Children
-            .Where(child => child is ErrorEventDefinition || child is MessageEventDefinition || child is SignalEventDefinition)
-            .Select(child => child is ErrorEventDefinition definition ?
-                    definition.ErrorTypes :
-                    (child is MessageEventDefinition messageDefinition ?
-                        messageDefinition.MessageTypes :
-                ((SignalEventDefinition)child).SignalTypes))
-            .FirstOrDefault();
+            .OfType<ErrorEventDefinition>()
+            .FirstOrDefault()?.ErrorTypes
+            ??Children.OfType<MessageEventDefinition>()
+            .FirstOrDefault()?.MessageTypes
+            ??Children.OfType<SignalEventDefinition>()
+            .FirstOrDefault()?.SignalTypes;
 
         private ConditionalEventDefinition Condition 
             => Children
@@ -50,7 +49,7 @@ namespace BPMNEngine.Elements.Processes.Events
             var res = base.IsValid(out err);
             if (!SubType.HasValue)
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { string.Format("{0}s must have a subtype.",new object[] { GetType().Name }) });
+                err = (err?? []).Append($"{GetType().Name}s must have a subtype.");
                 return false;
             }
             return res;

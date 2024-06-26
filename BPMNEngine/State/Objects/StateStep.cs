@@ -16,7 +16,7 @@ namespace BPMNEngine.State.Objects
 {
     internal record StateStep : IStateStep,IStateComponent
     {
-        private static readonly Version ORIGINAL_VERSION = new Version("1.0");
+        private static readonly Version ORIGINAL_VERSION = new("1.0");
         private const string _ORIGINAL_PATH_ENTRY_ELEMENT = "sPathEntry";
         private const string _STEP_STATUS = "status";
         private const string _ELEMENT_ID = "elementID";

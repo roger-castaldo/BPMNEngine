@@ -3,8 +3,8 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    [XMLTag("bpmn", "intermediateCatchEvent")]
-    internal class IntermediateCatchEvent : AHandlingEvent
+    [XMLTagAttribute("bpmn", "intermediateCatchEvent")]
+    internal record IntermediateCatchEvent : AHandlingEvent
     {
         public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }
@@ -17,8 +17,8 @@ namespace BPMNEngine.Elements.Processes.Events
                 errs.Add("Intermediate Catch Events must have an outgoing path.");
             else if (Outgoing.Count() != 1)
                 errs.Add("Intermediate Catch Events must have only 1 outgoing path.");
-            err = (err??Array.Empty<string>()).Concat(errs);
-            return res && !errs.Any();
+            err = (err?? []).Concat(errs);
+            return res && errs.Count==0;
         }
 
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)

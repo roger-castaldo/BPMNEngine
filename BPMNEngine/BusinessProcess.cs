@@ -49,7 +49,7 @@ namespace BPMNEngine
                     return constants.FirstOrDefault(c => c.Name==name).Value;
                 if (definition==null || definition.ExtensionElement==null)
                     return null;
-                var definitionVariable = ((ExtensionElements)definition.ExtensionElement).Children
+                var definitionVariable = definition.ExtensionElement.Children
                     .FirstOrDefault(elem =>
                     (elem is DefinitionVariable variable && variable.Name==name) ||
                     (elem is DefinitionFile file &&
@@ -70,22 +70,22 @@ namespace BPMNEngine
             get
             {
                 if (definition==null || definition.ExtensionElement==null)
-                    return constants==null ? Array.Empty<string>() : constants.Select(c => c.Name);
-                return (constants==null ? Array.Empty<string>() : constants.Select(c => c.Name))
+                    return constants==null ? [] : constants.Select(c => c.Name);
+                return (constants==null ? [] : constants.Select(c => c.Name))
                     .Concat(
-                        ((ExtensionElements)definition.ExtensionElement)
+                        definition.ExtensionElement
                         .Children
                         .OfType<DefinitionVariable>()
                         .Select(d => d.Name)
                     )
                     .Concat(
-                        ((ExtensionElements)definition.ExtensionElement)
+                        definition.ExtensionElement
                         .Children
                         .OfType<DefinitionFile>()
                         .Select(d => d.Name)
                     )
                     .Concat(
-                        ((ExtensionElements)definition.ExtensionElement)
+                        definition.ExtensionElement
                         .Children
                         .OfType<DefinitionFile>()
                         .Select(d => string.Format("{0}.{1}", d.Name,d.Extension))
@@ -139,13 +139,13 @@ namespace BPMNEngine
             };
 
 
-            IEnumerable<Exception> exceptions = Array.Empty<Exception>();
+            IEnumerable<Exception> exceptions = [];
             Document = new XmlDocument();
             Document.LoadXml(doc.OuterXml);
             var elementMapCache = new BPMNEngine.ElementTypeCache();
-            DateTime start = DateTime.Now;
+            var stopwatch = Stopwatch.StartNew();
             WriteLogLine((IElement)null,LogLevel.Information,new StackFrame(1,true),DateTime.Now,"Producing new Business Process from XML Document");
-            components = new List<object>();
+            components = [];
             XmlPrefixMap map = new(this);
             _=doc.ChildNodes.Cast<XmlNode>().ForEach(n =>
             {
@@ -156,8 +156,8 @@ namespace BPMNEngine
                     IElement elem = Utility.ConstructElementType((XmlElement)n, ref map, ref elementMapCache, null);
                     if (elem != null)
                     {
-                        if (elem is Definition definition)
-                            definition.OwningProcess = this;
+                        if (elem is Definition def)
+                            def.OwningProcess = this;
                         if (elem is AParentElement element)
                             element.LoadChildren(ref map, ref elementMapCache);
                         ((AElement)elem).LoadExtensionElement(ref map, ref elementMapCache);
@@ -172,11 +172,8 @@ namespace BPMNEngine
             definition = components.OfType<Definition>().FirstOrDefault();
             if (!Elements.Any())
                 exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No bpmn elements were located."));
-            else
-            {
-                if (definition==null)
-                    exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
-            }
+            else if (definition==null)
+                exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             if (!exceptions.Any())
                 Elements.ForEach(elem => { exceptions = exceptions.Concat(ValidateElement((AElement)elem)); });
             if (exceptions.Any())
@@ -187,25 +184,25 @@ namespace BPMNEngine
             }
             eventHandlers = Elements
                 .OfType<AHandlingEvent>();
-            WriteLogLine((IElement)null,LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Time to load Process Document {0}ms",DateTime.Now.Subtract(start).TotalMilliseconds));
+            stopwatch.Stop();
+            WriteLogLine((IElement)null,LogLevel.Information, new StackFrame(1, true), DateTime.Now, $"Time to load Process Document {stopwatch.ElapsedMilliseconds}ms");
         }
 
         private IEnumerable<Exception> ValidateElement(AElement elem)
         {
-            WriteLogLine(elem,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Validating element {0}", new object[] { elem.ID }));
-            IEnumerable<Exception> result = Array.Empty<Exception>();
+            WriteLogLine(elem,LogLevel.Debug, new StackFrame(1, true), DateTime.Now, $"Validating element {elem.ID}");
+            IEnumerable<Exception> result = [];
             result = result.Concat(
-                elem.GetType().GetCustomAttributes(true).OfType<RequiredAttribute>()
+                elem.GetType().GetCustomAttributes(true).OfType<RequiredAttributeAttribute>()
                 .Where(ra => elem[ra.Name]==null)
-                .Select(ra=> new MissingAttributeException(elem.Definition, elem.Element, ra))
-            );
-            result = result.Concat(
-                elem.GetType().GetCustomAttributes(true).OfType<AttributeRegex>()
+                .Select(ra=> new MissingAttributeException(elem.OwningDefinition, elem.Element, ra))
+            ).Concat(
+                elem.GetType().GetCustomAttributes(true).OfType<AttributeRegexAttribute>()
                 .Where(ar => !ar.IsValid(elem))
-                .Select(ar => new InvalidAttributeValueException(elem.Definition, elem.Element, ar))
+                .Select(ar => new InvalidAttributeValueException(elem.OwningDefinition, elem.Element, ar))
             );
             if (!elem.IsValid(out IEnumerable<string> err))
-                result = result.Append(new InvalidElementException(elem.Definition, elem.Element, err));
+                result = result.Append(new InvalidElementException(elem.OwningDefinition, elem.Element, err));
             if (elem.ExtensionElement != null)
                 result = result.Concat(ValidateElement((ExtensionElements)elem.ExtensionElement));
             if (elem is AParentElement element)
@@ -223,15 +220,13 @@ namespace BPMNEngine
             ProcessTasks tasks,
             ProcessLogging logging,
             LogLevel stateLogLevel)
-        {
-            return new ProcessInstance(this, DelegateContainer.Merge(delegates, new DelegateContainer()
+            =>new ProcessInstance(this, DelegateContainer.Merge(delegates, new DelegateContainer()
             {
                 Events = events,
                 Validations = validations,
                 Tasks = tasks,
                 Logging = logging
             }), stateLogLevel);
-        }
 
         /// <summary>
         /// Called to load a Process Instance from a stored State Document
@@ -314,13 +309,13 @@ namespace BPMNEngine
                 var start = proc.StartEvents.FirstOrDefault(se => se.IsEventStartValid(ropvc, ret.Delegates.Validations.IsEventStartValid));
                 if (start!=null)
                 {
-                    ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Process Start[{0}] located, beginning process", start.ID));
-                    BusinessProcess.TriggerDelegateAsync(
+                    ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, $"Valid Process Start[{start.ID}] located, beginning process");
+                    TriggerDelegateAsync(
                         ret.Delegates.Events.Processes.Started, 
                         proc, 
                         new ReadOnlyProcessVariablesContainer(variables)
                     );
-                    BusinessProcess.TriggerDelegateAsync(
+                    TriggerDelegateAsync(
                         ret.Delegates.Events.Events.Started, 
                         start, 
                         new ReadOnlyProcessVariablesContainer(variables)
@@ -328,7 +323,7 @@ namespace BPMNEngine
                     ret.State.Path.StartFlowNode(start, null);
                     variables.Keys.ForEach(key => ret.State[start.ID, key] = variables[key]);
                     ret.State.Path.SucceedFlowNode(start);
-                    BusinessProcess.TriggerDelegateAsync(
+                    TriggerDelegateAsync(
                         ret.Delegates.Events.Events.Completed, 
                         start, 
                         new ReadOnlyProcessVariablesContainer(start.ID, ret)
@@ -344,9 +339,7 @@ namespace BPMNEngine
         /// Called to Dispose of the given process instance.
         /// </summary>
         public void Dispose()
-        {
-            StepScheduler.Instance.UnloadProcess(this);
-        }
+            =>StepScheduler.Instance.UnloadProcess(this);
         /// <summary>
         /// Compares a given process instance to this instance to see if they are the same.
         /// </summary>

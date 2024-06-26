@@ -184,7 +184,7 @@ namespace UnitTest
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
         }
 
-        private static readonly string[] ThrowCatchSteps = new[] { "Event_0ms842d", "Event_03kuv0p", "Event_1p2py1q", "Event_176mo0n", "Event_0juephw", "Event_1p6l3ai" };
+        private static readonly string[] ThrowCatchSteps = ["Event_0ms842d", "Event_03kuv0p", "Event_1p2py1q", "Event_176mo0n", "Event_0juephw", "Event_1p6l3ai"];
 
         [TestMethod]
         public void TestThrowCatchInternal()

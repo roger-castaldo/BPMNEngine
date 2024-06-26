@@ -17,16 +17,16 @@ namespace UnitTest
         private static BusinessProcess _multiTaskProcess;
         private const string _TEST_VARIABLE_NAME = "TestValue";
         private const string _TEST_VARIABLE_VALUE = "This is a test";
-        private readonly static string[] _TEST_VARIABLE_VALUES = new string[]
-        {
+        private readonly static string[] _TEST_VARIABLE_VALUES =
+        [
             "This is another test",
             "This is also a test",
             "Yup another test here"
-        };
-        private readonly static string[] _TEST_USER_IDS = new string[]
-        {
+        ];
+        private readonly static string[] _TEST_USER_IDS =
+        [
             "User1","User2","User3"
-        };
+        ];
 
         [ClassInitialize]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Required to run properly")]
@@ -69,12 +69,12 @@ namespace UnitTest
             Assert.IsTrue(Utility.StepAchievedStatus(doc,"UserTask_15dj2au", StepStatuses.Succeeded, _TEST_USER_IDS[0]));
         }
 
-        private static readonly string[] _TaskNames = new string[]
-        {
+        private static readonly string[] _TaskNames =
+        [
             "UserTask_15dj2au",
             "UserTask_06twx0q",
             "UserTask_1qxmpii"
-        };
+        ];
 
         [TestMethod]
         public void TestUserTaskSeperation()

@@ -26,7 +26,7 @@ namespace UnitTest.Extensions
             Assert.IsInstanceOfType(process[_VARIABLE_NAME], typeof(string));
 
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, events:new BPMNEngine.DelegateContainers.ProcessEvents(){
-                Tasks = new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                Tasks = new ()
                 {
                     Completed=(element, variables) =>
                     {

@@ -4,27 +4,23 @@ using System.Collections;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    [XMLTag("exts", "containsCondition")]
-    internal class ContainsCondition : ACompareCondition
+    [XMLTagAttribute("exts", "containsCondition")]
+    internal record ContainsCondition : ACompareCondition
     {
         public ContainsCondition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
 
         protected override bool EvaluateCondition(IReadonlyVariables variables)
-        {
-            object right = GetRight(variables);
-            object left = GetLeft(variables);
-            if (left != null && right!=null)
+#pragma warning disable S2589 // Boolean expressions should not be gratuitous
+            => (GetLeft(variables), GetRight(variables)) switch
             {
-                if (left is Array array)
-                    return array.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0);
-                else if (left is IDictionary dictionary)
-                    return dictionary.Keys.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0)
-                        || dictionary.Values.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0);
-                else if (left.ToString().Contains(right.ToString()))
-                    return true;
-            }
-            return false;
-        }
+                (null, _) => false,
+                (_, null) => false,
+                (Array array, var right) => array.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0),
+                (IDictionary dictionary, var right) => dictionary.Keys.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0)
+                        || dictionary.Values.OfType<object>().Any(ol => ACompareCondition.Compare(ol, right, variables)==0),
+                (var left,var right) => left.ToString().Contains(right.ToString())
+            };
+#pragma warning restore S2589 // Boolean expressions should not be gratuitous
     }
 }

@@ -4,7 +4,9 @@ using System.IO;
 
 namespace BPMNEngine.Drawing
 {
+#pragma warning disable S101 // Types should be named in PascalCase
     internal class AnimatedPNG : IDisposable
+#pragma warning restore S101 // Types should be named in PascalCase
     {
         internal class CrcCalculator
         {
@@ -51,40 +53,30 @@ namespace BPMNEngine.Drawing
             surface.FillColor = Colors.White;
             surface.FillRectangle(0, 0, initialImage.Width, initialImage.Height);
             surface.DrawImage(initialImage, 0, 0, g.Width, g.Height);
-            parts = new List<AnimatedFrame>()
-            {
-                new(g.Image)
-            };
+            parts =[new(g.Image)];
         }
 
         public void AddFrame(IImage image,int x,int y,TimeSpan? delay=null)
-        {
-            parts.Add(new AnimatedFrame(image,x,y,delay:delay));
-        }
+            =>parts.Add(new AnimatedFrame(image,x,y,delay:delay));
 
-        private static readonly byte[] SIGNATURE = { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
-        private static readonly Byte[] IEND = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
+        private static readonly byte[] SIGNATURE = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+        private static readonly Byte[] IEND = [0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82];
+        private bool disposedValue;
 
         public byte[] ToBinary()
         {
-            byte[] result = null;
-            using (var memoryStream = new MemoryStream())
+            using var memoryStream = new MemoryStream();
+            WriteHeader(memoryStream);
+            var idx = 0;
+            int chunkSequenceNumber = 0;
+            parts.ForEach(part =>
             {
-                WriteHeader(memoryStream);
-
-                var idx = 0;
-                int chunkSequenceNumber = 0;
-                parts.ForEach(part =>
-                {
-                    WriteFrameHeader(memoryStream, part, ref chunkSequenceNumber);
-                    AnimatedPNG.WriteFrame(memoryStream, idx, part, ref chunkSequenceNumber);
-                    idx++;
-                });
-                AnimatedPNG.Write(memoryStream, IEND);
-
-                result = memoryStream.ToArray();
-            }
-            return result;
+                WriteFrameHeader(memoryStream, part, ref chunkSequenceNumber);
+                AnimatedPNG.WriteFrame(memoryStream, idx, part, ref chunkSequenceNumber);
+                idx++;
+            });
+            AnimatedPNG.Write(memoryStream, IEND);
+            return memoryStream.ToArray();
         }
 
         private static void WriteFrame(Stream output,int idx,AnimatedFrame part,ref int chunkSequenceNumber)
@@ -94,36 +86,33 @@ namespace BPMNEngine.Drawing
             else
             {
                 var sequenceNumber = chunkSequenceNumber;
-                part.IDAT.ForEach(idat =>
-                {
-                    if (idat != null)
+                part.IDAT
+                    .Where(idat=>idat!=null)
+                    .ForEach(idat =>
                     {
-                        using (var memoryStream = new MemoryStream())
-                        {
+                        using var memoryStream = new MemoryStream();
 
-                            var length = idat.Length - 8;
-                            AnimatedPNG.Write(memoryStream, length);
-                            AnimatedPNG.Write(memoryStream, "fdAT");
-                            AnimatedPNG.Write(memoryStream, sequenceNumber);
+                        var length = idat.Length - 8;
+                        AnimatedPNG.Write(memoryStream, length);
+                        AnimatedPNG.Write(memoryStream, "fdAT");
+                        AnimatedPNG.Write(memoryStream, sequenceNumber);
 
-                            AnimatedPNG.Write(memoryStream, idat.Take(idat.Length-4).Skip(8));
+                        AnimatedPNG.Write(memoryStream, idat.Take(idat.Length-4).Skip(8));
 
-                            var data = memoryStream.ToArray();
+                        var data = memoryStream.ToArray();
 
-                            AnimatedPNG.Write(output, data);
-                            AnimatedPNG.WriteCRC(output, data);
-                        }
+                        AnimatedPNG.Write(output, data);
+                        AnimatedPNG.WriteCRC(output, data);
 
                         sequenceNumber++;
-                    }
-                });
+                    });
                 chunkSequenceNumber=sequenceNumber;
             }
         }
 
         private void WriteFrameHeader(Stream output, AnimatedFrame part,ref int chunkSequenceNumber)
         {
-            AnimatedPNG.Write(output, new byte[] { 0, 0, 0, 26 });
+            AnimatedPNG.Write(output, [0, 0, 0, 26]);
             using var memoryStream = new MemoryStream();
             AnimatedPNG.Write(memoryStream, "fcTL");
             AnimatedPNG.Write(memoryStream, chunkSequenceNumber);
@@ -132,7 +121,7 @@ namespace BPMNEngine.Drawing
             AnimatedPNG.Write(memoryStream, part.X);
             AnimatedPNG.Write(memoryStream, part.Y);
             AnimatedPNG.Write(memoryStream, part.Delay ?? DefaultFrameDelay);
-            AnimatedPNG.Write(memoryStream, new byte[] { 0, 1 });
+            AnimatedPNG.Write(memoryStream, [0, 1]);
             chunkSequenceNumber++;
             var data = memoryStream.ToArray();
             AnimatedPNG.Write(output, data);
@@ -143,11 +132,11 @@ namespace BPMNEngine.Drawing
         {
             AnimatedPNG.Write(output, SIGNATURE);
 
-            var frame = parts.First();
+            var frame = parts[0];
 
             AnimatedPNG.Write(output, frame.IHDR);
 
-            var textSignature = "Software Reddragonit " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "_" +
+            var textSignature = "Software Roger Castaldo " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + "_" +
                 System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
             AnimatedPNG.Write(output, textSignature.Length);
@@ -162,9 +151,7 @@ namespace BPMNEngine.Drawing
         }
 
         private static void Write(Stream output,IEnumerable<byte> data)
-        {
-            AnimatedPNG.Write(output,data.ToArray());
-        }
+            => AnimatedPNG.Write(output,data.ToArray());
 
         private static void Write(Stream output, byte[] data)
         {
@@ -173,19 +160,13 @@ namespace BPMNEngine.Drawing
         }
 
         private static void Write(Stream output,int value)
-        {
-            AnimatedPNG.Write(output, BitConverter.GetBytes(value).Reverse().ToArray());
-        }
+            => AnimatedPNG.Write(output, BitConverter.GetBytes(value).Reverse().ToArray());
 
         private static void Write(Stream output, uint value)
-        {
-            AnimatedPNG.Write(output, BitConverter.GetBytes(value).Reverse().ToArray());
-        }
+            => AnimatedPNG.Write(output, BitConverter.GetBytes(value).Reverse().ToArray());
 
         private static void Write(Stream output,string value)
-        {
-            AnimatedPNG.Write(output,value.ToCharArray().Select(c=>(byte)c).ToArray());
-        }
+            => AnimatedPNG.Write(output,value.ToCharArray().Select(c=>(byte)c).ToArray());
 
         private static void Write(Stream output,TimeSpan timespan)
         {
@@ -194,19 +175,29 @@ namespace BPMNEngine.Drawing
         }
 
         private static void WriteCRC(Stream output, byte[] value)
-        {
-            AnimatedPNG.Write(output, new CrcCalculator().GetCRC32(value));
-        }
+            => AnimatedPNG.Write(output, new CrcCalculator().GetCRC32(value));
 
         private static void WriteCRC(Stream output,string value)
+            => AnimatedPNG.WriteCRC(output, value.ToCharArray().Select(c => (byte)c).ToArray());
+
+        protected virtual void Dispose(bool disposing)
         {
-            AnimatedPNG.WriteCRC(output, value.ToCharArray().Select(c => (byte)c).ToArray());
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    parts.ForEach(part => part.Dispose());
+                    parts.Clear();
+                }
+                disposedValue=true;
+            }
         }
 
         public void Dispose()
         {
-            parts.ForEach(part => part.Dispose());
-            parts.Clear();
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

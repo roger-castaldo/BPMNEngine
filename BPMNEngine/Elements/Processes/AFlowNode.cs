@@ -3,14 +3,27 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes
 {
-    [RequiredAttribute("id")]
-    internal abstract class AFlowNode : AParentElement, IStepElement
+    [RequiredAttributeAttribute("id")]
+    internal abstract record AFlowNode : AParentElement, IStepElement
     {
+        protected AFlowNode(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
+
         public IElement Process
-            => (Parent is Process proc ? proc : (Parent is AElement elem ? elem.Parent : null));
+            => Parent switch
+            {
+                (Process proc) => proc,
+                (AElement aelem) => aelem.Parent,
+                _ => null
+            };
 
         public IElement SubProcess
-            => (Parent is SubProcess sub ? sub : (Parent is AFlowNode flowNode ? flowNode.SubProcess : null));
+            => Parent switch
+            {
+                (SubProcess sub) => sub,
+                (AFlowNode flowNode) => flowNode.SubProcess,
+                _ => null
+            };
 
         public IElement Lane
             => (Process as Process)?
@@ -24,7 +37,7 @@ namespace BPMNEngine.Elements.Processes
                 .Concat(Children
                     .OfType<IncomingFlow>()
                     .Select(elem => elem.Value)
-                ).Concat(Definition.MessageFlows
+                ).Concat(OwningDefinition.MessageFlows
                     .Where(msgFlow => msgFlow.TargetRef==this.ID)
                     .Select(msgFlow => msgFlow.ID)
                 );
@@ -34,12 +47,9 @@ namespace BPMNEngine.Elements.Processes
                 .Concat(Children
                     .OfType<OutgoingFlow>()
                     .Select(elem => elem.Value)
-                ).Concat(Definition.MessageFlows
+                ).Concat(OwningDefinition.MessageFlows
                     .Where(msgFlow => msgFlow.SourceRef==this.ID)
                     .Select(msgFlow => msgFlow.ID)
                 );
-
-        public AFlowNode(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) {}
     }
 }

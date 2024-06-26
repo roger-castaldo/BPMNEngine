@@ -17,7 +17,7 @@ namespace UnitTest
     {
         private const string _LOG_LINE = "Test Log Line";
         private const string _LOG_FORMAT_LINE = "Test Log Line {0}";
-        private static readonly object[] _FORMAT_INPUT = new object[] { 1234567890 };
+        private static readonly object[] _FORMAT_INPUT = [1234567890];
         private static readonly Exception _EXCEPTION = new(_LOG_LINE);
 
         [TestMethod]

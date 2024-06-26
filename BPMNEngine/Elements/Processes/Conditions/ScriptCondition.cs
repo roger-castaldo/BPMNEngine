@@ -3,7 +3,7 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    internal class ScriptCondition : ACondition
+    internal record ScriptCondition : ACondition
     {
         private readonly AScript _script;
 

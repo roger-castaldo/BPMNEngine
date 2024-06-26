@@ -3,11 +3,11 @@ using BPMNEngine.Elements.Processes.Events.Definitions;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    [XMLTag("bpmn","endEvent")]
-    internal class EndEvent : AEvent
+    [XMLTagAttribute("bpmn","endEvent")]
+    internal record EndEvent : AEvent
     {
-        private static readonly Type[] PROCESS_END_TYPE = new[]
-        {
+        private static readonly Type[] PROCESS_END_TYPE =
+        [
             typeof(CompensationEventDefinition),
             typeof(ConditionalEventDefinition),
             typeof(ErrorEventDefinition),
@@ -16,7 +16,7 @@ namespace BPMNEngine.Elements.Processes.Events
             typeof(SignalEventDefinition),
             typeof(MessageEventDefinition),
             typeof(TimerEventDefinition)
-        };
+        ];
 
         public bool IsProcessEnd 
             => !Children
@@ -34,12 +34,12 @@ namespace BPMNEngine.Elements.Processes.Events
             var res = base.IsValid(out err);
             if (Outgoing.Any()) 
             { 
-                err=(err??Array.Empty<string>()).Concat(new string[] { "End Events cannot have an outgoing path." });
+                err=(err?? []).Append("End Events cannot have an outgoing path.");
                 res=false;
             }
             if (!Incoming.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "End Events must have an incoming path." });
+                err = (err?? []).Append("End Events must have an incoming path.");
                 res=false;
             }
             return res;

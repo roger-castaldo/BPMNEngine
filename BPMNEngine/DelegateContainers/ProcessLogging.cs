@@ -6,7 +6,7 @@
     /// against all instances or at the BeginProcess level to defining it against a 
     /// specific instance
     /// </summary>
-    public class ProcessLogging
+    public record ProcessLogging
     {
         /// <summary>
         /// A delegate called to append a log line entry from the process

@@ -29,6 +29,6 @@ namespace BPMNEngine.Interfaces.Elements
         /// woudl allow you to extend the definition beyond the business process diagraming and into more of a realm for building it.  Such as Script and Condition 
         /// elements that this library implements.
         /// </summary>
-        IElement ExtensionElement { get; }
+        IParentElement ExtensionElement { get; }
     }
 }

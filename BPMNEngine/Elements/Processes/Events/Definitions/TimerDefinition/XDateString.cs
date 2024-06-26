@@ -3,35 +3,36 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
 {
-    [XMLTag("exts", "DateString")]
+    [XMLTagAttribute("exts", "DateString")]
     [ValidParent(typeof(TimerEventDefinition))]
     [ValidParent(typeof(ExtensionElements))]
-    internal class XDateString : AElement
+    internal record XDateString : AElement
     {
-        protected string Code 
+        private string Code 
             => this["Code"] ?? 
             SubNodes.Where(n=>n.NodeType==XmlNodeType.Text).Select(n=>n.Value).FirstOrDefault() ??
             SubNodes.Where(n=>n.NodeType==XmlNodeType.CDATA).Select(n=>((XmlCDataSection)n).Value).FirstOrDefault() ?? 
             string.Empty;
 
+        private readonly DateString DateCode;
+
         public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent) 
-            : base(elem, map, parent) { }
+            : base(elem, map, parent) {
+            DateCode = (string.IsNullOrEmpty(Code) ? null : new(Code));
+        }
 
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
             if (string.IsNullOrEmpty(Code))
             {
-                err=(err??Array.Empty<string>()).Concat(new string[] { "No Date String Specified" });
+                err=(err?? []).Append("No Date String Specified");
                 return false;
             }
             return res;
         }
 
         public DateTime GetTime(IReadonlyVariables variables)
-        {
-            var ds = new DateString(Code);
-            return ds.GetTime(variables);
-        }
+            => DateCode.GetTime(variables);
     }
 }

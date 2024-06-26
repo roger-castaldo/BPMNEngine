@@ -36,7 +36,7 @@ namespace BPMNEngine
     /// </summary>
     public class MissingAttributeException : Exception
     {
-        internal MissingAttributeException(Definition definition, XmlNode n, RequiredAttribute att)
+        internal MissingAttributeException(Definition definition, XmlNode n, RequiredAttributeAttribute att)
             : base($"The element at {Utility.FindXPath(definition, n)} is missing a value for the attribute {att.Name}") { }
 
     }
@@ -46,7 +46,7 @@ namespace BPMNEngine
     /// </summary>
     public class InvalidAttributeValueException : Exception
     {
-        internal InvalidAttributeValueException(Definition definition, XmlNode n, AttributeRegex ar)
+        internal InvalidAttributeValueException(Definition definition, XmlNode n, AttributeRegexAttribute ar)
             : base($"The element at {Utility.FindXPath(definition, n)} has an invalid value for the attribute {ar.Name}, expected {ar.Reg}") { }
     }
 
@@ -114,4 +114,11 @@ namespace BPMNEngine
         public StateLockTimeoutException(Guid? stateID, int currentReadCount,int waitingWriteCount)
             : base($"Locking of the state {stateID} for reading/writing has timed out. [CurrentReadCount: {currentReadCount},WaitingWriteCount: {waitingWriteCount}]") { }
     }
+
+    /// <summary>
+    /// Thrown when attempting to use Javascript without the Jint Assembly
+    /// </summary>
+    public class JintAssemblyMissingException() 
+        : Exception("Unable to process Javascript because the Jint.dll was not located in the Assembly path.")
+    {}
 }

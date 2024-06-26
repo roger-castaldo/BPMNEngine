@@ -7,7 +7,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
 {
     [ValidParent(typeof(ExtensionElements))]
     [ValidParent(typeof(AConditionSet))]
-    internal abstract class AScript : AElement
+    internal abstract record AScript : AElement
     {
         protected string Code =>
             SubNodes
@@ -26,11 +26,11 @@ namespace BPMNEngine.Elements.Processes.Scripts
         {
             get
             {
-                XMLTag[] tags = Utility.GetTagAttributes(typeof(ConditionSet));
+                XMLTagAttribute[] tags = Utility.GetTagAttributes(typeof(ConditionSet));
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    if (tags.Any(xt => xt.Matches(_map, n.Name)))
+                    if (Array.Exists(tags,xt => xt.Matches(_map, n.Name)))
                         return true;
                     n = n.ParentNode;
                 }
@@ -42,11 +42,11 @@ namespace BPMNEngine.Elements.Processes.Scripts
         {
             get
             {
-                XMLTag[] tags = Utility.GetTagAttributes(typeof(TimerEventDefinition));
+                XMLTagAttribute[] tags = Utility.GetTagAttributes(typeof(TimerEventDefinition));
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    if (tags.Any(xt => xt.Matches(_map, n.Name)))
+                    if (Array.Exists(tags, xt => xt.Matches(_map, n.Name)))
                         return true;
                     n = n.ParentNode;
                 }
@@ -67,7 +67,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         public void Invoke(IVariables variables)
         {
-            Info("Attempting to process script {0}", new object[] { ID });
+            Info("Attempting to process script {0}", ID);
             try
             {
                 ScriptInvoke<IVariables>(variables,out _);
@@ -80,7 +80,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
 
         public object Invoke(IReadonlyVariables variables)
         {
-            Info("Attempting to process script {0}", new object[] { ID });
+            Info("Attempting to process script {0}", ID);
             try
             {
                 ScriptInvoke<IReadonlyVariables>(variables,out object result);
@@ -98,7 +98,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             var res = base.IsValid(out err);
             if (!ScriptIsValid(out IEnumerable<string> errs))
             {
-                err=(err??Array.Empty<string>()).Concat(errs);
+                err=(err?? []).Concat(errs);
                 res=false;
             }
             return res;

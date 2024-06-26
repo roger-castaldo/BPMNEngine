@@ -10,7 +10,7 @@ namespace BPMNEngine.Drawing
         public TimeSpan? Delay { get; private init; }
         public Size Size { get; private init; }
 
-        private readonly Stream data;
+        private readonly MemoryStream data;
         private bool disposedValue;
 
         public byte[] IHDR =>Find("IHDR")?[0];
@@ -27,7 +27,7 @@ namespace BPMNEngine.Drawing
             X = x;
             Y = y;
             Delay=delay;
-            data = new MemoryStream();
+            data = new();
             image.Save(data,ImageFormat.Png);
         }
 
@@ -42,7 +42,7 @@ namespace BPMNEngine.Drawing
             {
                 data.Flush();
                 data.Position = i;
-                var debug = data.Read(bytes, 0, search.Length);
+                data.Read(bytes, 0, search.Length);
                 i++;
                 if (bytes.SequenceEqual(searchBytes))
                 {

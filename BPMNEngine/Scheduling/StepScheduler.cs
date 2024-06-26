@@ -10,32 +10,17 @@ namespace BPMNEngine.Scheduling
     {
         public readonly static StepScheduler Instance = new();
 
-        private readonly struct SProcessSuspendEvent
-        {
-            public ProcessInstance Instance { get; init; }
-            public AEvent Event { get; init; }
-            public DateTime EndTime { get; init; }
-        }
-
-        private readonly struct SProcessDelayedEvent
-        {
-            public ProcessInstance Instance { get; init; }
-            public BoundaryEvent Event { get; init; }
-            public DateTime StartTime { get; init; }
-            public string SourceID { get; init; }
-        }
-
         private bool disposedValue;
         private bool done;
         private readonly ReaderWriterLockSlim locker;
-        private readonly List<SProcessSuspendEvent> suspendEvents;
-        private readonly List<SProcessDelayedEvent> delayedEvents;
+        private readonly List<ProcessSuspendEvent> suspendEvents;
+        private readonly List<ProcessDelayedEvent> delayedEvents;
         private readonly ManualResetEvent backgroundMREEvent;
 
         private StepScheduler() {
             locker=new();
-            suspendEvents=new();
-            delayedEvents=new();
+            suspendEvents=[];
+            delayedEvents= [];
             backgroundMREEvent=new(true);
             ProduceBackgroundTask();
         }
@@ -49,7 +34,7 @@ namespace BPMNEngine.Scheduling
                     TimeSpan sleep = TimeSpan.MaxValue;
                     var ts = DateTime.Now;
                     locker.EnterReadLock();
-                    if (suspendEvents.Any()||delayedEvents.Any())
+                    if (suspendEvents.Count>0||delayedEvents.Count>0)
                     {
                         sleep = suspendEvents.Select(se=>se.EndTime.Subtract(ts))
                         .Concat(delayedEvents.Select(de=>de.StartTime.Subtract(ts)))
@@ -64,7 +49,7 @@ namespace BPMNEngine.Scheduling
                     {
                         locker.EnterWriteLock();
 
-                        IEnumerable<object> toRemove = Array.Empty<object>();
+                        IEnumerable<object> toRemove = [];
 
                         suspendEvents
                             .Where(se => se.EndTime.Ticks<=ts.Ticks)
@@ -77,7 +62,7 @@ namespace BPMNEngine.Scheduling
                             });
                         suspendEvents.RemoveAll(se=>toRemove.Contains(se));
                         
-                        toRemove = Array.Empty<object>();
+                        toRemove = [];
                         delayedEvents
                             .Where(de=>de.StartTime.Ticks<=ts.Ticks)
                             .ForEach(de => {
@@ -124,13 +109,7 @@ namespace BPMNEngine.Scheduling
         public void DelayStart(TimeSpan value, ProcessInstance process, BoundaryEvent evnt, string sourceID)
         {
             locker.EnterWriteLock();
-            delayedEvents.Add(new()
-            {
-                Event=evnt,
-                Instance=process,
-                SourceID=sourceID,
-                StartTime=DateTime.Now.Add(value)
-            });
+            delayedEvents.Add(new(process, evnt, DateTime.Now.Add(value), sourceID));
             locker.ExitWriteLock();
             backgroundMREEvent.Set();
         }
@@ -138,12 +117,7 @@ namespace BPMNEngine.Scheduling
         public void Sleep(TimeSpan value, ProcessInstance process, AEvent evnt)
         {
             locker.EnterWriteLock();
-            suspendEvents.Add(new()
-            {
-                Event=evnt,
-                Instance=process,
-                EndTime=DateTime.Now.Add(value)
-            });
+            suspendEvents.Add(new(process, evnt, DateTime.Now.Add(value)));
             locker.ExitWriteLock();
             backgroundMREEvent.Set();
         }
@@ -187,20 +161,11 @@ namespace BPMNEngine.Scheduling
                     locker.ExitWriteLock();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
                 backgroundMREEvent.Dispose();
                 locker.Dispose();
                 disposedValue=true;
             }
         }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~StepScheduler()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
 
         [ExcludeFromCodeCoverage]
         public void Dispose()

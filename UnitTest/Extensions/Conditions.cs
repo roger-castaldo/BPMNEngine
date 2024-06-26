@@ -57,7 +57,7 @@ namespace UnitTest.Extensions
 
         private XmlDocument RunPathProcess(Dictionary<string,object> variables)
         {
-            Dictionary<string, object> vars = new Dictionary<string, object>();
+            Dictionary<string, object> vars = new();
             foreach (string key in _pathFailVariables.Keys)
             {
                 if (!variables.ContainsKey(key))
@@ -68,7 +68,7 @@ namespace UnitTest.Extensions
             IProcessInstance processInstance = _pathProcess.BeginProcess(vars);
             Assert.IsNotNull(processInstance);
             Assert.IsTrue(Utility.WaitForCompletion(processInstance));
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(processInstance.CurrentState.AsXMLDocument);
             return doc;
         }
@@ -179,7 +179,7 @@ namespace UnitTest.Extensions
             IProcessInstance instance = _eventProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             Assert.IsTrue(_StepRan(_eventProcess, doc, "Can Start"));
             Assert.IsFalse(_StepRan(_eventProcess, doc, "Default"));

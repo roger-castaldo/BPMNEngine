@@ -7,8 +7,8 @@ using System.Text;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
-    [XMLTag("exts", "VBScript")]
-    internal class VBScript : ACompiledScript
+    [XMLTagAttribute("exts", "VBScript")]
+    internal record VBScript : ACompiledScript
     {
         private const string _CODE_BASE_SCRIPT_TEMPLATE = @"{0}
 
@@ -49,16 +49,22 @@ End Class";
 
         protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled)
         {
-            Info("Generating VB Code for script compilation for script element {0}", new object[] { ID });
+            Info("Generating VB Code for script compilation for script element {0}", ID);
             var sbUsing = new StringBuilder();
             imports.ForEach(str => sbUsing.AppendFormat("Imports {0}\n", str));
-            string ccode = string.Format((IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE)), new object[]{
+            string ccode = string.Format(
+                (IsCondition,IsTimerEvent) switch
+                {
+                    (true,_)=>_CODE_BASE_CONDITION_TEMPLATE,
+                    (_,true)=>_CODE_BASE_TIMER_EVENT_TEMPLATE,
+                    _=>_CODE_BASE_SCRIPT_TEMPLATE
+                },
                 sbUsing.ToString(),
                 ClassName,
                 FunctionName,
                 code
-            });
-            VisualBasicCompilation comp = VisualBasicCompilation.Create(name, new[] { SyntaxFactory.SyntaxTree(VisualBasicSyntaxTree.ParseText(ccode).GetRoot()) },
+            );
+            VisualBasicCompilation comp = VisualBasicCompilation.Create(name, [SyntaxFactory.SyntaxTree(VisualBasicSyntaxTree.ParseText(ccode).GetRoot())],
                 references, new VisualBasicCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             using MemoryStream ms = new();
             var result = comp.Emit(ms);

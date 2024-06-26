@@ -3,11 +3,12 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes
 {
-    [XMLTag("bpmn","laneSet")]
+    [XMLTagAttribute("bpmn","laneSet")]
     [ValidParent(typeof(IProcess))]
-    internal class LaneSet : AParentElement
+    internal record LaneSet: AParentElement
     {
         public LaneSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
     }
+
 }

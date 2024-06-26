@@ -13,8 +13,8 @@ namespace UnitTest.Extensions
     {
 
         private static BusinessProcess _process;
-        private static readonly string[] FLOWS = new string[]
-        {
+        private static readonly string[] FLOWS =
+        [
             "Flow_1svot8c",//byte
             "Flow_11fz5zo",//char
             "Flow_0vd6gpf",//datetime
@@ -28,7 +28,7 @@ namespace UnitTest.Extensions
             "Flow_0ebyg32",//null
             "Flow_0ebyg33",//chained variable
             "Flow_0ebyg34" //icomparable
-        };
+        ];
 
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)

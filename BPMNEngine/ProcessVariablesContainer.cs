@@ -23,12 +23,12 @@ namespace BPMNEngine
         internal ProcessVariablesContainer(string elementID, ProcessInstance processInstance)
         {
             process = processInstance.Process;
-            process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
+            process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", [elementID]));
             nulls = new List<string>();
             variables = new Dictionary<string, object>();
             processInstance.State[elementID].ForEach(key =>
             {
-                process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
+                process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", [key, elementID]));
                 variables.Add(key, processInstance.State[elementID, key]);
             });
         }
@@ -82,7 +82,7 @@ namespace BPMNEngine
         public ImmutableArray<string> FullKeys
             => Array.Empty<string>()
             .Concat(Keys)
-            .Concat(process==null ? Array.Empty<string>() : process.Keys)
+            .Concat(process==null ? [] : process.Keys)
             .Distinct()
             .ToImmutableArray();
 

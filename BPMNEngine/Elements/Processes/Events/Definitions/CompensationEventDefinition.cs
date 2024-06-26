@@ -3,9 +3,9 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "compensateEventDefinition")]
+    [XMLTagAttribute("bpmn", "compensateEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class CompensationEventDefinition : AElement, IEventDefinition
+    internal record CompensationEventDefinition : AElement, IEventDefinition
     {
         public CompensationEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }

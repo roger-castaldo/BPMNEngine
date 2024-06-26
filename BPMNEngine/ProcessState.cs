@@ -18,7 +18,7 @@ namespace BPMNEngine
         private const string PROCESS_STATE_ELEMENT = "ProcessState";
         private const string STATE_VERSION_ATTRIBUTE = "Version";
         private const string PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
-        internal static readonly Version CURRENT_VERSION = new Version("2.0");
+        internal static readonly Version CURRENT_VERSION = new("2.0");
 
         internal delegate void delTriggerStateChange();
 
@@ -44,7 +44,7 @@ namespace BPMNEngine
 
             public IImmutableList<string> Keys => variables.Keys;
 
-            private IEnumerable<IReadOnlyStateContainer> Components => new IReadOnlyStateContainer[] {path,variables,log};
+            private IEnumerable<IReadOnlyStateContainer> Components => [path,variables,log];
 
             public string AsXMLDocument
             {
@@ -297,7 +297,7 @@ namespace BPMNEngine
         }
 
         internal IEnumerable<SSuspendedStep> ResumeSteps
-            => !IsSuspended ? Array.Empty<SSuspendedStep>() : Path.ResumeSteps;
+            => !IsSuspended ? [] : Path.ResumeSteps;
 
         internal IEnumerable<SDelayedStartEvent> DelayedEvents 
             => Path.DelayedEvents;
@@ -356,7 +356,7 @@ namespace BPMNEngine
 
         internal void SuspendStep(string sourceID,string elementID, TimeSpan span)
         {
-            Process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
+            Process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", [span]));
             Path.SuspendElement(sourceID, elementID, span);
             StateChanged();
         }

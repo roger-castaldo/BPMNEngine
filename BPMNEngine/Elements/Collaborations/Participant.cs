@@ -2,11 +2,11 @@
 
 namespace BPMNEngine.Elements.Collaborations
 {
-    [XMLTag("bpmn", "participant")]
-    [RequiredAttribute("processRef")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmn", "participant")]
+    [RequiredAttributeAttribute("processRef")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Collaboration))]
-    internal class Participant : AElement
+    internal record Participant: AElement
     {
         public Participant(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

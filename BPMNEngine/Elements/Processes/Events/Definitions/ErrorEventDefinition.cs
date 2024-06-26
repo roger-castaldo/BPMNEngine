@@ -4,22 +4,23 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "errorEventDefinition")]
+    [XMLTagAttribute("bpmn", "errorEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class ErrorEventDefinition : AParentElement, IEventDefinition
+    internal record ErrorEventDefinition : AParentElement, IEventDefinition
     {
         private IEnumerable<string> BaseTypes
             => Array.Empty<string>()
                 .Concat(Children.OfType<ErrorDefinition>().Select(ed => ed.Type??"*"))
-                .Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
-                    ((IParentElement)ExtensionElement).Children
+                .Concat(ExtensionElement?.Children
                     .OfType<ErrorDefinition>()
                     .Select(ed => ed.Type ?? "*")
+                    ?? []
                 ).Distinct();
         public IEnumerable<string> ErrorTypes
             => BaseTypes.DefaultIfEmpty("*");
 
-        public EventSubTypes Type => EventSubTypes.Error;
+        public EventSubTypes Type 
+            => EventSubTypes.Error;
 
         public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
@@ -36,7 +37,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     errors.Add("A throw event cannot error with a wildcard error.");
                 else if (!BaseTypes.Any(s => s!="*"))
                     errors.Add("A throw must have a error to throw.");
-                var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
+                var elems = OwningDefinition.LocateElementsOfType<IntermediateCatchEvent>();
                 bool found = elems
                     .Any(catcher => catcher.Children
                         .Any(child => child is ErrorEventDefinition definition && definition.ErrorTypes.Contains(ErrorTypes.First()))
@@ -47,8 +48,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     );
                 if (!found)
                     errors.Add("A defined error message type needs to have a Catch Event with a corresponding type or all");
-                err = (err??Array.Empty<string>()).Concat(errors);
-                return res && !errors.Any();
+                err = (err?? []).Concat(errors);
+                return res && errors.Count==0;
             }
             return res;
         }

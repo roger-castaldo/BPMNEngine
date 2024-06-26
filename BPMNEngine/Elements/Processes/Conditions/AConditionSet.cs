@@ -2,7 +2,7 @@
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    internal abstract class AConditionSet : ACondition
+    internal abstract record AConditionSet : ACondition
     {
         protected AConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -20,7 +20,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found within a condition set." });
+                err = (err?? []).Append("No child elements found within a condition set.");
                 return false;
             }
             return res;

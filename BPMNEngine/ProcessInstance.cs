@@ -56,7 +56,7 @@ namespace BPMNEngine
             {
                 Events= new DelegateContainers.ProcessEvents()
                 {
-                    Tasks = new DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks = new DelegateContainers.Events.BasicEvents()
                     {
                         Started = (IStepElement element, IReadonlyVariables variables) =>
                         {
@@ -160,7 +160,7 @@ namespace BPMNEngine
         {
             if (!((Tasks.ExternalTask)task).Aborted)
             {
-                WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Merging variables from Task[{0}] complete by {1} into the state", new object[] { task.ID, task is IUserTask task1 ? task1.UserID : null }));
+                WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, $"Merging variables from Task[{task.ID}] complete by {(task is IUserTask task1 ? task1.UserID : null)} into the state");
                 IVariables vars = task.Variables;
                 State.MergeVariables(task,vars);
                 InvokeElementEventDelegate(Delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.ID, this));
@@ -371,19 +371,9 @@ namespace BPMNEngine
                     mreSuspend?.Dispose();
                     waitingTasks.Clear();
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
                 disposedValue=true;
             }
         }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~ProcessInstance()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
 
         public void Dispose()
         {

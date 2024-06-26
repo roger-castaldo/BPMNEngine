@@ -21,8 +21,8 @@ namespace BPMNEngine.Drawing.Icons.IconParts
             }
         }
 
-        private static readonly SAngleFactorPair[] _ANGLES = new SAngleFactorPair[]
-        {
+        private static readonly SAngleFactorPair[] _ANGLES =
+        [
             new(30),
             new(60),
             new(90),
@@ -35,7 +35,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
             new(300),
             new(330),
             new(360)
-        };
+        ];
 
         private static readonly SAngleFactorPair _HOUR_HAND = new(15);
         private static readonly SAngleFactorPair _MINUTE_HAND = new(290);

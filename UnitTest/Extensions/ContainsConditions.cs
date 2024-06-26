@@ -12,14 +12,14 @@ namespace UnitTest.Extensions
     {
 
         private static BusinessProcess _process;
-        private static readonly string[] FLOWS = new string[]
-        {
+        private static readonly string[] FLOWS =
+        [
             "Flow_0124fzt",//array
             "Flow_0obucim",//dictionary keys
             "Flow_06n50fk",//dictionary values
             "Flow_0ydpcz9", //sub variable
             "Flow_0ydpca9"//string variable
-        };
+        ];
 
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
@@ -86,11 +86,11 @@ namespace UnitTest.Extensions
                 {
                     "array_sub_value",
                     new Hashtable[]{
-                        new Hashtable(){
+                        new(){
                             {"name","test_value" },
                             {"other","test_value_1" }
                         },
-                        new Hashtable(){
+                        new(){
                             {"name","test_value_2" },
                             {"other","test_value_3" }
                         }

@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Variables;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace BPMNEngine
@@ -80,7 +81,7 @@ namespace BPMNEngine
                         _ => int.Parse(m.Groups[1].Value)
                     } * (m.Groups.Count==3||string.IsNullOrEmpty(m.Groups[3].Value) ? 1 : -1), ret);
                 }
-                else if (isFirst && DateTime.TryParse(current, out var tmp))
+                else if (isFirst && DateTime.TryParse(current,CultureInfo.InvariantCulture, out var tmp))
                     ret=tmp;
                 else
                     throw new FormatException($"Invalid Date String Specified [{current}]");
@@ -99,7 +100,7 @@ namespace BPMNEngine
                 "hour"or"hours" => dateTime.AddHours(value),
                 "minute"or"minutes" => dateTime.AddMinutes(value),
                 "second"or"seconds" => dateTime.AddSeconds(value),
-                _ => throw new Exception("Internal error: Unhandled relative date/time case."),
+                _ => throw new FormatException("Internal error: Unhandled relative date/time case."),
             };
         }
     }

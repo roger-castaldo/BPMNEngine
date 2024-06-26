@@ -7,17 +7,19 @@ namespace BPMNEngine
     public sealed partial class BusinessProcess
     {
         #region Xml State
+#pragma warning disable S4136 // Method overloads should be grouped together
         private static IState LoadState(XmlDocument doc,int? stepIndex=null)
-        {
-            return ProcessState.LoadState(doc,stepIndex:stepIndex);
-        }
+#pragma warning restore S4136 // Method overloads should be grouped together
+            =>ProcessState.LoadState(doc,stepIndex:stepIndex);
 
         /// <summary>
         /// A Utility call used to extract the variable values from a Business Process State Document.
         /// </summary>
         /// <param name="doc">The State XML Document file to extract the values from</param>
         /// <returns>The variables extracted from the Process State Document</returns>
+#pragma warning disable S4136 // Method overloads should be grouped together
         public static IImmutableDictionary<string, object> ExtractProcessVariablesFromStateDocument(XmlDocument doc)
+#pragma warning restore S4136 // Method overloads should be grouped together
             => LoadState(doc).Variables;
 
         /// <summary>
@@ -34,7 +36,9 @@ namespace BPMNEngine
         /// </summary>
         /// <param name="doc">The State XML Document file to extract the values from</param>
         /// <returns>The steps from the Process State Document</returns>
+#pragma warning disable S4136 // Method overloads should be grouped together
         public static IImmutableList<IStateStep> ExtractProcessSteps(XmlDocument doc)
+#pragma warning restore S4136 // Method overloads should be grouped together
             => LoadState(doc).Steps;
 
         /// <summary>
@@ -42,16 +46,16 @@ namespace BPMNEngine
         /// </summary>
         /// <param name="doc">The State XML Document file to extract the values from</param>
         /// <returns>The log from the Process State Document</returns>
+#pragma warning disable S4136 // Method overloads should be grouped together
         public static string ExtractProcessLog(XmlDocument doc)
+#pragma warning restore S4136 // Method overloads should be grouped together
             => LoadState(doc).Log;
 
         #endregion
 
         #region Json State
         private static IState LoadState(Utf8JsonReader reader, int? stepIndex = null)
-        {
-            return ProcessState.LoadState(reader, stepIndex: stepIndex);
-        }
+            =>ProcessState.LoadState(reader, stepIndex: stepIndex);
 
         /// <summary>
         /// A Utility call used to extract the variable values from a Business Process State Document.

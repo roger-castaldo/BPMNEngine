@@ -3,9 +3,9 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "escalationEventDefinition")]
+    [XMLTagAttribute("bpmn", "escalationEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class EscalationEventDefinition : AElement, IEventDefinition
+    internal record EscalationEventDefinition : AElement, IEventDefinition
     {
         public EventSubTypes Type => EventSubTypes.Escalation;
         public EscalationEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 

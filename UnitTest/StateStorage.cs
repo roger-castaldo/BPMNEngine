@@ -22,11 +22,11 @@ namespace UnitTest
         private const string _USER_ID = "User1";
         private const string _TEST_LOG_LINE = "Test Log Line";
         private const string _TEST_FILE_VARIABLE = "TestFile";
-        private static readonly SFile[] _TEST_FILES = new SFile[]
-        {
-            new(){Name="Test1",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"},
-            new(){Name="Test2",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"}
-        };
+        private static readonly SFile[] _TEST_FILES =
+        [
+            new(){Name="Test1",Extension="txt",Content=[],ContentType="text/text"},
+            new(){Name="Test2",Extension="txt",Content=[],ContentType="text/text"}
+        ];
 
         [ClassInitialize]
 #pragma warning disable IDE0060 // Remove unused parameter

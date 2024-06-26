@@ -7,7 +7,10 @@ namespace BPMNEngine
     {
         private readonly IVariables variables;
 
-        public object this[string name] { get => variables[name]; set => throw new Exception("Unable to change variable values in readonly process variables container."); }
+        public object this[string name] { 
+            get => variables[name]; 
+            set => throw new ReadOnlyException("Unable to change variable values in readonly process variables container."); 
+        }
 
         public ImmutableArray<string> Keys => variables.Keys;
 
@@ -25,8 +28,6 @@ namespace BPMNEngine
         }
 
         internal ReadOnlyProcessVariablesContainer(IVariables variables)
-        {
-            this.variables = variables;
-        }
+            =>this.variables = variables;
     }
 }

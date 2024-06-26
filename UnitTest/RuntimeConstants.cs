@@ -18,13 +18,13 @@ namespace UnitTest
         [TestMethod]
         public void TestInstanceAccessToConstants()
         {
-            var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"), constants: new SProcessRuntimeConstant[]
-            {
+            var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"), constants:
+            [
                 new(){
                     Name=VARIABLE_NAME,
                     Value=VARIABLE_VALUE
                 }
-            });
+            ]);
             var instance = process.BeginProcess(new Dictionary<string, object>() { });
 
             Assert.IsNotNull(instance);

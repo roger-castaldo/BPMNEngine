@@ -32,23 +32,23 @@ namespace UnitTest
             _noErrorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/no_error_handling.bpmn"),
                 events:new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Processes=new BPMNEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new()
                     {
                         Error= new OnProcessErrorEvent(ProcessError)
                     }
@@ -66,23 +66,23 @@ namespace UnitTest
             _errorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/process_error_handling.bpmn"),
                 events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new ()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Processes=new BPMNEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new()
                     {
                         Error= new OnProcessErrorEvent(ProcessError)
                     }
@@ -131,19 +131,19 @@ namespace UnitTest
 
         private static void ProcessError(IElement process, IElement sourceElement, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}-{1}-{2}", new object[] { variables[_TEST_ID_NAME], process.ID, sourceElement.ID }));
+            _cache.Enqueue(string.Format("{0}-{1}-{2}", [variables[_TEST_ID_NAME], process.ID, sourceElement.ID]));
         }
 
         private static void ErrorEvent(IStepElement element, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}-{1}",new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("{0}-{1}",[variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static bool EventOccured(Guid instanceID, string name)
         {
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}-{1}", new object[] { instanceID, name }))
+                if (str==string.Format("{0}-{1}", [instanceID, name]))
                     return true;
             }
             return false;
@@ -153,7 +153,7 @@ namespace UnitTest
         {
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}-{1}-{2}", new object[] { instanceID, name,subevent }))
+                if (str==string.Format("{0}-{1}-{2}", [instanceID, name,subevent]))
                     return true;
             }
             return false;

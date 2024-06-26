@@ -5,36 +5,21 @@ using System.Text.Json;
 
 namespace BPMNEngine.State
 {
-    internal sealed class ProcessLog : IStateContainer
+    internal sealed class ProcessLog(StateLock stateLock) : IStateContainer
     {
-        private class ReadOnlyProcessLog : IReadonlyStateLogContainer
+        private sealed class ReadOnlyProcessLog(ProcessLog log, int length) : IReadonlyStateLogContainer
         {
-            public ReadOnlyProcessLog(ProcessLog log, int length){
-                Log = log.content.ToString()[..length];
-            }
-
-            public string Log { get; private init; }
+            public string Log { get; private init; } = log.content.ToString()[..length];
 
             void IReadOnlyStateContainer.Append(XmlWriter writer)
-            {
-                writer.WriteCData(Log);
-            }
-
+                =>writer.WriteCData(Log);
 
             void IReadOnlyStateContainer.Append(Utf8JsonWriter writer)
-            {
-                writer.WriteStringValue(Log);
-            }
+                =>writer.WriteStringValue(Log);
         }
 
-        private readonly StateLock stateLock;
-        private readonly StringBuilder content;
-
-        public ProcessLog(StateLock stateLock)
-        {
-            this.stateLock = stateLock;
-            content = new StringBuilder();
-        }
+        private readonly StateLock stateLock = stateLock;
+        private readonly StringBuilder content = new();
 
         public void LogLine(string elementID, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
         {
@@ -84,13 +69,9 @@ STACKTRACE:{exception.StackTrace}");
         }
 
         public IReadOnlyStateContainer Clone()
-        {
-            return new ReadOnlyProcessLog(this, content.Length);
-        }
+            =>new ReadOnlyProcessLog(this, content.Length);
 
         public void Dispose()
-        {
-            content.Clear();
-        }
+            =>content.Clear();
     }
 }

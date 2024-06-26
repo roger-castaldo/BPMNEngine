@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 
 namespace BPMNEngine.Tasks
 {
-    internal class ExternalTask : ITask
+    internal record ExternalTask : ITask
     {
         private readonly ATask task;
         protected readonly ProcessInstance businessProcess;
@@ -39,7 +39,7 @@ namespace BPMNEngine.Tasks
         public ImmutableArray<XmlNode> SubNodes
             => task.SubNodes;
 
-        public IElement ExtensionElement
+        public IParentElement ExtensionElement
             => task.ExtensionElement;
 
         private void WriteLogLine(LogLevel level,string message)

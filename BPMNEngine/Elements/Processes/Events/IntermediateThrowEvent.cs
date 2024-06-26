@@ -3,34 +3,27 @@ using BPMNEngine.Elements.Processes.Events.Definitions;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    [XMLTag("bpmn", "intermediateThrowEvent")]
-    internal class IntermediateThrowEvent : AEvent
+    [XMLTagAttribute("bpmn", "intermediateThrowEvent")]
+    internal record IntermediateThrowEvent : AEvent
     {
         public object Message
-        {
-            get
+            => SubType switch
             {
-                if (!SubType.HasValue)
-                    return null;
-                return SubType.Value switch
-                {
-                    EventSubTypes.Signal => Children
-                                .OfType<SignalEventDefinition>()
-                                .Select(child => child.SignalTypes.First())
-                                .FirstOrDefault(),
-                    EventSubTypes.Error => Children
-                            .OfType<ErrorEventDefinition>()
-                            .Select(child => child.ErrorTypes.First())
-                            .Select(err => new IntermediateProcessExcepion(err))
+                EventSubTypes.Signal => Children
+                            .OfType<SignalEventDefinition>()
+                            .Select(child => child.SignalTypes.First())
                             .FirstOrDefault(),
-                    EventSubTypes.Message => Children
-                                                    .OfType<MessageEventDefinition>()
-                                                    .Select(child => child.MessageTypes.First())
-                                                    .FirstOrDefault(),
-                    _ => null
-                };
-            }
-        }
+                EventSubTypes.Error => Children
+                        .OfType<ErrorEventDefinition>()
+                        .Select(child => child.ErrorTypes.First())
+                        .Select(err => new IntermediateProcessExcepion(err))
+                        .FirstOrDefault(),
+                EventSubTypes.Message => Children
+                                                .OfType<MessageEventDefinition>()
+                                                .Select(child => child.MessageTypes.First())
+                                                .FirstOrDefault(),
+                _ => null
+            };
 
         public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
             : base(elem, map,parent) { }
@@ -40,11 +33,11 @@ namespace BPMNEngine.Elements.Processes.Events
             var res = base.IsValid(out err);
             if (!Incoming.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "Intermediate Throw Events must have an incoming path." });
+                err = (err?? []).Append("Intermediate Throw Events must have an incoming path.");
                 res=false;
             }else if (Incoming.Count()!= 1)
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "Intermediate Throw Events must have only 1 incoming path." });
+                err = (err?? []).Append("Intermediate Throw Events must have only 1 incoming path.");
                 res=false;
             }
             return res;

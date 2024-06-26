@@ -9,7 +9,7 @@ namespace BPMNEngine.DelegateContainers
     /// against all instances or at the BeginProcess level to defining it against a 
     /// specific instance
     /// </summary>
-    public class StepValidations
+    public record StepValidations
     {
         /// <summary>
         /// A delegate called to validate if an event can start

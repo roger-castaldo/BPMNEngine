@@ -5,9 +5,9 @@ namespace BPMNEngine.Drawing.Icons.Tasks
     [IconTypeAttribute(Elements.Diagrams.BPMIcons.BusinessRuleTask)]
     internal class BusinessRuleTask : AIcon
     {
-        private static readonly IIconPart[] _PARTS = new[] {
+        private static readonly IIconPart[] _PARTS = [
             new Table()
-        };
+        ];
 
         protected override IIconPart[] Parts => _PARTS;
     }

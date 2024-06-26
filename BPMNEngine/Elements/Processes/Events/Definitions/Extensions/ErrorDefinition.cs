@@ -2,9 +2,9 @@
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 {
-    [XMLTag("exts", "ErrorDefinition")]
+    [XMLTagAttribute("exts", "ErrorDefinition")]
     [ValidParent(typeof(ExtensionElements))]
-    internal class ErrorDefinition : AElement
+    internal record ErrorDefinition : AElement
     {
         public ErrorDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
@@ -19,8 +19,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
                 errors.Add("An Error Definition cannot have the type of *, this is reserved");
             if (Parent.Parent.Parent is IntermediateThrowEvent && Type==null)
                 errors.Add("An Error Definition for a Throw Event must have a Type defined");
-            err = (err??Array.Empty<string>()).Concat(errors);
-            return res && !errors.Any();
+            err = (err?? []).Concat(errors);
+            return res && errors.Count==0;
         }
     }
 }

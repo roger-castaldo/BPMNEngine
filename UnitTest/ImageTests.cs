@@ -43,7 +43,7 @@ namespace UnitTest
             Assert.IsNotNull(data);
             Assert.IsTrue(data.Length > 0);
             string tmpFile = Path.GetTempFileName();
-            Trace("Writing png with all icons to {0}",new object[] { tmpFile });
+            Trace("Writing png with all icons to {0}",[tmpFile]);
             var bw = new BinaryWriter(new FileStream(tmpFile, FileMode.Create, FileAccess.Write, FileShare.None));
             bw.Write(data);
             bw.Flush();

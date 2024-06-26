@@ -2,13 +2,13 @@
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    internal abstract class ANegatableCondition : ACondition
+    internal abstract record ANegatableCondition : ACondition
     {
         protected bool Negated => (this["negated"]!=null &&bool.Parse(this["negated"]));
 
         protected abstract bool EvaluateCondition(IReadonlyVariables variables);
 
-        public ANegatableCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
+        protected ANegatableCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         { }
 

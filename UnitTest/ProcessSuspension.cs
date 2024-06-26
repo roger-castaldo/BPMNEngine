@@ -116,7 +116,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);

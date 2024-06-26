@@ -4,12 +4,11 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    [XMLTag("bpmn", "boundaryEvent")]
-    [RequiredAttribute("attachedToRef")]
-    internal class BoundaryEvent : AHandlingEvent
+    [XMLTagAttribute("bpmn", "boundaryEvent")]
+    [RequiredAttributeAttribute("attachedToRef")]
+    internal record BoundaryEvent : AHandlingEvent
     {
         public string AttachedToID => this["attachedToRef"];
-
         public bool CancelActivity => this["cancelActivity"]==null || bool.Parse(this["cancelActivity"]);
 
         public new IEnumerable<string> Outgoing
@@ -19,10 +18,10 @@ namespace BPMNEngine.Elements.Processes.Events
                 var result = base.Outgoing;
                 if (Children.Any(c => c is CompensationEventDefinition))
                 {
-                    var association = Definition.LocateElementsOfType<Association>()
+                    var association = OwningDefinition.LocateElementsOfType<Association>()
                         .FirstOrDefault(asc => asc.SourceRef==ID);
                     if (association!=null)
-                        result = result.Concat(new string[] { association.ID });
+                        result = result.Concat([association.ID]);
                 }
                 return result;
             }
@@ -40,8 +39,8 @@ namespace BPMNEngine.Elements.Processes.Events
                 errs.Add("Boundary Events can only have one outgoing path.");
             if (Incoming.Any())
                 errs.Add("Boundary Events cannot have an incoming path.");
-            err = (err??Array.Empty<string>()).Concat(errs);
-            return res && !errs.Any();
+            err = (err?? []).Concat(errs);
+            return res && errs.Count==0;
         }
 
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)

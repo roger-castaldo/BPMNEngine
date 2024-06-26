@@ -1,32 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Windows.Markup;
+using BPMNEngine.Drawing.Icons.IconParts;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.State.Objects;
 
 namespace BPMNEngine.State
 {
-    internal class ProcessVariables : IStateContainer
+    internal class ProcessVariables(StateLock stateLock, int? stepIndex = null) : IStateContainer
     {
-        internal class ReadOnlyProcessVariables : IReadOnlyStateVariablesContainer
+        internal record ReadOnlyProcessVariables : IReadOnlyStateVariablesContainer
         {
             private readonly int stepIndex;
             private readonly ProcessVariables processVariables;
 
-            public ReadOnlyProcessVariables(ProcessVariables processVariables,int stepIndex)
+            public ReadOnlyProcessVariables(ProcessVariables processVariables, int stepIndex)
             {
                 this.processVariables = processVariables;
                 this.stepIndex=stepIndex;
             }
 
-            public object this[string name] 
-                => processVariables[name,stepIndex];
+            public object this[string name]
+                => processVariables[name, stepIndex];
 
-            public IImmutableList<string> Keys 
+            public IImmutableList<string> Keys
                 => processVariables[stepIndex];
 
-            public IImmutableDictionary<string, object> AsExtract { 
+            public IImmutableDictionary<string, object> AsExtract {
                 get
                 {
                     Dictionary<string, object> ret = new();
@@ -63,24 +65,17 @@ namespace BPMNEngine.State
             }
         }
 
-        private readonly StateLock stateLock;
+        private readonly StateLock stateLock = stateLock;
 
-        private readonly List<ProcessVariable> variables;
-        private readonly int? stepIndex;
-
-        public ProcessVariables(StateLock stateLock,int? stepIndex=null)
-        {
-            this.stateLock=stateLock;
-            variables=new List<ProcessVariable>();
-            this.stepIndex=stepIndex;
-        }
+        private readonly List<ProcessVariable> variables = [];
+        private bool disposedValue;
 
         #region IStateContainer
         public XmlReader Load(XmlReader reader, Version version)
         {
             variables.Clear();
             reader.Read();
-            while(reader.NodeType!=XmlNodeType.EndElement)
+            while (reader.NodeType!=XmlNodeType.EndElement)
             {
                 var variable = new ProcessVariable();
                 if (!variable.CanRead(reader, version))
@@ -91,7 +86,7 @@ namespace BPMNEngine.State
             return reader;
         }
 
-        public Utf8JsonReader Load(Utf8JsonReader reader,Version version)
+        public Utf8JsonReader Load(Utf8JsonReader reader, Version version)
         {
             variables.Clear();
             reader.Read();
@@ -111,8 +106,25 @@ namespace BPMNEngine.State
         public IReadOnlyStateContainer Clone()
             => new ReadOnlyProcessVariables(this, stepIndex??(variables.Any() ? variables.Max(var => var.StepIndex) : -1));
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    variables.Clear();
+                }
+                disposedValue=true;
+            }
+        }
+
+
         public void Dispose()
-            => variables.Clear();
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
         #endregion
 
         private IEnumerable<T> RunQuery<T>(Func<IEnumerable<ProcessVariable>, IEnumerable<T>> filter)
@@ -123,7 +135,7 @@ namespace BPMNEngine.State
             return results;
         }
 
-        public object this[string variableName,int stepIndex]
+        public object this[string variableName, int stepIndex]
         {
             get {
                 var lst = RunQuery((IEnumerable<ProcessVariable> variables) =>
@@ -137,13 +149,13 @@ namespace BPMNEngine.State
             set
             {
                 stateLock.EnterWriteLock();
-                variables.Add(new ProcessVariable(variableName,stepIndex,value));
+                variables.Add(new ProcessVariable(variableName, stepIndex, value));
                 stateLock.ExitWriteLock();
             }
         }
 
         public IImmutableList<string> this[int stepIndex]
-            => RunQuery((IEnumerable<ProcessVariable> variables) => { 
+            => RunQuery((IEnumerable<ProcessVariable> variables) => {
                 return variables
                     .Where(variable => variable.StepIndex <= stepIndex)
                     .OrderBy(var => var.StepIndex)
@@ -159,49 +171,31 @@ namespace BPMNEngine.State
             vars.Keys.ForEach(key =>
             {
                 object left = vars[key];
-                var right = (variables.Any(var => var.Name==key && var.StepIndex <= stepIndex) ?
+                var right = (variables.Exists(var => var.Name==key && var.StepIndex <= stepIndex) ?
                     variables
                         .OrderBy(var => var.StepIndex)
                         .LastOrDefault(var => var.Name==key
                             && var.StepIndex <= stepIndex)
                     : null);
                 if (!AreVariablesEqual(left, (right?.Value)))
-                    changes.Enqueue(new ProcessVariable(key,stepIndex,left));
+                    changes.Enqueue(new ProcessVariable(key, stepIndex, left));
             });
-            while(changes.Any())
+            while (changes.Count>0)
                 variables.Add(changes.Dequeue());
             stateLock.ExitWriteLock();
         }
 
         internal static bool AreVariablesEqual(object left, object right)
-        {
-            if (left == null && right != null)
-                return false;
-            else if (left != null && right == null)
-                return false;
-            else if (left == null && right == null)
-                return true;
-            else
+            => (left, right) switch
             {
-                if (left is Array array)
-                {
-                    if (right is not Array array1)
-                        return false;
-                    else
-                    {
-                        Array aleft = array;
-                        Array aright = array1;
-                        if (aleft.Length != aright.Length)
-                            return false;
-                        return aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => AreVariablesEqual(ival.val, aright.GetValue(ival.index)));
-                    }
-                }
-                else
-                {
-                    try { return left.Equals(right); }
-                    catch (Exception) { return false; }
-                }
-            }
-        }
+                (null, not null) => false,
+                (not null, null) => false,
+                (null, null) => true,
+                (Array, not Array) => false,
+                (not Array, Array) => false,
+                (Array aleft, Array aright) => aleft.Length==aright.Length
+                    && aleft.Cast<object>().Select((v, i) => new { val = v, index = i }).All(ival => AreVariablesEqual(ival.val, aright.GetValue(ival.index))),
+                _ => object.Equals(left, right)
+            };
     }
 }

@@ -2,8 +2,8 @@
 
 namespace BPMNEngine.Elements.Processes.Tasks
 {
-    [XMLTag("bpmn", "userTask")]
-    internal class UserTask : ATask
+    [XMLTagAttribute("bpmn", "userTask")]
+    internal record UserTask: ATask
     {
         public UserTask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

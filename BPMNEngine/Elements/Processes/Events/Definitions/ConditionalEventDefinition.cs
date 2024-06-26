@@ -5,9 +5,9 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "conditionalEventDefinition")]
+    [XMLTagAttribute("bpmn", "conditionalEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class ConditionalEventDefinition : AElement, IEventDefinition
+    internal record ConditionalEventDefinition : AElement, IEventDefinition
     {
         public ConditionalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
             : base(elem, map, parent) { }
@@ -15,14 +15,6 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public EventSubTypes Type => EventSubTypes.Conditional;
 
         public bool IsValid(IReadonlyVariables variables)
-        {
-            if (
-                ExtensionElement!=null &&
-                ((ExtensionElements)ExtensionElement).Children != null &&
-                ((ExtensionElements)ExtensionElement).Children.Any(ie => ie is ConditionSet set && set.Evaluate(variables))
-            )
-                return true;
-            return false;
-        }
+            => ExtensionElement?.Children.OfType<ConditionSet>().Any(cset => cset.Evaluate(variables))??false;
     }
 }
