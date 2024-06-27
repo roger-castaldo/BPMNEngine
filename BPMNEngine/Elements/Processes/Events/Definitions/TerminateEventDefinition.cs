@@ -10,7 +10,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public TerminateEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public EventSubTypes Type 
+        public EventSubTypes Type
             => EventSubTypes.Terminate;
     }
 }

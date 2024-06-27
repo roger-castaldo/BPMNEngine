@@ -6,8 +6,8 @@ namespace BPMNEngine.Elements.Processes.Events
     [XMLTagAttribute("bpmn", "intermediateCatchEvent")]
     internal record IntermediateCatchEvent : AHandlingEvent
     {
-        public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
-            : base(elem, map,parent) { }
+        public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out IEnumerable<string> err)
         {
@@ -23,7 +23,7 @@ namespace BPMNEngine.Elements.Processes.Events
 
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)
         {
-            var cost=int.MaxValue;
+            var cost = int.MaxValue;
             SubProcess sb;
             if (Incoming.Any())
             {

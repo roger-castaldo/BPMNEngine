@@ -16,7 +16,7 @@ namespace BPMNEngine.State
         {
             ObjectDisposedException.ThrowIf(disposedValue, stateEvent);
             if (!stateEvent.TryEnterReadLock(READ_TIMEOUT))
-                throw new StateLockTimeoutException(stateID,CurrentReadCount,WaitingWriteCount);
+                throw new StateLockTimeoutException(stateID, CurrentReadCount, WaitingWriteCount);
         }
 
         internal void ExitReadLock()
@@ -32,7 +32,8 @@ namespace BPMNEngine.State
                 throw new StateLockTimeoutException(stateID, CurrentReadCount, WaitingWriteCount);
         }
 
-        internal void ExitWriteLock() {
+        internal void ExitWriteLock()
+        {
             ObjectDisposedException.ThrowIf(disposedValue, stateEvent);
             stateEvent.ExitWriteLock();
         }

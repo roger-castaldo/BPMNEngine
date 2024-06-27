@@ -2,7 +2,7 @@
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
-    [XMLTagAttribute("bpmn","complexGateway")]
+    [XMLTagAttribute("bpmn", "complexGateway")]
     internal record ComplexGateway : AGateway
     {
         public ComplexGateway(XmlElement elem, XmlPrefixMap map, AElement parent)

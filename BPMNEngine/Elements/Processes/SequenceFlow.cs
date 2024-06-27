@@ -5,13 +5,14 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes
 {
-    [XMLTagAttribute("bpmn","sequenceFlow")]
+    [XMLTagAttribute("bpmn", "sequenceFlow")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(IProcess))]
-    internal record SequenceFlow: AFlowElement, ISequenceFlow
+    internal record SequenceFlow : AFlowElement, ISequenceFlow
     {
         public SequenceFlow(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) {
+            : base(elem, map, parent)
+        {
             ConditionExpression = elem.Attributes["conditionExpression"]?.Value
                 ?? elem.ChildNodes.Cast<XmlNode>()
                     .Where(xn => xn.NodeType==XmlNodeType.Element && map.IsMatch("bpmn", "conditionExpression", xn.Name))

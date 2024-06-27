@@ -34,7 +34,8 @@ namespace UnitTest
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             _singleTaskProcess = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
-                tasks: new() {
+                tasks: new()
+                {
                     BeginUserTask=(IUserTask task) =>
                     {
                         Task.Delay(TimeSpan.FromSeconds(2)).Wait();
@@ -53,7 +54,7 @@ namespace UnitTest
             _singleTaskProcess.Dispose();
         }
 
-        private static void TestVariables(IImmutableDictionary<string,object> variables)
+        private static void TestVariables(IImmutableDictionary<string, object> variables)
         {
             Assert.IsNotNull(variables);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));
@@ -65,7 +66,7 @@ namespace UnitTest
                 Assert.AreEqual(_TEST_FILES[x], ((SFile[])variables[_TEST_FILE_VARIABLE])[x]);
         }
 
-        private static void TestEmptyVariables(IImmutableDictionary<string,object> variables)
+        private static void TestEmptyVariables(IImmutableDictionary<string, object> variables)
         {
             Assert.IsNotNull(variables);
             Assert.AreEqual(0, variables.Count);
@@ -124,7 +125,7 @@ namespace UnitTest
             TestCurrentState(inst.CurrentState);
 
             var data = System.Text.UTF8Encoding.UTF8.GetBytes(inst.CurrentState.AsJSONDocument);
-            
+
             TestVariables(BusinessProcess.ExtractProcessVariablesFromStateDocument(new Utf8JsonReader(data)));
             TestEmptyVariables(BusinessProcess.ExtractProcessVariablesFromStateDocument(new Utf8JsonReader(data), 2));
             TestSteps(BusinessProcess.ExtractProcessSteps(new Utf8JsonReader(data)));

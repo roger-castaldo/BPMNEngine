@@ -98,7 +98,7 @@ namespace BPMNEngine.DelegateContainers
         /// </summary>
         public IsFlowValid IsFlowValid { get; init; } = null;
 
-        private static readonly Func<IElement, IReadonlyVariables,bool> DEFAULT_ACTION = new((elem, variables) => true);
+        private static readonly Func<IElement, IReadonlyVariables, bool> DEFAULT_ACTION = new((elem, variables) => true);
         internal static StepValidations Merge(StepValidations source, StepValidations append)
         {
             source??=new();

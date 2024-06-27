@@ -4,7 +4,7 @@
     {
         private readonly struct SCachedType
         {
-            public SCachedType(){}
+            public SCachedType() { }
             public string Tag { get; init; } = string.Empty;
             public Type Type { get; init; } = null;
         }
@@ -13,9 +13,9 @@
 
         public ElementTypeCache() { cache= []; }
 
-        public Type this[string xmlTag] => cache.Find(ct=>ct.Tag.Equals(xmlTag,StringComparison.CurrentCultureIgnoreCase)).Type;
+        public Type this[string xmlTag] => cache.Find(ct => ct.Tag.Equals(xmlTag, StringComparison.CurrentCultureIgnoreCase)).Type;
 
-        public bool IsCached(string xmlTag) => cache.Exists(ct=>ct.Tag.Equals(xmlTag,StringComparison.CurrentCultureIgnoreCase));
+        public bool IsCached(string xmlTag) => cache.Exists(ct => ct.Tag.Equals(xmlTag, StringComparison.CurrentCultureIgnoreCase));
 
         public void MapIdeals(XmlPrefixMap map)
         {
@@ -43,7 +43,7 @@
                 {
                     prefixPair.Value.ForEach(tagPair =>
                     {
-                        cache.Add(new() { Tag=$"{prefixPair.Key}:{tagPair.Key}",Type=tagPair.Value });
+                        cache.Add(new() { Tag=$"{prefixPair.Key}:{tagPair.Key}", Type=tagPair.Value });
                         cache.Add(new() { Tag=tagPair.Key, Type=tagPair.Value });
                     });
                 }

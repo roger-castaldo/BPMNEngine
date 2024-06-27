@@ -2,7 +2,7 @@
 
 namespace BPMNEngine.Elements.Collaborations
 {
-    [XMLTagAttribute("bpmn","messageFlow")]
+    [XMLTagAttribute("bpmn", "messageFlow")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Collaboration))]
     internal record MessageFlow : AFlowElement

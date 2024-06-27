@@ -31,7 +31,7 @@ namespace BPMNEngine.Elements.Processes
                 .OfType<LaneSet>()
                 .SelectMany(ls => ls.Children)
                 .FirstOrDefault(ln => ln is Lane lane && lane.Nodes.Contains(ID));
-            
+
         public IEnumerable<string> Incoming
             => Array.Empty<string>()
                 .Concat(Children
@@ -43,7 +43,7 @@ namespace BPMNEngine.Elements.Processes
                 );
 
         public IEnumerable<string> Outgoing
-            =>Array.Empty<string>()
+            => Array.Empty<string>()
                 .Concat(Children
                     .OfType<OutgoingFlow>()
                     .Select(elem => elem.Value)

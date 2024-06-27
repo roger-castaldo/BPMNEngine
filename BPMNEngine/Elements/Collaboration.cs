@@ -2,7 +2,7 @@
 
 namespace BPMNEngine.Elements
 {
-    [XMLTagAttribute("bpmn","collaboration")]
+    [XMLTagAttribute("bpmn", "collaboration")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Definition))]
     internal record Collaboration : AParentElement

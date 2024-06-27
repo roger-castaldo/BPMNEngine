@@ -6,7 +6,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
     [ValidParent(typeof(ExtensionElements))]
     internal record SignalDefinition : AElement
     {
-        public SignalDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public SignalDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public string Type => this["type"];

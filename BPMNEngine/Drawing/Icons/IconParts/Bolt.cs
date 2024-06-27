@@ -25,7 +25,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
 #pragma warning restore S3963 // "static" fields should be initialized inline
         {
             _PATH = new PathF(_POINTS[0]);
-            _POINTS.Skip(1).ForEach(p=>_PATH.LineTo(p));
+            _POINTS.Skip(1).ForEach(p => _PATH.LineTo(p));
             _PATH.Close();
         }
 

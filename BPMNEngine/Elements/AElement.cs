@@ -18,7 +18,7 @@ namespace BPMNEngine.Elements
             Element=elem;
             SubNodes=elem.ChildNodes.Cast<XmlNode>().ToImmutableArray();
             ExtensionElement = SubNodes.OfType<XmlElement>()
-                .Where(n => Array.Exists(Utility.GetTagAttributes(typeof(ExtensionElements)),xt => xt.Matches(map, n.Name)))
+                .Where(n => Array.Exists(Utility.GetTagAttributes(typeof(ExtensionElements)), xt => xt.Matches(map, n.Name)))
                 .Select(extElem => new ExtensionElements(extElem, map, this))
                 .FirstOrDefault();
         }
@@ -26,11 +26,12 @@ namespace BPMNEngine.Elements
         public virtual Definition OwningDefinition
             => Parent?.OwningDefinition;
 
-        private string _cachedID=null;
+        private string _cachedID = null;
 
         public string ID
         {
-            get {
+            get
+            {
                 var ret = _cachedID??this["id"];
                 if (ret==null)
                     _cachedID = Utility.FindXPath(OwningDefinition, Element);
@@ -38,10 +39,10 @@ namespace BPMNEngine.Elements
             }
         }
 
-        
+
 
         public string this[string attributeName] => Element.Attributes.Cast<XmlAttribute>()
-                    .Where(att => string.Equals(att.Name,attributeName,StringComparison.InvariantCultureIgnoreCase))
+                    .Where(att => string.Equals(att.Name, attributeName, StringComparison.InvariantCultureIgnoreCase))
                     .Select(att => att.Value)
                     .FirstOrDefault()??null;
 
@@ -58,10 +59,10 @@ namespace BPMNEngine.Elements
             return true;
         }
 
-        protected void Debug(string message, params object?[] pars)
+        protected void Debug(string message, params object[] pars)
             => OwningDefinition.LogLine(LogLevel.Debug, this, message, pars);
 
-        protected void Info(string message, params object?[] pars)
+        protected void Info(string message, params object[] pars)
             => OwningDefinition.LogLine(LogLevel.Information, this, message, pars);
 
         protected Exception Exception(Exception exception)

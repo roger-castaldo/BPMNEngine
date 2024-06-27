@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.State;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Xml;
-using BPMNEngine.Interfaces.State;
-using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
@@ -16,7 +16,7 @@ namespace UnitTest
     public class Timers
     {
         private static BusinessProcess _process;
-        
+
         private const string _DELAY_ID = "TaskDelayMS";
         private const string DATETIME_FORMAT = "yyyyMMddHHmmssfff";
 
@@ -26,8 +26,9 @@ namespace UnitTest
         public static void Initialize(TestContext testContext)
 #pragma warning restore IDE0060 // Remove unused parameter
         {
-            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { 
-                BeginUserTask= new StartUserTask(BeginUserTask) 
+            _process = new BusinessProcess(Utility.LoadResourceDocument("Timers/timing.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
+            {
+                BeginUserTask= new StartUserTask(BeginUserTask)
             });
         }
 
@@ -50,7 +51,7 @@ namespace UnitTest
                 task.MarkComplete();
         }
 
-        private static TimeSpan? GetStepDuration(IState state,string name)
+        private static TimeSpan? GetStepDuration(IState state, string name)
         {
             XmlDocument xml = new();
             xml.LoadXml(state.AsXMLDocument);

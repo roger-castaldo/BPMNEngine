@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace BPMNEngine.Elements
 {
-    internal abstract record AParentElement: AElement,IParentElement
+    internal abstract record AParentElement : AElement, IParentElement
     {
         protected AParentElement(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

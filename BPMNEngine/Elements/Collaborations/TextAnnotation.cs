@@ -3,17 +3,17 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Collaborations
 {
-    [XMLTagAttribute("bpmn","textAnnotation")]
+    [XMLTagAttribute("bpmn", "textAnnotation")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Collaboration))]
     [ValidParent(typeof(IProcess))]
-    internal record TextAnnotation: AParentElement
+    internal record TextAnnotation : AParentElement
     {
         public TextAnnotation(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
-        public string Content 
+        public string Content
             => Children.OfType<Text>()
-                    .Select(elem=>elem.Value)
+                    .Select(elem => elem.Value)
                     .FirstOrDefault() ?? string.Empty;
 
         public override bool IsValid(out IEnumerable<string> err)

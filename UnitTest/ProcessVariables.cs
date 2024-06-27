@@ -1,15 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System;
-using System.Xml;
-using System.Collections.Generic;
-using System.IO;
-using System.Collections;
-using System.Linq;
 using BPMNEngine.Interfaces.Tasks;
-using System.Text.Json;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Xml;
 
 namespace UnitTest
 {
@@ -31,7 +31,7 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private static IImmutableDictionary<string, object> TestProcessVariable(string variableName, object variableValue,bool changeValue=false,object newValue=null)
+        private static IImmutableDictionary<string, object> TestProcessVariable(string variableName, object variableValue, bool changeValue = false, object newValue = null)
         {
             IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
 
@@ -298,7 +298,7 @@ namespace UnitTest
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out  value) ? value : null));
+            CompareVariableValue(variableArray, (results.TryGetValue(variableName, out value) ? value : null));
         }
 
         [TestMethod]
@@ -328,7 +328,7 @@ namespace UnitTest
             var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsFalse(results.ContainsKey(variableName));
-            Assert.AreEqual(0,results.Count);
+            Assert.AreEqual(0, results.Count);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
         }
 
@@ -338,7 +338,7 @@ namespace UnitTest
             var variableName = "TestFile";
             Stream str = Utility.LoadResource("DiagramLoading/start_to_stop.bpmn");
             byte[] data = new byte[str.Length];
-            str.Read(data,0, data.Length);
+            str.Read(data, 0, data.Length);
             str.Close();
             var variableValue = new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content=data };
             var variableArray = new SFile[] { variableValue, variableValue };
@@ -352,7 +352,7 @@ namespace UnitTest
             Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="stop_to_start", Extension="bpmn", ContentType="text/xml", Content=data }));
             Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="xml", ContentType="text/xml", Content=data }));
             Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/text", Content=data }));
-            Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content=[0, 0, 0, 0] }));
+            Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content= [0, 0, 0, 0] }));
 
             var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
@@ -392,12 +392,12 @@ namespace UnitTest
             var variableName = "TestDateTime";
             var variableValue = DateTime.Now;
             var altVariableValue = "Test Value";
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue,changeValue:true);
+            var results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true);
             Assert.IsNotNull(results);
             Assert.IsTrue(!results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==0);
 
-            results = ProcessVariables.TestProcessVariable(variableName, null, changeValue: true,newValue:variableValue);
+            results = ProcessVariables.TestProcessVariable(variableName, null, changeValue: true, newValue: variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -414,11 +414,11 @@ namespace UnitTest
             Assert.IsTrue(!results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==0);
 
-            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] {variableValue,variableValue}, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
-            CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value: null));
+            CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value : null));
 
             results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
             Assert.IsNotNull(results);
@@ -426,7 +426,7 @@ namespace UnitTest
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue,variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue, variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -526,7 +526,7 @@ namespace UnitTest
             }
         }
 
-        private static void CompareVariableValue(object inputted,object extracted)
+        private static void CompareVariableValue(object inputted, object extracted)
         {
             if (inputted==null)
                 Assert.IsNull(extracted);

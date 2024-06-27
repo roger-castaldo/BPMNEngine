@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +10,9 @@ namespace UnitTest
     [TestClass]
     public class ImageTests
     {
-        [TestInitialize] public void Init() {
+        [TestInitialize]
+        public void Init()
+        {
             System.Diagnostics.Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
         }
 
@@ -43,7 +45,7 @@ namespace UnitTest
             Assert.IsNotNull(data);
             Assert.IsTrue(data.Length > 0);
             string tmpFile = Path.GetTempFileName();
-            Trace("Writing png with all icons to {0}",[tmpFile]);
+            Trace("Writing png with all icons to {0}", [tmpFile]);
             var bw = new BinaryWriter(new FileStream(tmpFile, FileMode.Create, FileAccess.Write, FileShare.None));
             bw.Write(data);
             bw.Flush();

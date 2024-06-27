@@ -9,12 +9,12 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(ExtensionElements))]
     internal record DefinitionFile : AElement
     {
-        public string Name =>this["Name"];
-        public string Extension =>this["Extension"]; 
+        public string Name => this["Name"];
+        public string Extension => this["Extension"];
         public string ContentType => this["ContentType"];
         public byte[] Content { get; private init; }
 
-        public DefinitionFile(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public DefinitionFile(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
             Content = [];

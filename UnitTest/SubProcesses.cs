@@ -22,7 +22,7 @@ namespace UnitTest
         private const string SUB_SUB_TASK_ID = "Activity_1e0arlx";
 
         private static BusinessProcess _process;
-        
+
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
@@ -97,7 +97,7 @@ namespace UnitTest
             var instance = StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
-            task.Signal(SIGNAL,out bool isAborted);
+            task.Signal(SIGNAL, out bool isAborted);
             Assert.IsTrue(isAborted);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var state = instance.CurrentState;

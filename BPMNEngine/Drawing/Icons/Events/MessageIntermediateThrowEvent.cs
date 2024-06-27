@@ -11,6 +11,6 @@ namespace BPMNEngine.Drawing.Icons.Events
             new Envelope(true,false)
         ];
 
-        protected override IIconPart[] Parts=> _PARTS;
+        protected override IIconPart[] Parts => _PARTS;
     }
 }

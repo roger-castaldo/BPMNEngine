@@ -17,7 +17,7 @@ namespace BPMNEngine
         private const string AgoRegexString = @" +ago";
         private static readonly Regex fullRegex = new($"(({ValidFirstRegexString})|(({UnitShiftRegexString}|{VariableRegexString} *)(({ValidUnits})s?|{VariableRegexString})({AgoRegexString})?))", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
         private static readonly Regex firstRegex = new($"^({ValidFirstRegexString})$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
-        private static readonly Regex relativeRegex = new($"^({UnitShiftRegexString})({ValidUnits})s?({AgoRegexString})?$", RegexOptions.Compiled | RegexOptions.IgnoreCase,TimeSpan.FromMinutes(5));
+        private static readonly Regex relativeRegex = new($"^({UnitShiftRegexString})({ValidUnits})s?({AgoRegexString})?$", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
         private static readonly Regex variableRegex = new(VariableRegexString, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromMinutes(5));
 
         private readonly string[] data;
@@ -41,8 +41,8 @@ namespace BPMNEngine
             if (idx+1<value.Length)
                 tmp.Add(value[idx..]);
             data=tmp
-                .Select(v=>v.Trim())
-                .Where(v=>!string.IsNullOrEmpty(v))
+                .Select(v => v.Trim())
+                .Where(v => !string.IsNullOrEmpty(v))
                 .ToArray();
         }
 
@@ -58,7 +58,7 @@ namespace BPMNEngine
             bool isFirst = true;
             data.ForEach(line =>
             {
-                var current = variableRegex.Replace(line,m=> $"{variables[m.Groups[1].Value]}");
+                var current = variableRegex.Replace(line, m => $"{variables[m.Groups[1].Value]}");
                 if (isFirst && firstRegex.IsMatch(current))
                 {
                     isFirst=false;
@@ -81,7 +81,7 @@ namespace BPMNEngine
                         _ => int.Parse(m.Groups[1].Value)
                     } * (m.Groups.Count==3||string.IsNullOrEmpty(m.Groups[3].Value) ? 1 : -1), ret);
                 }
-                else if (isFirst && DateTime.TryParse(current,CultureInfo.InvariantCulture, out var tmp))
+                else if (isFirst && DateTime.TryParse(current, CultureInfo.InvariantCulture, out var tmp))
                     ret=tmp;
                 else
                     throw new FormatException($"Invalid Date String Specified [{current}]");

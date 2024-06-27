@@ -7,7 +7,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     [ValidParent(typeof(AEvent))]
     internal record LinkEventDefinition : AElement, IEventDefinition
     {
-        public LinkEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public LinkEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public EventSubTypes Type => EventSubTypes.Link;

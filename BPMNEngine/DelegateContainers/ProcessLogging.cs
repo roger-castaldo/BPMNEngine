@@ -17,7 +17,7 @@
         /// </summary>
         public LogException LogException { get; init; }
 
-        internal static ProcessLogging Merge(ProcessLogging source,ProcessLogging append)
+        internal static ProcessLogging Merge(ProcessLogging source, ProcessLogging append)
         {
             source??=new ProcessLogging();
             append??=new ProcessLogging();

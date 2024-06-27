@@ -30,7 +30,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 XmlNode n = Element.ParentNode;
                 while (n != null)
                 {
-                    if (Array.Exists(tags,xt => xt.Matches(_map, n.Name)))
+                    if (Array.Exists(tags, xt => xt.Matches(_map, n.Name)))
                         return true;
                     n = n.ParentNode;
                 }
@@ -70,9 +70,10 @@ namespace BPMNEngine.Elements.Processes.Scripts
             Info("Attempting to process script {0}", ID);
             try
             {
-                ScriptInvoke<IVariables>(variables,out _);
+                ScriptInvoke<IVariables>(variables, out _);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Exception(e);
                 throw;
             }
@@ -83,7 +84,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             Info("Attempting to process script {0}", ID);
             try
             {
-                ScriptInvoke<IReadonlyVariables>(variables,out object result);
+                ScriptInvoke<IReadonlyVariables>(variables, out object result);
                 return result;
             }
             catch (Exception e)

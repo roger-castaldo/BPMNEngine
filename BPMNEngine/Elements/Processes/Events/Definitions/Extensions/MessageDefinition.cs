@@ -6,7 +6,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
     [ValidParent(typeof(ExtensionElements))]
     internal record MessageDefinition : AElement
     {
-        public MessageDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public MessageDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public string Name => this["name"];

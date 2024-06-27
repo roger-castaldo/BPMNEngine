@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Xml;
-using BPMNEngine.Interfaces.Tasks;
-using System;
 
 namespace UnitTest
 {
@@ -30,13 +30,15 @@ namespace UnitTest
 
         [ClassInitialize]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Required to run properly")]
-        public static void Initialize(TestContext testContext) {
+        public static void Initialize(TestContext testContext)
+        {
             _singleTaskProcess = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"));
             _multiTaskProcess = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/multiple_user_tasks.bpmn"));
         }
 
         [ClassCleanup]
-        public static void Cleanup() {
+        public static void Cleanup()
+        {
             _singleTaskProcess.Dispose();
             _multiTaskProcess.Dispose();
         }
@@ -66,7 +68,7 @@ namespace UnitTest
             Assert.AreEqual(_TEST_VARIABLE_VALUES[0], variables[_TEST_VARIABLE_NAME]);
             XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsTrue(Utility.StepAchievedStatus(doc,"UserTask_15dj2au", StepStatuses.Succeeded, _TEST_USER_IDS[0]));
+            Assert.IsTrue(Utility.StepAchievedStatus(doc, "UserTask_15dj2au", StepStatuses.Succeeded, _TEST_USER_IDS[0]));
         }
 
         private static readonly string[] _TaskNames =
@@ -122,7 +124,7 @@ namespace UnitTest
 
             Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
-            
+
             Assert.AreEqual("UserTask_15dj2au", task.ID);
             Assert.AreEqual(task.ID, task["id"]);
 
@@ -131,10 +133,10 @@ namespace UnitTest
 
             Assert.IsNull(task.ExtensionElement);
             Assert.IsNull(task.SubProcess);
-            
+
             Assert.IsNotNull(task.Lane);
             Assert.AreEqual("Lane_0z6k1d4", task.Lane.ID);
-            
+
             Assert.IsNotNull(task.Process);
             Assert.AreEqual("Process_1", task.Process.ID);
 

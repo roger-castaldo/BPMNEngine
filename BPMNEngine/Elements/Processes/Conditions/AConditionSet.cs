@@ -7,7 +7,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         protected AConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected IEnumerable<ACondition> Conditions 
+        protected IEnumerable<ACondition> Conditions
             => Children
             .OfType<ACondition>().Concat(
                 Children

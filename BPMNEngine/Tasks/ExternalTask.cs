@@ -13,7 +13,7 @@ namespace BPMNEngine.Tasks
         public bool Aborted { get; private set; }
         public IVariables Variables { get; private init; }
 
-        public ExternalTask(ATask task,ProcessVariablesContainer variables, ProcessInstance process)
+        public ExternalTask(ATask task, ProcessVariablesContainer variables, ProcessInstance process)
         {
             this.task=task;
             Variables=variables;
@@ -42,14 +42,14 @@ namespace BPMNEngine.Tasks
         public IParentElement ExtensionElement
             => task.ExtensionElement;
 
-        private void WriteLogLine(LogLevel level,string message)
+        private void WriteLogLine(LogLevel level, string message)
             => businessProcess.WriteLogLine(task, level, new StackFrame(2, true), DateTime.Now, message);
 
         public void Debug(string message)
             => WriteLogLine(LogLevel.Debug, message);
 
         public void Debug(string message, object[] pars)
-            => WriteLogLine(LogLevel.Debug, string.Format(message,pars));
+            => WriteLogLine(LogLevel.Debug, string.Format(message, pars));
 
         public void Error(string message)
             => WriteLogLine(LogLevel.Error, message);
@@ -58,7 +58,7 @@ namespace BPMNEngine.Tasks
             => WriteLogLine(LogLevel.Error, string.Format(message, pars));
 
         public Exception Exception(Exception exception)
-            => businessProcess.WriteLogException(task,new StackFrame(1),DateTime.Now,exception);
+            => businessProcess.WriteLogException(task, new StackFrame(1), DateTime.Now, exception);
 
         public void Fatal(string message)
             => WriteLogLine(LogLevel.Critical, message);
@@ -81,7 +81,7 @@ namespace BPMNEngine.Tasks
 
         public void EmitMessage(string message, out bool isAborted)
         {
-            businessProcess.EmitTaskMessage(this, message,out isAborted);
+            businessProcess.EmitTaskMessage(this, message, out isAborted);
             Aborted=Aborted||isAborted;
         }
 
@@ -98,6 +98,6 @@ namespace BPMNEngine.Tasks
             Aborted=Aborted||isAborted;
         }
 
-        
+
     }
 }

@@ -18,13 +18,13 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     ?? []
                 ).Distinct();
 
-        public IEnumerable<string> SignalTypes 
+        public IEnumerable<string> SignalTypes
             => BaseTypes.DefaultIfEmpty("*");
 
-        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public EventSubTypes Type 
+        public EventSubTypes Type
             => EventSubTypes.Signal;
 
         public override bool IsValid(out IEnumerable<string> err)

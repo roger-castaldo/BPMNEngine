@@ -25,8 +25,8 @@ namespace BPMNEngine.Elements.Processes.Events
                 _ => null
             };
 
-        public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map,AElement parent)
-            : base(elem, map,parent) { }
+        public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public override bool IsValid(out IEnumerable<string> err)
         {
@@ -35,7 +35,8 @@ namespace BPMNEngine.Elements.Processes.Events
             {
                 err = (err?? []).Append("Intermediate Throw Events must have an incoming path.");
                 res=false;
-            }else if (Incoming.Count()!= 1)
+            }
+            else if (Incoming.Count()!= 1)
             {
                 err = (err?? []).Append("Intermediate Throw Events must have only 1 incoming path.");
                 res=false;

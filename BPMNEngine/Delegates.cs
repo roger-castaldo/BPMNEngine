@@ -46,7 +46,7 @@ namespace BPMNEngine
     ///     }
     /// </code>
     /// </example>
-    public delegate void OnElementAborted(IElement element,IElement source, IReadonlyVariables variables);
+    public delegate void OnElementAborted(IElement element, IElement source, IReadonlyVariables variables);
 
     /// <summary>
     /// This delegate is implemented to get triggered when a Process has been started or completed.
@@ -107,7 +107,7 @@ namespace BPMNEngine
     ///     }
     /// </code>
     /// </example>
-    public delegate void OnProcessErrorEvent(IElement process,IElement sourceElement, IReadonlyVariables variables);
+    public delegate void OnProcessErrorEvent(IElement process, IElement sourceElement, IReadonlyVariables variables);
 
     /// <summary>
     /// This delegate is implemented to get triggered when the Process State changes.  The state may not be usable externally without understanding its structure, however, capturing these events allows for the storage of a process state externally to be brought back in on a process restart.
@@ -373,8 +373,8 @@ namespace BPMNEngine
     #endregion
 
     #region internals
-    internal delegate void ProcessStepComplete(string sourceID,string outgoingID);
-    internal delegate void ProcessStepError(IElement step,Exception ex);
+    internal delegate void ProcessStepComplete(string sourceID, string outgoingID);
+    internal delegate void ProcessStepError(IElement step, Exception ex);
     #endregion
 
     #region Logging
@@ -389,7 +389,7 @@ namespace BPMNEngine
     /// <param name="level">The log level for the entry</param>
     /// <param name="timestamp">The timestamp of when the log entry occured</param>
     /// <param name="message">The log entry</param>
-    public delegate void LogLine(IElement callingElement,AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message);
+    public delegate void LogLine(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message);
 
     /// <summary>
     /// This delegate is implemented to be called when a Log Exception is made by a process.  This can be used to log exceptions externally, to a file, database, or logging engine implemented outside of the library.

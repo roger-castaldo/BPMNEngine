@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
 
 namespace UnitTest.Extensions
 {
@@ -33,7 +33,7 @@ namespace UnitTest.Extensions
             _process.Dispose();
         }
 
-        private void RunPathProcess(Dictionary<string,object> variables,string successPath)
+        private void RunPathProcess(Dictionary<string, object> variables, string successPath)
         {
             IProcessInstance processInstance = _process.BeginProcess(variables);
             Assert.IsNotNull(processInstance);
@@ -41,8 +41,8 @@ namespace UnitTest.Extensions
             var state = processInstance.CurrentState;
             Assert.IsNotNull(state);
             Assert.IsTrue(Utility.StepCompleted(state, successPath));
-            foreach(var flow in FLOWS.Where(f=>f!=successPath))
-                Assert.IsFalse(Utility.StepCompleted(state,flow));
+            foreach (var flow in FLOWS.Where(f => f!=successPath))
+                Assert.IsFalse(Utility.StepCompleted(state, flow));
         }
 
         [TestMethod]
@@ -94,7 +94,7 @@ namespace UnitTest.Extensions
                             {"name","test_value_2" },
                             {"other","test_value_3" }
                         }
-                    } 
+                    }
                 }
             }, "Flow_0ydpcz9");
         }

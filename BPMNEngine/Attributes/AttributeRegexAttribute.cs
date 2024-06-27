@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace BPMNEngine.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited=true)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     internal class AttributeRegexAttribute(string name, string regex) : Attribute
     {
         public string Name { get; private init; } = name;

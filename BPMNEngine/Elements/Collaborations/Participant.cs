@@ -6,7 +6,7 @@ namespace BPMNEngine.Elements.Collaborations
     [RequiredAttributeAttribute("processRef")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Collaboration))]
-    internal record Participant: AElement
+    internal record Participant : AElement
     {
         public Participant(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

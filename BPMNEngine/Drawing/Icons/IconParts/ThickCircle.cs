@@ -12,7 +12,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
             surface.StrokeDashPattern=null;
             surface.StrokeSize= _PEN_SIZE;
 
-            surface.DrawEllipse(new Rect(2,2,AIcon.IMAGE_SIZE-5,AIcon.IMAGE_SIZE-5));
+            surface.DrawEllipse(new Rect(2, 2, AIcon.IMAGE_SIZE-5, AIcon.IMAGE_SIZE-5));
         }
     }
 }

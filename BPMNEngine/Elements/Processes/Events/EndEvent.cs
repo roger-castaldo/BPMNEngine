@@ -3,7 +3,7 @@ using BPMNEngine.Elements.Processes.Events.Definitions;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    [XMLTagAttribute("bpmn","endEvent")]
+    [XMLTagAttribute("bpmn", "endEvent")]
     internal record EndEvent : AEvent
     {
         private static readonly Type[] PROCESS_END_TYPE =
@@ -18,11 +18,11 @@ namespace BPMNEngine.Elements.Processes.Events
             typeof(TimerEventDefinition)
         ];
 
-        public bool IsProcessEnd 
+        public bool IsProcessEnd
             => !Children
-                .Any(child =>  PROCESS_END_TYPE.Contains(child.GetType()));
+                .Any(child => PROCESS_END_TYPE.Contains(child.GetType()));
 
-        public bool IsTermination 
+        public bool IsTermination
             => Children
                 .Any(child => child is TerminateEventDefinition);
 
@@ -32,8 +32,8 @@ namespace BPMNEngine.Elements.Processes.Events
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
-            if (Outgoing.Any()) 
-            { 
+            if (Outgoing.Any())
+            {
                 err=(err?? []).Append("End Events cannot have an outgoing path.");
                 res=false;
             }

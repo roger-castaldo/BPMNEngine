@@ -3,7 +3,7 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    [XMLTagAttribute("exts","andCondition")]
+    [XMLTagAttribute("exts", "andCondition")]
     internal record AndCondition : ANegatableConditionSet
     {
         public AndCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
@@ -15,7 +15,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
-            if (Children.Length < 2 )
+            if (Children.Length < 2)
             {
                 err = (err?? []).Append("Not enough child elements found for an And Condition");
                 return false;

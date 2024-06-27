@@ -1,5 +1,5 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Elements;
+﻿using BPMNEngine.Elements;
+using Microsoft.Maui.Graphics;
 using System.IO;
 
 namespace BPMNEngine.Drawing
@@ -53,11 +53,11 @@ namespace BPMNEngine.Drawing
             surface.FillColor = Colors.White;
             surface.FillRectangle(0, 0, initialImage.Width, initialImage.Height);
             surface.DrawImage(initialImage, 0, 0, g.Width, g.Height);
-            parts =[new(g.Image)];
+            parts = [new(g.Image)];
         }
 
-        public void AddFrame(IImage image,int x,int y,TimeSpan? delay=null)
-            =>parts.Add(new AnimatedFrame(image,x,y,delay:delay));
+        public void AddFrame(IImage image, int x, int y, TimeSpan? delay = null)
+            => parts.Add(new AnimatedFrame(image, x, y, delay: delay));
 
         private static readonly byte[] SIGNATURE = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
         private static readonly Byte[] IEND = [0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82];
@@ -79,15 +79,15 @@ namespace BPMNEngine.Drawing
             return memoryStream.ToArray();
         }
 
-        private static void WriteFrame(Stream output,int idx,AnimatedFrame part,ref int chunkSequenceNumber)
+        private static void WriteFrame(Stream output, int idx, AnimatedFrame part, ref int chunkSequenceNumber)
         {
             if (idx==0)
-                AnimatedPNG.Write(output, part.IDAT.SelectMany(c=>c));
+                AnimatedPNG.Write(output, part.IDAT.SelectMany(c => c));
             else
             {
                 var sequenceNumber = chunkSequenceNumber;
                 part.IDAT
-                    .Where(idat=>idat!=null)
+                    .Where(idat => idat!=null)
                     .ForEach(idat =>
                     {
                         using var memoryStream = new MemoryStream();
@@ -110,7 +110,7 @@ namespace BPMNEngine.Drawing
             }
         }
 
-        private void WriteFrameHeader(Stream output, AnimatedFrame part,ref int chunkSequenceNumber)
+        private void WriteFrameHeader(Stream output, AnimatedFrame part, ref int chunkSequenceNumber)
         {
             AnimatedPNG.Write(output, [0, 0, 0, 26]);
             using var memoryStream = new MemoryStream();
@@ -144,14 +144,14 @@ namespace BPMNEngine.Drawing
             AnimatedPNG.WriteCRC(output, "tEXt"+textSignature);
 
             AnimatedPNG.Write(output, 8);
-            AnimatedPNG.Write(output,"acTL");
-            AnimatedPNG.Write(output,parts.Count);
+            AnimatedPNG.Write(output, "acTL");
+            AnimatedPNG.Write(output, parts.Count);
             AnimatedPNG.Write(output, 0);
             AnimatedPNG.Write(output, 0);
         }
 
-        private static void Write(Stream output,IEnumerable<byte> data)
-            => AnimatedPNG.Write(output,data.ToArray());
+        private static void Write(Stream output, IEnumerable<byte> data)
+            => AnimatedPNG.Write(output, data.ToArray());
 
         private static void Write(Stream output, byte[] data)
         {
@@ -159,25 +159,25 @@ namespace BPMNEngine.Drawing
                 output.Write(data, 0, data.Length);
         }
 
-        private static void Write(Stream output,int value)
+        private static void Write(Stream output, int value)
             => AnimatedPNG.Write(output, BitConverter.GetBytes(value).Reverse().ToArray());
 
         private static void Write(Stream output, uint value)
             => AnimatedPNG.Write(output, BitConverter.GetBytes(value).Reverse().ToArray());
 
-        private static void Write(Stream output,string value)
-            => AnimatedPNG.Write(output,value.ToCharArray().Select(c=>(byte)c).ToArray());
+        private static void Write(Stream output, string value)
+            => AnimatedPNG.Write(output, value.ToCharArray().Select(c => (byte)c).ToArray());
 
-        private static void Write(Stream output,TimeSpan timespan)
+        private static void Write(Stream output, TimeSpan timespan)
         {
-            AnimatedPNG.Write(output,BitConverter.GetBytes((short)timespan.TotalSeconds).Reverse().ToArray());
+            AnimatedPNG.Write(output, BitConverter.GetBytes((short)timespan.TotalSeconds).Reverse().ToArray());
             AnimatedPNG.Write(output, BitConverter.GetBytes((short)1).Reverse().ToArray());
         }
 
         private static void WriteCRC(Stream output, byte[] value)
             => AnimatedPNG.Write(output, new CrcCalculator().GetCRC32(value));
 
-        private static void WriteCRC(Stream output,string value)
+        private static void WriteCRC(Stream output, string value)
             => AnimatedPNG.WriteCRC(output, value.ToCharArray().Select(c => (byte)c).ToArray());
 
         protected virtual void Dispose(bool disposing)

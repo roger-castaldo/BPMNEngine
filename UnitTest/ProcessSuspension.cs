@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Xml;
-using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
@@ -126,7 +126,8 @@ namespace UnitTest
             try
             {
                 instance.Resume();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 exception=e;
             }

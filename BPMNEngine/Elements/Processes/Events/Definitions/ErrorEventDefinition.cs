@@ -19,10 +19,10 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public IEnumerable<string> ErrorTypes
             => BaseTypes.DefaultIfEmpty("*");
 
-        public EventSubTypes Type 
+        public EventSubTypes Type
             => EventSubTypes.Error;
 
-        public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public override bool IsValid(out IEnumerable<string> err)

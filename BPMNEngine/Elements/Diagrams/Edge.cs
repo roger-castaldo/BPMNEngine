@@ -1,18 +1,17 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
-
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.State;
+using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
 {
-    [XMLTagAttribute("bpmndi","BPMNEdge")]
+    [XMLTagAttribute("bpmndi", "BPMNEdge")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Plane))]
-    internal record Edge: ADiagramElement, IRenderingElement
+    internal record Edge : ADiagramElement, IRenderingElement
     {
         private const float _PEN_SIZE = 2.0f;
         private static readonly float _baseTLength = _PEN_SIZE*1.5f;
@@ -42,23 +41,23 @@ namespace BPMNEngine.Elements.Diagrams
                     Label l = Label;
                     _rectangle = new RectF(_rectangle.Value.X-3.5f, _rectangle.Value.Y-3.5f, _rectangle.Value.Width+6.5f, _rectangle.Value.Height+6.5f);
                     if (l != null && l.Bounds!=null)
-                        _rectangle = MergeRectangle(_rectangle.Value,l.Bounds.Rectangle);
+                        _rectangle = MergeRectangle(_rectangle.Value, l.Bounds.Rectangle);
                 }
                 return _rectangle.Value;
             }
         }
 
-        public Label Label 
+        public Label Label
             => Children.OfType<Label>().FirstOrDefault();
 
-        private static void GenerateTriangle(ICanvas surface, Color color, Point end,Point start)
+        private static void GenerateTriangle(ICanvas surface, Color color, Point end, Point start)
         {
             float d = (float)Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
             float t = _baseTLength / d;
             Point pc = new(((1f - t) * end.X) + (t * start.X), ((1f - t) * end.Y) + (t * start.Y));
             Point fend = new(end.X, end.Y);
-            Point p1 = new(pc.X-(fend.Y-pc.Y),(fend.X-pc.X)+pc.Y);
-            Point p2 = new(fend.Y-pc.Y+pc.X,pc.Y-(fend.X-pc.X));
+            Point p1 = new(pc.X-(fend.Y-pc.Y), (fend.X-pc.X)+pc.Y);
+            Point p2 = new(fend.Y-pc.Y+pc.X, pc.Y-(fend.X-pc.X));
             surface.DrawLine(fend, pc);
             surface.FillColor=color;
 
@@ -82,12 +81,12 @@ namespace BPMNEngine.Elements.Diagrams
             return res;
         }
 
-        public void Render(ICanvas surface, ProcessPath path,Definition definition)
+        public void Render(ICanvas surface, ProcessPath path, Definition definition)
         {
             var points = Points.ToArray();
             var polyPath = new PathF(points[0]);
             points.Skip(1).ForEach(p => polyPath.LineTo(p));
-            
+
             var color = Diagram.GetColor(path.GetStatus(BPMNElement));
 
             surface.StrokeColor=color;
@@ -103,7 +102,7 @@ namespace BPMNEngine.Elements.Diagrams
             if (delem is MessageFlow)
             {
                 surface.FillColor = color;
-                surface.FillEllipse(new RectF(Points.First().X-0.5f,Points.First().Y-0.5f,1.5f, 1.5f));
+                surface.FillEllipse(new RectF(Points.First().X-0.5f, Points.First().Y-0.5f, 1.5f, 1.5f));
                 Edge.GenerateTriangle(surface, color, points[^1], points[^2]);
             }
             else

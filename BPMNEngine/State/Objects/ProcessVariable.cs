@@ -1,12 +1,6 @@
 ﻿using BPMNEngine.Interfaces.State;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using static BPMNEngine.State.ProcessVariables;
 
 namespace BPMNEngine.State.Objects
 {
@@ -26,8 +20,8 @@ namespace BPMNEngine.State.Objects
         private const string _FILE_DATA = "Data";
 
         public string Name { get; private set; }
-        public int StepIndex { get; private set; }  
-        public object Value { get;private set; }
+        public int StepIndex { get; private set; }
+        public object Value { get; private set; }
 
         public ProcessVariable() { }
 
@@ -36,7 +30,7 @@ namespace BPMNEngine.State.Objects
             Name=name;
             StepIndex=stepIndex;
             Value=value;
-        }   
+        }
 
         public bool CanRead(XmlReader reader, Version version) => reader.NodeType==XmlNodeType.Element && (
                 (reader.Name==_ORIGINAL_PATH_ENTRY_ELEMENT && version.Equals(ORIGINAL_VERSION))
@@ -44,7 +38,8 @@ namespace BPMNEngine.State.Objects
             );
         public bool CanRead(Utf8JsonReader reader, Version version)
             => reader.TokenType==JsonTokenType.StartObject;
-        public XmlReader Read(XmlReader reader, Version version){
+        public XmlReader Read(XmlReader reader, Version version)
+        {
             StepIndex = int.Parse(reader.GetAttribute(_PATH_STEP_INDEX));
             Name = reader.GetAttribute(_NAME);
             var type = (VariableTypes)Enum.Parse(typeof(VariableTypes), reader.GetAttribute(_TYPE));
@@ -87,7 +82,8 @@ namespace BPMNEngine.State.Objects
                 reader.Read();
             return reader;
         }
-        public Utf8JsonReader Read(Utf8JsonReader reader, Version version) {
+        public Utf8JsonReader Read(Utf8JsonReader reader, Version version)
+        {
             var type = VariableTypes.Null;
             if (reader.TokenType==JsonTokenType.StartObject)
                 reader.Read();
@@ -133,7 +129,8 @@ namespace BPMNEngine.State.Objects
             reader.Read();
             return reader;
         }
-        public void Write(XmlWriter writer) {
+        public void Write(XmlWriter writer)
+        {
             writer.WriteStartElement(GetType().Name);
             writer.WriteAttributeString(_PATH_STEP_INDEX, StepIndex.ToString());
             writer.WriteAttributeString(_NAME, Name);
@@ -175,7 +172,8 @@ namespace BPMNEngine.State.Objects
             }
             writer.WriteEndElement();
         }
-        public void Write(Utf8JsonWriter writer) {
+        public void Write(Utf8JsonWriter writer)
+        {
             writer.WriteStartObject();
             writer.WritePropertyName(_PATH_STEP_INDEX);
             writer.WriteNumberValue(StepIndex);
@@ -364,7 +362,7 @@ namespace BPMNEngine.State.Objects
         private static VariableTypes GetVariableType(object value)
         {
             string fullName = (value.GetType().IsArray && value.GetType().FullName != "System.Byte[]" && value.GetType().FullName!="System.String" ? value.GetType().GetElementType().FullName : value.GetType().FullName);
-            if (string.Equals(fullName,typeof(SFile).FullName))
+            if (string.Equals(fullName, typeof(SFile).FullName))
                 return VariableTypes.File;
             else
                 return fullName switch
@@ -384,7 +382,7 @@ namespace BPMNEngine.State.Objects
                     "System.UInt16" => VariableTypes.UnsignedShort,
                     "System.String" => VariableTypes.String,
                     "System.Guid" => VariableTypes.Guid,
-                    _=>VariableTypes.Null
+                    _ => VariableTypes.Null
                 };
         }
 

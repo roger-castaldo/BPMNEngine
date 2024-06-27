@@ -1,20 +1,19 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
-
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
-using BPMNEngine.State;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.State;
+using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
 {
-    [XMLTagAttribute("bpmndi","BPMNShape")]
+    [XMLTagAttribute("bpmndi", "BPMNShape")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Plane))]
-    internal record Shape : ADiagramElement,IRenderingElement
+    internal record Shape : ADiagramElement, IRenderingElement
     {
         public Shape(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -75,11 +74,11 @@ namespace BPMNEngine.Elements.Diagrams
         #endregion
 
         #region Event
-        private void RenderEvent(AEvent aEvent, ICanvas surface,Color color)
+        private void RenderEvent(AEvent aEvent, ICanvas surface, Color color)
         {
             var icon = (aEvent) switch
             {
-                (StartEvent startEvent) when startEvent.SubType.HasValue 
+                (StartEvent startEvent) when startEvent.SubType.HasValue
                     => startEvent.SubType.Value switch
                     {
                         EventSubTypes.Message => BPMIcons.MessageStartEvent,
@@ -88,7 +87,7 @@ namespace BPMNEngine.Elements.Diagrams
                         EventSubTypes.Timer => BPMIcons.TimerStartEvent,
                         _ => BPMIcons.StartEvent
                     },
-                (IntermediateThrowEvent intermediateThrowEvent) 
+                (IntermediateThrowEvent intermediateThrowEvent)
                     => intermediateThrowEvent.SubType switch
                     {
                         EventSubTypes.Message => BPMIcons.MessageIntermediateThrowEvent,
@@ -146,7 +145,7 @@ namespace BPMNEngine.Elements.Diagrams
 
         #region Gateway
         private void RenderGateway(Processes.Gateways.AGateway aGateway, ICanvas surface, Color color)
-            =>IconGraphic.AppendIcon(this.Rectangle, (BPMIcons)Enum.Parse(typeof(BPMIcons), aGateway.GetType().Name), surface, color);
+            => IconGraphic.AppendIcon(this.Rectangle, (BPMIcons)Enum.Parse(typeof(BPMIcons), aGateway.GetType().Name), surface, color);
         #endregion
 
         #region Lane
@@ -163,7 +162,7 @@ namespace BPMNEngine.Elements.Diagrams
 
             if (elem.ToString()!="")
             {
-                surface.Rotate(-90,this.Rectangle.X,this.Rectangle.Y);
+                surface.Rotate(-90, this.Rectangle.X, this.Rectangle.Y);
                 surface.FontColor=color;
                 surface.DrawString(elem.ToString(), new RectF(this.Rectangle.X-this.Rectangle.Height, this.Rectangle.Y+1, this.Rectangle.Height, this.Rectangle.Width), HorizontalAlignment.Center, VerticalAlignment.Top);
                 surface.Rotate(90, this.Rectangle.X, this.Rectangle.Y);
@@ -178,7 +177,7 @@ namespace BPMNEngine.Elements.Diagrams
             surface.StrokeDashPattern=null;
             surface.StrokeSize = aTask is CallActivity ? _ACTIVITY_PEN_SIZE : _PEN_SIZE;
 
-            surface.DrawRoundedRectangle(this.Rectangle,_TASK_RADIUS);
+            surface.DrawRoundedRectangle(this.Rectangle, _TASK_RADIUS);
 
             if (Enum.TryParse(typeof(BPMIcons), aTask.GetType().Name, out object obj))
                 IconGraphic.AppendIcon(new Rect(this.Rectangle.X + 7, this.Rectangle.Y + 11, 15, 15), (BPMIcons)obj, surface, color);
@@ -216,7 +215,7 @@ namespace BPMNEngine.Elements.Diagrams
             surface.StrokeColor=color;
             surface.StrokeDashPattern=null;
             surface.StrokeSize = _PEN_SIZE;
-            surface.DrawRoundedRectangle(this.Rectangle,_SUB_PROCESS_CORNER_RADIUS);
+            surface.DrawRoundedRectangle(this.Rectangle, _SUB_PROCESS_CORNER_RADIUS);
         }
         #endregion
     }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using System.Reflection;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
@@ -14,13 +14,13 @@ namespace BPMNEngine.Elements.Processes.Scripts
         private static readonly string[] IMPORTS = ["System", "BPMNEngine", "BPMNEngine.Interfaces", "BPMNEngine.Interfaces.Variables", "System.Linq"];
 
         protected string ClassName { get; private init; }
-        protected string FunctionName { get;private init; }
+        protected string FunctionName { get; private init; }
         private readonly object lockable = new();
 
         private IEnumerable<string> Imports
             => IMPORTS
             .Concat(SubNodes
-                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.Equals("using",StringComparison.InvariantCultureIgnoreCase))
+                .Where(n => n.NodeType==XmlNodeType.Element && n.Name.Equals("using", StringComparison.InvariantCultureIgnoreCase))
                 .Select(n => n.InnerText)
             )
             .Distinct();
@@ -31,7 +31,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 .Where(n => n.NodeType==XmlNodeType.Element && n.Name.Equals("dll", StringComparison.InvariantCultureIgnoreCase))
                 .Select(n => n.InnerText)
             );
-        
+
         private Assembly _assembly;
 
         protected ACompiledScript(XmlElement elem, XmlPrefixMap map, AElement parent)
@@ -42,7 +42,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
         }
 
         protected abstract EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled);
-        
+
         private bool CompileAssembly(out string errors)
         {
             errors = null;
@@ -55,7 +55,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                         .Select(ass => MetadataReference.CreateFromFile(GetAssemblyLocation(ass)))
                         .Concat(
                             Dlls
-                            .Select(d=> MetadataReference.CreateFromFile(d))
+                            .Select(d => MetadataReference.CreateFromFile(d))
                         );
                     EmitResult res = Compile(NextName(), references, Imports, Code, out byte[] compiled);
                     if (!res.Success)
@@ -77,7 +77,8 @@ namespace BPMNEngine.Elements.Processes.Scripts
             try
             {
                 return ass.Location=="" ? null : ass.Location;
-            }catch(Exception)
+            }
+            catch (Exception)
             {
                 return null;
             }

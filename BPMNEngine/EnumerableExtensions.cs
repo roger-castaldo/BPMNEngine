@@ -16,7 +16,7 @@
             {
                 var next = stack.Pop();
                 yield return next;
-                childSelector(next).ForEach(child=>stack.Push(child));
+                childSelector(next).ForEach(child => stack.Push(child));
             }
         }
 

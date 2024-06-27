@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System.Collections.Generic;
 using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
 namespace UnitTest
 {
@@ -22,7 +22,7 @@ namespace UnitTest
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
         {
-            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks(){ProcessTask=new ProcessTask(ProcessTask)});
+            _messageProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/messages.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask=new ProcessTask(ProcessTask) });
             _signalProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/signals.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
             _escalateProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/escalations.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
             _errorProcess = new BusinessProcess(Utility.LoadResourceDocument("EmissionHandling/errors.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask = new ProcessTask(ProcessTask) });
@@ -56,7 +56,7 @@ namespace UnitTest
                             task.Escalate(out _);
                         break;
                     case "Error":
-                        task.EmitError(new System.Exception((string)task.Variables[_VALUE_ID]),out _);
+                        task.EmitError(new System.Exception((string)task.Variables[_VALUE_ID]), out _);
                         break;
                 }
             }
@@ -72,7 +72,7 @@ namespace UnitTest
             });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState,"IntermediateCatchEvent_1rztezm"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "IntermediateCatchEvent_1rztezm"));
         }
 
         [TestMethod]

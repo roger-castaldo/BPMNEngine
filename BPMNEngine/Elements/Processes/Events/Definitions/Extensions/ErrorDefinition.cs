@@ -6,11 +6,11 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
     [ValidParent(typeof(ExtensionElements))]
     internal record ErrorDefinition : AElement
     {
-        public ErrorDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public ErrorDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public string Type => this["type"];
-        
+
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);

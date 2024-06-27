@@ -1,5 +1,5 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Elements;
+﻿using BPMNEngine.Elements;
+using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Drawing.Icons.Gateways
 {

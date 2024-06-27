@@ -9,7 +9,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
 
         public void Add(ICanvas surface, int iconSize, Color color)
         {
-            Rect rect = (fullSize ? new Rect(0,5,AIcon.IMAGE_SIZE-1,30) : new Rect(10f,14f,25f,17f));
+            Rect rect = (fullSize ? new Rect(0, 5, AIcon.IMAGE_SIZE-1, 30) : new Rect(10f, 14f, 25f, 17f));
 
             surface.StrokeColor=color;
             surface.StrokeDashPattern=null;

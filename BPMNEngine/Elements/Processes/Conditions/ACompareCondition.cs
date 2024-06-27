@@ -10,11 +10,11 @@ namespace BPMNEngine.Elements.Processes.Conditions
         protected ACompareCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
-                _map = map;
+            _map = map;
         }
 
         protected object GetLeft(IReadonlyVariables variables)
-            =>this["leftVariable"] != null?
+            => this["leftVariable"] != null ?
                 ACompareCondition.ExtractVariable(variables, this["leftVariable"])
                 : SubNodes
                     .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "left", n.Name) || n.Name == "left"))
@@ -65,13 +65,15 @@ namespace BPMNEngine.Elements.Processes.Conditions
                     ret = variablesContainer[name];
                 else if (variablesContainer[name[..name.IndexOf('.')]] != null)
                     ret = ExtractVariable(variablesContainer[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
-            }else if (source is IDictionary dictionary)
+            }
+            else if (source is IDictionary dictionary)
             {
                 if (!name.Contains('.'))
                 {
-                    if (dictionary.Keys.OfType<object>().Any(o=>o.ToString().Equals(name,StringComparison.InvariantCultureIgnoreCase)))
+                    if (dictionary.Keys.OfType<object>().Any(o => o.ToString().Equals(name, StringComparison.InvariantCultureIgnoreCase)))
                         ret = dictionary[name];
-                } else
+                }
+                else
                 {
                     if (dictionary.Keys.OfType<object>().Any(o => o.ToString().Equals(name[..name.IndexOf('.')], StringComparison.InvariantCultureIgnoreCase)))
                         ret = ExtractVariable(dictionary[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
@@ -81,7 +83,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         }
 
         private static object ConvertToType(string value, Type type, IReadonlyVariables variables)
-        =>type.FullName switch
+        => type.FullName switch
         {
             "System.Boolean" => bool.Parse(value),
             "System.Byte[]" => Convert.FromBase64String(value),
@@ -94,7 +96,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             "System.Int64" => long.Parse(value),
             "System.Int16" => short.Parse(value),
             _ => value
-        }; 
+        };
 
         public override bool IsValid(out IEnumerable<string> err)
         {

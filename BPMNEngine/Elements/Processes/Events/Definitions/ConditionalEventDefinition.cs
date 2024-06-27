@@ -9,7 +9,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     [ValidParent(typeof(AEvent))]
     internal record ConditionalEventDefinition : AElement, IEventDefinition
     {
-        public ConditionalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public ConditionalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public EventSubTypes Type => EventSubTypes.Conditional;

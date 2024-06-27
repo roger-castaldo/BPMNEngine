@@ -10,7 +10,7 @@ namespace BPMNEngine.Elements.Processes.Events
     {
         public EventSubTypes? SubType
             => (
-            Children.Any(elem=>elem is IEventDefinition) ? 
+            Children.Any(elem => elem is IEventDefinition) ?
             Children
             .OfType<IEventDefinition>()
             .Select(ie => ie.Type)
@@ -21,7 +21,7 @@ namespace BPMNEngine.Elements.Processes.Events
             : base(elem, map, parent) { }
 
         public TimeSpan? GetTimeout(IReadonlyVariables variables)
-            =>Children
+            => Children
                 .OfType<TimerEventDefinition>()
                 .Select(ie => ie.GetTimeout(variables))
                 .FirstOrDefault();

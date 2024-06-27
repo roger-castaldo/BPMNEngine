@@ -5,7 +5,7 @@ namespace BPMNEngine
     /// <summary>
     /// This structure is used to house a File associated within a process instance.  It is used to both store, encode, decode and retreive File variables inside the process state.
     /// </summary>
-    public readonly struct SFile 
+    public readonly struct SFile
     {
         /// <summary>
         /// The name of the File.
@@ -44,9 +44,9 @@ namespace BPMNEngine
         {
             if (obj is SFile fle)
             {
-                return fle.Name.Equals(Name,StringComparison.InvariantCultureIgnoreCase) &&
+                return fle.Name.Equals(Name, StringComparison.InvariantCultureIgnoreCase) &&
                     fle.Extension.Equals(Extension, StringComparison.InvariantCultureIgnoreCase) &&
-                    string.Equals(fle.ContentType??ContentType??String.Empty,ContentType??fle.ContentType??string.Empty,StringComparison.InvariantCultureIgnoreCase) &&
+                    string.Equals(fle.ContentType??ContentType??String.Empty, ContentType??fle.ContentType??string.Empty, StringComparison.InvariantCultureIgnoreCase) &&
                     Content.Length==fle.Content.Length &&
                     !Content.Select((b, i) => new { val = b, index = i }).Any(o => fle.Content[o.index]!=o.val);
             }

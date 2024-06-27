@@ -8,9 +8,9 @@ namespace BPMNEngine
     {
         #region Xml State
 #pragma warning disable S4136 // Method overloads should be grouped together
-        private static IState LoadState(XmlDocument doc,int? stepIndex=null)
+        private static IState LoadState(XmlDocument doc, int? stepIndex = null)
 #pragma warning restore S4136 // Method overloads should be grouped together
-            =>ProcessState.LoadState(doc,stepIndex:stepIndex);
+            => ProcessState.LoadState(doc, stepIndex: stepIndex);
 
         /// <summary>
         /// A Utility call used to extract the variable values from a Business Process State Document.
@@ -29,7 +29,7 @@ namespace BPMNEngine
         /// <param name="stepIndex">The step index to extract the values at</param>
         /// <returns>The variables extracted from the Process State Document</returns>
         public static IImmutableDictionary<string, object> ExtractProcessVariablesFromStateDocument(XmlDocument doc, int stepIndex)
-            => LoadState(doc,stepIndex:stepIndex).Variables;
+            => LoadState(doc, stepIndex: stepIndex).Variables;
 
         /// <summary>
         /// A Utility call used to extract the steps from a Business Process State Document
@@ -55,7 +55,7 @@ namespace BPMNEngine
 
         #region Json State
         private static IState LoadState(Utf8JsonReader reader, int? stepIndex = null)
-            =>ProcessState.LoadState(reader, stepIndex: stepIndex);
+            => ProcessState.LoadState(reader, stepIndex: stepIndex);
 
         /// <summary>
         /// A Utility call used to extract the variable values from a Business Process State Document.

@@ -2,7 +2,6 @@
 using BPMNEngine.Elements;
 using BPMNEngine.Interfaces.Elements;
 using System.Globalization;
-using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 
@@ -16,7 +15,7 @@ namespace BPMNEngine
         private static readonly Dictionary<Type, ConstructorInfo> xmlConstructors;
         private static readonly Dictionary<string, Dictionary<string, Type>> idealMap;
         public static Dictionary<string, Dictionary<string, Type>> IdealMap => idealMap;
-        
+
         static Utility()
         {
             xmlConstructors = [];
@@ -94,7 +93,7 @@ namespace BPMNEngine
         }
 
         internal static XMLTagAttribute[] GetTagAttributes(Type t)
-            => tagAttributes.TryGetValue(t,out XMLTagAttribute[] value) ? value : null;
+            => tagAttributes.TryGetValue(t, out XMLTagAttribute[] value) ? value : null;
 
         internal static IElement ConstructElementType(XmlElement element, ref XmlPrefixMap map, ref ElementTypeCache cache, AElement parent)
             => cache.IsCached(element.Name) ? (IElement)xmlConstructors[cache[element.Name]].Invoke([element, map, parent]) : null;
@@ -123,23 +122,23 @@ namespace BPMNEngine
                     case XmlNodeType.Document:
                         return builder.ToString();
                     default:
-                        throw (definition == null ? new ArgumentException("Only elements and attributes are supported") : definition.Exception(null,new ArgumentException("Only elements and attributes are supported")));
+                        throw (definition == null ? new ArgumentException("Only elements and attributes are supported") : definition.Exception(null, new ArgumentException("Only elements and attributes are supported")));
                 }
             }
-            throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(null,new ArgumentException("Node was not in a document")));
+            throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(null, new ArgumentException("Node was not in a document")));
         }
 
         public static int FindElementIndex(Definition definition, XmlElement element)
         {
-            definition?.LogLine(LogLevel.Debug,null,$"Locating Element Index for element {element.Name}");
+            definition?.LogLine(LogLevel.Debug, null, $"Locating Element Index for element {element.Name}");
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
                 return 1;
             XmlElement parent = (XmlElement)parentNode;
-            var result = parent.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().IndexOf(e=>e.Name == element.Name);
+            var result = parent.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().IndexOf(e => e.Name == element.Name);
             if (result!=-1)
                 return result;
-            throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(null,new ArgumentException("Couldn't find element within parent")));
+            throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(null, new ArgumentException("Couldn't find element within parent")));
         }
 
         internal static object ExtractVariableValue(VariableTypes type, string text)
@@ -155,17 +154,17 @@ namespace BPMNEngine
                     ? throw new FormatException($"Unable to parse date {text}")
                     : dt
                 ),
-                VariableTypes.Decimal=>decimal.Parse(text),
-                VariableTypes.Double=>double.Parse(text),
-                VariableTypes.Float=>float.Parse(text),
-                VariableTypes.Integer=>int.Parse(text),
-                VariableTypes.Long=>long.Parse(text),
-                VariableTypes.Short=>short.Parse(text),
-                VariableTypes.UnsignedInteger=>uint.Parse(text),
-                VariableTypes.UnsignedLong=>ulong.Parse(text),
-                VariableTypes.UnsignedShort=>ushort.Parse(text),
-                VariableTypes.String=>text,
-                VariableTypes.Guid=>new Guid(text),
+                VariableTypes.Decimal => decimal.Parse(text),
+                VariableTypes.Double => double.Parse(text),
+                VariableTypes.Float => float.Parse(text),
+                VariableTypes.Integer => int.Parse(text),
+                VariableTypes.Long => long.Parse(text),
+                VariableTypes.Short => short.Parse(text),
+                VariableTypes.UnsignedInteger => uint.Parse(text),
+                VariableTypes.UnsignedLong => ulong.Parse(text),
+                VariableTypes.UnsignedShort => ushort.Parse(text),
+                VariableTypes.String => text,
+                VariableTypes.Guid => new Guid(text),
                 _ => null
             };
     }

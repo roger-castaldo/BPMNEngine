@@ -1,11 +1,11 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Attributes;
+﻿using BPMNEngine.Attributes;
+using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
 {
-    [XMLTagAttribute("dc","Bounds")]
+    [XMLTagAttribute("dc", "Bounds")]
     [RequiredAttributeAttribute("x")]
-    [AttributeRegexAttribute("x","^-?\\d+(\\.\\d+)?$")]
+    [AttributeRegexAttribute("x", "^-?\\d+(\\.\\d+)?$")]
     [RequiredAttributeAttribute("y")]
     [AttributeRegexAttribute("y", "^-?\\d+(\\.\\d+)?$")]
     [RequiredAttributeAttribute("width")]
@@ -14,7 +14,7 @@ namespace BPMNEngine.Elements.Diagrams
     [AttributeRegexAttribute("height", "^\\d+(\\.\\d+)?$")]
     [ValidParent(typeof(Label))]
     [ValidParent(typeof(Shape))]
-    internal record Bounds: AElement
+    internal record Bounds : AElement
     {
         public Bounds(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

@@ -28,9 +28,10 @@ namespace BPMNEngine.Drawing.Icons.IconParts
             _PATH.Close();
         }
 
-        public void Add(ICanvas surface,int iconSize, Color color)
+        public void Add(ICanvas surface, int iconSize, Color color)
         {
-            if (filled) {
+            if (filled)
+            {
                 surface.FillColor=color;
                 surface.FillPath(_PATH);
             }

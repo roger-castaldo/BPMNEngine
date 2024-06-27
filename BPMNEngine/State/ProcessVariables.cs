@@ -1,11 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
-using System.Text.Json;
-using System.Windows.Markup;
-using BPMNEngine.Drawing.Icons.IconParts;
-using BPMNEngine.Interfaces.State;
+﻿using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.State.Objects;
+using System.Collections.Immutable;
+using System.Text.Json;
 
 namespace BPMNEngine.State
 {
@@ -28,7 +25,8 @@ namespace BPMNEngine.State
             public IImmutableList<string> Keys
                 => processVariables[stepIndex];
 
-            public IImmutableDictionary<string, object> AsExtract {
+            public IImmutableDictionary<string, object> AsExtract
+            {
                 get
                 {
                     Dictionary<string, object> ret = new();
@@ -137,7 +135,8 @@ namespace BPMNEngine.State
 
         public object this[string variableName, int stepIndex]
         {
-            get {
+            get
+            {
                 var lst = RunQuery((IEnumerable<ProcessVariable> variables) =>
                 {
                     return variables
@@ -155,7 +154,8 @@ namespace BPMNEngine.State
         }
 
         public IImmutableList<string> this[int stepIndex]
-            => RunQuery((IEnumerable<ProcessVariable> variables) => {
+            => RunQuery((IEnumerable<ProcessVariable> variables) =>
+            {
                 return variables
                     .Where(variable => variable.StepIndex <= stepIndex)
                     .OrderBy(var => var.StepIndex)

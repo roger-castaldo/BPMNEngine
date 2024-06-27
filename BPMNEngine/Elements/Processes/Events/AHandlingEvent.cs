@@ -14,28 +14,29 @@ namespace BPMNEngine.Elements.Processes.Events
             ??Children.OfType<SignalEventDefinition>()
             .FirstOrDefault()?.SignalTypes;
 
-        private ConditionalEventDefinition Condition 
+        private ConditionalEventDefinition Condition
             => Children
             .OfType<ConditionalEventDefinition>()
             .FirstOrDefault();
 
-        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) : 
-            base(elem, map, parent) {}
+        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) :
+            base(elem, map, parent)
+        { }
 
         public int EventCost(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
         {
             if (SubType.Value==evnt)
             {
-                var handlesEvent=SubType.Value switch
+                var handlesEvent = SubType.Value switch
                 {
-                    EventSubTypes.Message=>Types.Any(t=>t.Equals(data)||t.Equals("*")),
+                    EventSubTypes.Message => Types.Any(t => t.Equals(data)||t.Equals("*")),
                     EventSubTypes.Signal => Types.Any(t => t.Equals(data)||t.Equals("*")),
-                    EventSubTypes.Conditional=>Condition.IsValid(variables),
-                    EventSubTypes.Error =>(
-                        (data is IntermediateProcessExcepion intermediateProcessException && Types.Any(t=>t.Equals(intermediateProcessException.ProcessMessage)||t.Equals(intermediateProcessException.Message)||t.Equals("*")))
-                        ||(data is Exception exception && Types.Any(t=>t.Equals(exception.Message)||t.Equals(exception.GetType().Name)||t.Equals("*")))
+                    EventSubTypes.Conditional => Condition.IsValid(variables),
+                    EventSubTypes.Error => (
+                        (data is IntermediateProcessExcepion intermediateProcessException && Types.Any(t => t.Equals(intermediateProcessException.ProcessMessage)||t.Equals(intermediateProcessException.Message)||t.Equals("*")))
+                        ||(data is Exception exception && Types.Any(t => t.Equals(exception.Message)||t.Equals(exception.GetType().Name)||t.Equals("*")))
                     ),
-                    _ =>true
+                    _ => true
                 };
                 if (handlesEvent)
                     return GetEventCost(evnt, source, variables);

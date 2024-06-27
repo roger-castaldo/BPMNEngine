@@ -13,7 +13,7 @@ namespace BPMNEngine.Drawing
         private readonly MemoryStream data;
         private bool disposedValue;
 
-        public byte[] IHDR =>Find("IHDR")?[0];
+        public byte[] IHDR => Find("IHDR")?[0];
 
         public List<byte[]> IDAT => Find("IDAT");
 
@@ -28,7 +28,7 @@ namespace BPMNEngine.Drawing
             Y = y;
             Delay=delay;
             data = new();
-            image.Save(data,ImageFormat.Png);
+            image.Save(data, ImageFormat.Png);
         }
 
         private List<byte[]> Find(string search)

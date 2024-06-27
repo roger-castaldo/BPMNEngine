@@ -27,7 +27,7 @@ namespace BPMNEngine
 
         private IImage Diagram(bool outputVariables, ProcessState state = null)
         {
-            state??=new ProcessState(null,this, null, null, null);
+            state??=new ProcessState(null, this, null, null, null);
             WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", [(outputVariables ? " with variables" : " without variables")]));
             double width = 0;
             double height = 0;
@@ -41,7 +41,8 @@ namespace BPMNEngine
                 surface.FillColor=Colors.White;
                 surface.FillRectangle(new Rect(0, 0, width, height));
                 float padding = DEFAULT_PADDING / 2;
-                definition.Diagrams.ForEach(d => {
+                definition.Diagrams.ForEach(d =>
+                {
                     surface.DrawImage(d.Render(state.Path, this.definition), DEFAULT_PADDING / 2, padding, d.Size.Width, d.Size.Height);
                     padding += d.Size.Height + DEFAULT_PADDING;
                 });

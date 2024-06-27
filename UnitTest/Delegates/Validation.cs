@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System.Collections.Generic;
-using System.Xml;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Xml;
 
 namespace UnitTest.Delegates
 {
@@ -69,7 +69,7 @@ namespace UnitTest.Delegates
 
         private static bool EventOccured(XmlDocument state, string id, StepStatuses status)
             => Utility.StepAchievedStatus(state, id, status);
-        
+
 
         [TestMethod]
         public void TestPathIsValid()

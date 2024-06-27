@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System.Collections.Generic;
-using System.Xml;
-using System.Collections.Concurrent;
-using System.Reflection;
-using System;
 using BPMNEngine.Interfaces.Elements;
-using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
 
 namespace UnitTest.Extensions
 {
@@ -55,7 +55,7 @@ namespace UnitTest.Extensions
             _eventProcess.Dispose();
         }
 
-        private XmlDocument RunPathProcess(Dictionary<string,object> variables)
+        private XmlDocument RunPathProcess(Dictionary<string, object> variables)
         {
             Dictionary<string, object> vars = new();
             foreach (string key in _pathFailVariables.Keys)
@@ -64,7 +64,7 @@ namespace UnitTest.Extensions
                     vars.Add(key, _pathFailVariables[key]);
             }
             foreach (string key in variables.Keys)
-                vars.Add(key,variables[key]);
+                vars.Add(key, variables[key]);
             IProcessInstance processInstance = _pathProcess.BeginProcess(vars);
             Assert.IsNotNull(processInstance);
             Assert.IsTrue(Utility.WaitForCompletion(processInstance));
@@ -73,7 +73,7 @@ namespace UnitTest.Extensions
             return doc;
         }
 
-        private bool _StepRan(BusinessProcess process,XmlDocument xmlDocument, string name)
+        private bool _StepRan(BusinessProcess process, XmlDocument xmlDocument, string name)
         {
             XmlNode node = process.Document.SelectSingleNode(string.Format("/*[local-name()='definitions']/*[local-name()='process']/*[local-name()='sequenceFlow'][@name='{0}']", name));
             if (node==null)
@@ -84,13 +84,13 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestIsNull()
         {
-            Assert.IsTrue(_StepRan(_pathProcess,RunPathProcess(new Dictionary<string, object>() { { "isnull", null } }),"IsNull"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isnull", null } }), "IsNull"));
         }
 
         [TestMethod]
         public void TestIsEqual()
         {
-            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isequal", 12} }), "Equals"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isequal", 12 } }), "Equals"));
         }
 
         [TestMethod]

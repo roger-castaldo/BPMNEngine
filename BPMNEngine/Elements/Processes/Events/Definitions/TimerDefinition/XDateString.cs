@@ -8,16 +8,17 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
     [ValidParent(typeof(ExtensionElements))]
     internal record XDateString : AElement
     {
-        private string Code 
-            => this["Code"] ?? 
-            SubNodes.Where(n=>n.NodeType==XmlNodeType.Text).Select(n=>n.Value).FirstOrDefault() ??
-            SubNodes.Where(n=>n.NodeType==XmlNodeType.CDATA).Select(n=>((XmlCDataSection)n).Value).FirstOrDefault() ?? 
+        private string Code
+            => this["Code"] ??
+            SubNodes.Where(n => n.NodeType==XmlNodeType.Text).Select(n => n.Value).FirstOrDefault() ??
+            SubNodes.Where(n => n.NodeType==XmlNodeType.CDATA).Select(n => ((XmlCDataSection)n).Value).FirstOrDefault() ??
             string.Empty;
 
         private readonly DateString DateCode;
 
-        public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent) 
-            : base(elem, map, parent) {
+        public XDateString(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent)
+        {
             DateCode = (string.IsNullOrEmpty(Code) ? null : new(Code));
         }
 

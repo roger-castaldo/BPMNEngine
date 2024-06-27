@@ -16,13 +16,14 @@ namespace BPMNEngine.Elements.Processes.Scripts
         private static readonly MethodInfo _evaluate;
         private static readonly MethodInfo _toObject;
 
-        [ExcludeFromCodeCoverage(Justification ="This portion of the code is used to dynamically load the Jint.dll during runtime and cannot be properly tested")]
+        [ExcludeFromCodeCoverage(Justification = "This portion of the code is used to dynamically load the Jint.dll during runtime and cannot be properly tested")]
         static Javascript()
         {
             try
             {
                 _jintAssembly = Assembly.Load("Jint");
-            }catch(Exception)
+            }
+            catch (Exception)
             {
                 _jintAssembly = null;
             }
@@ -43,7 +44,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             {
                 _engineType = _jintAssembly.GetType("Jint.Engine");
                 _setValue = _engineType.GetMethod("SetValue", [typeof(string), typeof(object)]);
-                _evaluate = _engineType.GetMethod("Evaluate", [typeof(string),typeof(string)]);
+                _evaluate = _engineType.GetMethod("Evaluate", [typeof(string), typeof(string)]);
                 _toObject = _jintAssembly.GetType("Jint.Native.JsValue").GetMethod("ToObject");
             }
         }
@@ -62,7 +63,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
             Debug("Invoking Javascript Engine for script element {0}", ID);
             _setValue.Invoke(engine, pars);
             if (Code.Contains("return "))
-                result = _evaluate.Invoke(engine, [string.Format(_codeExecReturnFormat, Code),null]);
+                result = _evaluate.Invoke(engine, [string.Format(_codeExecReturnFormat, Code), null]);
             else
                 result = _evaluate.Invoke(engine, [Code, null]);
             if (IsCondition)
@@ -87,17 +88,18 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 if (_engineType == null)
                     throw new JintAssemblyMissingException();
                 object engine = _engineType.GetConstructor(Type.EmptyTypes).Invoke([]);
-                object[] pars = ["variables", new ProcessVariablesContainer(null,OwningDefinition.OwningProcess)];
+                object[] pars = ["variables", new ProcessVariablesContainer(null, OwningDefinition.OwningProcess)];
                 _setValue.Invoke(engine, pars);
                 try
                 {
-                    _evaluate.Invoke(engine, [Code,null]);
-                }catch(Exception ex)
+                    _evaluate.Invoke(engine, [Code, null]);
+                }
+                catch (Exception ex)
                 {
                     if (ex.InnerException != null)
                     {
                         if (ex.InnerException.Message.Contains("Illegal return statement"))
-                            _evaluate.Invoke(engine, [string.Format(_codeExecReturnFormat, Code),null]);
+                            _evaluate.Invoke(engine, [string.Format(_codeExecReturnFormat, Code), null]);
                         else
                             throw;
                     }
@@ -105,7 +107,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                         throw;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 err = [e.Message];
                 return false;

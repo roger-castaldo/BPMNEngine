@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Variables;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using BPMNEngine.Interfaces.Elements;
-using BPMNEngine.Interfaces.Variables;
 
 namespace UnitTest.Delegates
 {
@@ -116,11 +116,11 @@ namespace UnitTest.Delegates
             _cache = null;
         }
 
-        private static bool EventOccured(Guid instanceID, string name, string evnt,bool instanceVersion=false)
+        private static bool EventOccured(Guid instanceID, string name, string evnt, bool instanceVersion = false)
         {
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}{1}_{2}_{3}", [(instanceVersion ? "Instance_" : ""),instanceID, name, evnt]))
+                if (str==string.Format("{0}{1}_{2}_{3}", [(instanceVersion ? "Instance_" : ""), instanceID, name, evnt]))
                     return true;
             }
             return false;
@@ -173,7 +173,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(guid, "Flow_10gw13c", "Completed"));
             Assert.IsTrue(EventOccured(guid, "Flow_06vbv76", "Completed"));
             Assert.IsTrue(EventOccured(guid, "Flow_0q597g1", "Completed"));
-            
+
 
             int cnt = 0;
             foreach (string str in _cache)
@@ -260,7 +260,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(guid, "Flow_06vbv76", "Completed"));
             Assert.IsTrue(EventOccured(guid, "Flow_0q597g1", "Completed"));
 
-            Assert.IsTrue(EventOccured(guid, "StartEvent_1", "Started",instanceVersion:true));
+            Assert.IsTrue(EventOccured(guid, "StartEvent_1", "Started", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "StartEvent_1", "Completed", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "EndEvent_1d1a99g", "Completed", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "EndEvent_1d1a99g", "Started", instanceVersion: true));
@@ -270,7 +270,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(guid, "ParallelGateway_197wuek", "Started", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "ParallelGateway_1ud7d8q", "Completed", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "ParallelGateway_1ud7d8q", "Started", instanceVersion: true));
-            Assert.IsTrue(EventOccured(guid, "ScriptTask_0a8en2y", "Completed" , instanceVersion: true));
+            Assert.IsTrue(EventOccured(guid, "ScriptTask_0a8en2y", "Completed", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "ScriptTask_0a8en2y", "Started", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "SubProcess_1fk97di", "Completed", instanceVersion: true));
             Assert.IsTrue(EventOccured(guid, "SubProcess_1fk97di", "Started", instanceVersion: true));

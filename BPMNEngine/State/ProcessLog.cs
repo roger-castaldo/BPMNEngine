@@ -12,10 +12,10 @@ namespace BPMNEngine.State
             public string Log { get; private init; } = log.content.ToString()[..length];
 
             void IReadOnlyStateContainer.Append(XmlWriter writer)
-                =>writer.WriteCData(Log);
+                => writer.WriteCData(Log);
 
             void IReadOnlyStateContainer.Append(Utf8JsonWriter writer)
-                =>writer.WriteStringValue(Log);
+                => writer.WriteStringValue(Log);
         }
 
         private readonly StateLock stateLock = stateLock;
@@ -47,7 +47,7 @@ STACKTRACE:{exception.StackTrace}");
             return sb.ToString();
         }
 
-        public XmlReader Load(XmlReader reader,Version version)
+        public XmlReader Load(XmlReader reader, Version version)
         {
             reader.MoveToContent();
             reader.Read();
@@ -69,9 +69,9 @@ STACKTRACE:{exception.StackTrace}");
         }
 
         public IReadOnlyStateContainer Clone()
-            =>new ReadOnlyProcessLog(this, content.Length);
+            => new ReadOnlyProcessLog(this, content.Length);
 
         public void Dispose()
-            =>content.Clear();
+            => content.Clear();
     }
 }

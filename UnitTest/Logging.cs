@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
-using Microsoft.Extensions.Logging;
-using BPMNEngine.Interfaces.Elements;
-using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
@@ -39,12 +39,12 @@ namespace UnitTest
 
             Assert.IsNotNull(process);
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { },stateLogLevel:LogLevel.Debug);
+            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, stateLogLevel: LogLevel.Debug);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Information, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Information, It.IsAny<DateTime>(), string.Format(_LOG_LINE,_FORMAT_INPUT)), Times.Once);
+            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Information, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
 
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Debug, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
             logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Debug, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);

@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using BPMNEngine.Interfaces.Elements;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace UnitTest.Extensions
@@ -22,7 +22,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCSharp()
         {
-            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"),logging:new BPMNEngine.DelegateContainers.ProcessLogging()
+            var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
             {
                 LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
                 {
@@ -34,7 +34,8 @@ namespace UnitTest.Extensions
             {
                 instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 instance=null;
                 Assert.Fail(e.Message);
             }

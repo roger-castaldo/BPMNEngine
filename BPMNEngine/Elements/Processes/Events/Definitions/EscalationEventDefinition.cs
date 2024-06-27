@@ -8,7 +8,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     internal record EscalationEventDefinition : AElement, IEventDefinition
     {
         public EventSubTypes Type => EventSubTypes.Escalation;
-        public EscalationEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public EscalationEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
     }
 }

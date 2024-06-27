@@ -1,20 +1,11 @@
 ﻿using BPMNEngine.Interfaces.State;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace BPMNEngine.State.Objects
 {
-    internal record StateStep : IStateStep,IStateComponent
+    internal record StateStep : IStateStep, IStateComponent
     {
         private static readonly Version ORIGINAL_VERSION = new("1.0");
         private const string _ORIGINAL_PATH_ENTRY_ELEMENT = "sPathEntry";
@@ -27,7 +18,7 @@ namespace BPMNEngine.State.Objects
         private const string _OUTGOING_ELEM = "outgoing";
         private const string _ORIGINAL_COMPLETED_BY = "CompletedByID";
         private const string _COMPLETED_BY = "completedByID";
-        
+
         public string ElementID { get; private set; }
         public StepStatuses Status { get; private set; }
         public DateTime StartTime { get; private set; }
@@ -38,7 +29,7 @@ namespace BPMNEngine.State.Objects
 
         public StateStep() { }
 
-        public StateStep(string elementID, StepStatuses status,DateTime start,string incomingID=null,DateTime? endTime=null,string completedBy=null,IImmutableList<string> outgoingID = null)
+        public StateStep(string elementID, StepStatuses status, DateTime start, string incomingID = null, DateTime? endTime = null, string completedBy = null, IImmutableList<string> outgoingID = null)
         {
             ElementID = elementID;
             Status = status;
@@ -57,7 +48,8 @@ namespace BPMNEngine.State.Objects
         public bool CanRead(Utf8JsonReader reader, Version version)
             => reader.TokenType==JsonTokenType.StartObject;
 
-        public XmlReader Read(XmlReader reader, Version version){
+        public XmlReader Read(XmlReader reader, Version version)
+        {
             ElementID = reader.GetAttribute(_ELEMENT_ID);
             Status = (StepStatuses)Enum.Parse(typeof(StepStatuses), reader.GetAttribute(_STEP_STATUS));
             StartTime = DateTime.ParseExact(reader.GetAttribute(_START_TIME), Constants.DATETIME_FORMAT, CultureInfo.InvariantCulture);
@@ -132,7 +124,8 @@ namespace BPMNEngine.State.Objects
                 reader.Read();
             return reader;
         }
-        public void Write(XmlWriter writer){
+        public void Write(XmlWriter writer)
+        {
             writer.WriteStartElement(GetType().Name);
             writer.WriteAttributeString(_ELEMENT_ID, ElementID);
             writer.WriteAttributeString(_STEP_STATUS, Status.ToString());
@@ -157,7 +150,8 @@ namespace BPMNEngine.State.Objects
             }
             writer.WriteEndElement();
         }
-        public void Write(Utf8JsonWriter writer){
+        public void Write(Utf8JsonWriter writer)
+        {
             writer.WriteStartObject();
             writer.WritePropertyName(_ELEMENT_ID);
             writer.WriteStringValue(ElementID);

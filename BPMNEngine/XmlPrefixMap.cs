@@ -6,7 +6,7 @@ namespace BPMNEngine
 {
     internal class XmlPrefixMap(BusinessProcess process)
     {
-        private static readonly Regex regBPMNRef = new(".+www\\.omg\\.org/spec/BPMN/.+/MODEL", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript,TimeSpan.FromMilliseconds(500));
+        private static readonly Regex regBPMNRef = new(".+www\\.omg\\.org/spec/BPMN/.+/MODEL", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
         private static readonly Regex regBPMNDIRef = new(".+www\\.omg\\.org/spec/BPMN/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
         private static readonly Regex regDIRef = new(".+www\\.omg\\.org/spec/DD/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
         private static readonly Regex regDCRef = new(".+www\\.omg\\.org/spec/DD/.+/DC", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
@@ -43,7 +43,7 @@ namespace BPMNEngine
                 if (prefix != null)
                 {
                     changed = true;
-                    process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, 
+                    process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now,
                         $"Mapping prefix {prefix} to {att.Name[(att.Name.IndexOf(':') + 1)..]}");
                     locker.EnterWriteLock();
                     var val = att.Name[(att.Name.IndexOf(':')+1)..];

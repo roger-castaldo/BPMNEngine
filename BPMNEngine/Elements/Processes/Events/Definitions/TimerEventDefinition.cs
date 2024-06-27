@@ -8,15 +8,16 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
     [XMLTagAttribute("bpmn", "timerEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal record TimerEventDefinition : AParentElement,IEventDefinition
+    internal record TimerEventDefinition : AParentElement, IEventDefinition
     {
-        public TimerEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public TimerEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public EventSubTypes Type 
+        public EventSubTypes Type
             => EventSubTypes.Timer;
 
-        public TimeSpan? GetTimeout(IReadonlyVariables variables) {
+        public TimeSpan? GetTimeout(IReadonlyVariables variables)
+        {
             DateTime now = DateTime.Now;
             DateTime? end = null;
             var dtValue = Children.FirstOrDefault(ie => ie is XDateString || ie is AScript);

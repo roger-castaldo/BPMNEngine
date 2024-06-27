@@ -12,7 +12,7 @@ namespace BPMNEngine.Elements
         public string Name => this["Name"];
         public object Value { get; private init; }
 
-        public DefinitionVariable(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public DefinitionVariable(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
             string text = elem.InnerText;

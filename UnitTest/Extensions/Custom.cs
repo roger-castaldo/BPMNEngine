@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Xml;
-using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest.Extensions
 {
@@ -17,7 +17,7 @@ namespace UnitTest.Extensions
         [TestMethod]
         public void TestCustomExtension()
         {
-            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks:new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(ProcessTask) });
+            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(ProcessTask) });
             Assert.IsNotNull(process);
             IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>()
             {
@@ -30,7 +30,7 @@ namespace UnitTest.Extensions
             Assert.IsTrue(variables.ContainsKey(_VARIABLE_NAME));
             Assert.AreEqual(_RESULT_VARIABLE_VALUE, variables[_VARIABLE_NAME]);
 
-            instance = process.BeginProcess(new Dictionary<string, object>(){});
+            instance = process.BeginProcess(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             variables = instance.CurrentVariables;

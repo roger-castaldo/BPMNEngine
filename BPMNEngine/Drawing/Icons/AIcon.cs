@@ -1,7 +1,7 @@
-﻿using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Graphics.Skia;
-using BPMNEngine.Drawing.Icons.IconParts;
+﻿using BPMNEngine.Drawing.Icons.IconParts;
 using BPMNEngine.Elements;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Graphics.Skia;
 
 namespace BPMNEngine.Drawing.Icons
 {
@@ -20,15 +20,15 @@ namespace BPMNEngine.Drawing.Icons
             {
                 if (!cache.TryGetValue(color, out SkiaBitmapExportContext value))
                 {
-                    var image  = Diagram.ProduceImage(ImageSize, ImageSize);
+                    var image = Diagram.ProduceImage(ImageSize, ImageSize);
                     var canvas = image.Canvas;
                     canvas.FillColor = Colors.White;
-                    canvas.FillRectangle(0,0,ImageSize, ImageSize);
+                    canvas.FillRectangle(0, 0, ImageSize, ImageSize);
                     InternalDraw(canvas, color);
                     value=image;
                     cache.Add(color, value);
                 }
-                surface.DrawImage(value.Image, container.X,container.Y,container.Width,container.Height);
+                surface.DrawImage(value.Image, container.X, container.Y, container.Width, container.Height);
             }
         }
     }

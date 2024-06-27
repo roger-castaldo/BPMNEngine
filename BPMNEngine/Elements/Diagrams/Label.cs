@@ -2,7 +2,7 @@
 
 namespace BPMNEngine.Elements.Diagrams
 {
-    [XMLTagAttribute("bpmndi","BPMNLabel")]
+    [XMLTagAttribute("bpmndi", "BPMNLabel")]
     [ValidParent(typeof(Edge))]
     [ValidParent(typeof(Shape))]
     internal record Label : AParentElement

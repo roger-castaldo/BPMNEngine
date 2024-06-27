@@ -1,16 +1,16 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Elements.Processes.Events;
+﻿using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces;
-using System.Threading;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
-using System.Text.Json;
+using Microsoft.Maui.Graphics;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Text.Json;
+using System.Threading;
 
 namespace BPMNEngine
 {
@@ -20,7 +20,7 @@ namespace BPMNEngine
         public Guid ID { get; private init; }
         public ProcessState State { get; private init; }
 
-        private ManualResetEventSlim processLock =null;
+        private ManualResetEventSlim processLock = null;
         private ManualResetEventSlim ProcessLock
         {
             get
@@ -29,7 +29,7 @@ namespace BPMNEngine
                 return processLock;
             }
         }
-        private ManualResetEventSlim mreSuspend =null;
+        private ManualResetEventSlim mreSuspend = null;
         public ManualResetEventSlim MreSuspend
         {
             get
@@ -52,7 +52,7 @@ namespace BPMNEngine
             ID = Guid.NewGuid();
             Process = process;
             waitingTasks = new();
-            Delegates=DelegateContainer.Merge(delegates,new DelegateContainer()
+            Delegates=DelegateContainer.Merge(delegates, new DelegateContainer()
             {
                 Events= new DelegateContainers.ProcessEvents()
                 {
@@ -60,19 +60,20 @@ namespace BPMNEngine
                     {
                         Started = (IStepElement element, IReadonlyVariables variables) =>
                         {
-                            if (waitingTasks.Remove(element.ID,out var task))
+                            if (waitingTasks.Remove(element.ID, out var task))
                             {
                                 try
                                 {
                                     task.Set();
                                     task.Dispose();
-                                }catch(Exception) { }
+                                }
+                                catch (Exception) { }
                             }
                         }
                     }
                 }
             });
-            State = new ProcessState(ID,Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
+            State = new ProcessState(ID, Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
             this.stateLogLevel=stateLogLevel;
         }
 
@@ -114,7 +115,7 @@ namespace BPMNEngine
         private void ProcessStepError(IElement step, Exception ex)
             => Process.ProcessStepError(this, step, ex);
 
-        private static void InvokeElementEventDelegate(Delegate @delegate,IElement element,IReadonlyVariables variables)
+        private static void InvokeElementEventDelegate(Delegate @delegate, IElement element, IReadonlyVariables variables)
         {
             if (@delegate!=null)
             {
@@ -144,7 +145,7 @@ namespace BPMNEngine
             Process.HandleTaskEmission(this, externalTask, error, EventSubTypes.Error, out isAborted);
         }
 
-        internal void EmitTaskMessage(Tasks.ExternalTask externalTask, string message,out bool isAborted)
+        internal void EmitTaskMessage(Tasks.ExternalTask externalTask, string message, out bool isAborted)
             => Process.HandleTaskEmission(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message, out isAborted);
 
         internal void EscalateTask(Tasks.ExternalTask externalTask, out bool isAborted)
@@ -162,17 +163,17 @@ namespace BPMNEngine
             {
                 WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, $"Merging variables from Task[{task.ID}] complete by {(task is IUserTask task1 ? task1.UserID : null)} into the state");
                 IVariables vars = task.Variables;
-                State.MergeVariables(task,vars);
+                State.MergeVariables(task, vars);
                 InvokeElementEventDelegate(Delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.ID, this));
                 ATask tsk = Process.GetTask(task.ID);
                 if (tsk is UserTask task2)
-                    State.Path.SucceedFlowNode(task2, completedByID:((IUserTask)task).UserID);
+                    State.Path.SucceedFlowNode(task2, completedByID: ((IUserTask)task).UserID);
                 else
                     State.Path.SucceedFlowNode(tsk);
             }
         }
 
-        
+
         public override bool Equals(object obj)
             => obj is ProcessInstance pi && pi.ID == ID && pi.Process.Equals(Process);
         public override int GetHashCode()
@@ -180,15 +181,15 @@ namespace BPMNEngine
 
         #region IProcessInstance
         XmlDocument IProcessInstance.Document
-            => Process.Document; 
+            => Process.Document;
         object IProcessInstance.this[string name]
-            =>Process[name];
+            => Process[name];
 
         IImmutableList<string> IProcessInstance.Keys
-            =>Process.Keys.ToImmutableList();
+            => Process.Keys.ToImmutableList();
 
-        IState IProcessInstance.CurrentState 
-            =>State.CurrentState;
+        IState IProcessInstance.CurrentState
+            => State.CurrentState;
 
         public LogLevel StateLogLevel { get; private init; }
 
@@ -198,7 +199,7 @@ namespace BPMNEngine
             if (IsSuspended)
             {
                 IsSuspended = false;
-                State.Resume(this,(string incomingID,string elementID) =>
+                State.Resume(this, (string incomingID, string elementID) =>
                 {
                     ProcessStepComplete(incomingID, elementID);
                 },
@@ -240,7 +241,7 @@ namespace BPMNEngine
                 });
         }
 
-        private void WaitForTask(string taskID,TimeSpan? timeout=null)
+        private void WaitForTask(string taskID, TimeSpan? timeout = null)
         {
             if (!State.WaitingSteps.Contains(taskID))
             {
@@ -312,7 +313,7 @@ namespace BPMNEngine
 
         #region Logging
         internal void WriteLogLine(string elementID, LogLevel level, StackFrame sf, DateTime timestamp, string message)
-            => WriteLogLine((IElement)(elementID == null ? null : Process.GetElement(elementID)), level, sf, timestamp, message) ;
+            => WriteLogLine((IElement)(elementID == null ? null : Process.GetElement(elementID)), level, sf, timestamp, message);
         internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
         {
             if ((int)level >= (int)stateLogLevel && State!=null)
@@ -341,7 +342,7 @@ namespace BPMNEngine
             {
                 if (timeout.Equals(TimeSpan.Zero))
                     ProcessLock.Wait();
-                else 
+                else
                     result = ProcessLock.Wait(timeout);
                 result = result || isComplete;
             }
@@ -351,7 +352,7 @@ namespace BPMNEngine
             => State.CurrentState.Variables;
         #endregion
 
-        byte[] IProcessInstance.Diagram(bool outputVariables,ImageFormat type)
+        byte[] IProcessInstance.Diagram(bool outputVariables, ImageFormat type)
             => Process.Diagram(outputVariables, State, type);
 
         byte[] IProcessInstance.Animate(bool outputVariables)

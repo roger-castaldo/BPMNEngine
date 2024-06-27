@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
@@ -11,7 +10,7 @@ namespace BPMNEngine.Elements
     [XMLTagAttribute("bpmn", "process")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Definition))]
-    internal record Process: AParentElement, IProcess
+    internal record Process : AParentElement, IProcess
     {
         public Process(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

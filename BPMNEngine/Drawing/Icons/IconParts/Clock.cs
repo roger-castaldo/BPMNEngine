@@ -42,7 +42,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
 
         public void Add(ICanvas surface, int iconSize, Color color)
         {
-            Rect rect = new(8f,8f,30f,30f);
+            Rect rect = new(8f, 8f, 30f, 30f);
             Point c = new(rect.X + (rect.Width / 2), rect.Y + (rect.Height / 2));
 
             surface.StrokeColor = color;
@@ -50,7 +50,8 @@ namespace BPMNEngine.Drawing.Icons.IconParts
             surface.StrokeSize = _TICK_SIZE;
 
             float rad = (float)rect.Width / 2f;
-            _ANGLES.ForEach(angle => {
+            _ANGLES.ForEach(angle =>
+            {
                 surface.DrawLine(
                     new Point(c.X + (rad * angle.X), c.Y + (rad * angle.Y)),
                     new Point(c.X + ((rad-3) * angle.X), c.Y + ((rad - 3) * angle.Y))
@@ -65,7 +66,7 @@ namespace BPMNEngine.Drawing.Icons.IconParts
                 new Point(c.X + ((rad - 2) * _MINUTE_HAND.X), c.Y + ((rad - 2) * _MINUTE_HAND.Y))
             );
             surface.DrawLine(
-                new Point(c.X, c.Y), 
+                new Point(c.X, c.Y),
                 new Point(c.X +((rad - 5) * _HOUR_HAND.X), c.Y +((rad - 5) * _HOUR_HAND.Y))
             );
         }

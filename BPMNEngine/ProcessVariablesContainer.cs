@@ -13,7 +13,7 @@ namespace BPMNEngine
         private readonly BusinessProcess process = null;
         private bool disposedValue;
 
-        public ProcessVariablesContainer(Dictionary<string,object> props,BusinessProcess process)
+        public ProcessVariablesContainer(Dictionary<string, object> props, BusinessProcess process)
         {
             nulls = new List<string>();
             variables = props??new Dictionary<string, object>();
@@ -23,7 +23,7 @@ namespace BPMNEngine
         internal ProcessVariablesContainer(string elementID, ProcessInstance processInstance)
         {
             process = processInstance.Process;
-            process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", [elementID]));
+            process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Producing Process Variables Container for element[{0}]", [elementID]));
             nulls = new List<string>();
             variables = new Dictionary<string, object>();
             processInstance.State[elementID].ForEach(key =>

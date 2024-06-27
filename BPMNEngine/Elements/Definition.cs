@@ -4,10 +4,10 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements
 {
-    [XMLTagAttribute("bpmn","definitions")]
+    [XMLTagAttribute("bpmn", "definitions")]
     [RequiredAttributeAttribute("id")]
     [ValidParent(null)]
-    internal record Definition: AParentElement
+    internal record Definition : AParentElement
     {
         public Definition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -24,7 +24,7 @@ namespace BPMNEngine.Elements
                 : Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).FirstOrDefault(elem => elem.ID==id)
             );
 
-        public IEnumerable<T> LocateElementsOfType<T>() where T: IElement
+        public IEnumerable<T> LocateElementsOfType<T>() where T : IElement
             => Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).OfType<T>();
 
         public override bool IsValid(out IEnumerable<string> err)
@@ -40,7 +40,7 @@ namespace BPMNEngine.Elements
 
         internal BusinessProcess OwningProcess { get; set; }
 
-        internal void LogLine(LogLevel level, IElement element, string message, params object?[] pars)
+        internal void LogLine(LogLevel level, IElement element, string message, params object[] pars)
             => OwningProcess?.WriteLogLine(element, level, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
         internal Exception Exception(IElement element, Exception exception)
         {

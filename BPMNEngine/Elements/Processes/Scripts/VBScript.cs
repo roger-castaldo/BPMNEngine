@@ -1,7 +1,7 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using BPMNEngine.Attributes;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.VisualBasic;
-using BPMNEngine.Attributes;
 using System.IO;
 using System.Text;
 
@@ -53,11 +53,11 @@ End Class";
             var sbUsing = new StringBuilder();
             imports.ForEach(str => sbUsing.AppendFormat("Imports {0}\n", str));
             string ccode = string.Format(
-                (IsCondition,IsTimerEvent) switch
+                (IsCondition, IsTimerEvent) switch
                 {
-                    (true,_)=>_CODE_BASE_CONDITION_TEMPLATE,
-                    (_,true)=>_CODE_BASE_TIMER_EVENT_TEMPLATE,
-                    _=>_CODE_BASE_SCRIPT_TEMPLATE
+                    (true, _) => _CODE_BASE_CONDITION_TEMPLATE,
+                    (_, true) => _CODE_BASE_TIMER_EVENT_TEMPLATE,
+                    _ => _CODE_BASE_SCRIPT_TEMPLATE
                 },
                 sbUsing.ToString(),
                 ClassName,
