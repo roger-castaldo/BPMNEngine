@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Linq;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace UnitTest.Extensions
 {
@@ -13,8 +13,8 @@ namespace UnitTest.Extensions
     {
 
         private static BusinessProcess _process;
-        private static readonly string[] FLOWS = new string[]
-        {
+        private static readonly string[] FLOWS =
+        [
             "Flow_1svot8c",//byte
             "Flow_11fz5zo",//char
             "Flow_0vd6gpf",//datetime
@@ -28,7 +28,7 @@ namespace UnitTest.Extensions
             "Flow_0ebyg32",//null
             "Flow_0ebyg33",//chained variable
             "Flow_0ebyg34" //icomparable
-        };
+        ];
 
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
@@ -42,7 +42,7 @@ namespace UnitTest.Extensions
             _process.Dispose();
         }
 
-        private void RunPathProcess(Dictionary<string,object> variables,string successPath)
+        private void RunPathProcess(Dictionary<string, object> variables, string successPath)
         {
             if (!variables.ContainsKey("null_value_1"))
                 variables.Add("null_value_1", "test");
@@ -54,8 +54,8 @@ namespace UnitTest.Extensions
             var state = processInstance.CurrentState;
             Assert.IsNotNull(state);
             Assert.IsTrue(Utility.StepCompleted(state, successPath));
-            foreach(var flow in FLOWS.Where(f=>f!=successPath))
-                Assert.IsFalse(Utility.StepCompleted(state,flow));
+            foreach (var flow in FLOWS.Where(f => f!=successPath))
+                Assert.IsFalse(Utility.StepCompleted(state, flow));
         }
 
         [TestMethod]
@@ -171,7 +171,7 @@ namespace UnitTest.Extensions
                                 {"firstname","bob" }
                             }
                         }
-                    } 
+                    }
                 }
             }, "Flow_0ebyg33");
         }

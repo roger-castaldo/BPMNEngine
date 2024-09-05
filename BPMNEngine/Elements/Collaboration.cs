@@ -2,10 +2,10 @@
 
 namespace BPMNEngine.Elements
 {
-    [XMLTag("bpmn","collaboration")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmn", "collaboration")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Definition))]
-    internal class Collaboration : AParentElement
+    internal record Collaboration : AParentElement
     {
         public Collaboration(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -15,7 +15,7 @@ namespace BPMNEngine.Elements
             var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "Collaboration requires at least 1 child element." });
+                err = (err?? []).Append("Collaboration requires at least 1 child element.");
                 return false;
             }
             return res;

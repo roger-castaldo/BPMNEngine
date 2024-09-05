@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-	  <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+	  <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>BPMNEngine</RootNamespace>
     <PackageId>BPMNEngine</PackageId>
-    <Version>3.0.0</Version>
+    <Version>3.1.0</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
     <PackageReleaseNotes>Major revision to a new library with breaking changes, including the concept of a process instance and creating named parameters for supplying all delegates.  Improved memory management and performance has been acheived using built in dotnet concepts that also display improved performances when running inside .net8 vs .net7 vs .net6.</PackageReleaseNotes>
-    <AssemblyVersion>3.0.0</AssemblyVersion>
-    <FileVersion>3.0.0</FileVersion>
+    <AssemblyVersion>3.1.0</AssemblyVersion>
+    <FileVersion>3.1.0</FileVersion>
 	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
 	  <IncludeSymbols>true</IncludeSymbols>
 	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -56,18 +56,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.3" />
-    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Maui.Graphics" Version="8.0.60" />
+    <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="8.0.60" />
     <PackageReference Include="Vsxmd" Version="1.4.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.CodeDom" Version="8.0.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.8.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Compilers" Version="4.10.0" />
 	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" />
-	<PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" />
-	<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.6" />
+	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.8" />
+	<PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.8" />
+	<PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.8" />
   </ItemGroup>
 </Project>

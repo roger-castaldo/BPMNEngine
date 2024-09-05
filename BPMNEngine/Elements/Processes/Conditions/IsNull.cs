@@ -3,8 +3,8 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    [XMLTag("exts", "isNull")]
-    internal class IsNull : ANegatableCondition
+    [XMLTagAttribute("exts", "isNull")]
+    internal record IsNull : ANegatableCondition
     {
         public IsNull(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

@@ -1,4 +1,5 @@
-﻿using BPMNEngine.Interfaces;
+﻿using BPMNEngine;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.State;
 using System;
 using System.IO;
@@ -29,23 +30,28 @@ namespace UnitTest
             return ret;
         }
 
-        public static bool StepCompleted(IState state,string name)
+        public static bool StepCompleted(IState state, string name)
+            => StepAchievedStatus(state, name, StepStatuses.Succeeded);
+        public static bool StepCompleted(XmlDocument doc, string name)
+            => StepAchievedStatus(doc, name, StepStatuses.Succeeded);
+        public static bool StepAborted(IState state, string name)
+            => StepAchievedStatus(state, name, StepStatuses.Aborted);
+        public static bool StepAborted(XmlDocument doc, string name)
+            => StepAchievedStatus(doc, name, StepStatuses.Aborted);
+
+        public static bool StepAchievedStatus(IState state, string name, StepStatuses status)
         {
             var doc = new XmlDocument();
             doc.LoadXml(state.AsXMLDocument);
-            return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']", name))!=null;
+            return StepAchievedStatus(doc, name, status);
         }
 
-        public static bool StepAborted(IState state, string name)
-        {
-            var doc = new XmlDocument();
-            doc.LoadXml(state.AsXMLDocument);
-            return doc.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Aborted']", name))!=null;
-        }
+        public static bool StepAchievedStatus(XmlDocument doc, string name, StepStatuses status, string? CompletedBy = null)
+            => doc.SelectSingleNode($"/ProcessState/ProcessPath/StateStep[@elementID='{name}'][@status='{status}']{(!string.IsNullOrEmpty(CompletedBy) ? $"[@completedByID='{CompletedBy}']" : "")}")!=null;
 
         private static readonly TimeSpan DEFAULT_PROCESS_WAIT = TimeSpan.FromMinutes(5);
 
-        public static bool WaitForCompletion(IProcessInstance instance,TimeSpan? waitTime=null)
+        public static bool WaitForCompletion(IProcessInstance instance, TimeSpan? waitTime = null)
         {
             var result = instance.WaitForCompletion(waitTime??DEFAULT_PROCESS_WAIT);
             if (!result)

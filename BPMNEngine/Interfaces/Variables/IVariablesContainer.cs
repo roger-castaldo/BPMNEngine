@@ -1,4 +1,6 @@
-﻿namespace BPMNEngine.Interfaces.Variables
+﻿using System.Collections.Immutable;
+
+namespace BPMNEngine.Interfaces.Variables
 {
     /// <summary>
     /// This interface defines the base container to house the process variables
@@ -14,10 +16,10 @@
         /// <summary>
         /// Called to get a list of all process variable names available
         /// </summary>
-        IEnumerable<string> Keys { get; }
+        ImmutableArray<string> Keys { get; }
         /// <summary>
         /// Called to get a list of all process variable names available, including process definition constants and runtime constants
         /// </summary>
-        IEnumerable<string> FullKeys { get; }
+        ImmutableArray<string> FullKeys { get; }
     }
 }

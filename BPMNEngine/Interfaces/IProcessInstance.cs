@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using Microsoft.Maui.Graphics;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Interfaces
 {
@@ -31,7 +32,7 @@ namespace BPMNEngine.Interfaces
         /// <summary>
         /// Called to obtain the names of all process runtime and definition constants
         /// </summary>
-        IEnumerable<string> Keys { get; }
+        IImmutableList<string> Keys { get; }
         /// <summary>
         /// Called to Resume a suspended process.  Will fail if the process is not currently suspended.
         /// </summary>
@@ -53,7 +54,7 @@ namespace BPMNEngine.Interfaces
         /// Called to suspend this instance
         /// </summary>
         void Suspend();
-        
+
         #region ProcessLock
         /// <summary>
         /// Used to lock a Thread into waiting for the process to complete
@@ -89,7 +90,7 @@ namespace BPMNEngine.Interfaces
         /// <param name="taskID">The id of the task to wait for</param>
         /// <param name="task">The User task specified if the task was successfully started</param>
         /// <returns>the result of calling WaitOne on the User Task manual reset event</returns>
-        bool WaitForUserTask(string taskID,out IUserTask task);
+        bool WaitForUserTask(string taskID, out IUserTask task);
 
         /// <summary>
         /// Used to lock a Thread into waiting for a user task to be ready
@@ -98,7 +99,7 @@ namespace BPMNEngine.Interfaces
         /// <param name="taskID">The id of the task to wait for</param>
         /// <param name="task">The User task specified if the task was successfully started</param>
         /// <returns>the result of calling WaitOne(millisecondsTimeout) on the User Task manual reset event</returns>
-        bool WaitForUserTask(int millisecondsTimeout,string taskID, out IUserTask task);
+        bool WaitForUserTask(int millisecondsTimeout, string taskID, out IUserTask task);
 
         /// <summary>
         /// Used to lock a Thread into waiting for a user task to be ready
@@ -145,6 +146,6 @@ namespace BPMNEngine.Interfaces
         /// <summary>
         /// Used to get the current variable values for this process instance
         /// </summary>
-        Dictionary<string,object> CurrentVariables { get; }
+        IImmutableDictionary<string, object> CurrentVariables { get; }
     }
 }

@@ -6,25 +6,25 @@ using BPMNEngine.Interfaces.Elements;
 namespace BPMNEngine.Elements.Processes.Tasks
 {
     [ValidParent(typeof(IProcess))]
-    internal abstract class ATask : AFlowNode
+    internal abstract record ATask : AFlowNode
     {
-        public ATask(XmlElement elem, XmlPrefixMap map, AElement parent)
+        protected ATask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        private static readonly EventSubTypes[] _blockedSubTypes = new[]
-        {
+        private static readonly EventSubTypes[] _blockedSubTypes =
+        [
             EventSubTypes.Signal,
             EventSubTypes.Escalation,
             EventSubTypes.Error,
             EventSubTypes.Message,
             EventSubTypes.Link
-        };
+        ];
 
         public new IEnumerable<string> Outgoing
             => base.Outgoing.Where(str =>
                 {
                     bool add = true;
-                    IElement afn = Definition.LocateElement(str);
+                    IElement afn = OwningDefinition.LocateElement(str);
                     string destID = null;
                     if (afn is MessageFlow messageFlow)
                         destID = messageFlow.TargetRef;
@@ -32,7 +32,7 @@ namespace BPMNEngine.Elements.Processes.Tasks
                         destID = sequenceFlow.TargetRef;
                     if (destID != null)
                     {
-                        IElement ice = Definition.LocateElement(destID);
+                        IElement ice = OwningDefinition.LocateElement(destID);
                         if (ice is IntermediateCatchEvent intermediateCatchEvent)
                             add = !intermediateCatchEvent.SubType.HasValue || !_blockedSubTypes.Contains(intermediateCatchEvent.SubType.Value);
                     }

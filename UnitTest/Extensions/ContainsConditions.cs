@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
 
 namespace UnitTest.Extensions
 {
@@ -12,14 +12,14 @@ namespace UnitTest.Extensions
     {
 
         private static BusinessProcess _process;
-        private static readonly string[] FLOWS = new string[]
-        {
+        private static readonly string[] FLOWS =
+        [
             "Flow_0124fzt",//array
             "Flow_0obucim",//dictionary keys
             "Flow_06n50fk",//dictionary values
             "Flow_0ydpcz9", //sub variable
             "Flow_0ydpca9"//string variable
-        };
+        ];
 
         [ClassInitialize()]
         public static void Initialize(TestContext testContext)
@@ -33,7 +33,7 @@ namespace UnitTest.Extensions
             _process.Dispose();
         }
 
-        private void RunPathProcess(Dictionary<string,object> variables,string successPath)
+        private void RunPathProcess(Dictionary<string, object> variables, string successPath)
         {
             IProcessInstance processInstance = _process.BeginProcess(variables);
             Assert.IsNotNull(processInstance);
@@ -41,8 +41,8 @@ namespace UnitTest.Extensions
             var state = processInstance.CurrentState;
             Assert.IsNotNull(state);
             Assert.IsTrue(Utility.StepCompleted(state, successPath));
-            foreach(var flow in FLOWS.Where(f=>f!=successPath))
-                Assert.IsFalse(Utility.StepCompleted(state,flow));
+            foreach (var flow in FLOWS.Where(f => f!=successPath))
+                Assert.IsFalse(Utility.StepCompleted(state, flow));
         }
 
         [TestMethod]
@@ -86,15 +86,15 @@ namespace UnitTest.Extensions
                 {
                     "array_sub_value",
                     new Hashtable[]{
-                        new Hashtable(){
+                        new(){
                             {"name","test_value" },
                             {"other","test_value_1" }
                         },
-                        new Hashtable(){
+                        new(){
                             {"name","test_value_2" },
                             {"other","test_value_3" }
                         }
-                    } 
+                    }
                 }
             }, "Flow_0ydpcz9");
         }

@@ -2,8 +2,8 @@
 
 namespace BPMNEngine.Elements.Processes.Tasks
 {
-    [XMLTag("bpmn", "sendTask")]
-    internal class SendTask : ATask
+    [XMLTagAttribute("bpmn", "sendTask")]
+    internal record SendTask : ATask
     {
         public SendTask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

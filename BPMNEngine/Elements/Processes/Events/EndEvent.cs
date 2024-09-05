@@ -3,11 +3,11 @@ using BPMNEngine.Elements.Processes.Events.Definitions;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    [XMLTag("bpmn","endEvent")]
-    internal class EndEvent : AEvent
+    [XMLTagAttribute("bpmn", "endEvent")]
+    internal record EndEvent : AEvent
     {
-        private static readonly Type[] PROCESS_END_TYPE = new[]
-        {
+        private static readonly Type[] PROCESS_END_TYPE =
+        [
             typeof(CompensationEventDefinition),
             typeof(ConditionalEventDefinition),
             typeof(ErrorEventDefinition),
@@ -16,13 +16,13 @@ namespace BPMNEngine.Elements.Processes.Events
             typeof(SignalEventDefinition),
             typeof(MessageEventDefinition),
             typeof(TimerEventDefinition)
-        };
+        ];
 
-        public bool IsProcessEnd 
+        public bool IsProcessEnd
             => !Children
-                .Any(child =>  PROCESS_END_TYPE.Contains(child.GetType()));
+                .Any(child => PROCESS_END_TYPE.Contains(child.GetType()));
 
-        public bool IsTermination 
+        public bool IsTermination
             => Children
                 .Any(child => child is TerminateEventDefinition);
 
@@ -32,14 +32,14 @@ namespace BPMNEngine.Elements.Processes.Events
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
-            if (Outgoing.Any()) 
-            { 
-                err=(err??Array.Empty<string>()).Concat(new string[] { "End Events cannot have an outgoing path." });
+            if (Outgoing.Any())
+            {
+                err=(err?? []).Append("End Events cannot have an outgoing path.");
                 res=false;
             }
             if (!Incoming.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "End Events must have an incoming path." });
+                err = (err?? []).Append("End Events must have an incoming path.");
                 res=false;
             }
             return res;

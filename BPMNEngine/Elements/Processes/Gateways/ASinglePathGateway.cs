@@ -2,9 +2,9 @@
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
-    internal abstract class ASinglePathGateway : AGateway
+    internal abstract record ASinglePathGateway : AGateway
     {
-        public ASinglePathGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
+        protected ASinglePathGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public override sealed IEnumerable<string> EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)

@@ -3,8 +3,8 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
-    [XMLTag("bpmn","parallelGateway")]
-    internal class ParallelGateway : AGateway
+    [XMLTagAttribute("bpmn", "parallelGateway")]
+    internal record ParallelGateway : AGateway
     {
         public ParallelGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

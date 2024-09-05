@@ -4,26 +4,28 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "signalEventDefinition")]
+    [XMLTagAttribute("bpmn", "signalEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class SignalEventDefinition : AParentElement, IEventDefinition
+    internal record SignalEventDefinition : AParentElement, IEventDefinition
     {
         private IEnumerable<string> BaseTypes
             => Array.Empty<string>()
                 .Concat(Children.OfType<SignalDefinition>().Select(sd => sd.Type??"*"))
-                .Concat(ExtensionElement==null || ((IParentElement)ExtensionElement).Children==null ? Array.Empty<string>() :
-                    ((IParentElement)ExtensionElement).Children
+                .Concat(
+                    ExtensionElement?.Children
                     .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")
+                    ?? []
                 ).Distinct();
 
-        public IEnumerable<string> SignalTypes 
+        public IEnumerable<string> SignalTypes
             => BaseTypes.DefaultIfEmpty("*");
 
-        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public EventSubTypes Type => EventSubTypes.Signal;
+        public EventSubTypes Type
+            => EventSubTypes.Signal;
 
         public override bool IsValid(out IEnumerable<string> err)
         {
@@ -37,7 +39,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     errors.Add("A throw event cannot signal with a wildcard signal.");
                 else if (!BaseTypes.Any(s => s!="*"))
                     errors.Add("A throw must have a signal to throw.");
-                var elems = Definition.LocateElementsOfType<IntermediateCatchEvent>();
+                var elems = OwningDefinition.LocateElementsOfType<IntermediateCatchEvent>();
                 bool found = elems
                         .Any(catcher => catcher.Children
                         .Any(child => child is SignalEventDefinition definition && definition.SignalTypes.Contains(SignalTypes.First()))
@@ -48,8 +50,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                     );
                 if (!found)
                     errors.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");
-                err = (err??Array.Empty<string>()).Concat(errors);
-                return res && !errors.Any();
+                err = (err?? []).Concat(errors);
+                return res && errors.Count==0;
             }
             return res;
         }

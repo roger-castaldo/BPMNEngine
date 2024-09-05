@@ -27,8 +27,8 @@ namespace BPMNEngine
 
         private IImage Diagram(bool outputVariables, ProcessState state = null)
         {
-            state??=new ProcessState(null,this, null, null, null);
-            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
+            state??=new ProcessState(null, this, null, null, null);
+            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", [(outputVariables ? " with variables" : " without variables")]));
             double width = 0;
             double height = 0;
             width = definition.Diagrams.Max(d => d.Size.Width+DEFAULT_PADDING);
@@ -41,13 +41,14 @@ namespace BPMNEngine
                 surface.FillColor=Colors.White;
                 surface.FillRectangle(new Rect(0, 0, width, height));
                 float padding = DEFAULT_PADDING / 2;
-                definition.Diagrams.ForEach(d => {
+                definition.Diagrams.ForEach(d =>
+                {
                     surface.DrawImage(d.Render(state.Path, this.definition), DEFAULT_PADDING / 2, padding, d.Size.Width, d.Size.Height);
                     padding += d.Size.Height + DEFAULT_PADDING;
                 });
                 ret = image.Image;
                 if (outputVariables)
-                    ret = BusinessProcess.AppendVariables(ret, state);
+                    ret = AppendVariables(ret, state);
             }
             catch (Exception e)
             {
@@ -146,13 +147,13 @@ namespace BPMNEngine
 
         internal byte[] Animate(bool outputVariables, ProcessState state)
         {
-            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", new object[] { (outputVariables ? " with variables" : " without variables") }));
+            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", [(outputVariables ? " with variables" : " without variables")]));
             var result = Array.Empty<byte>();
             try
             {
                 state.Path.StartAnimation();
                 IImage bd = Diagram(false, state)??throw new DiagramException("Unable to create first diagram frame");
-                AnimatedPNG apng = new((outputVariables ? BusinessProcess.AppendVariables(bd, state) : bd))
+                AnimatedPNG apng = new((outputVariables ? AppendVariables(bd, state) : bd))
                 {
                     DefaultFrameDelay= ANIMATION_DELAY
                 };
@@ -173,7 +174,7 @@ namespace BPMNEngine
                             }
                         }
                         if (outputVariables)
-                            apng.AddFrame(BusinessProcess.ProduceVariablesImage(state), (int)Math.Ceiling(bd.Width + DEFAULT_PADDING), (int)DEFAULT_PADDING, delay: new TimeSpan(0, 0, 0));
+                            apng.AddFrame(ProduceVariablesImage(state), (int)Math.Ceiling(bd.Width + DEFAULT_PADDING), (int)DEFAULT_PADDING, delay: new TimeSpan(0, 0, 0));
                     }
                 }
                 state.Path.FinishAnimation();

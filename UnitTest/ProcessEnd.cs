@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTest
 {
@@ -10,7 +10,7 @@ namespace UnitTest
         [TestMethod()]
         public void TestBasicProcessEnd()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("DiagramLoading/start_to_stop.bpmn"));
+            BusinessProcess proc = new(Utility.LoadResourceDocument("DiagramLoading/start_to_stop.bpmn"));
             IProcessInstance instance = proc.BeginProcess(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
@@ -21,7 +21,7 @@ namespace UnitTest
         [TestMethod()]
         public void TestSubProcessEnd()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("ProcessEnd/sub_process_end.bpmn"));
+            BusinessProcess proc = new(Utility.LoadResourceDocument("ProcessEnd/sub_process_end.bpmn"));
             IProcessInstance instance = proc.BeginProcess(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
@@ -33,7 +33,7 @@ namespace UnitTest
         [TestMethod()]
         public void TestProcessTerminateEnd()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("ProcessEnd/sub_process_terminate.bpmn"));
+            BusinessProcess proc = new(Utility.LoadResourceDocument("ProcessEnd/sub_process_terminate.bpmn"));
             IProcessInstance instance = proc.BeginProcess(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
@@ -45,7 +45,7 @@ namespace UnitTest
         [TestMethod()]
         public void TestProcessTerminateEndWithAborts()
         {
-            BusinessProcess proc = new BusinessProcess(Utility.LoadResourceDocument("ProcessEnd/sub_process_terminate_abort.bpmn"));
+            BusinessProcess proc = new(Utility.LoadResourceDocument("ProcessEnd/sub_process_terminate_abort.bpmn"));
             IProcessInstance instance = proc.BeginProcess(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));

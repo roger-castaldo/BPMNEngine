@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using BPMNEngine;
-using System.Collections.Generic;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Collections.Generic;
 
 namespace UnitTest.Delegates
 {
@@ -50,7 +50,8 @@ namespace UnitTest.Delegates
                 ProcessBusinessRuleTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new(){
+            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            {
                 ProcessBusinessRuleTask = taskInstanceDelegateMock.Object
             });
             Assert.IsNotNull(instance);

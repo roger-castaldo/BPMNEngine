@@ -2,12 +2,12 @@
 
 namespace BPMNEngine.Elements.Collaborations
 {
-    [XMLTag("bpmn","messageFlow")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmn", "messageFlow")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Collaboration))]
-    internal class MessageFlow : AFlowElement
+    internal record MessageFlow : AFlowElement
     {
-        public MessageFlow(XmlElement elem, XmlPrefixMap map,AElement parent)
-            : base(elem, map,parent) { }
+        public MessageFlow(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
     }
 }

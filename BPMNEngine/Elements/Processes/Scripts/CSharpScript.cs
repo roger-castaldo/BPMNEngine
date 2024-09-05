@@ -1,14 +1,14 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using BPMNEngine.Attributes;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using BPMNEngine.Attributes;
 using System.IO;
 using System.Text;
 
 namespace BPMNEngine.Elements.Processes.Scripts
 {
-    [XMLTag("exts", "cSharpScript")]
-    internal class CSharpScript : ACompiledScript
+    [XMLTagAttribute("exts", "cSharpScript")]
+    internal record CSharpScript : ACompiledScript
     {
         private const string _CODE_BASE_SCRIPT_TEMPLATE = @"{0}
 
@@ -40,16 +40,22 @@ public class {1} {{
 
         protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled)
         {
-            Info("Generating C# Code for script compilation for script element {0}",new object[] { ID });
+            Info("Generating C# Code for script compilation for script element {0}", [ID]);
             var sbUsing = new StringBuilder();
-            imports.ForEach(str=>sbUsing.AppendFormat("using {0};\n", str));
-            string ccode = string.Format(IsCondition ? _CODE_BASE_CONDITION_TEMPLATE : (IsTimerEvent ? _CODE_BASE_TIMER_EVENT_TEMPLATE : _CODE_BASE_SCRIPT_TEMPLATE), new object[]{
+            imports.ForEach(str => sbUsing.AppendFormat("using {0};\n", str));
+            string ccode = string.Format(
+                (IsCondition, IsTimerEvent) switch
+                {
+                    (true, _) => _CODE_BASE_CONDITION_TEMPLATE,
+                    (_, true) => _CODE_BASE_TIMER_EVENT_TEMPLATE,
+                    _ => _CODE_BASE_SCRIPT_TEMPLATE
+                },
                 sbUsing.ToString(),
                 ClassName,
                 FunctionName,
                 code
-            });
-            CSharpCompilation comp = CSharpCompilation.Create(name, new[] { SyntaxFactory.SyntaxTree(CSharpSyntaxTree.ParseText(ccode).GetRoot()) },
+            );
+            CSharpCompilation comp = CSharpCompilation.Create(name, [SyntaxFactory.SyntaxTree(CSharpSyntaxTree.ParseText(ccode).GetRoot())],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             using MemoryStream ms = new();
             var result = comp.Emit(ms);

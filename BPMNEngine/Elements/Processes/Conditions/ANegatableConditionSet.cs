@@ -2,7 +2,7 @@
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    internal abstract class ANegatableConditionSet : AConditionSet
+    internal abstract record ANegatableConditionSet : AConditionSet
     {
         protected bool Negated => (this["negated"] != null &&bool.Parse(this["negated"]));
 

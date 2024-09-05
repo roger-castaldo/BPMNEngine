@@ -1,12 +1,12 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System;
-using System.Reflection;
-using System.Xml;
 using BPMNEngine.Interfaces.Elements;
-using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Xml;
 
 namespace UnitTest
 {
@@ -157,7 +157,7 @@ namespace UnitTest
                 proc = new BusinessProcess(doc);
                 loaded=true;
             }
-            catch (Exception){}
+            catch (Exception) { }
             Assert.IsTrue(loaded);
             if (loaded)
             {

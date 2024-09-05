@@ -1,37 +1,38 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes;
-using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Conditions;
+using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
+using System.Collections.Immutable;
 
 namespace BPMNEngine.Elements
 {
-    [XMLTag("bpmn", "subProcess")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmn", "subProcess")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Process))]
-    internal class SubProcess : AFlowNode,IProcess
+    internal record SubProcess : AFlowNode, IProcess
     {
-        public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
-        {
-            if (ExtensionElement != null&&((ExtensionElements)ExtensionElement).Children
-                    .Any(ie => ie is ConditionSet set && !set.Evaluate(variables)))
-                return false;
-            return isProcessStartValid(this, variables);
-        }
+            => (
+                ExtensionElement==null ||
+                ((ExtensionElements)ExtensionElement).Children.OfType<ConditionSet>().All(cset => cset.Evaluate(variables))
+            )
+            && isProcessStartValid(this, variables);
 
-        public IEnumerable<StartEvent> StartEvents 
-            => Children.OfType<StartEvent>();
+
+        public ImmutableArray<StartEvent> StartEvents
+            => Children.OfType<StartEvent>().ToImmutableArray();
 
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
             bool hasStart = Children.Any(elem => elem is StartEvent || (elem is IntermediateCatchEvent ice && ice.SubType.HasValue));
-            bool hasEnd = Children.Any(elem=>elem is EndEvent);
-            bool hasIncoming = Incoming.Any() || Children.Any(elem=>elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
+            bool hasEnd = Children.Any(elem => elem is EndEvent);
+            bool hasIncoming = Incoming.Any() || Children.Any(elem => elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
             var terr = new List<string>();
             if (!(hasStart && hasEnd && hasIncoming))
             {
@@ -41,9 +42,9 @@ namespace BPMNEngine.Elements
                     terr.Add("A Sub Process Must have a valid Incoming path, achieved through an incoming flow or IntermediateCatchEvent");
                 if (!hasEnd)
                     terr.Add("A Sub Process Must have an EndEvent");
-                err = (err??Array.Empty<string>()).Concat(terr);
+                err = (err?? []).Concat(terr);
             }
-            return res && !terr.Any();
+            return res && terr.Count==0;
         }
     }
 }

@@ -1,20 +1,21 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Attributes;
+﻿using BPMNEngine.Attributes;
+using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
 {
-    [XMLTag("di","waypoint")]
-    [RequiredAttribute("x")]
-    [AttributeRegex("x", "^-?\\d+(\\.\\d+)?$")]
-    [RequiredAttribute("y")]
-    [AttributeRegex("y", "^-?\\d+(\\.\\d+)?$")]
+    [XMLTagAttribute("di", "waypoint")]
+    [RequiredAttributeAttribute("x")]
+    [AttributeRegexAttribute("x", "^-?\\d+(\\.\\d+)?$")]
+    [RequiredAttributeAttribute("y")]
+    [AttributeRegexAttribute("y", "^-?\\d+(\\.\\d+)?$")]
     [ValidParent(typeof(Edge))]
-    internal class Waypoint : AElement
+    internal record Waypoint : AElement
     {
-        public PointF Point => new(
-                    float.Parse(this["x"]),
-                    float.Parse(this["y"]));
         public Waypoint(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
+        public PointF Point => new(
+                    float.Parse(this["x"]),
+                    float.Parse(this["y"])
+            );
     }
 }

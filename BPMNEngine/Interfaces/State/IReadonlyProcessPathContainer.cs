@@ -1,8 +1,10 @@
-﻿namespace BPMNEngine.Interfaces.State
+﻿using System.Collections.Immutable;
+
+namespace BPMNEngine.Interfaces.State
 {
     internal interface IReadonlyProcessPathContainer : IReadOnlyStateContainer
     {
-        IEnumerable<string> ActiveSteps { get; }
-        IEnumerable<IStateStep> Steps { get; }
+        IImmutableList<string> ActiveSteps { get; }
+        IImmutableList<IStateStep> Steps { get; }
     }
 }

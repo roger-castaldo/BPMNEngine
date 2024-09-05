@@ -9,7 +9,7 @@ namespace BPMNEngine.DelegateContainers
     /// against all instances or at the BeginProcess level to defining it against a 
     /// specific instance
     /// </summary>
-    public class StepValidations
+    public record StepValidations
     {
         /// <summary>
         /// A delegate called to validate if an event can start
@@ -98,7 +98,7 @@ namespace BPMNEngine.DelegateContainers
         /// </summary>
         public IsFlowValid IsFlowValid { get; init; } = null;
 
-        private static readonly Func<IElement, IReadonlyVariables,bool> DEFAULT_ACTION = new((elem, variables) => true);
+        private static readonly Func<IElement, IReadonlyVariables, bool> DEFAULT_ACTION = new((elem, variables) => true);
         internal static StepValidations Merge(StepValidations source, StepValidations append)
         {
             source??=new();

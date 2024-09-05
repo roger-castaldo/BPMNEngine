@@ -14,7 +14,7 @@
 
     internal readonly struct SDelayedStartEvent
     {
-        public string IncomingID {get;init;}
+        public string IncomingID { get; init; }
 
         public string ElementID { get; init; }
 

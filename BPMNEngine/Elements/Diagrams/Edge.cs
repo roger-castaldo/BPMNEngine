@@ -1,21 +1,23 @@
-﻿using Microsoft.Maui.Graphics;
-using BPMNEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
-
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.State;
+using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
 {
-    [XMLTag("bpmndi","BPMNEdge")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmndi", "BPMNEdge")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Plane))]
-    internal class Edge : ADiagramElement, IRenderingElement
+    internal record Edge : ADiagramElement, IRenderingElement
     {
         private const float _PEN_SIZE = 2.0f;
         private static readonly float _baseTLength = _PEN_SIZE*1.5f;
+
+        public Edge(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
 
         public IEnumerable<PointF> Points => Children
             .OfType<Waypoint>()
@@ -39,26 +41,23 @@ namespace BPMNEngine.Elements.Diagrams
                     Label l = Label;
                     _rectangle = new RectF(_rectangle.Value.X-3.5f, _rectangle.Value.Y-3.5f, _rectangle.Value.Width+6.5f, _rectangle.Value.Height+6.5f);
                     if (l != null && l.Bounds!=null)
-                        _rectangle = MergeRectangle(_rectangle.Value,l.Bounds.Rectangle);
+                        _rectangle = MergeRectangle(_rectangle.Value, l.Bounds.Rectangle);
                 }
                 return _rectangle.Value;
             }
         }
 
-        public Label Label 
+        public Label Label
             => Children.OfType<Label>().FirstOrDefault();
-        
-        public Edge(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
 
-        private static void GenerateTriangle(ICanvas surface, Color color, Point end,Point start)
+        private static void GenerateTriangle(ICanvas surface, Color color, Point end, Point start)
         {
             float d = (float)Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2));
             float t = _baseTLength / d;
             Point pc = new(((1f - t) * end.X) + (t * start.X), ((1f - t) * end.Y) + (t * start.Y));
             Point fend = new(end.X, end.Y);
-            Point p1 = new(pc.X-(fend.Y-pc.Y),(fend.X-pc.X)+pc.Y);
-            Point p2 = new(fend.Y-pc.Y+pc.X,pc.Y-(fend.X-pc.X));
+            Point p1 = new(pc.X-(fend.Y-pc.Y), (fend.X-pc.X)+pc.Y);
+            Point p2 = new(fend.Y-pc.Y+pc.X, pc.Y-(fend.X-pc.X));
             surface.DrawLine(fend, pc);
             surface.FillColor=color;
 
@@ -76,43 +75,43 @@ namespace BPMNEngine.Elements.Diagrams
             var res = base.IsValid(out err);
             if (Points.Count()<2)
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "At least 2 points are required." });
+                err = (err?? []).Append("At least 2 points are required.");
                 return false;
             }
             return res;
         }
 
-        public void Render(ICanvas surface, ProcessPath path,Definition definition)
+        public void Render(ICanvas surface, ProcessPath path, Definition definition)
         {
             var points = Points.ToArray();
             var polyPath = new PathF(points[0]);
             points.Skip(1).ForEach(p => polyPath.LineTo(p));
-            
+
             var color = Diagram.GetColor(path.GetStatus(BPMNElement));
 
             surface.StrokeColor=color;
             surface.StrokeSize=_PEN_SIZE;
-            var elem = GetLinkedElement(definition);
-            if (elem != null&&(elem is Association || elem is MessageFlow))
+            var delem = GetLinkedElement(definition);
+            if (delem != null&&(delem is Association || delem is MessageFlow))
                 surface.StrokeDashPattern = Constants.DASH_PATTERN;
             else
                 surface.StrokeDashPattern=null;
 
             surface.DrawPath(polyPath);
 
-            if (elem is MessageFlow)
+            if (delem is MessageFlow)
             {
                 surface.FillColor = color;
-                surface.FillEllipse(new RectF(Points.First().X-0.5f,Points.First().Y-0.5f,1.5f, 1.5f));
+                surface.FillEllipse(new RectF(Points.First().X-0.5f, Points.First().Y-0.5f, 1.5f, 1.5f));
                 Edge.GenerateTriangle(surface, color, points[^1], points[^2]);
             }
             else
                 Edge.GenerateTriangle(surface, color, points[^1], points[^2]);
-            if (elem is SequenceFlow || elem is MessageFlow)
+            if (delem is SequenceFlow || delem is MessageFlow)
             {
-                var sourceRef = (elem is SequenceFlow flow ? flow.SourceRef : ((MessageFlow)elem).SourceRef);
+                var sourceRef = (delem is SequenceFlow flow ? flow.SourceRef : ((MessageFlow)delem).SourceRef);
                 var gelem = definition.LocateElement(sourceRef);
-                if ((gelem is AGateway gateway) && (gateway.Default??"")==elem.ID)
+                if ((gelem is AGateway gateway) && (gateway.Default??"")==delem.ID)
                 {
                     var centre = new Point(
                         (0.5f*points[0].X)+(0.5f*points[1].X),
@@ -125,7 +124,7 @@ namespace BPMNEngine.Elements.Diagrams
             if (Label!=null && Label.Bounds!=null)
             {
                 surface.FontColor = color;
-                surface.DrawString(elem.ToString(), Label.Bounds.Rectangle, HorizontalAlignment.Center, VerticalAlignment.Center);
+                surface.DrawString(delem?.ToString(), Label.Bounds.Rectangle, HorizontalAlignment.Center, VerticalAlignment.Center);
             }
         }
     }

@@ -4,6 +4,7 @@ using BPMNEngine.Interfaces.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -21,11 +22,11 @@ namespace UnitTest
         private const string _USER_ID = "User1";
         private const string _TEST_LOG_LINE = "Test Log Line";
         private const string _TEST_FILE_VARIABLE = "TestFile";
-        private static readonly SFile[] _TEST_FILES = new SFile[]
-        {
-            new SFile(){Name="Test1",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"},
-            new SFile(){Name="Test2",Extension="txt",Content=Array.Empty<byte>(),ContentType="text/text"}
-        };
+        private static readonly SFile[] _TEST_FILES =
+        [
+            new(){Name="Test1",Extension="txt",Content=[],ContentType="text/text"},
+            new(){Name="Test2",Extension="txt",Content=[],ContentType="text/text"}
+        ];
 
         [ClassInitialize]
 #pragma warning disable IDE0060 // Remove unused parameter
@@ -33,7 +34,8 @@ namespace UnitTest
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             _singleTaskProcess = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
-                tasks: new() {
+                tasks: new()
+                {
                     BeginUserTask=(IUserTask task) =>
                     {
                         Task.Delay(TimeSpan.FromSeconds(2)).Wait();
@@ -52,7 +54,7 @@ namespace UnitTest
             _singleTaskProcess.Dispose();
         }
 
-        private static void TestVariables(Dictionary<string,object> variables)
+        private static void TestVariables(IImmutableDictionary<string, object> variables)
         {
             Assert.IsNotNull(variables);
             Assert.IsTrue(variables.ContainsKey(_TEST_VARIABLE_NAME));
@@ -64,7 +66,7 @@ namespace UnitTest
                 Assert.AreEqual(_TEST_FILES[x], ((SFile[])variables[_TEST_FILE_VARIABLE])[x]);
         }
 
-        private static void TestEmptyVariables(Dictionary<string,object> variables)
+        private static void TestEmptyVariables(IImmutableDictionary<string, object> variables)
         {
             Assert.IsNotNull(variables);
             Assert.AreEqual(0, variables.Count);
@@ -123,7 +125,7 @@ namespace UnitTest
             TestCurrentState(inst.CurrentState);
 
             var data = System.Text.UTF8Encoding.UTF8.GetBytes(inst.CurrentState.AsJSONDocument);
-            
+
             TestVariables(BusinessProcess.ExtractProcessVariablesFromStateDocument(new Utf8JsonReader(data)));
             TestEmptyVariables(BusinessProcess.ExtractProcessVariablesFromStateDocument(new Utf8JsonReader(data), 2));
             TestSteps(BusinessProcess.ExtractProcessSteps(new Utf8JsonReader(data)));

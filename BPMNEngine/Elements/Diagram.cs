@@ -1,16 +1,16 @@
-﻿using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Graphics.Skia;
-using BPMNEngine.Attributes;
+﻿using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
 using BPMNEngine.Elements.Diagrams;
 using BPMNEngine.State;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Graphics.Skia;
 
 namespace BPMNEngine.Elements
 {
-    [XMLTag("bpmndi","BPMNDiagram")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmndi", "BPMNDiagram")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(Definition))]
-    internal class Diagram : AParentElement
+    internal record Diagram : AParentElement
     {
         public static readonly IFont DefaultFont = new Font("Arial");
         public const float FONT_SIZE = 10.5f;
@@ -24,20 +24,20 @@ namespace BPMNEngine.Elements
                 Children.OfType<ADiagramElement>().Max(ade => ade.Rectangle.Y+ade.Rectangle.Height)-Children.OfType<ADiagramElement>().Min(ade => ade.Rectangle.Y)
             );
 
-        public static SkiaBitmapExportContext ProduceImage(int width,int height) 
-            => new(width, height, 1.0f, dpi: 600,transparent:true);
+        public static SkiaBitmapExportContext ProduceImage(int width, int height)
+            => new(width, height, 1.0f, dpi: 600, transparent: true);
 
         public IImage Render(ProcessPath path, Definition definition)
             => Render(path, definition, null);
 
-        public IImage Render(ProcessPath path, Definition definition,string elemid)
+        public IImage Render(ProcessPath path, Definition definition, string elemid)
         {
             var size = Size;
             ADiagramElement diagElem = null;
             if (elemid!=null)
             {
-                diagElem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.BPMNElement==elemid);
-                size = new Size(diagElem.Rectangle.Width,diagElem.Rectangle.Height);
+                diagElem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().First(ade => ade.BPMNElement==elemid);
+                size = new Size(diagElem.Rectangle.Width, diagElem.Rectangle.Height);
             }
             var image = ProduceImage((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
             var surface = image.Canvas;
@@ -63,13 +63,12 @@ namespace BPMNEngine.Elements
 
         public RectF GetElementRectangle(string elemid)
         {
-            var elem = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.BPMNElement==elemid);
-            return elem==null ? new RectF(0, 0, 0, 0) : elem.Rectangle;
+            var element = Children.OfType<Plane>().SelectMany(p => p.Children).OfType<ADiagramElement>().FirstOrDefault(ade => ade.BPMNElement==elemid);
+            return element==null ? new RectF(0, 0, 0, 0) : element.Rectangle;
         }
 
         public static Color GetColor(StepStatuses status)
-        {
-            return status switch
+            => status switch
             {
                 StepStatuses.Failed => Colors.Red,
                 StepStatuses.Succeeded => Colors.Green,
@@ -78,27 +77,19 @@ namespace BPMNEngine.Elements
                 StepStatuses.Aborted => Colors.Orange,
                 _ => Colors.Black,
             };
-        }
 
         public static void DrawLines(ICanvas surface, Point[] points)
-        {
-            var prev = points.First();
-            points.Skip(1)
-                .Select((p,i) => {
-                    var result = new { start = prev, end = p };
-                    prev=p;
-                    return result;
-                })
+            => points.Skip(1)
+                .Select((p, i) => new { start = points[i], end = p })
                 .ForEach(pair => surface.DrawLine(pair.start, pair.end));
-        }
-        
+
 
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
             if (!Children.Any())
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "No child elements found." });
+                err = (err?? []).Append("No child elements found.");
                 return false;
             }
             return res;

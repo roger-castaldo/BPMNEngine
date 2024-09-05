@@ -1,13 +1,8 @@
 ﻿namespace BPMNEngine.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class,AllowMultiple=true,Inherited =true)]
-    internal class ValidParentAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+    internal class ValidParentAttribute(Type parent) : Attribute
     {
-        public Type Parent { get; private init; }
-
-        public ValidParentAttribute(Type parent)
-        {
-            Parent = parent;
-        }
+        public Type Parent { get; private init; } = parent;
     }
 }

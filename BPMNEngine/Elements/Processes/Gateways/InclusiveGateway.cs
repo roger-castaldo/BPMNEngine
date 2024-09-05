@@ -2,8 +2,8 @@
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
-    [XMLTag("bpmn","inclusiveGateway")]
-    internal class InclusiveGateway : AGateway
+    [XMLTagAttribute("bpmn", "inclusiveGateway")]
+    internal record InclusiveGateway : AGateway
     {
         public InclusiveGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

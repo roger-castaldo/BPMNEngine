@@ -2,15 +2,14 @@
 
 namespace BPMNEngine.Elements.Processes
 {
-    [XMLTag("bpmn","lane")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmn", "lane")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(LaneSet))]
-    internal class Lane : AParentElement
+    internal record Lane : AParentElement
     {
-        public IEnumerable<string> Nodes 
-            => Children.OfType<FlowNodeRef>().Select(elem => elem.Value);
-
         public Lane(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map,parent) { }
+            : base(elem, map, parent) { }
+        public IEnumerable<string> Nodes
+            => Children.OfType<FlowNodeRef>().Select(elem => elem.Value);
     }
 }

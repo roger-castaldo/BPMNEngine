@@ -4,8 +4,8 @@ namespace BPMNEngine.Interfaces.State
 {
     internal interface IStateContainer : IDisposable
     {
-        void Load(XmlReader reader);
-        void Load(Utf8JsonReader reader);
+        XmlReader Load(XmlReader reader, Version version);
+        Utf8JsonReader Load(Utf8JsonReader reader, Version version);
         IReadOnlyStateContainer Clone();
     }
 }

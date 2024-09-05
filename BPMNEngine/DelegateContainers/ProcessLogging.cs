@@ -6,7 +6,7 @@
     /// against all instances or at the BeginProcess level to defining it against a 
     /// specific instance
     /// </summary>
-    public class ProcessLogging
+    public record ProcessLogging
     {
         /// <summary>
         /// A delegate called to append a log line entry from the process
@@ -17,7 +17,7 @@
         /// </summary>
         public LogException LogException { get; init; }
 
-        internal static ProcessLogging Merge(ProcessLogging source,ProcessLogging append)
+        internal static ProcessLogging Merge(ProcessLogging source, ProcessLogging append)
         {
             source??=new ProcessLogging();
             append??=new ProcessLogging();

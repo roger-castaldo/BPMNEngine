@@ -3,12 +3,12 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes
 {
-    [XMLTag("bpmn","association")]
-    [RequiredAttribute("id")]
+    [XMLTagAttribute("bpmn", "association")]
+    [RequiredAttributeAttribute("id")]
     [ValidParent(typeof(IProcess))]
-    internal class Association : AFlowElement
+    internal record Association : AFlowElement
     {
-        public Association(XmlElement elem, XmlPrefixMap map,AElement parent)
-            : base(elem, map,parent) { }
+        public Association(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
     }
 }

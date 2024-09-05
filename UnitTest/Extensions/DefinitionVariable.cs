@@ -1,11 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest.Extensions
 {
@@ -20,13 +19,14 @@ namespace UnitTest.Extensions
         public void TestDefinitionVariableUsage()
         {
             var readonlyKeysValid = false;
-            BusinessProcess process = new BusinessProcess(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
+            BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_VARIABLE_NAME]);
             Assert.IsInstanceOfType(process[_VARIABLE_NAME], typeof(string));
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, events:new BPMNEngine.DelegateContainers.ProcessEvents(){
-                Tasks = new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, events: new BPMNEngine.DelegateContainers.ProcessEvents()
+            {
+                Tasks = new()
                 {
                     Completed=(element, variables) =>
                     {
@@ -45,13 +45,13 @@ namespace UnitTest.Extensions
             task.MarkComplete();
 
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            
-            Dictionary<string, object> variables = instance.CurrentVariables;
-            Assert.AreEqual(1,variables.Count);
+
+            var variables = instance.CurrentVariables;
+            Assert.AreEqual(1, variables.Count);
             Assert.IsFalse(variables.ContainsKey(_VARIABLE_NAME));
             Assert.IsTrue(variables.ContainsKey(_RESULT_VARIABLE_NAME));
             Assert.AreEqual(string.Format(_RESULT_FORMAT, process[_VARIABLE_NAME]), variables[_RESULT_VARIABLE_NAME]);
-            Task.Delay(TimeSpan.FromSeconds(5)).Wait(); 
+            Task.Delay(TimeSpan.FromSeconds(5)).Wait();
             Assert.IsTrue(readonlyKeysValid);
         }
     }

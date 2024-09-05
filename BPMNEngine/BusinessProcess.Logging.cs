@@ -5,13 +5,13 @@ namespace BPMNEngine
     public sealed partial class BusinessProcess
     {
         internal void WriteLogLine(string elementID, LogLevel level, StackFrame sf, DateTime timestamp, string message)
-            => WriteLogLine((IElement)(elementID == null ? null : GetElement(elementID)), level, sf, timestamp, message);
+            => WriteLogLine((elementID == null ? null : GetElement(elementID)), level, sf, timestamp, message);
 
         internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
             => delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
 
         internal Exception WriteLogException(string elementID, StackFrame sf, DateTime timestamp, Exception exception)
-            => WriteLogException((IElement)(elementID == null ? null : GetElement(elementID)), sf, timestamp, exception);
+            => WriteLogException((elementID == null ? null : GetElement(elementID)), sf, timestamp, exception);
 
         internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
         {

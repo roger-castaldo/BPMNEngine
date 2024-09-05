@@ -2,14 +2,12 @@
 
 namespace BPMNEngine.Elements.Processes
 {
-    [XMLTag("bpmn", "incoming")]
+    [XMLTagAttribute("bpmn", "incoming")]
     [ValidParent(typeof(AFlowNode))]
-    internal class IncomingFlow : AElement
+    internal record IncomingFlow : AElement
     {
+        public IncomingFlow(XmlElement elem, XmlPrefixMap map, AElement parent)
+            : base(elem, map, parent) { }
         public string Value => Element.InnerText;
-
-        public IncomingFlow(XmlElement elem, XmlPrefixMap map, AElement parent) : base(elem, map, parent)
-        {
-        }
     }
 }

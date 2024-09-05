@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using System.Collections.Generic;
-using System.Xml;
-using System.Collections.Concurrent;
-using System.Reflection;
-using System;
 using BPMNEngine.Interfaces.Elements;
-using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
 
 namespace UnitTest.Extensions
 {
@@ -55,42 +55,42 @@ namespace UnitTest.Extensions
             _eventProcess.Dispose();
         }
 
-        private XmlDocument RunPathProcess(Dictionary<string,object> variables)
+        private XmlDocument RunPathProcess(Dictionary<string, object> variables)
         {
-            Dictionary<string, object> vars = new Dictionary<string, object>();
+            Dictionary<string, object> vars = new();
             foreach (string key in _pathFailVariables.Keys)
             {
                 if (!variables.ContainsKey(key))
                     vars.Add(key, _pathFailVariables[key]);
             }
             foreach (string key in variables.Keys)
-                vars.Add(key,variables[key]);
+                vars.Add(key, variables[key]);
             IProcessInstance processInstance = _pathProcess.BeginProcess(vars);
             Assert.IsNotNull(processInstance);
             Assert.IsTrue(Utility.WaitForCompletion(processInstance));
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(processInstance.CurrentState.AsXMLDocument);
             return doc;
         }
 
-        private bool _StepRan(BusinessProcess process,XmlDocument xmlDocument, string name)
+        private bool _StepRan(BusinessProcess process, XmlDocument xmlDocument, string name)
         {
             XmlNode node = process.Document.SelectSingleNode(string.Format("/*[local-name()='definitions']/*[local-name()='process']/*[local-name()='sequenceFlow'][@name='{0}']", name));
             if (node==null)
                 return false;
-            return xmlDocument.SelectSingleNode(string.Format("/ProcessState/ProcessPath/sPathEntry[@elementID='{0}'][@status='Succeeded']",node.Attributes["id"].Value))!=null;
+            return Utility.StepCompleted(xmlDocument, node.Attributes["id"].Value);
         }
 
         [TestMethod]
         public void TestIsNull()
         {
-            Assert.IsTrue(_StepRan(_pathProcess,RunPathProcess(new Dictionary<string, object>() { { "isnull", null } }),"IsNull"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isnull", null } }), "IsNull"));
         }
 
         [TestMethod]
         public void TestIsEqual()
         {
-            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isequal", 12} }), "Equals"));
+            Assert.IsTrue(_StepRan(_pathProcess, RunPathProcess(new Dictionary<string, object>() { { "isequal", 12 } }), "Equals"));
         }
 
         [TestMethod]
@@ -179,7 +179,7 @@ namespace UnitTest.Extensions
             IProcessInstance instance = _eventProcess.BeginProcess(new Dictionary<string, object>() { { "canstart", true } });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             Assert.IsTrue(_StepRan(_eventProcess, doc, "Can Start"));
             Assert.IsFalse(_StepRan(_eventProcess, doc, "Default"));

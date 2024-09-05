@@ -3,63 +3,47 @@ using System.Collections;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    internal abstract class ACompareCondition : ANegatableCondition
+    internal abstract record ACompareCondition : ANegatableCondition
     {
         private readonly XmlPrefixMap _map;
 
-        public ACompareCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
+        protected ACompareCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent)
         {
-                _map = map;
+            _map = map;
         }
 
         protected object GetLeft(IReadonlyVariables variables)
-        {
-            return this["leftVariable"] != null?
+            => this["leftVariable"] != null ?
                 ACompareCondition.ExtractVariable(variables, this["leftVariable"])
                 : SubNodes
                     .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "left", n.Name) || n.Name == "left"))
                     .Select(n => n.InnerText)
                     .FirstOrDefault();
-        }
 
         protected object GetRight(IReadonlyVariables variables)
-        {
-            return this["rightVariable"] != null
+            => this["rightVariable"] != null
                 ? ACompareCondition.ExtractVariable(variables, this["rightVariable"])
                 : SubNodes
                     .Where(n => n.NodeType==XmlNodeType.Element && (_map.IsMatch("exts", "right", n.Name) || n.Name == "right"))
                     .Select(n => n.InnerText)
                     .FirstOrDefault();
-        }
 
         protected int Compare(IReadonlyVariables variables)
             => ACompareCondition.Compare(GetLeft(variables), GetRight(variables), variables);
 
         protected static int Compare(object left, object right, IReadonlyVariables variables)
-        {
-            if (left == null && right != null)
-                return -1;
-            else if (left != null && right == null)
-                return 1;
-            else if (left==null && right==null)
-                return 0;
-            else
+            => (left, right) switch
             {
-                if (left is string ls && right is string rs)
-                    return ls.CompareTo(rs);
-                else
-                {
-                    if (left is string ls1 && right is not string)
-                        left = ACompareCondition.ConvertToType(ls1, right.GetType(), variables);
-                    else if (left is not string && right is string rs1)
-                        right = ACompareCondition.ConvertToType(rs1, left.GetType(), variables);
-                    else if (left.GetType() == right.GetType() && left is IComparable lic)
-                        return lic.CompareTo(right);
-                    return left.ToString().CompareTo(right.ToString());
-                }
-            }
-        }
+                (null, not null) => -1,
+                (not null, null) => 1,
+                (null, null) => 0,
+                (string ls, string rs) => ls.CompareTo(rs),
+                (string ls, not string) => ACompareCondition.ConvertToType(ls, right.GetType(), variables).ToString().CompareTo(right.ToString()),
+                (not string, string rs) => left.ToString().CompareTo(ACompareCondition.ConvertToType(rs, left.GetType(), variables).ToString()),
+                (IComparable lic, _) when left.GetType()==right.GetType() => lic.CompareTo(right),
+                _ => left.ToString().CompareTo(right.ToString())
+            };
 
         private static object ExtractVariable(object source, string name)
         {
@@ -81,13 +65,15 @@ namespace BPMNEngine.Elements.Processes.Conditions
                     ret = variablesContainer[name];
                 else if (variablesContainer[name[..name.IndexOf('.')]] != null)
                     ret = ExtractVariable(variablesContainer[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
-            }else if (source is IDictionary dictionary)
+            }
+            else if (source is IDictionary dictionary)
             {
                 if (!name.Contains('.'))
                 {
-                    if (dictionary.Keys.OfType<object>().Any(o=>o.ToString().Equals(name,StringComparison.InvariantCultureIgnoreCase)))
+                    if (dictionary.Keys.OfType<object>().Any(o => o.ToString().Equals(name, StringComparison.InvariantCultureIgnoreCase)))
                         ret = dictionary[name];
-                } else
+                }
+                else
                 {
                     if (dictionary.Keys.OfType<object>().Any(o => o.ToString().Equals(name[..name.IndexOf('.')], StringComparison.InvariantCultureIgnoreCase)))
                         ret = ExtractVariable(dictionary[name[..name.IndexOf('.')]], name[(name.IndexOf('.') + 1)..]);
@@ -97,7 +83,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
         }
 
         private static object ConvertToType(string value, Type type, IReadonlyVariables variables)
-        =>type.FullName switch
+        => type.FullName switch
         {
             "System.Boolean" => bool.Parse(value),
             "System.Byte[]" => Convert.FromBase64String(value),
@@ -110,7 +96,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             "System.Int64" => long.Parse(value),
             "System.Int16" => short.Parse(value),
             _ => value
-        }; 
+        };
 
         public override bool IsValid(out IEnumerable<string> err)
         {
@@ -139,8 +125,8 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 errs.Add("Right value missing.");
             else if (!foundLeft)
                 errs.Add("Left value missing.");
-            err=(err??Array.Empty<string>()).Concat(errs);
-            return res&&!errs.Any();
+            err=(err?? []).Concat(errs);
+            return res&&errs.Count==0;
         }
     }
 }

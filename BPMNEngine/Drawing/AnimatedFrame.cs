@@ -10,10 +10,10 @@ namespace BPMNEngine.Drawing
         public TimeSpan? Delay { get; private init; }
         public Size Size { get; private init; }
 
-        private readonly Stream data;
+        private readonly MemoryStream data;
         private bool disposedValue;
 
-        public byte[] IHDR =>Find("IHDR")?[0];
+        public byte[] IHDR => Find("IHDR")?[0];
 
         public List<byte[]> IDAT => Find("IDAT");
 
@@ -27,8 +27,8 @@ namespace BPMNEngine.Drawing
             X = x;
             Y = y;
             Delay=delay;
-            data = new MemoryStream();
-            image.Save(data,ImageFormat.Png);
+            data = new();
+            image.Save(data, ImageFormat.Png);
         }
 
         private List<byte[]> Find(string search)
@@ -42,7 +42,7 @@ namespace BPMNEngine.Drawing
             {
                 data.Flush();
                 data.Position = i;
-                var debug = data.Read(bytes, 0, search.Length);
+                data.Read(bytes, 0, search.Length);
                 i++;
                 if (bytes.SequenceEqual(searchBytes))
                 {

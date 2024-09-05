@@ -1,4 +1,6 @@
-﻿namespace BPMNEngine.Interfaces.State
+﻿using System.Collections.Immutable;
+
+namespace BPMNEngine.Interfaces.State
 {
     /// <summary>
     /// Houses the step information from a state to indicate statuses and timestamps for given elements
@@ -33,6 +35,6 @@
         /// <summary>
         /// The list of outgoing elements to be executed next from the completion of this element
         /// </summary>
-        IEnumerable<string> OutgoingID { get;  }
+        IImmutableList<string> OutgoingID { get; }
     }
 }

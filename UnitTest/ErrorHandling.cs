@@ -1,15 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Interfaces.Variables;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Xml;
-using BPMNEngine.Interfaces.Elements;
-using BPMNEngine.Interfaces.Tasks;
-using BPMNEngine.Interfaces.Variables;
 
 namespace UnitTest
 {
@@ -30,35 +29,35 @@ namespace UnitTest
         {
             _cache = new ConcurrentQueue<string>();
             _noErrorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/no_error_handling.bpmn"),
-                events:new BPMNEngine.DelegateContainers.ProcessEvents()
+                events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Processes=new BPMNEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new()
                     {
                         Error= new OnProcessErrorEvent(ProcessError)
                     }
                 },
-                validations:new BPMNEngine.DelegateContainers.StepValidations()
+                validations: new BPMNEngine.DelegateContainers.StepValidations()
                 {
                     IsEventStartValid=new IsEventStartValid(IsEventStartValid),
                     IsFlowValid=new IsFlowValid(IsFlowValid),
                 },
-                tasks:new BPMNEngine.DelegateContainers.ProcessTasks()
+                tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
                 {
                     ProcessTask=new ProcessTask(ProcessTask)
                 }
@@ -66,23 +65,23 @@ namespace UnitTest
             _errorHandlingProcess = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/process_error_handling.bpmn"),
                 events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
-                    Events=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Events=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Gateways=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Gateways=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Tasks=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    Tasks=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    SubProcesses=new BPMNEngine.DelegateContainers.ProcessEvents.BasicEvents()
+                    SubProcesses=new()
                     {
                         Error=new OnElementEvent(ErrorEvent)
                     },
-                    Processes=new BPMNEngine.DelegateContainers.ProcessEvents.ElementProcessEvents()
+                    Processes=new()
                     {
                         Error= new OnProcessErrorEvent(ProcessError)
                     }
@@ -106,7 +105,7 @@ namespace UnitTest
             _cache = null;
         }
 
-        private static bool IsElementValid(string id,object list)
+        private static bool IsElementValid(string id, object list)
         {
             if (list!=null)
                 return !new List<string>((string[])list).Contains(id);
@@ -131,29 +130,29 @@ namespace UnitTest
 
         private static void ProcessError(IElement process, IElement sourceElement, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}-{1}-{2}", new object[] { variables[_TEST_ID_NAME], process.ID, sourceElement.ID }));
+            _cache.Enqueue(string.Format("{0}-{1}-{2}", [variables[_TEST_ID_NAME], process.ID, sourceElement.ID]));
         }
 
         private static void ErrorEvent(IStepElement element, IReadonlyVariables variables)
         {
-            _cache.Enqueue(string.Format("{0}-{1}",new object[] { variables[_TEST_ID_NAME], element.ID }));
+            _cache.Enqueue(string.Format("{0}-{1}", [variables[_TEST_ID_NAME], element.ID]));
         }
 
         private static bool EventOccured(Guid instanceID, string name)
         {
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}-{1}", new object[] { instanceID, name }))
+                if (str==string.Format("{0}-{1}", [instanceID, name]))
                     return true;
             }
             return false;
         }
 
-        private static bool EventOccured(Guid instanceID, string name,string subevent)
+        private static bool EventOccured(Guid instanceID, string name, string subevent)
         {
             foreach (string str in _cache)
             {
-                if (str==string.Format("{0}-{1}-{2}", new object[] { instanceID, name,subevent }))
+                if (str==string.Format("{0}-{1}-{2}", [instanceID, name, subevent]))
                     return true;
             }
             return false;
@@ -169,7 +168,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "IntermediateCatchEvent_036z13e" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
+            Assert.IsFalse(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "IntermediateCatchEvent_036z13e"));
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "Process_1", "IntermediateCatchEvent_036z13e"));
@@ -185,7 +184,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_1t5xv8f" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
+            Assert.IsFalse(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "Task_1t5xv8f"));
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "Process_1", "Task_1t5xv8f"));
@@ -201,7 +200,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_0e0f0l0" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
+            Assert.IsFalse(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "SubProcess_1mqrot2"));
         }
@@ -216,7 +215,7 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "SequenceFlow_096t69k", "SequenceFlow_1io01r8" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
+            Assert.IsFalse(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             Thread.Sleep(5*1000);
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "ExclusiveGateway_1nkgv9w"));
@@ -227,7 +226,7 @@ namespace UnitTest
                 {_TEST_ID_NAME, guid}
             });
             Assert.IsNotNull(instance);
-            Assert.IsFalse(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
+            Assert.IsFalse(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
             Thread.Sleep(5*1000);
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "ExclusiveGateway_1nkgv9w"));
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "Process_1", "ExclusiveGateway_1nkgv9w"));
@@ -243,10 +242,8 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_11szmyl" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1as7z3k'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "IntermediateCatchEvent_1as7z3k"));
         }
 
         [TestMethod()]
@@ -259,10 +256,8 @@ namespace UnitTest
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_067gf16" } }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='IntermediateCatchEvent_1r5p299'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "IntermediateCatchEvent_1r5p299"));
         }
 
         [TestMethod()]
@@ -276,11 +271,9 @@ namespace UnitTest
                 {_ERROR_MESSAGE_NAME,_DEFINED_ERROR_MESSAGE }
             });
             Assert.IsNotNull(instance);
-            Assert.IsTrue(Utility.WaitForCompletion(instance,waitTime:PROCESS_TIMEOUT));
-            XmlDocument doc = new();
-            doc.LoadXml(instance.CurrentState.AsXMLDocument);
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='BoundaryEvent_0hxboq6'][@status='Succeeded']"));
-            Assert.IsNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@elementID='SequenceFlow_08tdtwz'][@status='Succeeded']"));
+            Assert.IsTrue(Utility.WaitForCompletion(instance, waitTime: PROCESS_TIMEOUT));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_0hxboq6"));
+            Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "SequenceFlow_08tdtwz"));
         }
 
         [TestMethod()]

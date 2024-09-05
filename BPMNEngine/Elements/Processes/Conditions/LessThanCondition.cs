@@ -3,8 +3,8 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    [XMLTag("exts", "lessThanCondition")]
-    internal class LessThanCondition : ACompareCondition
+    [XMLTagAttribute("exts", "lessThanCondition")]
+    internal record LessThanCondition : ACompareCondition
     {
         public LessThanCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

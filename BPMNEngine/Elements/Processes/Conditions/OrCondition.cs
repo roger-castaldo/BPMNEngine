@@ -3,8 +3,8 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    [XMLTag("exts", "orCondition")]
-    internal class OrCondition : ANegatableConditionSet
+    [XMLTagAttribute("exts", "orCondition")]
+    internal record OrCondition : ANegatableConditionSet
     {
         public OrCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -17,7 +17,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             var res = base.IsValid(out err);
             if (Children.Length < 2)
             {
-                err =(err ?? Array.Empty<string>()).Concat(new string[] { "Not enough child elements found for an Or Condition" });
+                err =(err ?? []).Append("Not enough child elements found for an Or Condition");
                 return false;
             }
             return res;

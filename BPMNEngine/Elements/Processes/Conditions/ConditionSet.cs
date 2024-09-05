@@ -3,9 +3,9 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
 {
-    [XMLTag("exts", "ConditionSet")]
+    [XMLTagAttribute("exts", "ConditionSet")]
     [ValidParent(typeof(ExtensionElements))]
-    internal class ConditionSet : AConditionSet
+    internal record ConditionSet : AConditionSet
     {
         public ConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
@@ -15,7 +15,8 @@ namespace BPMNEngine.Elements.Processes.Conditions
             try
             {
                 return Conditions.First().Evaluate(variables);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Exception(ex);
                 return false;
@@ -25,9 +26,9 @@ namespace BPMNEngine.Elements.Processes.Conditions
         public override bool IsValid(out IEnumerable<string> err)
         {
             var res = base.IsValid(out err);
-            if (Children.Count() > 1)
+            if (Children.Length > 1)
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { "Too many children found." });
+                err = (err?? []).Append("Too many children found.");
                 return false;
             }
             return res;

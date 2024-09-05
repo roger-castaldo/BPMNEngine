@@ -5,6 +5,7 @@ using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
 using BPMNEngine.State;
+using System.Collections.Immutable;
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
@@ -14,11 +15,13 @@ namespace BPMNEngine
     internal sealed class ProcessState : IDisposable
     {
         private const string PROCESS_STATE_ELEMENT = "ProcessState";
+        private const string STATE_VERSION_ATTRIBUTE = "Version";
         private const string PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
+        internal static readonly Version CURRENT_VERSION = new("2.0");
 
         internal delegate void delTriggerStateChange();
 
-        private class ReadOnlyProcessState : IInternalState
+        private class ReadOnlyProcessState : IState
         {
             private readonly bool isSuspended;
             private readonly IReadOnlyStateVariablesContainer variables;
@@ -38,9 +41,9 @@ namespace BPMNEngine
             }
             public object this[string name] => variables[name];
 
-            public IEnumerable<string> Keys => variables.Keys;
+            public IImmutableList<string> Keys => variables.Keys;
 
-            private IEnumerable<IReadOnlyStateContainer> Components => new IReadOnlyStateContainer[] {path,variables,log};
+            private IEnumerable<IReadOnlyStateContainer> Components => [path, variables, log];
 
             public string AsXMLDocument
             {
@@ -53,6 +56,7 @@ namespace BPMNEngine
                     });
                     writer.WriteStartDocument();
                     writer.WriteStartElement(PROCESS_STATE_ELEMENT);
+                    writer.WriteAttributeString(STATE_VERSION_ATTRIBUTE, CURRENT_VERSION.ToString());
                     writer.WriteAttributeString(PROCESS_SUSPENDED_ATTRIBUTE, isSuspended.ToString());
 
                     Components.ForEach(comp =>
@@ -78,6 +82,8 @@ namespace BPMNEngine
                     using var ms = new MemoryStream();
                     var writer = new Utf8JsonWriter(ms);
                     writer.WriteStartObject();
+                    writer.WritePropertyName(STATE_VERSION_ATTRIBUTE);
+                    writer.WriteStringValue(CURRENT_VERSION.ToString());
                     writer.WritePropertyName(PROCESS_SUSPENDED_ATTRIBUTE);
                     writer.WriteBooleanValue(isSuspended);
 
@@ -96,17 +102,19 @@ namespace BPMNEngine
                 }
             }
 
-            public IEnumerable<IElement> ActiveElements
-                => (process==null 
-                    ? throw new NotSupportedException("Unable to access Active Elements when loaded without a business process") 
-                    :  path.ActiveSteps.Select(id => process.GetElement(id))
+            public IImmutableList<IElement> ActiveElements
+                => (process==null
+                    ? throw new NotSupportedException("Unable to access Active Elements when loaded without a business process")
+                    : path.ActiveSteps
+                        .Select(id => process.GetElement(id))
+                        .ToImmutableList()
                 );
 
-            public IEnumerable<IStateStep> Steps => path.Steps;
+            public IImmutableList<IStateStep> Steps => path.Steps;
 
             public string Log => log.Log;
 
-            public Dictionary<string, object> Variables => variables.AsExtract;
+            public IImmutableDictionary<string, object> Variables => variables.AsExtract;
         }
 
         private readonly ProcessLog log;
@@ -117,21 +125,21 @@ namespace BPMNEngine
         internal bool IsSuspended { get; set; }
         internal BusinessProcess Process { get; private init; }
 
-        internal ProcessState(Guid? id,BusinessProcess process,ProcessStepComplete complete, ProcessStepError error,OnStateChange onStateChange)
+        internal ProcessState(Guid? id, BusinessProcess process, ProcessStepComplete complete, ProcessStepError error, OnStateChange onStateChange)
         {
             stateEvent = new(id);
             Process = process;
             log = new ProcessLog(stateEvent);
             variables = new ProcessVariables(stateEvent);
-            Path = new ProcessPath(complete, error,process,stateEvent,new delTriggerStateChange(StateChanged));
+            Path = new ProcessPath(complete, error, process, stateEvent, new delTriggerStateChange(StateChanged));
             this.onStateChange = onStateChange;
         }
 
-        private ProcessState(int? stepIndex=null)
+        private ProcessState(int? stepIndex = null)
         {
             stateEvent = new(null);
             log = new ProcessLog(stateEvent);
-            variables = new ProcessVariables(stateEvent,stepIndex:stepIndex);
+            variables = new ProcessVariables(stateEvent, stepIndex: stepIndex);
             Path = new ProcessPath(null, null, null, stateEvent, new delTriggerStateChange(StateChanged));
         }
 
@@ -166,31 +174,37 @@ namespace BPMNEngine
             var result = true;
             stateEvent.EnterWriteLock();
             var reader = XmlReader.Create(new MemoryStream(System.Text.UTF8Encoding.UTF8.GetBytes(doc.OuterXml)));
-            while(reader.NodeType!=XmlNodeType.Element)
+            while (reader.NodeType!=XmlNodeType.Element)
             {
-                if(!reader.Read())
+                if (!reader.Read())
                     return false;
             }
             if (reader.NodeType ==XmlNodeType.Element && reader.Name==PROCESS_STATE_ELEMENT)
             {
+                var version = new Version(reader.GetAttribute(STATE_VERSION_ATTRIBUTE)??"1.0");
                 IsSuspended = bool.Parse(reader.GetAttribute(PROCESS_SUSPENDED_ATTRIBUTE));
                 reader.Read();
                 try
                 {
-                    while(!reader.EOF)
+                    while (!reader.EOF)
                     {
                         if (reader.NodeType==XmlNodeType.Element)
                         {
                             switch (reader.Name)
                             {
                                 case "ProcessLog":
-                                    log.Load(reader);
+                                    reader=log.Load(reader, version);
                                     break;
                                 case "ProcessPath":
-                                    Path.Load(reader);
+                                    reader=Path.Load(reader, version);
                                     break;
                                 case "ProcessVariables":
-                                    variables.Load(reader);
+                                    reader=variables.Load(reader, version);
+                                    break;
+                                case "SuspendedSteps":
+                                    if (version>=CURRENT_VERSION)
+                                        throw new Exception("Reading error...");
+                                    reader.Skip();
                                     break;
                                 default:
                                     throw new Exception("Reading error...");
@@ -221,6 +235,7 @@ namespace BPMNEngine
             try
             {
                 reader.Read();
+                var version = new Version("1.0");
                 while (reader.Read())
                 {
                     if (reader.TokenType==JsonTokenType.PropertyName)
@@ -232,17 +247,28 @@ namespace BPMNEngine
                                 reader.Read();
                                 IsSuspended = reader.GetBoolean();
                                 break;
+                            case STATE_VERSION_ATTRIBUTE:
+                                foundItem=true;
+                                reader.Read();
+                                version=new Version(reader.GetString());
+                                break;
                             case "ProcessLog":
                                 foundItem=true;
-                                log.Load(reader);
+                                reader=log.Load(reader, version);
                                 break;
                             case "ProcessPath":
                                 foundItem=true;
-                                Path.Load(reader);
+                                reader=Path.Load(reader, version);
                                 break;
                             case "ProcessVariables":
                                 foundItem=true;
-                                variables.Load(reader);
+                                reader=variables.Load(reader, version);
+                                break;
+                            case "SuspendedSteps":
+                                if (version>=CURRENT_VERSION)
+                                    throw new Exception("Reading error...");
+                                reader.Read();
+                                reader.Skip();
                                 break;
                         }
                     }
@@ -253,35 +279,35 @@ namespace BPMNEngine
             return foundItem;
         }
 
-        public static IInternalState LoadState(XmlDocument doc,int? stepIndex=null)
+        public static IState LoadState(XmlDocument doc, int? stepIndex = null)
         {
-            var state = new ProcessState(stepIndex:stepIndex);
+            var state = new ProcessState(stepIndex: stepIndex);
             if (state.Load(doc))
                 return new ReadOnlyProcessState(state);
             return null;
         }
 
-        public static IInternalState LoadState(Utf8JsonReader reader, int? stepIndex=null)
+        public static IState LoadState(Utf8JsonReader reader, int? stepIndex = null)
         {
-            var state = new ProcessState(stepIndex:stepIndex);
+            var state = new ProcessState(stepIndex: stepIndex);
             if (state.Load(reader))
                 return new ReadOnlyProcessState(state);
             return null;
         }
 
         internal IEnumerable<SSuspendedStep> ResumeSteps
-            => !IsSuspended ? Array.Empty<SSuspendedStep>() : Path.ResumeSteps;
+            => !IsSuspended ? [] : Path.ResumeSteps;
 
-        internal IEnumerable<SDelayedStartEvent> DelayedEvents 
+        internal IEnumerable<SDelayedStartEvent> DelayedEvents
             => Path.DelayedEvents;
 
-        internal IEnumerable<string> AbortableSteps 
+        internal IEnumerable<string> AbortableSteps
             => Path.AbortableSteps;
 
-        internal IEnumerable<string> ActiveSteps 
+        internal IEnumerable<string> ActiveSteps
             => Path.ActiveSteps;
 
-        internal IEnumerable<string> WaitingSteps 
+        internal IEnumerable<string> WaitingSteps
             => Path.WaitingSteps;
 
         internal void MergeVariables(ITask task, IVariables vars)
@@ -327,9 +353,9 @@ namespace BPMNEngine
             }
         }
 
-        internal void SuspendStep(string sourceID,string elementID, TimeSpan span)
+        internal void SuspendStep(string sourceID, string elementID, TimeSpan span)
         {
-            Process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", new object[] { span }));
+            Process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", [span]));
             Path.SuspendElement(sourceID, elementID, span);
             StateChanged();
         }
@@ -337,7 +363,7 @@ namespace BPMNEngine
         internal IEnumerable<SStepSuspension> SuspendedSteps
             => Path.SuspendedSteps;
 
-        public IInternalState CurrentState 
+        public IState CurrentState
             => new ReadOnlyProcessState(this);
 
         private void StateChanged()
@@ -349,7 +375,8 @@ namespace BPMNEngine
                     try
                     {
                         onStateChange(CurrentState);
-                    }catch(Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         Process.WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, ex);
                     }
@@ -359,11 +386,11 @@ namespace BPMNEngine
 
         internal void Suspend()
         {
-            Process.WriteLogLine((string)null,LogLevel.Debug,new StackFrame(1,true),DateTime.Now,"Suspending Process State");
+            Process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Suspending Process State");
             IsSuspended = true;
         }
 
-        internal void Resume(ProcessInstance instance,Action<string,string> processStepComplete,Action<AEvent> completeTimedEvent)
+        internal void Resume(ProcessInstance instance, Action<string, string> processStepComplete, Action<AEvent> completeTimedEvent)
         {
             Process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
             var resumes = ResumeSteps.ToArray();
@@ -399,7 +426,7 @@ namespace BPMNEngine
             StateChanged();
         }
 
-        internal void LogLine(string elementID,AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
+        internal void LogLine(string elementID, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
             => log.LogLine(elementID, assembly, fileName, lineNumber, level, timestamp, message);
 
         internal void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)

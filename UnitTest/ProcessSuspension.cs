@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BPMNEngine;
+﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Xml;
-using BPMNEngine.Interfaces.Tasks;
 
 namespace UnitTest
 {
@@ -61,11 +61,11 @@ namespace UnitTest
                 doc.LoadXml(instance.CurrentState.AsXMLDocument);
                 instance.Dispose();
 
-                if (doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']")!=null)
+                if (doc.SelectSingleNode("/ProcessState/ProcessPath/StateStep[@status='Suspended']")!=null)
                     break;
             }
 
-            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/sPathEntry[@status='Suspended']"));
+            Assert.IsNotNull(doc.SelectSingleNode("/ProcessState/ProcessPath/StateStep[@status='Suspended']"));
 
             instance = _userProcess.LoadState(doc);
             Assert.IsNotNull(instance);
@@ -116,7 +116,7 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
-            XmlDocument doc = new XmlDocument();
+            XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
             instance.Dispose();
             instance = _timerProcess.LoadState(doc);
@@ -126,7 +126,8 @@ namespace UnitTest
             try
             {
                 instance.Resume();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 exception=e;
             }

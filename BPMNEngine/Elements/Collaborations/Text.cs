@@ -2,12 +2,12 @@
 
 namespace BPMNEngine.Elements.Collaborations
 {
-    [XMLTag("bpmn", "text")]
+    [XMLTagAttribute("bpmn", "text")]
     [ValidParent(typeof(TextAnnotation))]
-    internal class Text : AElement
+    internal record Text : AElement
     {
-        public string Value =>  Element.InnerText;
-        public Text(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public Text(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
+        public string Value => Element.InnerText;
     }
 }

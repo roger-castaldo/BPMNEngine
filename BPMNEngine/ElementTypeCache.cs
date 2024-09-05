@@ -4,18 +4,18 @@
     {
         private readonly struct SCachedType
         {
-            public SCachedType(){}
+            public SCachedType() { }
             public string Tag { get; init; } = string.Empty;
             public Type Type { get; init; } = null;
         }
 
         private readonly List<SCachedType> cache;
 
-        public ElementTypeCache() { cache=new(); }
+        public ElementTypeCache() { cache= []; }
 
-        public Type this[string xmlTag] => cache.FirstOrDefault(ct=>ct.Tag.Equals(xmlTag,StringComparison.CurrentCultureIgnoreCase)).Type;
+        public Type this[string xmlTag] => cache.Find(ct => ct.Tag.Equals(xmlTag, StringComparison.CurrentCultureIgnoreCase)).Type;
 
-        public bool IsCached(string xmlTag) => cache.Any(ct=>ct.Tag.Equals(xmlTag,StringComparison.CurrentCultureIgnoreCase));
+        public bool IsCached(string xmlTag) => cache.Exists(ct => ct.Tag.Equals(xmlTag, StringComparison.CurrentCultureIgnoreCase));
 
         public void MapIdeals(XmlPrefixMap map)
         {
@@ -30,7 +30,7 @@
                         prefixPair.Value.ForEach(tagPair =>
                         {
                             var tag = $"{trans}:{tagPair.Key}";
-                            if (!cache.Any(ct => ct.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)))
+                            if (!cache.Exists(ct => ct.Tag.Equals(tag, StringComparison.CurrentCultureIgnoreCase)))
                                 cache.Add(new()
                                 {
                                     Tag=tag,
@@ -43,7 +43,7 @@
                 {
                     prefixPair.Value.ForEach(tagPair =>
                     {
-                        cache.Add(new() { Tag=$"{prefixPair.Key}:{tagPair.Key}",Type=tagPair.Value });
+                        cache.Add(new() { Tag=$"{prefixPair.Key}:{tagPair.Key}", Type=tagPair.Value });
                         cache.Add(new() { Tag=tagPair.Key, Type=tagPair.Value });
                     });
                 }

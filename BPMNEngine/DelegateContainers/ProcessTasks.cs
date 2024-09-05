@@ -6,7 +6,7 @@
     /// against all instances or at the BeginProcess level to defining it against a 
     /// specific instance
     /// </summary>
-    public class ProcessTasks
+    public record ProcessTasks
     {
         /// <summary>
         /// A delegate called to execute a Business Rule Task

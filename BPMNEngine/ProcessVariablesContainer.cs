@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Interfaces.Variables;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
@@ -12,7 +13,7 @@ namespace BPMNEngine
         private readonly BusinessProcess process = null;
         private bool disposedValue;
 
-        public ProcessVariablesContainer(Dictionary<string,object> props,BusinessProcess process)
+        public ProcessVariablesContainer(Dictionary<string, object> props, BusinessProcess process)
         {
             nulls = new List<string>();
             variables = props??new Dictionary<string, object>();
@@ -22,12 +23,12 @@ namespace BPMNEngine
         internal ProcessVariablesContainer(string elementID, ProcessInstance processInstance)
         {
             process = processInstance.Process;
-            process.WriteLogLine(elementID,LogLevel.Debug,new System.Diagnostics.StackFrame(1,true),DateTime.Now,string.Format("Producing Process Variables Container for element[{0}]", new object[] { elementID }));
+            process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Producing Process Variables Container for element[{0}]", [elementID]));
             nulls = new List<string>();
             variables = new Dictionary<string, object>();
             processInstance.State[elementID].ForEach(key =>
             {
-                process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", new object[] { key, elementID }));
+                process.WriteLogLine(elementID, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, string.Format("Adding variable {0} to Process Variables Container for element[{1}]", [key, elementID]));
                 variables.Add(key, processInstance.State[elementID, key]);
             });
         }
@@ -65,21 +66,25 @@ namespace BPMNEngine
             }
         }
 
-        public IEnumerable<string> Keys
+        public ImmutableArray<string> Keys
         {
             get
             {
                 locker.EnterReadLock();
                 var result = variables.Keys
-                    .Concat(nulls);
+                    .Concat(nulls)
+                    .ToImmutableArray();
                 locker.ExitReadLock();
                 return result;
             }
         }
 
-        public IEnumerable<string> FullKeys
-            => Keys.Concat(process==null ? Array.Empty<string>() : process.Keys)
-            .Distinct();
+        public ImmutableArray<string> FullKeys
+            => Array.Empty<string>()
+            .Concat(Keys)
+            .Concat(process==null ? [] : process.Keys)
+            .Distinct()
+            .ToImmutableArray();
 
         [ExcludeFromCodeCoverage]
         private void Dispose(bool disposing)

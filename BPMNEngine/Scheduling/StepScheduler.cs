@@ -10,32 +10,18 @@ namespace BPMNEngine.Scheduling
     {
         public readonly static StepScheduler Instance = new();
 
-        private readonly struct SProcessSuspendEvent
-        {
-            public ProcessInstance Instance { get; init; }
-            public AEvent Event { get; init; }
-            public DateTime EndTime { get; init; }
-        }
-
-        private readonly struct SProcessDelayedEvent
-        {
-            public ProcessInstance Instance { get; init; }
-            public BoundaryEvent Event { get; init; }
-            public DateTime StartTime { get; init; }
-            public string SourceID { get; init; }
-        }
-
         private bool disposedValue;
         private bool done;
         private readonly ReaderWriterLockSlim locker;
-        private readonly List<SProcessSuspendEvent> suspendEvents;
-        private readonly List<SProcessDelayedEvent> delayedEvents;
+        private readonly List<ProcessSuspendEvent> suspendEvents;
+        private readonly List<ProcessDelayedEvent> delayedEvents;
         private readonly ManualResetEvent backgroundMREEvent;
 
-        private StepScheduler() {
+        private StepScheduler()
+        {
             locker=new();
-            suspendEvents=new();
-            delayedEvents=new();
+            suspendEvents= [];
+            delayedEvents= [];
             backgroundMREEvent=new(true);
             ProduceBackgroundTask();
         }
@@ -49,10 +35,10 @@ namespace BPMNEngine.Scheduling
                     TimeSpan sleep = TimeSpan.MaxValue;
                     var ts = DateTime.Now;
                     locker.EnterReadLock();
-                    if (suspendEvents.Any()||delayedEvents.Any())
+                    if (suspendEvents.Count>0||delayedEvents.Count>0)
                     {
-                        sleep = suspendEvents.Select(se=>se.EndTime.Subtract(ts))
-                        .Concat(delayedEvents.Select(de=>de.StartTime.Subtract(ts)))
+                        sleep = suspendEvents.Select(se => se.EndTime.Subtract(ts))
+                        .Concat(delayedEvents.Select(de => de.StartTime.Subtract(ts)))
                         .Min();
                     }
                     locker.ExitReadLock();
@@ -64,26 +50,29 @@ namespace BPMNEngine.Scheduling
                     {
                         locker.EnterWriteLock();
 
-                        IEnumerable<object> toRemove = Array.Empty<object>();
+                        IEnumerable<object> toRemove = [];
 
                         suspendEvents
                             .Where(se => se.EndTime.Ticks<=ts.Ticks)
-                            .ForEach(se => {
+                            .ForEach(se =>
+                            {
                                 try
                                 {
                                     se.Instance.CompleteTimedEvent(se.Event);
                                     toRemove = toRemove.Append(se);
-                                }catch(Exception e){ se.Instance.WriteLogException(se.Event, new StackFrame(1, true), DateTime.Now, e); }
+                                }
+                                catch (Exception e) { se.Instance.WriteLogException(se.Event, new StackFrame(1, true), DateTime.Now, e); }
                             });
-                        suspendEvents.RemoveAll(se=>toRemove.Contains(se));
-                        
-                        toRemove = Array.Empty<object>();
+                        suspendEvents.RemoveAll(se => toRemove.Contains(se));
+
+                        toRemove = [];
                         delayedEvents
-                            .Where(de=>de.StartTime.Ticks<=ts.Ticks)
-                            .ForEach(de => {
+                            .Where(de => de.StartTime.Ticks<=ts.Ticks)
+                            .ForEach(de =>
+                            {
                                 try
                                 {
-                                    de.Instance.StartTimedEvent(de.Event,de.SourceID);
+                                    de.Instance.StartTimedEvent(de.Event, de.SourceID);
                                     toRemove = toRemove.Append(de);
                                 }
                                 catch (Exception e) { de.Instance.WriteLogException(de.Event, new StackFrame(1, true), DateTime.Now, e); }
@@ -101,8 +90,8 @@ namespace BPMNEngine.Scheduling
         public void AbortDelayedEvent(ProcessInstance process, BoundaryEvent evnt, string sourceID)
         {
             locker.EnterWriteLock();
-            var changed = delayedEvents.RemoveAll(de=>
-            de.Instance.ID==process.ID 
+            var changed = delayedEvents.RemoveAll(de =>
+            de.Instance.ID==process.ID
             && de.SourceID==sourceID
             && de.Event.ID==evnt.ID)>0;
             locker.ExitWriteLock();
@@ -124,13 +113,7 @@ namespace BPMNEngine.Scheduling
         public void DelayStart(TimeSpan value, ProcessInstance process, BoundaryEvent evnt, string sourceID)
         {
             locker.EnterWriteLock();
-            delayedEvents.Add(new()
-            {
-                Event=evnt,
-                Instance=process,
-                SourceID=sourceID,
-                StartTime=DateTime.Now.Add(value)
-            });
+            delayedEvents.Add(new(process, evnt, DateTime.Now.Add(value), sourceID));
             locker.ExitWriteLock();
             backgroundMREEvent.Set();
         }
@@ -138,12 +121,7 @@ namespace BPMNEngine.Scheduling
         public void Sleep(TimeSpan value, ProcessInstance process, AEvent evnt)
         {
             locker.EnterWriteLock();
-            suspendEvents.Add(new()
-            {
-                Event=evnt,
-                Instance=process,
-                EndTime=DateTime.Now.Add(value)
-            });
+            suspendEvents.Add(new(process, evnt, DateTime.Now.Add(value)));
             locker.ExitWriteLock();
             backgroundMREEvent.Set();
         }
@@ -153,7 +131,7 @@ namespace BPMNEngine.Scheduling
             locker.EnterWriteLock();
             var changed = suspendEvents.RemoveAll(se =>
             se.Instance.Process.Equals(process))
-            +delayedEvents.RemoveAll(de=>
+            +delayedEvents.RemoveAll(de =>
             de.Instance.Process.Equals(process))>0;
             locker.ExitWriteLock();
             if (changed)
@@ -187,20 +165,11 @@ namespace BPMNEngine.Scheduling
                     locker.ExitWriteLock();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
                 backgroundMREEvent.Dispose();
                 locker.Dispose();
                 disposedValue=true;
             }
         }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~StepScheduler()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
 
         [ExcludeFromCodeCoverage]
         public void Dispose()

@@ -2,12 +2,11 @@
 
 namespace BPMNEngine.Elements.Processes
 {
-    [XMLTag("bpmn", "extensionElements")]
+    [XMLTagAttribute("bpmn", "extensionElements")]
     [ValidParent(null)]
-    internal class ExtensionElements : AParentElement
+    internal record ExtensionElements : AParentElement
     {
         public ExtensionElements(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
-
     }
 }

@@ -3,52 +3,44 @@ using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
-    internal abstract class AHandlingEvent : AEvent
+    internal abstract record AHandlingEvent : AEvent
     {
-        private IEnumerable<string> Types 
+        private IEnumerable<string> Types
             => Children
-            .Where(child => child is ErrorEventDefinition || child is MessageEventDefinition || child is SignalEventDefinition)
-            .Select(child => child is ErrorEventDefinition definition ?
-                    definition.ErrorTypes :
-                    (child is MessageEventDefinition messageDefinition ?
-                        messageDefinition.MessageTypes :
-                ((SignalEventDefinition)child).SignalTypes))
-            .FirstOrDefault();
+            .OfType<ErrorEventDefinition>()
+            .FirstOrDefault()?.ErrorTypes
+            ??Children.OfType<MessageEventDefinition>()
+            .FirstOrDefault()?.MessageTypes
+            ??Children.OfType<SignalEventDefinition>()
+            .FirstOrDefault()?.SignalTypes;
 
-        private ConditionalEventDefinition Condition 
+        private ConditionalEventDefinition Condition
             => Children
             .OfType<ConditionalEventDefinition>()
             .FirstOrDefault();
 
-        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) : 
-            base(elem, map, parent) {}
+        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) :
+            base(elem, map, parent)
+        { }
 
         public int EventCost(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
         {
-            bool handlesEvent = false;
             if (SubType.Value==evnt)
             {
-                handlesEvent=true;
-                switch (SubType.Value)
+                var handlesEvent = SubType.Value switch
                 {
-                    case EventSubTypes.Message:
-                    case EventSubTypes.Signal:
-                        handlesEvent = Types.Contains((string)data)||Types.Contains("*");
-                        break;
-                    case EventSubTypes.Error:
-                        Exception ex = (Exception)data;
-                        if (ex is IntermediateProcessExcepion intermediateProcessExcepion)
-                            handlesEvent = Types.Contains(intermediateProcessExcepion.ProcessMessage)||Types.Contains(intermediateProcessExcepion.Message)||Types.Contains("*");
-                        else
-                            handlesEvent = Types.Contains(ex.Message)||Types.Contains(ex.GetType().Name)||Types.Contains("*");
-                        break;
-                    case EventSubTypes.Conditional:
-                        handlesEvent=Condition.IsValid(variables);
-                        break;
-                }
+                    EventSubTypes.Message => Types.Any(t => t.Equals(data)||t.Equals("*")),
+                    EventSubTypes.Signal => Types.Any(t => t.Equals(data)||t.Equals("*")),
+                    EventSubTypes.Conditional => Condition.IsValid(variables),
+                    EventSubTypes.Error => (
+                        (data is IntermediateProcessExcepion intermediateProcessException && Types.Any(t => t.Equals(intermediateProcessException.ProcessMessage)||t.Equals(intermediateProcessException.Message)||t.Equals("*")))
+                        ||(data is Exception exception && Types.Any(t => t.Equals(exception.Message)||t.Equals(exception.GetType().Name)||t.Equals("*")))
+                    ),
+                    _ => true
+                };
+                if (handlesEvent)
+                    return GetEventCost(evnt, source, variables);
             }
-            if (handlesEvent)
-                return GetEventCost(evnt, source, variables);
             return int.MaxValue;
         }
 
@@ -58,7 +50,7 @@ namespace BPMNEngine.Elements.Processes.Events
             var res = base.IsValid(out err);
             if (!SubType.HasValue)
             {
-                err = (err??Array.Empty<string>()).Concat(new string[] { string.Format("{0}s must have a subtype.",new object[] { GetType().Name }) });
+                err = (err?? []).Append($"{GetType().Name}s must have a subtype.");
                 return false;
             }
             return res;

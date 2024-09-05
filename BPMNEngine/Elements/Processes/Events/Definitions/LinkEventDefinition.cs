@@ -3,11 +3,11 @@ using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
 {
-    [XMLTag("bpmn", "linkEventDefinition")]
+    [XMLTagAttribute("bpmn", "linkEventDefinition")]
     [ValidParent(typeof(AEvent))]
-    internal class LinkEventDefinition : AElement, IEventDefinition
+    internal record LinkEventDefinition : AElement, IEventDefinition
     {
-        public LinkEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent) 
+        public LinkEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
         public EventSubTypes Type => EventSubTypes.Link;
