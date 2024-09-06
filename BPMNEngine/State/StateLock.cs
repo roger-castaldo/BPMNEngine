@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace BPMNEngine.State
+﻿namespace BPMNEngine.State
 {
     internal class StateLock(Guid? stateID) : IDisposable
     {

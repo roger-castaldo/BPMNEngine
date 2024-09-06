@@ -35,9 +35,9 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private static IProcessInstance StartProcess()
+        private static async System.Threading.Tasks.Task<IProcessInstance> StartProcess()
         {
-            var instance = _process.BeginProcess();
+            var instance = await _process.BeginProcessAsync();
             Assert.IsNotNull(instance);
             Assert.IsTrue(instance.WaitForManualTask(MAIN_TASK_ID, out _));
             Assert.IsTrue(instance.WaitForManualTask(SUB_TASK_ID, out _));
@@ -46,9 +46,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestSubProcessCompletion()
+        public async System.Threading.Tasks.Task TestSubProcessCompletion()
         {
-            var instance = StartProcess();
+            var instance = await StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.MarkComplete();
@@ -60,12 +60,12 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestSubTaskSignal()
+        public async System.Threading.Tasks.Task TestSubTaskSignal()
         {
-            var instance = StartProcess();
+            var instance = await StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
-            task.Signal(SIGNAL, out bool isAborted);
+            var isAborted = await task.SignalAsync(SIGNAL);
             Assert.IsTrue(isAborted);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var state = instance.CurrentState;
@@ -78,9 +78,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestSubSubProcessCompletion()
+        public async System.Threading.Tasks.Task TestSubSubProcessCompletion()
         {
-            var instance = StartProcess();
+            var instance = await StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
             task.MarkComplete();
@@ -92,12 +92,12 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestSubSubTaskSignal()
+        public async System.Threading.Tasks.Task TestSubSubTaskSignal()
         {
-            var instance = StartProcess();
+            var instance = await StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(SUB_SUB_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
-            task.Signal(SIGNAL, out bool isAborted);
+            var isAborted = await task.SignalAsync(SIGNAL);
             Assert.IsTrue(isAborted);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var state = instance.CurrentState;
@@ -110,12 +110,12 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestMainTaskSignal()
+        public async System.Threading.Tasks.Task TestMainTaskSignal()
         {
-            var instance = StartProcess();
+            var instance = await StartProcess();
             Assert.IsTrue(instance.WaitForManualTask(MAIN_TASK_ID, out IManualTask task));
             Assert.IsNotNull(task);
-            task.Signal(SIGNAL, out bool isAborted);
+            var isAborted = await task.SignalAsync(SIGNAL);
             Assert.IsFalse(isAborted);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var state = instance.CurrentState;

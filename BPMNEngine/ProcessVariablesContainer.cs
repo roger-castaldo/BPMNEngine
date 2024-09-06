@@ -1,7 +1,6 @@
 ﻿using BPMNEngine.Interfaces.Variables;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 
 namespace BPMNEngine
 {

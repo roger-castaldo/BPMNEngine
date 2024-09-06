@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace UnitTest
 {
@@ -159,10 +160,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestEventErrorDelegate()
+        public async ValueTask TestEventErrorDelegate()
         {
             Guid guid = new("ed19e851-a0b2-4233-8030-d1d09fdbd1bd");
-            IProcessInstance instance = _noErrorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _noErrorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "IntermediateCatchEvent_036z13e" } }
@@ -175,10 +176,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestTaskErrorDelegate()
+        public async ValueTask TestTaskErrorDelegate()
         {
             Guid guid = new("c3a8ba48-2b39-4b85-962d-503ffc84b2e4");
-            IProcessInstance instance = _noErrorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _noErrorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_1t5xv8f" } }
@@ -191,10 +192,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestSubProcessErrorDelegate()
+        public async ValueTask TestSubProcessErrorDelegate()
         {
             Guid guid = new("c24afff5-820a-4b76-808c-2268c5c807be");
-            IProcessInstance instance = _noErrorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _noErrorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_0e0f0l0" } }
@@ -206,10 +207,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestGatewayErrorDelegate()
+        public async ValueTask TestGatewayErrorDelegate()
         {
             Guid guid = new("67718f12-3139-4f90-afc1-75956092339e");
-            IProcessInstance instance = _noErrorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _noErrorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "SequenceFlow_096t69k", "SequenceFlow_1io01r8" } }
@@ -221,7 +222,7 @@ namespace UnitTest
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "ExclusiveGateway_1nkgv9w"));
             Assert.IsTrue(ErrorHandling.EventOccured(guid, "Process_1", "ExclusiveGateway_1nkgv9w"));
             guid = new Guid("63087f93-f389-43c9-b11d-5e8ede39f953");
-            instance = _noErrorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            instance = await _noErrorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid}
             });
@@ -233,10 +234,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestAnyErrorCatchEvent()
+        public async ValueTask TestAnyErrorCatchEvent()
         {
             Guid guid = new("c195b4be-d337-4465-be5e-5087663567d4");
-            IProcessInstance instance = _errorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _errorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_11szmyl" } }
@@ -247,10 +248,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestSubProcessErrorCatchEvent()
+        public async ValueTask TestSubProcessErrorCatchEvent()
         {
             Guid guid = new("b1b1bc80-c015-4c2e-b882-18b11335fd55");
-            IProcessInstance instance = _errorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _errorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_067gf16" } }
@@ -261,10 +262,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestBoundaryErrorCatchEvent()
+        public async ValueTask TestBoundaryErrorCatchEvent()
         {
             Guid guid = new("b1b1bc80-c015-4c2e-b882-18b11335fd55");
-            IProcessInstance instance = _errorHandlingProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _errorHandlingProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_ID_NAME, guid},
                 {_INVALID_ELEMENTS_ID,new string[]{ "Task_11szmyl" } },
@@ -277,10 +278,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestIntermediateCatchEventsAttachedToTask()
+        public async ValueTask TestIntermediateCatchEventsAttachedToTask()
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("ErrorHandling/catch_event_checking.bpmn"));
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 

@@ -33,9 +33,9 @@ namespace UnitTest.Extensions
             _process.Dispose();
         }
 
-        private void RunPathProcess(Dictionary<string, object> variables, string successPath)
+        private async System.Threading.Tasks.Task RunPathProcess(Dictionary<string, object> variables, string successPath)
         {
-            IProcessInstance processInstance = _process.BeginProcess(variables);
+            IProcessInstance processInstance = await _process.BeginProcessAsync(variables);
             Assert.IsNotNull(processInstance);
             Assert.IsTrue(Utility.WaitForCompletion(processInstance));
             var state = processInstance.CurrentState;
@@ -46,18 +46,18 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestArrayValue()
+        public async System.Threading.Tasks.Task TestArrayValue()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"array_value",new string[]{"test_value","test_value_1" } }
             }, "Flow_0124fzt");
         }
 
         [TestMethod]
-        public void TestDictionaryKeysValue()
+        public async System.Threading.Tasks.Task TestDictionaryKeysValue()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"dictionary_keys_value",new Hashtable(){
                     {"test_value","test_value_1" },
@@ -67,9 +67,9 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestDictionaryValuesValue()
+        public async System.Threading.Tasks.Task TestDictionaryValuesValue()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"dictionary_values_value",new Hashtable(){
                     {"test_value_1","test_value" },
@@ -79,9 +79,9 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestArraySubVariable()
+        public async System.Threading.Tasks.Task TestArraySubVariable()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {
                     "array_sub_value",
@@ -100,9 +100,9 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestStringContainsValue()
+        public async System.Threading.Tasks.Task TestStringContainsValue()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"string_value","this string is a test"}
             }, "Flow_0ydpca9");

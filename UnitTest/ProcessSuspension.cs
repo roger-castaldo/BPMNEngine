@@ -29,9 +29,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestUserTaskSuspension()
+        public async System.Threading.Tasks.Task TestUserTaskSuspension()
         {
-            IProcessInstance instance = _userProcess.BeginProcess(null);
+            IProcessInstance instance = await _userProcess.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
@@ -48,13 +48,13 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestSuspensionWithActiveSteps()
+        public async System.Threading.Tasks.Task TestSuspensionWithActiveSteps()
         {
             IProcessInstance instance;
             XmlDocument doc = new();
             for (int cnt = 0; cnt<5; cnt++)
             {
-                instance = _userProcess.BeginProcess(null);
+                instance = await _userProcess.BeginProcessAsync(null);
                 Assert.IsNotNull(instance);
                 instance.Suspend();
                 System.Threading.Thread.Sleep(1000);
@@ -77,9 +77,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestTimerSuspension()
+        public async System.Threading.Tasks.Task TestTimerSuspension()
         {
-            IProcessInstance instance = _timerProcess.BeginProcess(null);
+            IProcessInstance instance = await _timerProcess.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
@@ -93,9 +93,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestTimerSuspensionDelayedResume()
+        public async System.Threading.Tasks.Task TestTimerSuspensionDelayedResume()
         {
-            IProcessInstance instance = _timerProcess.BeginProcess(null);
+            IProcessInstance instance = await _timerProcess.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();
@@ -110,9 +110,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestNotSuspended()
+        public async System.Threading.Tasks.Task TestNotSuspended()
         {
-            IProcessInstance instance = _timerProcess.BeginProcess(null);
+            IProcessInstance instance = await _timerProcess.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             System.Threading.Thread.Sleep(5*1000);
             instance.Suspend();

@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Elements.Processes.Scripts;
+using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
@@ -13,7 +14,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             _script = script;
         }
 
-        public override bool Evaluate(IReadonlyVariables variables)
-            => (bool)_script.Invoke(variables);
+        public override ValueTask<bool> IsElementStartValid(IReadonlyVariables variables, IElement owningElement)
+            => ValueTask.FromResult<bool>((bool)_script.Invoke(variables));
     }
 }

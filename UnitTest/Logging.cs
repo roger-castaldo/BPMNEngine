@@ -21,7 +21,7 @@ namespace UnitTest
         private static readonly Exception _EXCEPTION = new(_LOG_LINE);
 
         [TestMethod]
-        public void TestLoggingFromUserTask()
+        public async System.Threading.Tasks.Task TestLoggingFromUserTask()
         {
             var logger = new Mock<LogLine>();
             var exceptionLogger = new Mock<LogException>();
@@ -39,7 +39,7 @@ namespace UnitTest
 
             Assert.IsNotNull(process);
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, stateLogLevel: LogLevel.Debug);
+            IProcessInstance instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, stateLogLevel: LogLevel.Debug);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 

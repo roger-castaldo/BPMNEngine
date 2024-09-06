@@ -1,6 +1,6 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes
@@ -21,15 +21,14 @@ namespace BPMNEngine.Elements.Processes
         }
         public string ConditionExpression { get; private init; }
 
-        public bool IsFlowValid(IsFlowValid isFlowValid, IReadonlyVariables variables)
+        public async ValueTask<bool> IsFlowValidAsync(IsFlowValid isFlowValid, IReadonlyVariables variables)
         {
             Debug("Checking if Sequence Flow[{0}] is valid", ID);
             return isFlowValid(this, variables)
                 && (
                     ExtensionElement==null
-                    || ((ExtensionElements)ExtensionElement).Children
-                        .OfType<ConditionSet>()
-                        .All(cset => cset.Evaluate(variables))
+                    || (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>()
+                        .AllAsync(check=>check.IsElementStartValid(variables,this)))
                 );
         }
     }

@@ -73,30 +73,25 @@ namespace BPMNEngine.Tasks
             => WriteLogLine(LogLevel.Information, string.Format(message, pars));
         #endregion
 
-        public void EmitError(Exception error, out bool isAborted)
+        private async ValueTask<bool> ProcessEvent(Func<ValueTask<bool>> invocation)
         {
-            businessProcess.EmitTaskError(this, error, out isAborted);
+            var isAborted = await invocation();
             Aborted=Aborted||isAborted;
+            return isAborted;
         }
 
-        public void EmitMessage(string message, out bool isAborted)
-        {
-            businessProcess.EmitTaskMessage(this, message, out isAborted);
-            Aborted=Aborted||isAborted;
-        }
+        public ValueTask<bool> EmitErrorAsync(Exception error)
+            => ProcessEvent(() => businessProcess.EmitTaskErrorAsync(this, error));
+
+        public ValueTask<bool> EmitMessageAsync(string message)
+            => ProcessEvent(() => businessProcess.EmitTaskMessageAsync(this, message));
 
 
-        public void Escalate(out bool isAborted)
-        {
-            businessProcess.EscalateTask(this, out isAborted);
-            Aborted=Aborted||isAborted;
-        }
+        public ValueTask<bool> EscalateAsync()
+            => ProcessEvent(() => businessProcess.EscalateTaskAsync(this));
 
-        public void Signal(string signal, out bool isAborted)
-        {
-            businessProcess.EmitTaskSignal(this, signal, out isAborted);
-            Aborted=Aborted||isAborted;
-        }
+        public  ValueTask<bool> SignalAsync(string signal)
+            => ProcessEvent(() => businessProcess.EmitTaskSignalAsync(this, signal));
 
 
     }

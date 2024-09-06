@@ -1,7 +1,7 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 using System.Collections.Immutable;
 
@@ -18,10 +18,10 @@ namespace BPMNEngine.Elements
         public ImmutableArray<StartEvent> StartEvents
             => Children.OfType<StartEvent>().ToImmutableArray();
 
-        public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
+        public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
             => (
                 ExtensionElement==null ||
-                ExtensionElement.Children.OfType<ConditionSet>().All(cset => cset.Evaluate(variables))
+                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check=>check.IsElementStartValid(variables,this)))
             )
             && isProcessStartValid(this, variables);
 

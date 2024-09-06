@@ -1,6 +1,6 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
@@ -14,7 +14,10 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
 
         public EventSubTypes Type => EventSubTypes.Conditional;
 
-        public bool IsValid(IReadonlyVariables variables)
-            => ExtensionElement?.Children.OfType<ConditionSet>().Any(cset => cset.Evaluate(variables))??false;
+        public async ValueTask<bool> IsValidAsync(IReadonlyVariables variables)
+            => await (
+                ExtensionElement?.Children.OfType<IStepElementStartCheckExtensionElement>().AnyAsync(check => check.IsElementStartValid(variables, this))
+                ??ValueTask.FromResult(false)
+            );
     }
 }

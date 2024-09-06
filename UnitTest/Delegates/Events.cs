@@ -7,6 +7,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace UnitTest.Delegates
 {
@@ -127,10 +128,10 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestDelegatesTriggered()
+        public async ValueTask TestDelegatesTriggered()
         {
             Guid guid = Guid.NewGuid();
-            IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
+            IProcessInstance instance = await _startCompleteProcess.BeginProcessAsync(new Dictionary<string, object> { { _TEST_ID_NAME, guid } });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             System.Threading.Thread.Sleep(5000);
@@ -185,10 +186,10 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestDelegatesTriggeredInstance()
+        public async ValueTask TestDelegatesTriggeredInstance()
         {
             Guid guid = Guid.NewGuid();
-            IProcessInstance instance = _startCompleteProcess.BeginProcess(new Dictionary<string, object> { { _TEST_ID_NAME, guid } },
+            IProcessInstance instance = await _startCompleteProcess.BeginProcessAsync(new Dictionary<string, object> { { _TEST_ID_NAME, guid } },
                 events: new BPMNEngine.DelegateContainers.ProcessEvents()
                 {
                     Events=new()

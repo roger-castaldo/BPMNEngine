@@ -10,7 +10,6 @@ using Microsoft.Maui.Graphics;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text.Json;
-using System.Threading;
 
 namespace BPMNEngine
 {
@@ -110,10 +109,10 @@ namespace BPMNEngine
         }
 
         private void ProcessStepComplete(string sourceID, string outgoingID)
-            => Process.ProcessStepComplete(this, sourceID, outgoingID);
+            => Process.ProcessStepCompleteAsync(this, sourceID, outgoingID);
 
         private void ProcessStepError(IElement step, Exception ex)
-            => Process.ProcessStepError(this, step, ex);
+            => Process.ProcessStepErrorAsync(this, step, ex);
 
         private static void InvokeElementEventDelegate(Delegate @delegate, IElement element, IReadonlyVariables variables)
         {
@@ -136,23 +135,23 @@ namespace BPMNEngine
             InvokeElementEventDelegate(Delegates.Events.Events.Completed, evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, this));
         }
 
-        internal void StartTimedEvent(BoundaryEvent evnt, string sourceID)
-            => Process.ProcessEvent(this, sourceID, evnt);
+        internal ValueTask StartTimedEventAsync(BoundaryEvent evnt, string sourceID)
+            => Process.ProcessEventAsync(this, sourceID, evnt);
 
-        internal void EmitTaskError(Tasks.ExternalTask externalTask, Exception error, out bool isAborted)
+        internal async ValueTask<bool> EmitTaskErrorAsync(Tasks.ExternalTask externalTask, Exception error)
         {
             InvokeElementEventDelegate(Delegates.Events.Tasks.Error, externalTask, new ReadOnlyProcessVariablesContainer(externalTask.ID, this));
-            Process.HandleTaskEmission(this, externalTask, error, EventSubTypes.Error, out isAborted);
+            return await Process.HandleTaskEmissionAsync(this, externalTask, error, EventSubTypes.Error);
         }
 
-        internal void EmitTaskMessage(Tasks.ExternalTask externalTask, string message, out bool isAborted)
-            => Process.HandleTaskEmission(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message, out isAborted);
+        internal ValueTask<bool> EmitTaskMessageAsync(Tasks.ExternalTask externalTask, string message)
+            => Process.HandleTaskEmissionAsync(this, externalTask, message, Elements.Processes.Events.EventSubTypes.Message);
 
-        internal void EscalateTask(Tasks.ExternalTask externalTask, out bool isAborted)
-            => Process.HandleTaskEmission(this, externalTask, null, Elements.Processes.Events.EventSubTypes.Escalation, out isAborted);
+        internal ValueTask<bool> EscalateTaskAsync(Tasks.ExternalTask externalTask)
+            => Process.HandleTaskEmissionAsync(this, externalTask, null, Elements.Processes.Events.EventSubTypes.Escalation);
 
-        internal void EmitTaskSignal(Tasks.ExternalTask externalTask, string signal, out bool isAborted)
-            => Process.HandleTaskEmission(this, externalTask, signal, Elements.Processes.Events.EventSubTypes.Signal, out isAborted);
+        internal ValueTask<bool> EmitTaskSignalAsync(Tasks.ExternalTask externalTask, string signal)
+            => Process.HandleTaskEmissionAsync(this, externalTask, signal, Elements.Processes.Events.EventSubTypes.Signal);
 
         internal void CompleteTask(Tasks.ManualTask manualTask)
             => MergeVariables(manualTask);

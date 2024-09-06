@@ -1,6 +1,5 @@
 ﻿using BPMNEngine.Elements;
 using Microsoft.Maui.Graphics;
-using System.IO;
 
 namespace BPMNEngine.Drawing
 {

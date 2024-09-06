@@ -14,25 +14,26 @@ namespace BPMNEngine.Interfaces.Tasks
         /// Called to issue a signal from the task (this should be caught somewhere within the process by a Signal Recieving Element with a matching signal defined)
         /// </summary>
         /// <param name="signal">The signal to emit into the process</param>
-        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
-        void Signal(string signal, out bool isAborted);
+        /// <returns>A boolean to indicate if this has caused the task to abort</returns>
+        /// 
+        ValueTask<bool> SignalAsync(string signal);
         /// <summary>
         /// Called to issue an escalation from the task (this should be caught somewhere within the process by an Escalation Reciving Element)
         /// </summary>
-        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
-        void Escalate(out bool isAborted);
+        /// <returns>A boolean to indicate if this has caused the task to abort</returns>
+        ValueTask<bool> EscalateAsync();
         /// <summary>
         /// Called to issue a message from the task (this should be caught somewhere within the process by a Message Recieving Element with a matching message defined)
         /// </summary>
         /// <param name="message">The message to emit into the process</param>
-        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
-        void EmitMessage(string message, out bool isAborted);
+        /// <returns>A boolean to indicate if this has caused the task to abort</returns>
+        ValueTask<bool> EmitMessageAsync(string message);
         /// <summary>
         /// Called to issue an exception fromn the task (this should be caught somewhere within the process by an Exception Recieving Element with a matching exception definition)
         /// </summary>
         /// <param name="error"></param>
-        /// <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
-        void EmitError(Exception error, out bool isAborted);
+        /// <returns>A boolean to indicate if this has caused the task to abort</returns>
+        ValueTask<bool> EmitErrorAsync(Exception error);
         /// <summary>
         /// The variables container for this task which allows you to both obtain and modify process variables.
         /// </summary>

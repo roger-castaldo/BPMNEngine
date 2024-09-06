@@ -9,7 +9,7 @@ namespace BPMNEngine.Elements.Processes.Gateways
         public ParallelGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override IEnumerable<string> EvaulateOutgoingPaths(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
-            => Outgoing;
+        public override ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
+            => ValueTask.FromResult(Outgoing);
     }
 }

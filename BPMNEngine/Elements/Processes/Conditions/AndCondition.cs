@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Conditions
@@ -9,8 +10,15 @@ namespace BPMNEngine.Elements.Processes.Conditions
         public AndCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected override bool EvaluateCondition(IReadonlyVariables variables)
-            => !Conditions.Any(cond => !cond.Evaluate(variables));
+        protected async override ValueTask<bool> EvaluateConditionAsync(IReadonlyVariables variables, IElement owningElement)
+        {
+            foreach(var cond in Conditions)
+            {
+                if (!await cond.IsElementStartValid(variables, owningElement))
+                    return false;
+            }
+            return true;
+        }
 
         public override bool IsValid(out IEnumerable<string> err)
         {

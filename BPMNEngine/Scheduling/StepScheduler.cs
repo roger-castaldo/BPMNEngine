@@ -1,8 +1,6 @@
 ﻿using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BPMNEngine.Scheduling
 {
@@ -72,7 +70,7 @@ namespace BPMNEngine.Scheduling
                             {
                                 try
                                 {
-                                    de.Instance.StartTimedEvent(de.Event, de.SourceID);
+                                    de.Instance.StartTimedEventAsync(de.Event, de.SourceID);
                                     toRemove = toRemove.Append(de);
                                 }
                                 catch (Exception e) { de.Instance.WriteLogException(de.Event, new StackFrame(1, true), DateTime.Now, e); }

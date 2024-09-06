@@ -64,9 +64,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestCatchTimerDefinition()
+        public async System.Threading.Tasks.Task TestCatchTimerDefinition()
         {
-            IProcessInstance instance = _process.BeginProcess(null);
+            IProcessInstance instance = await _process.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "BoundaryEvent_1s99zkc"));
@@ -78,10 +78,10 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestCatchTimerDefinitionWithSuspension()
+        public async System.Threading.Tasks.Task TestCatchTimerDefinitionWithSuspension()
         {
             var stateChangeMock = new Mock<OnStateChange>();
-            IProcessInstance instance = _process.BeginProcess(null, events: new()
+            IProcessInstance instance = await _process.BeginProcessAsync(null, events: new()
             {
                 OnStateChange=stateChangeMock.Object
             });
@@ -108,9 +108,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestCatchTimerDefinitionWithResumeAfterEnd()
+        public async System.Threading.Tasks.Task TestCatchTimerDefinitionWithResumeAfterEnd()
         {
-            IProcessInstance instance = _process.BeginProcess(null);
+            IProcessInstance instance = await _process.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Task.Delay(1000).Wait();
             instance.Suspend();
@@ -133,9 +133,9 @@ namespace UnitTest
 
 
         [TestMethod]
-        public void TestNonInteruptingTimerDefinition()
+        public async System.Threading.Tasks.Task TestNonInteruptingTimerDefinition()
         {
-            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>(){
+            IProcessInstance instance = await _process.BeginProcessAsync(new Dictionary<string, object>(){
                 { _DELAY_ID,(int)31*1000}
             });
             Assert.IsNotNull(instance);
@@ -149,9 +149,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestInteruptingTimerDefinition()
+        public async System.Threading.Tasks.Task TestInteruptingTimerDefinition()
         {
-            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>(){
+            IProcessInstance instance = await _process.BeginProcessAsync(new Dictionary<string, object>(){
                 { _DELAY_ID,(int)46*1000}
             });
             Assert.IsNotNull(instance);
@@ -165,9 +165,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestDelayStartEventWithSuspension()
+        public async System.Threading.Tasks.Task TestDelayStartEventWithSuspension()
         {
-            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>(){
+            IProcessInstance instance = await _process.BeginProcessAsync(new Dictionary<string, object>(){
                 { _DELAY_ID,(int)46*1000}
             });
             Assert.IsNotNull(instance);
@@ -190,9 +190,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestDelayStartEventWithResumeAfterStart()
+        public async System.Threading.Tasks.Task TestDelayStartEventWithResumeAfterStart()
         {
-            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>(){
+            IProcessInstance instance = await _process.BeginProcessAsync(new Dictionary<string, object>(){
                 { _DELAY_ID,(int)30*1000}
             });
             Assert.IsNotNull(instance);

@@ -31,9 +31,9 @@ namespace UnitTest
             _process.Dispose();
         }
 
-        private static IImmutableDictionary<string, object> TestProcessVariable(string variableName, object variableValue, bool changeValue = false, object newValue = null)
+        private static async System.Threading.Tasks.Task<IImmutableDictionary<string, object>> TestProcessVariable(string variableName, object variableValue, bool changeValue = false, object newValue = null)
         {
-            IProcessInstance instance = _process.BeginProcess(new Dictionary<string, object>() { { variableName, variableValue } });
+            IProcessInstance instance = await _process.BeginProcessAsync(new Dictionary<string, object>() { { variableName, variableValue } });
 
             Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(10), "UserTask_15dj2au", out IUserTask task));
             Assert.IsNotNull(task);
@@ -55,18 +55,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestDateTimeVariable()
+        public async System.Threading.Tasks.Task TestDateTimeVariable()
         {
             var variableName = "TestDateTime";
             var variableValue = DateTime.Now;
             var variableArray = new DateTime[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -74,18 +74,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestIntegerVariable()
+        public async System.Threading.Tasks.Task TestIntegerVariable()
         {
             var variableName = "TestInteger";
             var variableValue = int.MinValue;
             var variableArray = new int[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -93,18 +93,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestShortVariable()
+        public async System.Threading.Tasks.Task TestShortVariable()
         {
             var variableName = "TestShort";
             var variableValue = short.MinValue;
             var variableArray = new short[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -112,18 +112,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestLongVariable()
+        public async System.Threading.Tasks.Task TestLongVariable()
         {
             var variableName = "TestLong";
             var variableValue = long.MinValue;
             var variableArray = new long[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -131,18 +131,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestUnsignedIntegerVariable()
+        public async System.Threading.Tasks.Task TestUnsignedIntegerVariable()
         {
             var variableName = "TestUnsignedInteger";
             var variableValue = uint.MinValue;
             var variableArray = new uint[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -150,18 +150,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestUnsignedShortVariable()
+        public async System.Threading.Tasks.Task TestUnsignedShortVariable()
         {
             var variableName = "TestUnsignedShort";
             var variableValue = ushort.MinValue;
             var variableArray = new ushort[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -169,18 +169,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestUnsignedLongVariable()
+        public async System.Threading.Tasks.Task TestUnsignedLongVariable()
         {
             var variableName = "TestUnsignedLong";
             var variableValue = ulong.MaxValue;
             var variableArray = new ulong[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -188,18 +188,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestDoubleVariable()
+        public async System.Threading.Tasks.Task TestDoubleVariable()
         {
             var variableName = "TestDouble";
             var variableValue = double.MinValue;
             var variableArray = new double[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -207,18 +207,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestDecimalVariable()
+        public async System.Threading.Tasks.Task TestDecimalVariable()
         {
             var variableName = "TestDecimal";
             var variableValue = decimal.MinValue;
             var variableArray = new decimal[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -226,18 +226,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestStringVariable()
+        public async System.Threading.Tasks.Task TestStringVariable()
         {
             var variableName = "TestString";
             var variableValue = "This is a test string";
             var variableArray = new string[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -245,18 +245,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestCharVariable()
+        public async System.Threading.Tasks.Task TestCharVariable()
         {
             var variableName = "TestChar";
             var variableValue = 'c';
             var variableArray = new char[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -264,18 +264,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestBooleanVariable()
+        public async System.Threading.Tasks.Task TestBooleanVariable()
         {
             var variableName = "TestBoolean";
             var variableValue = true;
             var variableArray = new bool[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -283,18 +283,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestFloatVariable()
+        public async System.Threading.Tasks.Task TestFloatVariable()
         {
             var variableName = "TestFloat";
             var variableValue = float.MinValue;
             var variableArray = new float[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -302,18 +302,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestByteVariable()
+        public async System.Threading.Tasks.Task TestByteVariable()
         {
             var variableName = "TestByte";
             var variableValue = System.Text.ASCIIEncoding.ASCII.GetBytes("Testing 12345");
             var variableArray = new byte[][] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -321,11 +321,11 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestNullVariable()
+        public async System.Threading.Tasks.Task TestNullVariable()
         {
             var variableName = "TestNull";
             object variableValue = null;
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsFalse(results.ContainsKey(variableName));
             Assert.AreEqual(0, results.Count);
@@ -333,7 +333,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestFileVariable()
+        public async System.Threading.Tasks.Task TestFileVariable()
         {
             var variableName = "TestFile";
             Stream str = Utility.LoadResource("DiagramLoading/start_to_stop.bpmn");
@@ -354,13 +354,13 @@ namespace UnitTest
             Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/text", Content=data }));
             Assert.IsFalse(variableArray[0].Equals(new SFile() { Name="start_to_stop", Extension="bpmn", ContentType="text/xml", Content= [0, 0, 0, 0] }));
 
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -368,18 +368,18 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestGuidVariable()
+        public async System.Threading.Tasks.Task TestGuidVariable()
         {
             var variableName = "TestGuid";
             var variableValue = new Guid("a4966f14-0108-48ba-a793-8be9982bc411");
             var variableArray = new Guid[] { variableValue, variableValue };
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableArray);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableArray);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -387,46 +387,46 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestVariableChange()
+        public async System.Threading.Tasks.Task TestVariableChange()
         {
             var variableName = "TestDateTime";
             var variableValue = DateTime.Now;
             var altVariableValue = "Test Value";
-            var results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true);
+            var results = await ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true);
             Assert.IsNotNull(results);
             Assert.IsTrue(!results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==0);
 
-            results = ProcessVariables.TestProcessVariable(variableName, null, changeValue: true, newValue: variableValue);
+            results = await ProcessVariables.TestProcessVariable(variableName, null, changeValue: true, newValue: variableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(variableValue, (results.TryGetValue(variableName, out object value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: altVariableValue);
+            results = await ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: altVariableValue);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(altVariableValue, (results.TryGetValue(variableName, out value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, null, changeValue: true);
+            results = await ProcessVariables.TestProcessVariable(variableName, null, changeValue: true);
             Assert.IsNotNull(results);
             Assert.IsTrue(!results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==0);
 
-            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            results = await ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            results = await ProcessVariables.TestProcessVariable(variableName, variableValue, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
             CompareVariableValue(new DateTime[] { variableValue, variableValue }, (results.TryGetValue(variableName, out value) ? value : null));
 
-            results = ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue, variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
+            results = await ProcessVariables.TestProcessVariable(variableName, new DateTime[] { variableValue, variableValue, variableValue }, changeValue: true, newValue: new DateTime[] { variableValue, variableValue });
             Assert.IsNotNull(results);
             Assert.IsTrue(results.ContainsKey(variableName));
             Assert.IsTrue(results.Count==1);
@@ -434,7 +434,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestStateVariableStorage()
+        public async System.Threading.Tasks.Task TestStateVariableStorage()
         {
             Stream str = Utility.LoadResource("DiagramLoading/start_to_stop.bpmn");
             byte[] data = new byte[str.Length];
@@ -480,7 +480,7 @@ namespace UnitTest
 
             var taskVariables = new Dictionary<string, object>();
 
-            IProcessInstance inst = _process.BeginProcess(variables);
+            IProcessInstance inst = await _process.BeginProcessAsync(variables);
             Assert.IsNotNull(inst);
 
             variables.Remove("TestNull");

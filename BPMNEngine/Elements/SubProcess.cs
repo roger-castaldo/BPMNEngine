@@ -1,8 +1,8 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes;
-using BPMNEngine.Elements.Processes.Conditions;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 using System.Collections.Immutable;
 
@@ -16,12 +16,12 @@ namespace BPMNEngine.Elements
         public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
-            => (
-                ExtensionElement==null ||
-                ((ExtensionElements)ExtensionElement).Children.OfType<ConditionSet>().All(cset => cset.Evaluate(variables))
-            )
-            && isProcessStartValid(this, variables);
+        public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
+           => (
+               ExtensionElement==null ||
+               (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check => check.IsElementStartValid(variables, this)))
+           )
+           && isProcessStartValid(this, variables);
 
 
         public ImmutableArray<StartEvent> StartEvents

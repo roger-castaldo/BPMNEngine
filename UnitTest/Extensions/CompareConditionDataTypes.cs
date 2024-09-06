@@ -42,13 +42,13 @@ namespace UnitTest.Extensions
             _process.Dispose();
         }
 
-        private void RunPathProcess(Dictionary<string, object> variables, string successPath)
+        private async System.Threading.Tasks.Task RunPathProcess(Dictionary<string, object> variables, string successPath)
         {
             if (!variables.ContainsKey("null_value_1"))
                 variables.Add("null_value_1", "test");
             if (!variables.ContainsKey("comparable_value_1"))
                 variables.Add("comparable_value_1", "test");
-            IProcessInstance processInstance = _process.BeginProcess(variables);
+            IProcessInstance processInstance = await _process.BeginProcessAsync(variables);
             Assert.IsNotNull(processInstance);
             Assert.IsTrue(Utility.WaitForCompletion(processInstance));
             var state = processInstance.CurrentState;
@@ -59,99 +59,99 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestByteArray()
+        public async System.Threading.Tasks.Task TestByteArray()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"byte_value",Convert.FromBase64String("VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==") }
             }, "Flow_1svot8c");
         }
 
         [TestMethod]
-        public void TestBoolean()
+        public async System.Threading.Tasks.Task TestBoolean()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"boolean_value",true }
             }, "Flow_0u1l2e3");
         }
 
         [TestMethod]
-        public void TestChar()
+        public async System.Threading.Tasks.Task TestChar()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"char_value",'V' }
             }, "Flow_11fz5zo");
         }
 
         [TestMethod]
-        public void TestDateTime()
+        public async System.Threading.Tasks.Task TestDateTime()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"date_value",DateTime.Parse("2024-01-01 23:59:59") }
             }, "Flow_0vd6gpf");
         }
 
         [TestMethod]
-        public void TestDecimal()
+        public async System.Threading.Tasks.Task TestDecimal()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"decimal_value",decimal.Parse("123.456") }
             }, "Flow_1oag4um");
         }
 
         [TestMethod]
-        public void TestDouble()
+        public async System.Threading.Tasks.Task TestDouble()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"double_value",double.Parse("123.456") }
             }, "Flow_0t1hecb");
         }
 
         [TestMethod]
-        public void TestFloat()
+        public async System.Threading.Tasks.Task TestFloat()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"single_value",float.Parse("0.123456") }
             }, "Flow_0hbl5l3");
         }
 
         [TestMethod]
-        public void TestInt()
+        public async System.Threading.Tasks.Task TestInt()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"int_value",int.Parse("123456") }
             }, "Flow_0l6mmju");
         }
 
         [TestMethod]
-        public void TestLong()
+        public async System.Threading.Tasks.Task TestLong()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"long_value",long.Parse("123456") }
             }, "Flow_1qx5lzc");
         }
 
         [TestMethod]
-        public void TestShort()
+        public async System.Threading.Tasks.Task TestShort()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"short_value",short.Parse("1234") }
             }, "Flow_0ebyg31");
         }
 
         [TestMethod]
-        public void TestNull()
+        public async System.Threading.Tasks.Task TestNull()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {"null_value_1",null },
                 {"null_value_2",null }
@@ -159,9 +159,9 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestChainedVariable()
+        public async System.Threading.Tasks.Task TestChainedVariable()
         {
-            RunPathProcess(new()
+            await RunPathProcess(new()
             {
                 {
                     "hashtable",new Hashtable(){
@@ -190,9 +190,9 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestIComparableValue()
+        public async System.Threading.Tasks.Task TestIComparableValue()
         {
-            RunPathProcess(new Dictionary<string, object>()
+            await RunPathProcess(new Dictionary<string, object>()
             {
                 {"comparable_value_1",new TestComparable("testing123") },
                 {"comparable_value_2",new TestComparable("testing123") }

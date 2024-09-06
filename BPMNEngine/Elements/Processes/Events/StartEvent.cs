@@ -1,5 +1,5 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Conditions;
+using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
@@ -10,10 +10,10 @@ namespace BPMNEngine.Elements.Processes.Events
         public StartEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        internal bool IsEventStartValid(IReadonlyVariables variables, IsEventStartValid isEventStartValid)
+        internal async ValueTask<bool> IsEventStartValidAsync(IReadonlyVariables variables, IsEventStartValid isEventStartValid)
             => (
                 ExtensionElement==null ||
-                ExtensionElement.Children.OfType<ConditionSet>().All(cset => cset.Evaluate(variables))
+                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync(check => check.IsElementStartValid(variables,this)))
             )
             && isEventStartValid(this, variables);
 

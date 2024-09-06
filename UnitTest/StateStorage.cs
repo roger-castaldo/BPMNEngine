@@ -95,9 +95,9 @@ namespace UnitTest
 
         [TestMethod]
         [Timeout(300000)]
-        public void TestXMLStorage()
+        public async System.Threading.Tasks.Task TestXMLStorage()
         {
-            var inst = _singleTaskProcess.BeginProcess(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
+            var inst = await _singleTaskProcess.BeginProcessAsync(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
             Assert.IsTrue(inst.WaitForUserTask("UserTask_15dj2au", out _));
             Assert.IsTrue(inst.CurrentState.ActiveElements.Any());
             Assert.IsTrue(inst.WaitForCompletion());
@@ -115,9 +115,9 @@ namespace UnitTest
 
         [TestMethod]
         [Timeout(300000)]
-        public void TestJsonStorage()
+        public async System.Threading.Tasks.Task TestJsonStorage()
         {
-            var inst = _singleTaskProcess.BeginProcess(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
+            var inst = await _singleTaskProcess.BeginProcessAsync(null, stateLogLevel: Microsoft.Extensions.Logging.LogLevel.Debug);
             Assert.IsTrue(inst.WaitForUserTask("UserTask_15dj2au", out _));
             Assert.IsTrue(inst.CurrentState.ActiveElements.Any());
             Assert.IsTrue(inst.WaitForCompletion());

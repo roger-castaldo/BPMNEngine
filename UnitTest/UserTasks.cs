@@ -44,9 +44,9 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestUserTaskAccess()
+        public async System.Threading.Tasks.Task TestUserTaskAccess()
         {
-            IProcessInstance instance = _singleTaskProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _singleTaskProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
             });
@@ -79,10 +79,10 @@ namespace UnitTest
         ];
 
         [TestMethod]
-        public void TestUserTaskSeperation()
+        public async System.Threading.Tasks.Task TestUserTaskSeperation()
         {
             int idx = 0;
-            IProcessInstance instance = _multiTaskProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _multiTaskProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
             });
@@ -114,9 +114,9 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestUserTaskElementPropertiesAccess()
+        public async System.Threading.Tasks.Task TestUserTaskElementPropertiesAccess()
         {
-            IProcessInstance instance = _singleTaskProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _singleTaskProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_TEST_VARIABLE_NAME, _TEST_VARIABLE_VALUE}
             });

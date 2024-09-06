@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace UnitTest
@@ -147,7 +148,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void RunStartToEndDiagram()
+        public async ValueTask RunStartToEndDiagram()
         {
             XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/start_to_stop.bpmn");
             bool loaded = false;
@@ -161,7 +162,7 @@ namespace UnitTest
             Assert.IsTrue(loaded);
             if (loaded)
             {
-                IProcessInstance inst = proc.BeginProcess(null);
+                IProcessInstance inst = await proc.BeginProcessAsync(null);
                 Assert.IsNotNull(inst);
                 Assert.IsTrue(Utility.WaitForCompletion(inst));
                 Assert.AreNotEqual("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", inst.CurrentState.AsXMLDocument);

@@ -15,7 +15,7 @@ namespace UnitTest
         private const int VARIABLE_VALUE = 123456;
 
         [TestMethod]
-        public void TestInstanceAccessToConstants()
+        public async System.Threading.Tasks.Task TestInstanceAccessToConstants()
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"), constants:
             [
@@ -24,7 +24,7 @@ namespace UnitTest
                     Value=VARIABLE_VALUE
                 }
             ]);
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
 
             Assert.IsNotNull(instance);
 

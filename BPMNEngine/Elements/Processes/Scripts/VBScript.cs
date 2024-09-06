@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.VisualBasic;
-using System.IO;
 using System.Text;
 
 namespace BPMNEngine.Elements.Processes.Scripts

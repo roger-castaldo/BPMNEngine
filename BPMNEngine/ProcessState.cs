@@ -6,7 +6,6 @@ using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
 using BPMNEngine.State;
 using System.Collections.Immutable;
-using System.IO;
 using System.Reflection;
 using System.Text.Json;
 
@@ -417,7 +416,7 @@ namespace BPMNEngine
                 delayedEvents.ForEach(sdse =>
                 {
                     if (sdse.Delay.Ticks<0)
-                        Process.ProcessEvent(instance, sdse.IncomingID, (AEvent)Process.GetElement(sdse.ElementID));
+                        Process.ProcessEventAsync(instance, sdse.IncomingID, (AEvent)Process.GetElement(sdse.ElementID));
                     else
                         StepScheduler.Instance.DelayStart(sdse.Delay, instance, (BoundaryEvent)Process.GetElement(sdse.ElementID), sdse.IncomingID);
                 });

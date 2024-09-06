@@ -22,10 +22,11 @@ namespace BPMNEngine
                 });
             }
         }
-        private IEnumerable<AHandlingEvent> GetEventHandlers(EventSubTypes type, object data, AFlowNode source, IReadonlyVariables variables)
+        private async ValueTask<IEnumerable<AHandlingEvent>> GetEventHandlersAsync(EventSubTypes type, object data, AFlowNode source, IReadonlyVariables variables)
         {
-            var handlerGroup = eventHandlers
-                .GroupBy(handler => handler.EventCost(type, data, source, variables))
+            var handlerGroup = (await eventHandlers
+                    .GroupByAsync(handler => handler.EventCostAsync(type, data, source, variables))
+                )
                 .OrderBy(grp => grp.Key)
                 .FirstOrDefault();
 
@@ -40,7 +41,7 @@ namespace BPMNEngine
             return (handlerGroup==null || handlerGroup.Key==int.MaxValue ? Array.Empty<AHandlingEvent>() : handlerGroup.ToList());
         }
 
-        internal void ProcessStepComplete(ProcessInstance instance, string sourceID, string outgoingID)
+        internal async ValueTask ProcessStepCompleteAsync(ProcessInstance instance, string sourceID, string outgoingID)
         {
             if (sourceID!=null)
             {
@@ -48,7 +49,7 @@ namespace BPMNEngine
                 if (elem is AFlowNode node)
                 {
                     ReadOnlyProcessVariablesContainer vars = new(sourceID, instance);
-                    GetEventHandlers(EventSubTypes.Timer, null, node, vars).ForEach(ahe =>
+                    (await GetEventHandlersAsync(EventSubTypes.Timer, null, node, vars)).ForEach(ahe =>
                     {
                         if (instance.State.Path.GetStatus(ahe.ID)==StepStatuses.WaitingStart)
                         {
@@ -70,24 +71,24 @@ namespace BPMNEngine
             {
                 IElement elem = GetElement(outgoingID);
                 if (elem != null)
-                    ProcessElement(instance, sourceID, elem);
+                    ProcessElementAsync(instance, sourceID, elem);
             }
         }
 
-        internal void ProcessStepError(ProcessInstance instance, IElement step, Exception ex)
+        internal async ValueTask ProcessStepErrorAsync(ProcessInstance instance, IElement step, Exception ex)
         {
             instance.WriteLogLine(step, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Process Step Error occured, checking for valid Intermediate Catch Event");
             bool success = false;
             if (step is AFlowNode node)
             {
-                var events = GetEventHandlers(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.ID, instance, ex));
+                var events = await GetEventHandlersAsync(EventSubTypes.Error, ex, node, new ReadOnlyProcessVariablesContainer(step.ID, instance, ex));
                 if (events.Any())
                 {
                     success=true;
                     events.ForEach(ahe =>
                     {
                         instance.WriteLogLine(step, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Valid Error handle located at {0}", ahe.ID));
-                        ProcessElement(instance, step.ID, ahe);
+                        ProcessElementAsync(instance, step.ID, ahe);
                     });
                 }
             }
@@ -109,7 +110,7 @@ namespace BPMNEngine
             }
         }
 
-        private void ProcessElement(ProcessInstance instance, string sourceID, IElement elem)
+        private async ValueTask ProcessElementAsync(ProcessInstance instance, string sourceID, IElement elem)
         {
             if (instance.IsSuspended)
             {
@@ -123,15 +124,15 @@ namespace BPMNEngine
                 if (elem is AFlowNode node)
                 {
                     ReadOnlyProcessVariablesContainer ropvc = new(sourceID, instance);
-                    var evnts = GetEventHandlers(EventSubTypes.Conditional, null, node, ropvc);
+                    var evnts = await GetEventHandlersAsync(EventSubTypes.Conditional, null, node, ropvc);
                     evnts.ForEach(ahe =>
                     {
-                        ProcessEvent(instance, elem.ID, ahe);
+                        ProcessEventAsync(instance, elem.ID, ahe);
                         abort|=(ahe is BoundaryEvent @event &&@event.CancelActivity);
                     });
                     if (!abort)
                     {
-                        GetEventHandlers(EventSubTypes.Timer, null, node, ropvc).ForEach(ahe =>
+                        (await GetEventHandlersAsync(EventSubTypes.Timer, null, node, ropvc)).ForEach(ahe =>
                         {
                             TimeSpan? ts = ahe.GetTimeout(ropvc);
                             if (ts.HasValue)
@@ -145,9 +146,9 @@ namespace BPMNEngine
                 if (elem is IFlowElement flowElement)
                     BusinessProcess.ProcessFlowElement(instance, flowElement);
                 else if (elem is AGateway aGateway)
-                    ProcessGateway(instance, sourceID, aGateway);
+                    ProcessGatewayAsync(instance, sourceID, aGateway);
                 else if (elem is AEvent aEvent)
-                    ProcessEvent(instance, sourceID, aEvent);
+                    ProcessEventAsync(instance, sourceID, aEvent);
                 else if (elem is ATask aTask)
                     BusinessProcess.ProcessTask(instance, sourceID, aTask);
                 else if (elem is SubProcess subProcess)
@@ -155,12 +156,12 @@ namespace BPMNEngine
             }
         }
 
-        private static void ProcessSubProcess(ProcessInstance instance, string sourceID, SubProcess esp)
+        private static async ValueTask ProcessSubProcess(ProcessInstance instance, string sourceID, SubProcess esp)
         {
             ReadOnlyProcessVariablesContainer variables = new(new ProcessVariablesContainer(esp.ID, instance));
-            if (esp.IsStartValid(variables, instance.Delegates.Validations.IsProcessStartValid))
+            if (await esp.IsStartValidAsync(variables, instance.Delegates.Validations.IsProcessStartValid))
             {
-                var startEvent = esp.StartEvents.FirstOrDefault(se => se.IsEventStartValid(variables, instance.Delegates.Validations.IsEventStartValid));
+                var startEvent = await esp.StartEvents.FirstOrDefaultAsync(se => se.IsEventStartValidAsync(variables, instance.Delegates.Validations.IsEventStartValid));
                 if (startEvent!=null)
                 {
                     instance.WriteLogLine(startEvent, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Valid Sub Process Start[{0}] located, beginning process", startEvent.ID));
@@ -203,7 +204,7 @@ namespace BPMNEngine
                     (ReceiveTask) => new Tasks.ExternalTask(tsk, variables, instance),
                     (SendTask) => new Tasks.ExternalTask(tsk, variables, instance),
                     (ServiceTask) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (Task) => new Tasks.ExternalTask(tsk, variables, instance),
+                    (BPMNEngine.Elements.Processes.Tasks.Task) => new Tasks.ExternalTask(tsk, variables, instance),
                     (ScriptTask) => new Tasks.ExternalTask(tsk, variables, instance),
                     (CallActivity) => new Tasks.ExternalTask(tsk, variables, instance),
                     _ => null
@@ -215,7 +216,7 @@ namespace BPMNEngine
                     (ReceiveTask) => instance.Delegates.Tasks.ProcessReceiveTask,
                     (SendTask) => instance.Delegates.Tasks.ProcessSendTask,
                     (ServiceTask) => instance.Delegates.Tasks.ProcessServiceTask,
-                    (Task) => instance.Delegates.Tasks.ProcessTask,
+                    (BPMNEngine.Elements.Processes.Tasks.Task) => instance.Delegates.Tasks.ProcessTask,
                     (CallActivity) => instance.Delegates.Tasks.CallActivity,
                     _ => null
                 };
@@ -248,7 +249,7 @@ namespace BPMNEngine
             }
         }
 
-        internal void ProcessEvent(ProcessInstance instance, string sourceID, AEvent evnt)
+        internal async ValueTask ProcessEventAsync(ProcessInstance instance, string sourceID, AEvent evnt)
         {
             if (evnt is IntermediateCatchEvent)
             {
@@ -282,8 +283,8 @@ namespace BPMNEngine
             else if (evnt is IntermediateThrowEvent intermediateThrowEvent)
             {
                 if (intermediateThrowEvent.SubType.HasValue)
-                    GetEventHandlers(evnt.SubType.Value, intermediateThrowEvent.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance))
-                        .ForEach(tsk => { ProcessEvent(instance, evnt.ID, tsk); });
+                    (await GetEventHandlersAsync(evnt.SubType.Value, intermediateThrowEvent.Message, evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, instance)))
+                        .ForEach(tsk => { ProcessEventAsync(instance, evnt.ID, tsk); });
             }
             else if (instance.Delegates.Validations.IsEventStartValid != null && (evnt is IntermediateCatchEvent || evnt is StartEvent))
             {
@@ -391,7 +392,7 @@ namespace BPMNEngine
             }
         }
 
-        private void ProcessGateway(ProcessInstance instance, string sourceID, AGateway gw)
+        private async ValueTask ProcessGatewayAsync(ProcessInstance instance, string sourceID, AGateway gw)
         {
             if (instance.State.Path.ProcessGateway(gw, sourceID))
             {
@@ -403,7 +404,7 @@ namespace BPMNEngine
                 IEnumerable<string> outgoings = null;
                 try
                 {
-                    outgoings = gw.EvaulateOutgoingPaths(definition, instance.Delegates.Validations.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.ID, instance));
+                    outgoings = await gw.EvaulateOutgoingPathsAsync(definition, instance.Delegates.Validations.IsFlowValid, new ReadOnlyProcessVariablesContainer(gw.ID, instance));
                 }
                 catch (Exception e)
                 {

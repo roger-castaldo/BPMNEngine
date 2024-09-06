@@ -23,15 +23,15 @@ namespace BPMNEngine.Elements.Processes.Events
             base(elem, map, parent)
         { }
 
-        public int EventCost(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
+        public async ValueTask<int> EventCostAsync(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
         {
-            if (SubType.Value==evnt)
+            if (Equals(SubType,evnt))
             {
-                var handlesEvent = SubType.Value switch
+                var handlesEvent = SubType! switch
                 {
                     EventSubTypes.Message => Types.Any(t => t.Equals(data)||t.Equals("*")),
                     EventSubTypes.Signal => Types.Any(t => t.Equals(data)||t.Equals("*")),
-                    EventSubTypes.Conditional => Condition.IsValid(variables),
+                    EventSubTypes.Conditional => await Condition.IsValidAsync(variables),
                     EventSubTypes.Error => (
                         (data is IntermediateProcessExcepion intermediateProcessException && Types.Any(t => t.Equals(intermediateProcessException.ProcessMessage)||t.Equals(intermediateProcessException.Message)||t.Equals("*")))
                         ||(data is Exception exception && Types.Any(t => t.Equals(exception.Message)||t.Equals(exception.GetType().Name)||t.Equals("*")))

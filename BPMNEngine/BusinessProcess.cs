@@ -104,11 +104,12 @@ namespace BPMNEngine
             return null;
         }
 
-        internal void HandleTaskEmission(ProcessInstance instance, ITask task, object data, EventSubTypes type, out bool isAborted)
+        internal async ValueTask<bool> HandleTaskEmissionAsync(ProcessInstance instance, ITask task, object data, EventSubTypes type)
         {
-            var events = GetEventHandlers(type, data, (AFlowNode)GetElement(task.ID), new ReadOnlyProcessVariablesContainer(task.Variables));
-            events.ForEach(ahe => ProcessEvent(instance, task.ID, ahe));
-            isAborted = instance.State.Path.GetStatus(task.ID)==StepStatuses.Aborted;
+            await (await 
+                GetEventHandlersAsync(type, data, (AFlowNode)GetElement(task.ID), new ReadOnlyProcessVariablesContainer(task.Variables))
+            ).ForEachAsync(ahe => ProcessEventAsync(instance, task.ID, ahe));
+            return instance.State.Path.GetStatus(task.ID)==StepStatuses.Aborted;
         }
 
         /// <summary>
@@ -285,7 +286,7 @@ namespace BPMNEngine
         /// <param name="logging">The Process Logging delegates container</param>
         /// <param name="stateLogLevel">Used to set the logging level for the process state document</param>
         /// <returns>a process instance if the process was successfully started</returns>
-        public IProcessInstance BeginProcess(
+        public async ValueTask<IProcessInstance> BeginProcessAsync(
             Dictionary<string, object> pars = null,
             ProcessEvents events = null,
             StepValidations validations = null,
@@ -303,10 +304,10 @@ namespace BPMNEngine
             ProcessVariablesContainer variables = new(pars, this);
             ret.WriteLogLine((IElement)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Attempting to begin process");
             ReadOnlyProcessVariablesContainer ropvc = new(variables);
-            var proc = Elements.OfType<Elements.Process>().FirstOrDefault(p => p.IsStartValid(ropvc, ret.Delegates.Validations.IsProcessStartValid));
+            var proc = await Elements.OfType<Elements.Process>().FirstOrDefaultAsync(p => p.IsStartValidAsync(ropvc, ret.Delegates.Validations.IsProcessStartValid));
             if (proc != null)
             {
-                var start = proc.StartEvents.FirstOrDefault(se => se.IsEventStartValid(ropvc, ret.Delegates.Validations.IsEventStartValid));
+                var start = await proc.StartEvents.FirstOrDefaultAsync(se => se.IsEventStartValidAsync(ropvc, ret.Delegates.Validations.IsEventStartValid));
                 if (start!=null)
                 {
                     ret.WriteLogLine(start, LogLevel.Information, new StackFrame(1, true), DateTime.Now, $"Valid Process Start[{start.ID}] located, beginning process");

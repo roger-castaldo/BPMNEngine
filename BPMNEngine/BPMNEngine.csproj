@@ -1,17 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	  <TargetFramework>net8.0</TargetFramework>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
     <RootNamespace>BPMNEngine</RootNamespace>
     <PackageId>BPMNEngine</PackageId>
-    <Version>3.1.0</Version>
+    <Version>4.0.0</Version>
     <Authors>Roger Castaldo</Authors>
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
     <PackageTags>BPMN</PackageTags>
     <PackageReleaseNotes>Major revision to a new library with breaking changes, including the concept of a process instance and creating named parameters for supplying all delegates.  Improved memory management and performance has been acheived using built in dotnet concepts that also display improved performances when running inside .net8 vs .net7 vs .net6.</PackageReleaseNotes>
-    <AssemblyVersion>3.1.0</AssemblyVersion>
-    <FileVersion>3.1.0</FileVersion>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
 	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
 	  <IncludeSymbols>true</IncludeSymbols>
 	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>

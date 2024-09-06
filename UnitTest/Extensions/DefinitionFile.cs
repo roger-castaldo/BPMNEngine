@@ -15,14 +15,14 @@ namespace UnitTest.Extensions
         private const string _RESULT_VARIABLE_NAME = "Processed_File";
 
         [TestMethod]
-        public void TestDefinitionVariableUsage()
+        public async System.Threading.Tasks.Task TestDefinitionVariableUsage()
         {
             BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/definition_file.bpmn"));
             Assert.IsNotNull(process);
             Assert.IsNotNull(process[_FILE_NAME]);
             Assert.IsInstanceOfType(process[_FILE_NAME], typeof(SFile));
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { });
+            IProcessInstance instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
 
             Assert.IsTrue(instance.WaitForUserTask(TimeSpan.FromSeconds(5), "UserTask_15dj2au", out IUserTask task));

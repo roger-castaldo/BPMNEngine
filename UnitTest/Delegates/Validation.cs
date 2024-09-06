@@ -4,6 +4,7 @@ using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace UnitTest.Delegates
@@ -72,9 +73,9 @@ namespace UnitTest.Delegates
 
 
         [TestMethod]
-        public void TestPathIsValid()
+        public async ValueTask TestPathIsValid()
         {
-            IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             });
@@ -92,7 +93,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", StepStatuses.Succeeded));
             Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", StepStatuses.Succeeded));
 
-            instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }},
                 {_PROCESS_BLOCKED_NAME,false }
@@ -101,9 +102,9 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestOverrideIsEventStartValid()
+        public async ValueTask TestOverrideIsEventStartValid()
         {
-            IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_0fbfgne", "SequenceFlow_1sl9l6m","SequenceFlow_0hhf11n" }}
             },
@@ -125,7 +126,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", StepStatuses.Succeeded));
             Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", StepStatuses.Succeeded));
 
-            instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_0fbfgne", "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             },
@@ -137,9 +138,9 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestOverrideIsFlowValid()
+        public async ValueTask TestOverrideIsFlowValid()
         {
-            IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }}
             },
@@ -163,9 +164,9 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestOverrideFlowConditionExpression()
+        public async ValueTask TestOverrideFlowConditionExpression()
         {
-            IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1" }},
                 {_CONDITION_CHECK,"inlineCondition" }
@@ -188,7 +189,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", StepStatuses.Succeeded));
             Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", StepStatuses.Succeeded));
 
-            instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1" }},
                 {_CONDITION_CHECK,"elementCondition" }
@@ -212,9 +213,9 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestOverrideIsProcessStartValid()
+        public async ValueTask TestOverrideIsProcessStartValid()
         {
-            IProcessInstance instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }},
                 {_PROCESS_BLOCKED_NAME,false }
@@ -237,7 +238,7 @@ namespace UnitTest.Delegates
             Assert.IsTrue(EventOccured(doc, "SequenceFlow_1sl9l6m", StepStatuses.Succeeded));
             Assert.IsFalse(EventOccured(doc, "SequenceFlow_0ijuqxx", StepStatuses.Succeeded));
 
-            instance = _pathChecksProcess.BeginProcess(new Dictionary<string, object>()
+            instance = await _pathChecksProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VALID_PATHS_NAME,new string[]{ "StartEvent_1", "SequenceFlow_1sl9l6m" }},
             },

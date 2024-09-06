@@ -3,6 +3,7 @@ using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace UnitTest
 {
@@ -46,26 +47,26 @@ namespace UnitTest
                 switch ((string)task.Variables[_ACTION_ID])
                 {
                     case "Message":
-                        task.EmitMessage((string)task.Variables[_VALUE_ID], out _);
+                        task.EmitMessageAsync((string)task.Variables[_VALUE_ID]);
                         break;
                     case "Signal":
-                        task.Signal((string)task.Variables[_VALUE_ID], out _);
+                        task.SignalAsync((string)task.Variables[_VALUE_ID]);
                         break;
                     case "Escalate":
                         if (task.ID == (string)task.Variables[_VALUE_ID])
-                            task.Escalate(out _);
+                            task.EscalateAsync();
                         break;
                     case "Error":
-                        task.EmitError(new System.Exception((string)task.Variables[_VALUE_ID]), out _);
+                        task.EmitErrorAsync(new System.Exception((string)task.Variables[_VALUE_ID]));
                         break;
                 }
             }
         }
 
         [TestMethod]
-        public void TestIntermediateCatchMessage()
+        public async ValueTask TestIntermediateCatchMessage()
         {
-            IProcessInstance instance = _messageProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _messageProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Message" },
                 {_VALUE_ID,"external_catch" }
@@ -76,9 +77,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestNonInteruptingBoundaryMessage()
+        public async ValueTask TestNonInteruptingBoundaryMessage()
         {
-            IProcessInstance instance = _messageProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _messageProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Message" },
                 {_VALUE_ID,"non_interupting_catch" }
@@ -89,9 +90,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestInteruptingBoundaryMessage()
+        public async ValueTask TestInteruptingBoundaryMessage()
         {
-            IProcessInstance instance = _messageProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _messageProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Message" },
                 {_VALUE_ID,"interupting_catch" }
@@ -103,9 +104,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestIntermediateCatchSignal()
+        public async ValueTask TestIntermediateCatchSignal()
         {
-            IProcessInstance instance = _signalProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _signalProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Signal" },
                 {_VALUE_ID,"external_catch" }
@@ -116,9 +117,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestNonInteruptingBoundarySignal()
+        public async ValueTask TestNonInteruptingBoundarySignal()
         {
-            IProcessInstance instance = _signalProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _signalProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Signal" },
                 {_VALUE_ID,"non_interupting_catch" }
@@ -129,9 +130,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestInteruptingBoundarySignal()
+        public async ValueTask TestInteruptingBoundarySignal()
         {
-            IProcessInstance instance = _signalProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _signalProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Signal" },
                 {_VALUE_ID,"interupting_catch" }
@@ -143,9 +144,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestNonInteruptingBoundaryEscalation()
+        public async ValueTask TestNonInteruptingBoundaryEscalation()
         {
-            IProcessInstance instance = _escalateProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _escalateProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Escalate" },
                 {_VALUE_ID,"Task_1pr3o3s" }
@@ -157,9 +158,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestInteruptingBoundaryEscalation()
+        public async ValueTask TestInteruptingBoundaryEscalation()
         {
-            IProcessInstance instance = _escalateProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _escalateProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Escalate" },
                 {_VALUE_ID,"Task_0peqa8k" }
@@ -171,9 +172,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void TestInteruptingBoundaryError()
+        public async ValueTask TestInteruptingBoundaryError()
         {
-            IProcessInstance instance = _errorProcess.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await _errorProcess.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_ACTION_ID,"Error" },
                 {_VALUE_ID,"interupting_catch" }
@@ -187,9 +188,9 @@ namespace UnitTest
         private static readonly string[] ThrowCatchSteps = ["Event_0ms842d", "Event_03kuv0p", "Event_1p2py1q", "Event_176mo0n", "Event_0juephw", "Event_1p6l3ai"];
 
         [TestMethod]
-        public void TestThrowCatchInternal()
+        public async ValueTask TestThrowCatchInternal()
         {
-            IProcessInstance instance = _throwCatchProcess.BeginProcess(null);
+            IProcessInstance instance = await _throwCatchProcess.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             foreach (var step in ThrowCatchSteps)

@@ -8,10 +8,10 @@ namespace UnitTest
     public class ProcessEnd
     {
         [TestMethod()]
-        public void TestBasicProcessEnd()
+        public async System.Threading.Tasks.Task TestBasicProcessEnd()
         {
             BusinessProcess proc = new(Utility.LoadResourceDocument("DiagramLoading/start_to_stop.bpmn"));
-            IProcessInstance instance = proc.BeginProcess(null);
+            IProcessInstance instance = await proc.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "EndEvent_1d1a99g"));
@@ -19,10 +19,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestSubProcessEnd()
+        public async System.Threading.Tasks.Task TestSubProcessEnd()
         {
             BusinessProcess proc = new(Utility.LoadResourceDocument("ProcessEnd/sub_process_end.bpmn"));
-            IProcessInstance instance = proc.BeginProcess(null);
+            IProcessInstance instance = await proc.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "EndEvent_1oqe74x"));
@@ -31,10 +31,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestProcessTerminateEnd()
+        public async System.Threading.Tasks.Task TestProcessTerminateEnd()
         {
             BusinessProcess proc = new(Utility.LoadResourceDocument("ProcessEnd/sub_process_terminate.bpmn"));
-            IProcessInstance instance = proc.BeginProcess(null);
+            IProcessInstance instance = await proc.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "EndEvent_0i74eau"));
@@ -43,10 +43,10 @@ namespace UnitTest
         }
 
         [TestMethod()]
-        public void TestProcessTerminateEndWithAborts()
+        public async System.Threading.Tasks.Task TestProcessTerminateEndWithAborts()
         {
             BusinessProcess proc = new(Utility.LoadResourceDocument("ProcessEnd/sub_process_terminate_abort.bpmn"));
-            IProcessInstance instance = proc.BeginProcess(null);
+            IProcessInstance instance = await proc.BeginProcessAsync(null);
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "EndEvent_0i74eau"));

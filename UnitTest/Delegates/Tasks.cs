@@ -3,6 +3,7 @@ using BPMNEngine.Interfaces.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace UnitTest.Delegates
 {
@@ -26,7 +27,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestBusinessRule()
+        public async ValueTask TestBusinessRule()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -34,14 +35,14 @@ namespace UnitTest.Delegates
                 ProcessBusinessRuleTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestBusinessRuleInstanceOverride()
+        public async ValueTask TestBusinessRuleInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -50,7 +51,7 @@ namespace UnitTest.Delegates
                 ProcessBusinessRuleTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 ProcessBusinessRuleTask = taskInstanceDelegateMock.Object
             });
@@ -61,13 +62,13 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestManualTask()
+        public async ValueTask TestManualTask()
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             var variables = instance.CurrentVariables;
@@ -78,13 +79,13 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestManualTaskInstanceOverride()
+        public async ValueTask TestManualTaskInstanceOverride()
         {
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
             {
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { },
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { },
                 tasks: new()
                 {
                     BeginManualTask=new StartManualTask(StartInstanceManualTask)
@@ -100,7 +101,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestReceiveTask()
+        public async ValueTask TestReceiveTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -108,14 +109,14 @@ namespace UnitTest.Delegates
                 ProcessReceiveTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestReceiveTaskInstanceOverride()
+        public async ValueTask TestReceiveTaskInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -124,7 +125,7 @@ namespace UnitTest.Delegates
                 ProcessReceiveTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 ProcessReceiveTask = taskInstanceDelegateMock.Object
             });
@@ -135,7 +136,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestScriptTask()
+        public async ValueTask TestScriptTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -143,14 +144,14 @@ namespace UnitTest.Delegates
                 ProcessScriptTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestScriptTaskInstanceOverride()
+        public async ValueTask TestScriptTaskInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -159,7 +160,7 @@ namespace UnitTest.Delegates
                 ProcessScriptTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 ProcessScriptTask = taskInstanceDelegateMock.Object
             });
@@ -170,7 +171,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestSendTask()
+        public async ValueTask TestSendTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -178,14 +179,14 @@ namespace UnitTest.Delegates
                 ProcessSendTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestSendTaskInstanceOverride()
+        public async ValueTask TestSendTaskInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -194,7 +195,7 @@ namespace UnitTest.Delegates
                 ProcessSendTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 ProcessSendTask = taskInstanceDelegateMock.Object
             });
@@ -205,7 +206,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestServiceTask()
+        public async ValueTask TestServiceTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -213,14 +214,14 @@ namespace UnitTest.Delegates
                 ProcessServiceTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestServiceTaskInstanceOverride()
+        public async ValueTask TestServiceTaskInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -229,7 +230,7 @@ namespace UnitTest.Delegates
                 ProcessServiceTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 ProcessServiceTask = taskInstanceDelegateMock.Object
             });
@@ -240,7 +241,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestTask()
+        public async ValueTask TestTask()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -248,14 +249,14 @@ namespace UnitTest.Delegates
                 ProcessTask = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestTaskInstanceOverride()
+        public async ValueTask TestTaskInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -264,7 +265,7 @@ namespace UnitTest.Delegates
                 ProcessTask = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 ProcessTask = taskInstanceDelegateMock.Object
             });
@@ -275,7 +276,7 @@ namespace UnitTest.Delegates
         }
 
         [TestMethod]
-        public void TestCallActivity()
+        public async ValueTask TestCallActivity()
         {
             var taskDelegateMock = new Mock<ProcessTask>();
             var process = new BusinessProcess(Utility.LoadResourceDocument("Tasks/all_tasks.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
@@ -283,14 +284,14 @@ namespace UnitTest.Delegates
                 CallActivity = taskDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { });
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             taskDelegateMock.Verify(x => x.Invoke(It.IsAny<ITask>()), Times.Once());
         }
 
         [TestMethod]
-        public void TestCallActivityInstanceOverride()
+        public async ValueTask TestCallActivityInstanceOverride()
         {
             var taskProcessDelegateMock = new Mock<ProcessTask>();
             var taskInstanceDelegateMock = new Mock<ProcessTask>();
@@ -299,7 +300,7 @@ namespace UnitTest.Delegates
                 CallActivity = taskProcessDelegateMock.Object,
                 BeginManualTask = new StartManualTask(StartManualTask)
             });
-            var instance = process.BeginProcess(new Dictionary<string, object>() { }, tasks: new()
+            var instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, tasks: new()
             {
                 CallActivity = taskInstanceDelegateMock.Object
             });

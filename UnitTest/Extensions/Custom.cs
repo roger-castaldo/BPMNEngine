@@ -15,11 +15,11 @@ namespace UnitTest.Extensions
         private const int _RESULT_VARIABLE_VALUE = 5678;
 
         [TestMethod]
-        public void TestCustomExtension()
+        public async System.Threading.Tasks.Task TestCustomExtension()
         {
             BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/Custom/custom_extension.bpmn"), tasks: new BPMNEngine.DelegateContainers.ProcessTasks() { ProcessTask= new ProcessTask(ProcessTask) });
             Assert.IsNotNull(process);
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>()
+            IProcessInstance instance = await process.BeginProcessAsync(new Dictionary<string, object>()
             {
                 {_VARIABLE_NAME,_VARIABLE_VALUE }
             });
@@ -30,7 +30,7 @@ namespace UnitTest.Extensions
             Assert.IsTrue(variables.ContainsKey(_VARIABLE_NAME));
             Assert.AreEqual(_RESULT_VARIABLE_VALUE, variables[_VARIABLE_NAME]);
 
-            instance = process.BeginProcess(new Dictionary<string, object>() { });
+            instance = await process.BeginProcessAsync(new Dictionary<string, object>() { });
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
             variables = instance.CurrentVariables;

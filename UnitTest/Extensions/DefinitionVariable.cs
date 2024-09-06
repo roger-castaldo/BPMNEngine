@@ -16,7 +16,7 @@ namespace UnitTest.Extensions
         private const string _RESULT_FORMAT = "Processed_{0}";
 
         [TestMethod]
-        public void TestDefinitionVariableUsage()
+        public async System.Threading.Tasks.Task TestDefinitionVariableUsage()
         {
             var readonlyKeysValid = false;
             BusinessProcess process = new(Utility.LoadResourceDocument("Extensions/definition_variable.bpmn"));
@@ -24,7 +24,7 @@ namespace UnitTest.Extensions
             Assert.IsNotNull(process[_VARIABLE_NAME]);
             Assert.IsInstanceOfType(process[_VARIABLE_NAME], typeof(string));
 
-            IProcessInstance instance = process.BeginProcess(new Dictionary<string, object>() { }, events: new BPMNEngine.DelegateContainers.ProcessEvents()
+            IProcessInstance instance = await process.BeginProcessAsync(new Dictionary<string, object>() { }, events: new BPMNEngine.DelegateContainers.ProcessEvents()
             {
                 Tasks = new()
                 {

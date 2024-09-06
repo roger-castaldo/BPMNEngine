@@ -20,7 +20,7 @@ namespace UnitTest.Extensions
         private const int _varValuePlus = 13;
 
         [TestMethod]
-        public void TestCSharp()
+        public async System.Threading.Tasks.Task TestCSharp()
         {
             var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
             {
@@ -32,7 +32,7 @@ namespace UnitTest.Extensions
             IProcessInstance instance = null;
             try
             {
-                instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+                instance = await proc.BeginProcessAsync(new Dictionary<string, object> { { _varName, _varValue } });
             }
             catch (Exception e)
             {
@@ -43,7 +43,7 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestCSharpException()
+        public async System.Threading.Tasks.Task TestCSharpException()
         {
             var cache = new ConcurrentQueue<string>();
             var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp_exception.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
@@ -61,7 +61,7 @@ namespace UnitTest.Extensions
             IProcessInstance instance = null;
             try
             {
-                instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+                instance = await proc.BeginProcessAsync(new Dictionary<string, object> { { _varName, _varValue } });
             }
             catch (Exception e)
             {
@@ -80,7 +80,7 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestActiveStepsException()
+        public async System.Threading.Tasks.Task TestActiveStepsException()
         {
             var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/c_sharp_delayed_active_step.bpmn"), logging: new BPMNEngine.DelegateContainers.ProcessLogging()
             {
@@ -89,20 +89,20 @@ namespace UnitTest.Extensions
                     System.Diagnostics.Debug.WriteLine(exception.Message);
                 }
             });
-            IProcessInstance instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+            IProcessInstance instance = await proc.BeginProcessAsync(new Dictionary<string, object> { { _varName, _varValue } });
             Assert.IsNotNull(instance);
             Task.Delay(TimeSpan.FromSeconds(5)).Wait();
             Assert.ThrowsException<ActiveStepsException>(() => instance.Dispose());
         }
 
         [TestMethod]
-        public void TestVBScript()
+        public async System.Threading.Tasks.Task TestVBScript()
         {
             var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/visual_basic.bpmn"));
             IProcessInstance instance;
             try
             {
-                instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+                instance = await proc.BeginProcessAsync(new Dictionary<string, object> { { _varName, _varValue } });
             }
             catch (Exception e)
             {
@@ -113,13 +113,13 @@ namespace UnitTest.Extensions
         }
 
         [TestMethod]
-        public void TestJavascript()
+        public async System.Threading.Tasks.Task TestJavascript()
         {
             var proc = new BusinessProcess(Utility.LoadResourceDocument("Extensions/Scripts/javascript.bpmn"));
             IProcessInstance instance;
             try
             {
-                instance = proc.BeginProcess(new Dictionary<string, object> { { _varName, _varValue } });
+                instance = await proc.BeginProcessAsync(new Dictionary<string, object> { { _varName, _varValue } });
             }
             catch (Exception e)
             {

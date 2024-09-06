@@ -7,6 +7,6 @@ namespace BPMNEngine.Interfaces.Elements
     internal interface IProcess : IParentElement
     {
         ImmutableArray<StartEvent> StartEvents { get; }
-        bool IsStartValid(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid);
+        ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid);
     }
 }
