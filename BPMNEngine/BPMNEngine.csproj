@@ -19,13 +19,11 @@
 	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 	  <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <DocumentationFile>..\BPMNEngine.Wiki\BPMNEngine.xml</DocumentationFile>
+	  <DocumentationMarkdown>..\BPMNEngine.Wiki\BPMNEngine.md</DocumentationMarkdown>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG;</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <DocumentationFile>..\BPMNEngine.Wiki\BPMNEngine.xml</DocumentationFile>
-    <DocumentationMarkdown>..\BPMNEngine.Wiki\BPMNEngine.md</DocumentationMarkdown>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Drawing\Icons\IconParts\resources\CenterPlus.png" />

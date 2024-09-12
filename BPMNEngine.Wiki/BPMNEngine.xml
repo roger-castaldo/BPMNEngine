@@ -1,0 +1,1683 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BPMNEngine</name>
+    </assembly>
+    <members>
+        <member name="T:BPMNEngine.BusinessProcess">
+            <summary>
+            This class is the primary class for the library.  It implements a Business Process by constructing the object using a BPMN 2.0 compliant definition.
+            This is followed by assigning delegates for handling the specific process events and then starting the process.  A process can also be suspended and 
+            the suspended state loaded and resumed.  It can also be cloned, including the current state and delegates in order to have more than once instance 
+            of the given process executing.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.BusinessProcess.Document">
+            <summary>
+            The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.BusinessProcess.Item(System.String)">
+            <summary>
+            This is used to access the values of the process runtime and definition constants
+            </summary>
+            <param name="name">The name of the variable</param>
+            <returns>The value of the variable</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.#ctor(System.Xml.XmlDocument,System.Collections.Generic.IEnumerable{BPMNEngine.SProcessRuntimeConstant},BPMNEngine.DelegateContainers.ProcessEvents,BPMNEngine.DelegateContainers.StepValidations,BPMNEngine.DelegateContainers.ProcessTasks,BPMNEngine.DelegateContainers.ProcessLogging)">
+            <summary>
+            Creates a new instance of the BusinessProcess passing it the definition, StateLogLevel, runtime constants and LogLine delegate
+            </summary>
+            <param name="doc">The Xml Document containing the BPMN 2.0 definition</param>
+            <param name="constants">An array of runtime constants that are set for this particular instance of the process</param>
+            <param name="events">The Process Events delegates container</param>
+            <param name="validations">The Process Validations delegates container</param>
+            <param name="tasks">The Process Tasks delegates container</param>
+            <param name="logging">The Process Logging delegates container</param>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.LoadState(System.Xml.XmlDocument,System.Boolean,BPMNEngine.DelegateContainers.ProcessEvents,BPMNEngine.DelegateContainers.StepValidations,BPMNEngine.DelegateContainers.ProcessTasks,BPMNEngine.DelegateContainers.ProcessLogging,Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Called to load a Process Instance from a stored State Document
+            </summary>
+            <param name="doc">The process state document</param>
+            <param name="autoResume">set true if the process was suspended and needs to resume once loaded</param>
+            <param name="events">The Process Events delegates container</param>
+            <param name="validations">The Process Validations delegates container</param>
+            <param name="tasks">The Process Tasks delegates container</param>
+            <param name="logging">The Process Logging delegates container</param>
+            <param name="stateLogLevel">Used to set the logging level for the process state document</param>
+            <returns>an instance of IProcessInstance if successful or null it failed</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.LoadState(System.Text.Json.Utf8JsonReader,System.Boolean,BPMNEngine.DelegateContainers.ProcessEvents,BPMNEngine.DelegateContainers.StepValidations,BPMNEngine.DelegateContainers.ProcessTasks,BPMNEngine.DelegateContainers.ProcessLogging,Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Called to load a Process Instance from a stored State Document
+            </summary>
+            <param name="reader">The json based process state</param>
+            <param name="autoResume">set true if the process was suspended and needs to resume once loaded</param>
+            <param name="events">The Process Events delegates container</param>
+            <param name="validations">The Process Validations delegates container</param>
+            <param name="tasks">The Process Tasks delegates container</param>
+            <param name="logging">The Process Logging delegates container</param>
+            <param name="stateLogLevel">Used to set the logging level for the process state document</param>
+            <returns>an instance of IProcessInstance if successful or null it failed</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.BeginProcess(System.Collections.Generic.Dictionary{System.String,System.Object},BPMNEngine.DelegateContainers.ProcessEvents,BPMNEngine.DelegateContainers.StepValidations,BPMNEngine.DelegateContainers.ProcessTasks,BPMNEngine.DelegateContainers.ProcessLogging,Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Called to start and instance of the defined BusinessProcess
+            </summary>
+            <param name="pars">The variables to start the process with</param>
+            <param name="events">The Process Events delegates container</param>
+            <param name="validations">The Process Validations delegates container</param>
+            <param name="tasks">The Process Tasks delegates container</param>
+            <param name="logging">The Process Logging delegates container</param>
+            <param name="stateLogLevel">Used to set the logging level for the process state document</param>
+            <returns>a process instance if the process was successfully started</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.Dispose">
+            <summary>
+            Called to Dispose of the given process instance.
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.Equals(System.Object)">
+            <summary>
+            Compares a given process instance to this instance to see if they are the same.
+            </summary>
+            <param name="obj">The Business Process instance to compare this one to.</param>
+            <returns>true if they are the same, false if they are not.</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.GetHashCode">
+            <summary>
+            Returns the HashCode of the Business Process instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.Diagram(Microsoft.Maui.Graphics.ImageFormat)">
+            <summary>
+            Called to render a PNG image of the process
+            </summary>
+            <param name="type">The output image format to generate, this being jpeg,png or bmp</param>
+            <returns>A Bitmap containing a rendered image of the process</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessVariablesFromStateDocument(System.Xml.XmlDocument)">
+            <summary>
+            A Utility call used to extract the variable values from a Business Process State Document.
+            </summary>
+            <param name="doc">The State XML Document file to extract the values from</param>
+            <returns>The variables extracted from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessVariablesFromStateDocument(System.Xml.XmlDocument,System.Int32)">
+            <summary>
+            A Utility call used to extract the variable values from a Business Process State Document at a given step index.
+            </summary>
+            <param name="doc">The State XML Document file to extract the values from</param>
+            <param name="stepIndex">The step index to extract the values at</param>
+            <returns>The variables extracted from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessSteps(System.Xml.XmlDocument)">
+            <summary>
+            A Utility call used to extract the steps from a Business Process State Document
+            </summary>
+            <param name="doc">The State XML Document file to extract the values from</param>
+            <returns>The steps from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessLog(System.Xml.XmlDocument)">
+            <summary>
+            A Utility call used to extract the log from a Business Process State Document
+            </summary>
+            <param name="doc">The State XML Document file to extract the values from</param>
+            <returns>The log from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessVariablesFromStateDocument(System.Text.Json.Utf8JsonReader)">
+            <summary>
+            A Utility call used to extract the variable values from a Business Process State Document.
+            </summary>
+            <param name="reader">The State Json Document file to extract the values from</param>
+            <returns>The variables extracted from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessVariablesFromStateDocument(System.Text.Json.Utf8JsonReader,System.Int32)">
+            <summary>
+            A Utility call used to extract the variable values from a Business Process State Document at a given step index.
+            </summary>
+            <param name="reader">The State Json Document file to extract the values from</param>
+            <param name="stepIndex">The step index to extract the values at</param>
+            <returns>The variables extracted from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessSteps(System.Text.Json.Utf8JsonReader)">
+            <summary>
+            A Utility call used to extract the steps from a Business Process State Document
+            </summary>
+            <param name="reader">The State Json Document file to extract the values from</param>
+            <returns>The steps from the Process State Document</returns>
+        </member>
+        <member name="M:BPMNEngine.BusinessProcess.ExtractProcessLog(System.Text.Json.Utf8JsonReader)">
+            <summary>
+            A Utility call used to extract the log from a Business Process State Document
+            </summary>
+            <param name="reader">The State Json Document file to extract the values from</param>
+            <returns>The log from the Process State Document</returns>
+        </member>
+        <member name="T:BPMNEngine.DateString">
+            <summary>
+            This class is used to convert a date string into a datetime value, uses the similar 
+            concepts as the strtotime found in php
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.DateString.#ctor(System.String)">
+            <summary>
+            creates an instance
+            </summary>
+            <param name="value">the date string that is meant to be converted</param>
+        </member>
+        <member name="M:BPMNEngine.DateString.GetTime(BPMNEngine.Interfaces.Variables.IReadonlyVariables)">
+            <summary>
+            Converts the date string into an actual datetime object
+            </summary>
+            <param name="variables">The process variables currently avaialbe (this is used when variables exist in the string e.g. ${variablename})</param>
+            <returns>A DateTime build from the string</returns>
+            <exception cref="T:System.Exception">Occurs when the string is determined unparsable</exception>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.Events.BasicEvents">
+            <summary>
+            Base class used to define the properties (event types) for a given
+            element types events
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.BasicEvents.Started">
+            <summary>
+            This is the delegate called when a particular element starts
+            <code>
+            public void OnEventStarted(IStepElement Event, IReadonlyVariables variables);{
+                Console.WriteLine("Event {0} inside process {1} has been started with the following variables:",Event.id,Event.Process.id);
+                foreach (string key in variables.FullKeys){
+                    Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                }
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.BasicEvents.Completed">
+            <summary>
+            This delegate is called when a particular element completes
+            <code>
+            public void OnEventCompleted(IStepElement Event, IReadonlyVariables variables){
+                Console.WriteLine("Event {0} inside process {1} has completed with the following variables:",Event.id,Event.Process.id);
+                foreach (string key in variables.FullKeys){
+                    Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                }
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.BasicEvents.Error">
+            <summary>
+            This delegate is called when a particular element has an error
+            <code>
+                public void OnEventError(IStepElement Event, IReadonlyVariables variables){
+                    Console.WriteLine("Event {0} inside process {1} had the error {2} occur with the following variables:",new object[]{Event.id,Event.Process.id,variables.Error.Message});
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.Events.ElementProcessEvents">
+            <summary>
+            Class used to define the properties (event types) for a Process
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.ElementProcessEvents.Started">
+            <summary>
+            This is the delegate called when a particular element starts
+            <code>
+            public void OnEventStarted(IStepElement Event, IReadonlyVariables variables);{
+                Console.WriteLine("Event {0} inside process {1} has been started with the following variables:",Event.id,Event.Process.id);
+                foreach (string key in variables.FullKeys){
+                    Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                }
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.ElementProcessEvents.Completed">
+            <summary>
+            This delegate is called when a particular element completes
+            <code>
+            public void OnEventCompleted(IStepElement Event, IReadonlyVariables variables){
+                Console.WriteLine("Event {0} inside process {1} has completed with the following variables:",Event.id,Event.Process.id);
+                foreach (string key in variables.FullKeys){
+                    Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                }
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.ElementProcessEvents.Error">
+            <summary>
+            This delegate is called when a particular element has an error
+            <code>
+                public void OnEventError(IStepElement process,IStepElement Event, IReadonlyVariables variables){
+                    Console.WriteLine("Event {0} inside process {1} had the error {2} occur with the following variables:",new object[]{Event.id,Event.Process.id,variables.Error.Message});
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.Events.FlowEvents">
+            <summary>
+            Class used to define all Flow Events that can complete
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.FlowEvents.SequenceFlow">
+            <summary>
+            Called when a Sequence Flow completes
+            <code>
+            public void OnSequenceFlowCompleted(IFlowElement flow, IReadonlyVariables variables){
+                    Console.WriteLine("Sequence Flow {0} has been completed with the following variables:",flow.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.FlowEvents.MessageFlow">
+            <summary>
+            Called when a Message Flow completes
+            </summary>
+            <code>
+            public void OnMessageFlowCompleted(IFlowElement flow, IReadonlyVariables variables){
+                    Console.WriteLine("Message Flow {0} has been completed with the following variables:",flow.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.Events.FlowEvents.AssociationFlow">
+            <summary>
+            Called when an Association Flow completes
+            <code>
+            public void onAssociationFlowCompleted(IFlowElement flow, IReadonlyVariables variables){
+                    Console.WriteLine("Association Flow {0} has been completed with the following variables:",flow.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.ProcessEvents">
+            <summary>
+            This class is used to house all the event based delegates for a business process. 
+            This can be defined at either the BusinessProcess constructor level for defining it 
+            against all instances or at the BeginProcess level to defining it against a 
+            specific instance
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.Events">
+            <summary>
+            Houses the delegates for Events related to a Business Process Event item
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.Tasks">
+            <summary>
+            Houses the delegates for Events related to a Business Process Task item
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.Processes">
+            <summary>
+            Houses the delegates for Events related to a Business Process Process item
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.SubProcesses">
+            <summary>
+            Houses the delegates for Events related to a Business Process SubProcess item
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.Gateways">
+            <summary>
+            Houses the delegates for Events related to a Business Process Gateway item
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.Flows">
+            <summary>
+            Houses the delegates for Events related to a Business Process flow item
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.OnStepAborted">
+            <summary>
+            A delegate called when an element is aborted within the Business Process
+            <code>
+            public void OnStepAborted(IElement element, IElement source, IReadonlyVariables variables){
+                    Console.WriteLine("Element {0} inside process {1} has been aborted by {2} with the following variables:",element.id,element.Process.id,source.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessEvents.OnStateChange">
+            <summary>
+            A delegate called when the Business Process Instance state document has changed
+            <code>
+            public void OnStateChange(XmlDocument stateDocument){
+                    Console.WriteLine("Current Process State: \n{0}",stateDocument.OuterXML);
+                }
+            </code>
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.ProcessLogging">
+            <summary>
+            This class is used to house all the Logging delegates for a business process. 
+            This can be defined at either the BusinessProcess constructor level for defining it 
+            against all instances or at the BeginProcess level to defining it against a 
+            specific instance
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessLogging.LogLine">
+            <summary>
+            A delegate called to append a log line entry from the process
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessLogging.LogException">
+            <summary>
+            A delegate called to append a logged exception from the process
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.ProcessTasks">
+            <summary>
+            This class is used to house all the Tasks delegates for a business process. 
+            This can be defined at either the BusinessProcess constructor level for defining it 
+            against all instances or at the BeginProcess level to defining it against a 
+            specific instance
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.ProcessBusinessRuleTask">
+            <summary>
+            A delegate called to execute a Business Rule Task
+            <code>
+            <![CDATA[
+            XML:
+            <bpmn:businessRuleTask id="BusinessRule_0ikjhwl">
+             <bpmn:extensionElements>
+               <Analysis outputVariable="averageCost" inputs="Cost" formula="Average"/>
+               <Analysis outputVariable="totalQuantity" inputs="Quantity" formula="Sum"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            
+            public void ProcessBusinessRuleTask(ITask task)
+                if (task.ExtensionElement != null){
+                    foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="Analysis"){
+                                switch(xn.Attributes["formula"].Value){
+                                    case "Average":
+                                        decimal avgSum=0;
+                                        decimal avgCount=0;
+                                        foreach (Hashtable item in task["Items"]){
+                                            if (item.ContainsKey(xn.Attributes["inputs"].Value)){
+                                                avgSum+=(decimal)item[xn.Attributes["inputs"].Value];
+                                                avgCount++;
+                                            }
+                                        }
+                                        task[xn.Attriubtes["outputVariable"].Value] = avgSum/avgCount;
+                                        break;
+                                    case "Sum":
+                                        decimal sum=0;
+                                        foreach (Hashtable item in task["Items"]){
+                                            if (item.ContainsKey(xn.Attributes["inputs"].Value)){
+                                                sum+=(decimal)item[xn.Attributes["inputs"].Value];
+                                            }
+                                        }
+                                        task[xn.Attriubtes["outputVariable"].Value] = sum;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.BeginManualTask">
+            <summary>
+            A delegate called to start a Manual Task
+            <code>
+            <![CDATA[
+            XML:
+            <bpmn:manualTask id="ManualTask_0ikjhwl">
+             <bpmn:extensionElements>
+               <Question prompt="What is the answer to the life, universe and everything" answer_property="answer"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            
+            public void BeginManualTask(IManualTask task)
+                if (task.ExtensionElement != null){
+                    foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="Question"){
+                                Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
+                                task[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+                            }
+                        }
+                    }
+                }
+                task.MarkComplete();
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.ProcessReceiveTask">
+            <summary>
+            A delegate called to execute a Receive Task
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.ProcessScriptTask">
+            <summary>
+            A delegate called to execute a Script Task.  This is called after any internal script extension elements have been processed.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.ProcessSendTask">
+            <summary>
+            A delegate called to exeucte a Send Task.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.ProcessServiceTask">
+            <summary>
+            A delegate called to execute a Service Task
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.ProcessTask">
+            <summary>
+            A delegate called to execute a Task
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.CallActivity">
+            <summary>
+            A delegate called to execute a CallActivity
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.ProcessTasks.BeginUserTask">
+            <summary>
+            A delegate called to start a User Task
+            <code>
+            <![CDATA[
+            XML:
+            <bpmn:userTask id="UserTask_0ikjhwl">
+             <bpmn:extensionElements>
+               <Question prompt="What is the answer to the life, universe and everything" answer_property="answer"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            
+            public void BeginUserTask(IUserTask task)
+                if (task.ExtensionElement != null){
+                    foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="Question"){
+                                Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
+                                task[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+                                Console.WriteLine("Who Are You?");
+                                task.UserID = Console.ReadLine();
+                            }
+                        }
+                    }
+                }
+                task.MarkComplete();
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DelegateContainers.StepValidations">
+            <summary>
+            This class is used to house all the validation delegates for a business process. 
+            This can be defined at either the BusinessProcess constructor level for defining it 
+            against all instances or at the BeginProcess level to defining it against a 
+            specific instance
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.StepValidations.IsEventStartValid">
+            <summary>
+            A delegate called to validate if an event can start
+            <code>
+            <![CDATA[
+            XML:
+            <bpmn:startEvent id="StartEvent_0ikjhwl">
+             <bpmn:extensionElements>
+               <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            
+            public bool IsEventStartValid(IStepElement Event, IVariables variables){
+                if (Event.ExtensionElement != null){
+                    foreach (XmlNode xn in Event.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="DateRange"){
+                                return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.StepValidations.IsProcessStartValid">
+            <summary>
+            A delegate called to validate if a process is valid to start
+            <code>
+            <![CDATA[
+            XML:
+            <bpmn:process id="Process_1" isExecutable="false">
+             ...
+             <bpmn:extensionElements>
+               <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+             </bpmn:extensionElements>
+            </bpmn:process>
+            ]]>
+            
+            public bool IsProcessStartValid(IElement process, IVariables variables){
+                if (process.ExtensionElement != null){
+                    foreach (XmlNode xn in process.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="DateRange"){
+                                return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.DelegateContainers.StepValidations.IsFlowValid">
+            <summary>
+            A delegate called to validate if a flow is valid to run
+            <code>
+            <![CDATA[
+            XML:
+            <bpmn:outgoing>SequenceFlow_1jma3bu
+             <bpmn:extensionElements>
+               <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+             </bpmn:extensionElements>
+            </bpmn:outgoing>
+            ]]>
+            
+            public bool IsFlowValid(IElement flow, IVariables variables){
+                if (flow.ExtensionElement != null){
+                    foreach (XmlNode xn in flow.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="DateRange"){
+                                return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            </code>
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.OnElementEvent">
+            <summary>
+            This delegate is implemented to get triggered when a process element has been started, completed or errored.
+            </summary>
+            <remarks>
+            As it is an event driven delegate, the process will continue on without waiting for the delegate to finish.
+            </remarks>
+            <param name="element">The process element that is starting, has completed or has errored.</param>
+            <param name="variables">The process variables being provided to the event when it started,completed or errored.</param>
+            <example>
+            <code>
+                public void _OnElementStarted(IStepElement element,IReadonlyVariables variables){
+                    Console.WriteLine("Element {0} inside process {1} has been started with the following variables:",element.id,element.Process.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.OnElementAborted">
+            <summary>
+            This delegate is implemented to get triggered when a process element has been aborted.
+            </summary>
+            <remarks>
+            As it is an event driven delegate, the process will continue on without waiting for the delegate to finish.
+            </remarks>
+            <param name="element">The process element that is being aborted.</param>
+            <param name="source">The process element that is causing the abort.</param>
+            <param name="variables">The process variables being provided to the event it is being aborted.</param>
+            <example>
+            <code>
+                public void _OnElementAborted(IElement element,IElement source,IReadonlyVariables variables){
+                    Console.WriteLine("Element {0} inside process {1} has been aborted by {2} with the following variables:",element.id,element.Process.id,source.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.OnProcessEvent">
+            <summary>
+            This delegate is implemented to get triggered when a Process has been started or completed.
+            </summary>
+            <remarks>
+            As it is an event driven delegate, the process will continue on without waiting for the delegate to finish.
+            </remarks>
+            <param name="process">The Process being started or completed</param>
+            <param name="variables">The process variables at the the time of the Process Start or Completion</param>
+            <example>
+            <code>
+                public void _ProcessStarted(IElement process,IReadonlyVariables variables){
+                    Console.WriteLine("Process {0} has been started with the following variables:",process.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.OnFlowComplete">
+            <summary>
+            This delegate is implemented to get triggered when a process flow has been completed.
+            </summary>
+            <remarks>
+            As it is an event driven delegate, the process will continue on without waiting for the delegate to finish.
+            </remarks>
+            <param name="element">The process flow that has been completed.</param>
+            <param name="variables">The process variables being provided to the event when it completed.</param>
+            <example>
+            <code>
+                public void _OnFlowCompleted(IElement element,IReadonlyVariables variables){
+                    Console.WriteLine("Flow {0} inside process {1} has been started with the following variables:",element.id,element.Process.id);
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.OnProcessErrorEvent">
+            <summary>
+            This delegate is implemented to get triggered when a Process has an Error
+            </summary>
+            <remarks>
+            As it is an event driven delegate, the process will continue on without waiting for the delegate to finish.  As well as the variables container will have Error set to the Exception that occured.
+            </remarks>
+            <param name="process">The process that the error is contained in</param>
+            <param name="sourceElement">The Process Element that is the source of the error</param>
+            <param name="variables">The process variables at the time of the Error</param>
+            <example>
+            <code>
+                public void _ProcessError(IElement process,IElement sourceElement, IReadonlyVariables variables){
+                    Console.WriteLine("Element {0} inside process {1} had the error {2} occur with the following variables:",new object[]{sourceElement.id,process.id,variables.Error.Message});
+                    foreach (string key in variables.FullKeys){
+                        Console.WriteLine("\t{0}:{1}",key,variables[key]);
+                    }
+                }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.OnStateChange">
+            <summary>
+            This delegate is implemented to get triggered when the Process State changes.  The state may not be usable externally without understanding its structure, however, capturing these events allows for the storage of a process state externally to be brought back in on a process restart.
+            </summary>
+            <param name="currentState">The current state of the process</param>
+            <example>
+            <code>
+                public void _StateChange(XmlDocument stateDocument){
+                    Console.WriteLine("Current Process State: \n{0}",stateDocument.OuterXML);
+                }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.IsEventStartValid">
+            <summary>
+            This delegate is implemented to get triggered when determining if an Event Start is valid (i.e. can this event start)
+            </summary>
+            <remarks>
+            This delegate is useful when adding additional elements through the extension element that are custom to your code.  It will be called with the given starting element that can be checked against additional components to decide if the start event is valid for a process.
+            If valid, return true to initiate the containing process.
+            </remarks>
+            <param name="Event">The Start Event that is being checked</param>
+            <param name="variables">The process variables at the time of the check</param>
+            <returns></returns>
+            <example>
+            <![CDATA[
+            XML:
+            <bpmn:startEvent id="StartEvent_0ikjhwl">
+             <bpmn:extensionElements>
+               <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            <code>
+            public bool _EventStartValid(IStepElement Event, IVariables variables){
+                if (Event.ExtensionElement != null){
+                    foreach (XmlNode xn in Event.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="DateRange"){
+                                return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.IsProcessStartValid">
+            <summary>
+            This delegate is implemented to get triggered when determining if a Process is valid to Start
+            </summary>
+            <remarks>
+            This delegate is useful when adding additional elements through the extension element that are custom to your code.It will be called with the given process element that can be checked against additional components to decide if the start is valid for a process.
+            If valid, return true to allow the system to continue to locate a valid start event within that process.
+            </remarks>
+            <param name="process">The Process that is being checked</param>
+            <param name="variables">The process variables at the time of the check</param>
+            <returns></returns>
+            <example>
+            <![CDATA[
+            XML:
+            <bpmn:process id="Process_1" isExecutable="false">
+             ...
+             <bpmn:extensionElements>
+               <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+             </bpmn:extensionElements>
+            </bpmn:process>
+            ]]>
+            <code>
+            public bool _ProcessStartValid(IElement process, IVariables variables){
+                if (process.ExtensionElement != null){
+                    foreach (XmlNode xn in process.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="DateRange"){
+                                return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.IsFlowValid">
+            <summary>
+            This delegate is implemented to get triggered when determining if a Flow is a valid path
+            </summary>
+            <remarks>
+            This delegate is useful when adding additional elements through the extension element that are custom to your code.It will be called with the given flow element that can be checked against additional components to decide if the flow is a valid next step in the process.
+            If valid, return true to allow the system to continue along the supplied flow.
+            </remarks>
+            <param name="flow">The process Flow that is being checked</param>
+            <param name="variables">The process variables at the time of the check</param>
+            <returns></returns>
+            <example>
+            <![CDATA[
+            XML:
+            <bpmn:outgoing>SequenceFlow_1jma3bu
+             <bpmn:extensionElements>
+               <DateRange start="2020-01-01 00:00:00" end="2020-12-31 11:59:59"/>
+             </bpmn:extensionElements>
+            </bpmn:outgoing>
+            ]]>
+            <code>
+            public bool _FlowValid(ISequenceFlow flow, IVariables variables){
+                if (flow.ExtensionElement != null){
+                    foreach (XmlNode xn in flow.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="DateRange"){
+                                return DateTime.Now.Ticks &gt;= DateTime.Parse(xn.Attributes["start"].Value) &amp;&amp; DateTime.Now.Ticks &lt;= DateTime.Parse(xn.Attributes["end"].Value);
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.ProcessTask">
+            <summary>
+            This delegate is implemented to process a Process Task (This can be a Business Rule, Script, Send, Service and Task)
+            </summary>
+            <remarks>
+            Use of the bpmn:extension element to add additional components to the Task is recommended in order to implement your own piece of functionality used in handling of a Task.
+            </remarks>
+            <param name="task">The Task being processed</param>
+            <example>
+            <![CDATA[
+            XML:
+            <bpmn:businessRuleTask id="BusinessRule_0ikjhwl">
+             <bpmn:extensionElements>
+               <Analysis outputVariable="averageCost" inputs="Cost" formula="Average"/>
+               <Analysis outputVariable="totalQuantity" inputs="Quantity" formula="Sum"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            <code>
+            public void _ProcessBusinessRuleTask(ITask task)
+                if (task.ExtensionElement != null){
+                    foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="Analysis"){
+                                switch(xn.Attributes["formula"].Value){
+                                    case "Average":
+                                        decimal avgSum=0;
+                                        decimal avgCount=0;
+                                        foreach (Hashtable item in task.Variables["Items"]){
+                                            if (item.ContainsKey(xn.Attributes["inputs"].Value)){
+                                                avgSum+=(decimal)item[xn.Attributes["inputs"].Value];
+                                                avgCount++;
+                                            }
+                                        }
+                                        task.Variables[xn.Attriubtes["outputVariable"].Value] = avgSum/avgCount;
+                                        break;
+                                    case "Sum":
+                                        decimal sum=0;
+                                        foreach (Hashtable item in task.Variables["Items"]){
+                                            if (item.ContainsKey(xn.Attributes["inputs"].Value)){
+                                                sum+=(decimal)item[xn.Attributes["inputs"].Value];
+                                            }
+                                        }
+                                        task.Variables[xn.Attriubtes["outputVariable"].Value] = sum;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.StartManualTask">
+            <summary>
+            This delegate is implemented to start a Manual Task 
+            </summary>
+            <remarks>
+            Use of the bpmn:extension element to add additional components to the Task is recommended in order to implement your own piece of functionality used in handling of a Task.
+            </remarks>
+            <param name="task">The Task being started</param>
+            <example>
+            <![CDATA[
+            XML:
+            <bpmn:manualTask id="ManualTask_0ikjhwl">
+             <bpmn:extensionElements>
+               <Question prompt="What is the answer to the life, universe and everything" answer_property="answer"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            <code>
+            public void _ProcessManualTask(IManualTask task)
+                if (task.ExtensionElement != null){
+                    foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="Question"){
+                                Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
+                                task.Variables[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+                            }
+                        }
+                    }
+                }
+                task.MarkComplete();
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.StartUserTask">
+            <summary>
+            This delegate is implemented to start a User Task 
+            </summary>
+            <remarks>
+            Use of the bpmn:extension element to add additional components to the Task is recommended in order to implement your own piece of functionality used in handling of a Task.
+            </remarks>
+            <param name="task">The Task being started</param>
+            <example>
+            <![CDATA[
+            XML:
+            <bpmn:userTask id="UserTask_0ikjhwl">
+             <bpmn:extensionElements>
+               <Question prompt="What is the answer to the life, universe and everything" answer_property="answer"/>
+             </bpmn:extensionElements>
+             <bpmn:outgoing>SequenceFlow_1kh3jxa</bpmn:outgoing>
+            </bpmn:startEvent>
+            ]]>
+            <code>
+            public void _ProcessUserTask(IUserTask task)
+                if (task.ExtensionElement != null){
+                    foreach (XmlNode xn in task.ExtensionElement.SubNodes){
+                        if (xn.NodeType == XmlNodeType.Element)
+                        {
+                            if (xn.Name=="Question"){
+                                Console.WriteLine(string.format("{0}?",xn.Attributes["prompt"].Value));
+                                task.Variables[xn.Attributes["answer_property"].Value] = Console.ReadLine();
+                                Console.WriteLine("Who Are You?");
+                                task.UserID = Console.ReadLine();
+                            }
+                        }
+                    }
+                }
+                task.MarkComplete();
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:BPMNEngine.LogLine">
+            <summary>
+            This delegate is implemented to be called when a Log Line Entry is made by a process.  This can be used to log items externally, to a file, database, or logging engine implemented outside of the library.
+            </summary>
+            <param name="callingElement">The Process Element Calling the Log Line (may be null)</param>
+            <param name="assembly">The AssemblyName for the source of the line</param>
+            <param name="fileName">The source file name for the log entry</param>
+            <param name="lineNumber">The source line number for the log entry</param>
+            <param name="level">The log level for the entry</param>
+            <param name="timestamp">The timestamp of when the log entry occured</param>
+            <param name="message">The log entry</param>
+        </member>
+        <member name="T:BPMNEngine.LogException">
+            <summary>
+            This delegate is implemented to be called when a Log Exception is made by a process.  This can be used to log exceptions externally, to a file, database, or logging engine implemented outside of the library.
+            </summary>
+            <param name="callingElement">The Process Element Calling the Log Exception (may be null)</param>
+            <param name="assembly">The AssemblyName for the source of the exception</param>
+            <param name="fileName">The source file name for the exception</param>
+            <param name="lineNumber">The source line number for the exception</param>
+            <param name="timestamp">The timestamp of when the exception occured</param>
+            <param name="exception">The exception that occured</param>
+        </member>
+        <member name="T:BPMNEngine.StepStatuses">
+            <summary>
+            Enumeration of the statuses used for each step of a process
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.Waiting">
+            <summary>
+            Waiting for input to complete execution
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.Succeeded">
+            <summary>
+            Completed successfully
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.NotRun">
+            <summary>
+            Step not run (typically used for drawing only and not stored in the state)
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.Failed">
+            <summary>
+            Failed during execution
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.Suspended">
+            <summary>
+            Suspended until a timeout has passed
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.Aborted">
+            <summary>
+            Aborted after being started or Suspended or Waiting on Start
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.WaitingStart">
+            <summary>
+            Delayed start until a timeout has passed
+            </summary>
+        </member>
+        <member name="F:BPMNEngine.StepStatuses.Started">
+            <summary>
+            Started the satep
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.InvalidProcessDefinitionException">
+            <summary>
+            This Exception gets thrown on the loading of a Process Definition inside a BusinessProcess class when the definition is found to be invalid.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.InvalidProcessDefinitionException.ProcessExceptions">
+            <summary>
+            The Exception(s) thrown during the validation process.
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.MissingAttributeException">
+            <summary>
+            This Exception is thrown when a required attribute is missing from an Element found within the definition
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.InvalidAttributeValueException">
+            <summary>
+            This Exception is thrown when an attribute value is not valid on an Element found within the definition
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.InvalidElementException">
+            <summary>
+            This Exception is thrown when an Element found within the definition is not valid
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.NotSuspendedException">
+            <summary>
+            This Exception is thrown when a Business Process is told to Resume but is not Suspended
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.MultipleOutgoingPathsException">
+            <summary>
+            This Exception is thrown when an Exclusive Gateway evalutes to more than 1 outgoing path
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.DiagramException">
+            <summary>
+            This Exception is thrown when an error occurs generating a Process Diagram Image
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.ActiveStepsException">
+            <summary>
+            This Exception is thrown when a Process Instance is being disposed but still has active steps
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.IntermediateProcessExcepion">
+            <summary>
+            This Exception is thrown by an Intermediate Throw Event when an Error Message is defined
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.IntermediateProcessExcepion.ProcessMessage">
+            <summary>
+            Houses the error message string defined inside the ErrorMessage definition from within the process document
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.JintAssemblyMissingException">
+            <summary>
+            Thrown when attempting to use Javascript without the Jint Assembly
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.JintAssemblyMissingException.#ctor">
+            <summary>
+            Thrown when attempting to use Javascript without the Jint Assembly
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Elements.IElement">
+            <summary>
+            This interface is the parent interface for ALL process elements (which are XML nodes)
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IElement.ID">
+            <summary>
+            The unique ID of the element from the process
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IElement.SubNodes">
+            <summary>
+            The child XMLNodes from the process element
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IElement.Item(System.String)">
+            <summary>
+            This is called to get an attribute value from the process element
+            </summary>
+            <param name="attributeName">The name of the attribute</param>
+            <returns></returns>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IElement.ExtensionElement">
+            <summary>
+            The extensions element if it exists.  This element is what is used in BPMN 2.0 to house additional components outside of the definition that 
+            woudl allow you to extend the definition beyond the business process diagraming and into more of a realm for building it.  Such as Script and Condition 
+            elements that this library implements.
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Elements.IFlowElement">
+            <summary>
+            An interface for a flow element which can be message, sequence, or in some cases association
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IFlowElement.SourceRef">
+            <summary>
+            The id for the source element 
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IFlowElement.TargetRef">
+            <summary>
+            the id for the destination element
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Elements.IParentElement">
+            <summary>
+            This interface is the interface for all process elements with children
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IParentElement.Children">
+            <summary>
+            The child elements of the given process element
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Elements.ISequenceFlow">
+            <summary>
+            This interface is the extended interface for a sequence flow to provide additional properties that are beyond an IElement
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.ISequenceFlow.ConditionExpression">
+            <summary>
+            The Condition Expression that was attached to the sequence flow, this may be an attribute or a sub element
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Elements.IStepElement">
+            <summary>
+            This interface implements Step Elements in a process.  These are elements that are containg both within a Process and a Lane and 
+            have properties to access those objects.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IStepElement.Process">
+            <summary>
+            The process containing this element
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IStepElement.SubProcess">
+            <summary>
+            The SubProcess containing this element, if the element is within a subprocess
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Elements.IStepElement.Lane">
+            <summary>
+            The Lane within the process containing this element
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.IProcessInstance">
+            <summary>
+            This interface defines a running instance of a Business Process and will have its own Unique ID.  It contains its own state 
+            defining the state of this instance.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.IProcessInstance.Document">
+            <summary>
+            The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.IProcessInstance.CurrentState">
+            <summary>
+            The Process State of this instance
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.IProcessInstance.StateLogLevel">
+            <summary>
+            The log level to use inside the state document for logging
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.IProcessInstance.Item(System.String)">
+            <summary>
+            This is used to access the values of the process runtime and definition constants
+            </summary>
+            <param name="name">The name of the variable</param>
+            <returns>The value of the variable</returns>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.IProcessInstance.Keys">
+            <summary>
+            Called to obtain the names of all process runtime and definition constants
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.Resume">
+            <summary>
+            Called to Resume a suspended process.  Will fail if the process is not currently suspended.
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.Diagram(System.Boolean,Microsoft.Maui.Graphics.ImageFormat)">
+            <summary>
+            Called to render a PNG image of the process at its current state
+            </summary>
+            <param name="outputVariables">Set true to include outputting variables into the image</param>
+            <param name="type">The image format to encode the diagram in</param>
+            <returns>A Bitmap containing a rendered image of the process at its current state</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.Animate(System.Boolean)">
+            <summary>
+            Called to render an animated version of the process (output in GIF format).  This will animate each step of the process using the current state.
+            </summary>
+            <param name="outputVariables">Set true to output the variables into the diagram</param>
+            <returns>a binary array of data containing the animated GIF</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.Suspend">
+            <summary>
+            Called to suspend this instance
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForCompletion">
+            <summary>
+            Used to lock a Thread into waiting for the process to complete
+            </summary>
+            <returns>the result of calling WaitOne on the Process Complete manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForCompletion(System.Int32)">
+            <summary>
+            Used to lock a Thread into waiting for the process to complete including a timeout
+            </summary>
+            <param name="millisecondsTimeout">The timeout for the process to complete</param>
+            <returns>the result of calling WaitOne(millisecondsTimeout) on the Process Complete manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForCompletion(System.TimeSpan)">
+            <summary>
+            Used to lock a Thread into waiting for the process to complete including a timeout
+            </summary>
+            <param name="timeout">The timeout for the process to complete</param>
+            <returns>the result of calling WaitOne(timeout) on the Process Complete manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.GetUserTask(System.String)">
+            <summary>
+            Used to get an Active User Task by supplying the task ID
+            </summary>
+            <param name="taskID">The id of the task to load</param>
+            <returns>The User task specified from the business process. If it cannot be found or the Task is not waiting it will return null.</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForUserTask(System.String,BPMNEngine.Interfaces.Tasks.IUserTask@)">
+            <summary>
+            Used to lock a Thread into waiting for a user task to be ready
+            </summary>
+            <param name="taskID">The id of the task to wait for</param>
+            <param name="task">The User task specified if the task was successfully started</param>
+            <returns>the result of calling WaitOne on the User Task manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForUserTask(System.Int32,System.String,BPMNEngine.Interfaces.Tasks.IUserTask@)">
+            <summary>
+            Used to lock a Thread into waiting for a user task to be ready
+            </summary>
+            <param name="millisecondsTimeout">The timeout for the user task to start</param>
+            <param name="taskID">The id of the task to wait for</param>
+            <param name="task">The User task specified if the task was successfully started</param>
+            <returns>the result of calling WaitOne(millisecondsTimeout) on the User Task manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForUserTask(System.TimeSpan,System.String,BPMNEngine.Interfaces.Tasks.IUserTask@)">
+            <summary>
+            Used to lock a Thread into waiting for a user task to be ready
+            </summary>
+            <param name="timeout">The timeout for the user task to start</param>
+            <param name="taskID">The id of the task to wait for</param>
+            <param name="task">The User task specified if the task was successfully started</param>
+            <returns>the result of calling WaitOne(timeout) on the User Task manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.GetManualTask(System.String)">
+            <summary>
+            Used to get an Active Manual Task by supplying the task ID
+            </summary>
+            <param name="taskID">The id of the task to load</param>
+            <returns>The User task specified from the business process. If it cannot be found or the Task is not waiting it will return null.</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForManualTask(System.String,BPMNEngine.Interfaces.Tasks.IManualTask@)">
+            <summary>
+            Used to lock a Thread into waiting for a Manual task to be ready
+            </summary>
+            <param name="taskID">The id of the task to wait for</param>
+            <param name="task">The Manual task specified if the task was successfully started</param>
+            <returns>the result of calling WaitOne on the Manual Task manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForManualTask(System.Int32,System.String,BPMNEngine.Interfaces.Tasks.IManualTask@)">
+            <summary>
+            Used to lock a Thread into waiting for a Manual task to be ready
+            </summary>
+            <param name="millisecondsTimeout">The timeout for the Manual task to start</param>
+            <param name="taskID">The id of the task to wait for</param>
+            <param name="task">The Manual task specified if the task was successfully started</param>
+            <returns>the result of calling WaitOne(millisecondsTimeout) on the Manual Task manual reset event</returns>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.IProcessInstance.WaitForManualTask(System.TimeSpan,System.String,BPMNEngine.Interfaces.Tasks.IManualTask@)">
+            <summary>
+            Used to lock a Thread into waiting for a Manual task to be ready
+            </summary>
+            <param name="timeout">The timeout for the Manual task to start</param>
+            <param name="taskID">The id of the task to wait for</param>
+            <param name="task">The Manual task specified if the task was successfully started</param>
+            <returns>the result of calling WaitOne(timeout) on the Manual Task manual reset event</returns>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.IProcessInstance.CurrentVariables">
+            <summary>
+            Used to get the current variable values for this process instance
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.State.IState">
+            <summary>
+            Houses the current state of a process, this will have current variables (including the Keys to know all variables contained)
+            as well as the ability to output a string version (XML/JSON) of the state
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.Item(System.String)">
+            <summary>
+            Called to get the value of a process variable
+            </summary>
+            <param name="name">The name of the process variable</param>
+            <returns>The value of the variable or null if not found</returns>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.Keys">
+            <summary>
+            Called to get a list of all process variable names available
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.AsXMLDocument">
+            <summary>
+            Called to convert the state into a loadable xml document
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.AsJSONDocument">
+            <summary>
+            Called to convert the state into a loadable json document
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.ActiveElements">
+            <summary>
+            Called to obtain a list of all elements that are active (Started or Waiting)
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.Variables">
+            <summary>
+            Called to obtain a readonly dictionary of the current variables in the state
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.Steps">
+            <summary>
+            Called to obtain a readonly list of the step state information
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IState.Log">
+            <summary>
+            Called to obtain a copy of the current log content found within the state
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.State.IStateStep">
+            <summary>
+            Houses the step information from a state to indicate statuses and timestamps for given elements
+            during the execution of the procesas
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.ElementID">
+            <summary>
+            The ID of the element for this step
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.Status">
+            <summary>
+            The status at the point of logging
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.StartTime">
+            <summary>
+            The timestamp for the start of the step
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.IncomingID">
+            <summary>
+            The ID of the element that led to this step
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.EndTime">
+            <summary>
+            When the element is completed this will had a value or used to house the suspension timestamp
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.CompletedBy">
+            <summary>
+            When a user task is completed and the CompletedBy is set, it is housed here
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.State.IStateStep.OutgoingID">
+            <summary>
+            The list of outgoing elements to be executed next from the completion of this element
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Tasks.IManualTask">
+            <summary>
+            This interface is used to define an externally accessible manual task
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.IManualTask.MarkComplete">
+            <summary>
+            Called to mark that the manual task has been completed
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Tasks.ITask">
+            <summary>
+            This interface is used to define an externall accessible task that can have extension items to allow for processing beyond the basic BPMN notation.
+            All emissions from this Task if caught by a brounday event that is flagged to cancelActivity will cause this task to abort and no longer be usable.  
+            In doing so it will not submit the variable changes into the process.
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Signal(System.String,System.Boolean@)">
+            <summary>
+            Called to issue a signal from the task (this should be caught somewhere within the process by a Signal Recieving Element with a matching signal defined)
+            </summary>
+            <param name="signal">The signal to emit into the process</param>
+            <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Escalate(System.Boolean@)">
+            <summary>
+            Called to issue an escalation from the task (this should be caught somewhere within the process by an Escalation Reciving Element)
+            </summary>
+            <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.EmitMessage(System.String,System.Boolean@)">
+            <summary>
+            Called to issue a message from the task (this should be caught somewhere within the process by a Message Recieving Element with a matching message defined)
+            </summary>
+            <param name="message">The message to emit into the process</param>
+            <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.EmitError(System.Exception,System.Boolean@)">
+            <summary>
+            Called to issue an exception fromn the task (this should be caught somewhere within the process by an Exception Recieving Element with a matching exception definition)
+            </summary>
+            <param name="error"></param>
+            <param name="isAborted">returns true if emitting this signal causes the task to abort</param>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Tasks.ITask.Variables">
+            <summary>
+            The variables container for this task which allows you to both obtain and modify process variables.
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Debug(System.String)">
+            <summary>
+            Called to log a debug level message
+            </summary>
+            <param name="message">The string message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Debug(System.String,System.Object[])">
+            <summary>
+            Called to log a debug level message
+            </summary>
+            <param name="message">The string formatted message</param>
+            <param name="pars">The arguments to be fed into a string format call agains the message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Info(System.String)">
+            <summary>
+            Called to log an info level message
+            </summary>
+            <param name="message">The string message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Info(System.String,System.Object[])">
+            <summary>
+            Called to log an info level message
+            </summary>
+            <param name="message">The string formatted message</param>
+            <param name="pars">The arguments to be fed into a string format call agains the message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Error(System.String)">
+            <summary>
+            Called to log an error level message
+            </summary>
+            <param name="message">The string message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Error(System.String,System.Object[])">
+            <summary>
+            Called to log an error level message
+            </summary>
+            <param name="message">The string formatted message</param>
+            <param name="pars">The arguments to be fed into a string format call agains the message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Fatal(System.String)">
+            <summary>
+            Called to log a fatal level message
+            </summary>
+            <param name="message">The string message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Fatal(System.String,System.Object[])">
+            <summary>
+            Called to log a fatal level message
+            </summary>
+            <param name="message">The string formatted message</param>
+            <param name="pars">The arguments to be fed into a string format call agains the message</param>
+        </member>
+        <member name="M:BPMNEngine.Interfaces.Tasks.ITask.Exception(System.Exception)">
+            <summary>
+            Called to log an exception 
+            </summary>
+            <param name="exception">The Exception that occured</param>
+            <returns>The exception that was passed as an arguement to allow for throwing</returns>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Tasks.IUserTask">
+            <summary>
+            This interface is used to define an externally accessible User Task.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Tasks.IUserTask.UserID">
+            <summary>
+            The User ID of the user that completed the task.  This should be set before calling MarkComplete() if there is a desire
+            to log the user id of the individual completing the task.
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Variables.IReadonlyVariables">
+            <summary>
+            This interface defines a Read Only version of the process variables container.  These are using in event delegates as the process variables
+            cannot be changed by events.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Variables.IReadonlyVariables.Error">
+            <summary>
+            The error that occured, assuming this was passed to an error event delgate this will have a value
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Variables.IVariables">
+            <summary>
+            This interface defines a container to house the process variables and allows for editing of those variables.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Variables.IVariables.Item(System.String)">
+            <summary>
+            Called to get or set the value of a process variable
+            </summary>
+            <param name="name">The name of the process variable</param>
+            <returns>The value of the process variable or null if not found</returns>
+        </member>
+        <member name="T:BPMNEngine.Interfaces.Variables.IVariablesContainer">
+            <summary>
+            This interface defines the base container to house the process variables
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Variables.IVariablesContainer.Item(System.String)">
+            <summary>
+            Called to get the value of a process variable
+            </summary>
+            <param name="name">The name of the process variable</param>
+            <returns>The value of the variable or null if not found</returns>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Variables.IVariablesContainer.Keys">
+            <summary>
+            Called to get a list of all process variable names available
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.Interfaces.Variables.IVariablesContainer.FullKeys">
+            <summary>
+            Called to get a list of all process variable names available, including process definition constants and runtime constants
+            </summary>
+        </member>
+        <member name="T:BPMNEngine.SFile">
+            <summary>
+            This structure is used to house a File associated within a process instance.  It is used to both store, encode, decode and retreive File variables inside the process state.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.SFile.Name">
+            <summary>
+            The name of the File.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.SFile.Extension">
+            <summary>
+            The extension of the File.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.SFile.ContentType">
+            <summary>
+            The content type tag for the File.  e.g. text/html
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.SFile.Content">
+            <summary>
+            The binary content of the File.
+            </summary>
+        </member>
+        <member name="M:BPMNEngine.SFile.Equals(System.Object)">
+            <summary>
+            Compares the object to this
+            </summary>
+            <param name="obj">the object to compare</param>
+            <returns>true if obj is an sFile and is equal</returns>
+        </member>
+        <member name="M:BPMNEngine.SFile.op_Equality(BPMNEngine.SFile,BPMNEngine.SFile)">
+            <summary>
+            Compares left and right files
+            </summary>
+            <param name="left">left file for comparison</param>
+            <param name="right">right file for comparison</param>
+            <returns>true if are equal</returns>
+        </member>
+        <member name="M:BPMNEngine.SFile.op_Inequality(BPMNEngine.SFile,BPMNEngine.SFile)">
+            <summary>
+            Compares left and right files
+            </summary>
+            <param name="left">left file for comparison</param>
+            <param name="right">right file for comparison</param>
+            <returns>true if are not equal</returns>
+        </member>
+        <member name="T:BPMNEngine.SProcessRuntimeConstant">
+            <summary>
+            This structure is used to specify a Process Runtime Constant.  These Constants are used as a Dynamic Constant, so a read only variable within the process that can be unique to the instance running, only a constant to that specific process instance.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.SProcessRuntimeConstant.Name">
+            <summary>
+            The Name of the variable.
+            </summary>
+        </member>
+        <member name="P:BPMNEngine.SProcessRuntimeConstant.Value">
+            <summary>
+            The Value of the variable.
+            </summary>
+        </member>
+    </members>
+</doc>
