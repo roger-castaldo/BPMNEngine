@@ -113,24 +113,23 @@ namespace BPMNEngine
                         if (node.Attributes["id"] == null)
                         {
                             int index = FindElementIndex(definition, (XmlElement)node);
-                            builder.Insert(0, "/" + node.Name + "[" + index + "]");
+                            builder.Insert(0, $"/{node.Name}[{index}]");
                         }
                         else
-                            builder.Insert(0, string.Format("/{0}[@id='{1}']", node.Name, node.Attributes["id"].Value));
+                            builder.Insert(0, $"/{node.Name}[@id='{node.Attributes["id"]?.Value}']");
                         node = node.ParentNode;
                         break;
                     case XmlNodeType.Document:
                         return builder.ToString();
                     default:
-                        throw (definition == null ? new ArgumentException("Only elements and attributes are supported") : definition.Exception(null, new ArgumentException("Only elements and attributes are supported")));
+                        throw new ArgumentException("Only elements and attributes are supported");
                 }
             }
-            throw (definition==null ? new ArgumentException("Node was not in a document") : definition.Exception(null, new ArgumentException("Node was not in a document")));
+            throw new ArgumentException("Node was not in document");
         }
 
         public static int FindElementIndex(Definition definition, XmlElement element)
         {
-            definition?.LogLine(LogLevel.Debug, null, $"Locating Element Index for element {element.Name}");
             XmlNode parentNode = element.ParentNode;
             if (parentNode is XmlDocument)
                 return 1;
@@ -138,7 +137,7 @@ namespace BPMNEngine
             var result = parent.ChildNodes.Cast<XmlNode>().OfType<XmlElement>().IndexOf(e => e.Name == element.Name);
             if (result!=-1)
                 return result;
-            throw (definition==null ? new ArgumentException("Couldn't find element within parent") : definition.Exception(null, new ArgumentException("Couldn't find element within parent")));
+            throw new ArgumentException("Couldn't find element within parent");
         }
 
         internal static object ExtractVariableValue(VariableTypes type, string text)

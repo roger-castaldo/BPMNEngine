@@ -14,7 +14,8 @@ namespace BPMNEngine.Interfaces.Extensions
         /// </summary>
         /// <param name="variables">The readonly current variable state of the process instance</param>
         /// <param name="owningElement">The element that this particular extension element was located within</param>
+        /// <param name="logger">The provided logging mechanism</param>
         /// <returns>True if the element can start</returns>
-        ValueTask<bool> IsElementStartValid(IReadonlyVariables variables, IElement owningElement);
+        ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger? logger);
     }
 }

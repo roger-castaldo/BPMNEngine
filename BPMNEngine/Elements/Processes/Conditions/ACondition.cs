@@ -9,7 +9,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
     [ValidParent(typeof(AConditionSet))]
     internal abstract record ACondition : AParentElement, IStepElementStartCheckExtensionElement
     {
-        public abstract ValueTask<bool> IsElementStartValid(IReadonlyVariables variables, IElement owningElement);
+        public abstract ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger logger);
 
         protected ACondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }

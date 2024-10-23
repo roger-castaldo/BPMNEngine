@@ -7,9 +7,9 @@ namespace BPMNEngine.Elements.Processes.Gateways
         protected ASinglePathGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override sealed async ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
+        public override sealed async ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables, ILogger? logger)
         {
-            var result = await base.EvaulateOutgoingPathsAsync(definition, isFlowValid, variables);
+            var result = await base.EvaulateOutgoingPathsAsync(definition, isFlowValid, variables, logger);
             if (result.Count()>1)
                 throw new MultipleOutgoingPathsException(this);
             return result;

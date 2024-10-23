@@ -10,32 +10,23 @@ namespace BPMNEngine.Elements.Processes.Events
         public StartEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        internal async ValueTask<bool> IsEventStartValidAsync(IReadonlyVariables variables, IsEventStartValid isEventStartValid)
+        internal async ValueTask<bool> IsEventStartValidAsync(IReadonlyVariables variables, IsEventStartValid isEventStartValid, ILogger logger)
             => (
                 ExtensionElement==null ||
-                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync(check => check.IsElementStartValid(variables,this)))
+                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync(check => check.IsElementStartValidAsync(variables, this, logger)))
             )
             && isEventStartValid(this, variables);
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (Incoming.Any(id => !OwningDefinition.MessageFlows.Any(mf => mf.ID==id)) && !SubType.HasValue)
-            {
-                err = (err ?? []).Append("Start Events cannot have an incoming path.");
-                res=false;
-            }
+                errors = errors.Append("Start Events cannot have an incoming path.");
             if (!Outgoing.Any())
-            {
-                err = (err ?? []).Append("Start Events must have an outgoing path.");
-                res = false;
-            }
+                errors = errors.Append("Start Events must have an outgoing path.");
             else if (Outgoing.Count() > 1)
-            {
-                err = (err?? []).Append("Start Events can only have 1 outgoing path.");
-                res = false;
-            }
-            return res;
+                errors = errors.Append("Start Events can only have 1 outgoing path.");
+            return (isValid&&!errors.Any(), errors);
         }
     }
 }

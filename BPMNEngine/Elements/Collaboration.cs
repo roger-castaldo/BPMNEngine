@@ -10,15 +10,15 @@ namespace BPMNEngine.Elements
         public Collaboration(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid,var errors) = base.IsValid(logger);
             if (!Children.Any())
             {
-                err = (err?? []).Append("Collaboration requires at least 1 child element.");
-                return false;
+                errors = errors.Append("Collaboration requires at least 1 child element.");
+                isValid=false;
             }
-            return res;
+            return (isValid, errors);
         }
     }
 }

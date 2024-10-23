@@ -14,7 +14,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             _script = script;
         }
 
-        public override ValueTask<bool> IsElementStartValid(IReadonlyVariables variables, IElement owningElement)
-            => ValueTask.FromResult<bool>((bool)_script.Invoke(variables));
+        public override ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger logger)
+            => ValueTask.FromResult<bool>((bool)_script.Invoke(variables, logger));
     }
 }

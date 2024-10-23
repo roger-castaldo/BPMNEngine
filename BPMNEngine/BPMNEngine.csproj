@@ -10,7 +10,7 @@
     <Description>A BPMN Engine written in .net. The engine attempts to read in a bpmn notation xml document defining both the process(s) as well as the diagrams. From here you can then load/unload the state, render the diagram in its current state or animated into a gif. Using the delegates for a process, you intercept and handle task and condition checking by reading additional xml held within flow and task objects.</Description>
     <PackageProjectUrl>https://github.com/roger-castaldo/BPMEngine</PackageProjectUrl>
     <RepositoryUrl>https://github.com/roger-castaldo/BPMEngine</RepositoryUrl>
-    <PackageTags>BPMN</PackageTags>
+    <PackageTags>Business Process Model Notation BPMN BPM Diagram Workflow</PackageTags>
     <PackageReleaseNotes>Major revision to a new library with breaking changes, including the concept of a process instance and creating named parameters for supplying all delegates.  Improved memory management and performance has been acheived using built in dotnet concepts that also display improved performances when running inside .net8 vs .net7 vs .net6.</PackageReleaseNotes>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>

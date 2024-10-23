@@ -10,11 +10,11 @@ namespace BPMNEngine.Elements.Processes.Tasks
         public ScriptTask(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        internal void ProcessTask(ITask task, ProcessTask processScriptTask)
+        internal void ProcessTask(ITask task, ProcessTask processScriptTask, ILogger? logger)
         {
             ExtensionElement?.Children
                 .OfType<AScript>()
-                .FirstOrDefault()?.Invoke(task.Variables);
+                .FirstOrDefault()?.Invoke(task.Variables,logger);
             processScriptTask?.Invoke(task);
         }
     }

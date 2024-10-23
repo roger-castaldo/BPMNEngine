@@ -16,10 +16,10 @@ namespace BPMNEngine.Elements
         public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
+        public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid, ILogger? logger)
            => (
                ExtensionElement==null ||
-               (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check => check.IsElementStartValid(variables, this)))
+               (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check => check.IsElementStartValidAsync(variables, this, logger)))
            )
            && isProcessStartValid(this, variables);
 
@@ -27,9 +27,9 @@ namespace BPMNEngine.Elements
         public ImmutableArray<StartEvent> StartEvents
             => Children.OfType<StartEvent>().ToImmutableArray();
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             bool hasStart = Children.Any(elem => elem is StartEvent || (elem is IntermediateCatchEvent ice && ice.SubType.HasValue));
             bool hasEnd = Children.Any(elem => elem is EndEvent);
             bool hasIncoming = Incoming.Any() || Children.Any(elem => elem is IntermediateCatchEvent ice && ice.SubType.HasValue);
@@ -42,9 +42,8 @@ namespace BPMNEngine.Elements
                     terr.Add("A Sub Process Must have a valid Incoming path, achieved through an incoming flow or IntermediateCatchEvent");
                 if (!hasEnd)
                     terr.Add("A Sub Process Must have an EndEvent");
-                err = (err?? []).Concat(terr);
             }
-            return res && terr.Count==0;
+            return (isValid&&terr.Count==0,errors.Concat(terr));
         }
     }
 }

@@ -37,9 +37,9 @@ public class {1} {{
             : base(elem, map, parent)
         { }
 
-        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled)
+        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled, ILogger? logger)
         {
-            Info("Generating C# Code for script compilation for script element {0}", [ID]);
+            logger?.LogInformation("Generating C# Code for script compilation for script element");
             var sbUsing = new StringBuilder();
             imports.ForEach(str => sbUsing.AppendFormat("using {0};\n", str));
             string ccode = string.Format(

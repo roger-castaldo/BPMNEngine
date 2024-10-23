@@ -18,22 +18,22 @@ namespace BPMNEngine.Elements
         public ImmutableArray<StartEvent> StartEvents
             => Children.OfType<StartEvent>().ToImmutableArray();
 
-        public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid)
+        public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid,ILogger logger)
             => (
                 ExtensionElement==null ||
-                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check=>check.IsElementStartValid(variables,this)))
+                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check=>check.IsElementStartValidAsync(variables, this, logger)))
             )
             && isProcessStartValid(this, variables);
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!Children.Any())
             {
-                err =(err ?? []).Append("No child elements found in Process.");
-                return false;
+                errors = errors.Append("No child elements found in Process.");
+                isValid = false;
             }
-            return res;
+            return (isValid, errors);   
         }
     }
 }

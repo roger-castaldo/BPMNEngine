@@ -1,6 +1,7 @@
 ﻿using BPMNEngine;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace UnitTest
                     BeginUserTask=(IUserTask task) =>
                     {
                         Task.Delay(TimeSpan.FromSeconds(2)).Wait();
-                        task.Debug(_TEST_LOG_LINE);
+                        task.Logger.LogDebug(_TEST_LOG_LINE);
                         task.Variables[_TEST_VARIABLE_NAME] = _TEST_VARIABLE_VALUE;
                         task.Variables[_TEST_FILE_VARIABLE]=_TEST_FILES;
                         task.UserID = _USER_ID;

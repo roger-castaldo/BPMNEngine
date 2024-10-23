@@ -105,6 +105,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ILogger.Moq" Version="1.1.10" />
     <PackageReference Include="Jint" Version="3.1.3" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />

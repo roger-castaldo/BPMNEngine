@@ -62,47 +62,47 @@ namespace BPMNEngine.Elements.Processes.Scripts
             _map = map;
         }
 
-        protected abstract void ScriptInvoke<T>(T variables, out object result) where T : IVariablesContainer;
-        protected abstract bool ScriptIsValid(out IEnumerable<string> err);
+        protected abstract void ScriptInvoke<T>(T variables, ILogger? logger, out object result) where T : IVariablesContainer;
+        protected abstract bool ScriptIsValid(ILogger? logger, out IEnumerable<string> err);
 
-        public void Invoke(IVariables variables)
+        public void Invoke(IVariables variables, ILogger? logger)
         {
-            Info("Attempting to process script {0}", ID);
+            logger?.LogInformation("Attempting to process script");
             try
             {
-                ScriptInvoke<IVariables>(variables, out _);
+                ScriptInvoke<IVariables>(variables, logger, out _);
             }
             catch (Exception e)
             {
-                Exception(e);
+                logger?.LogError(e, "An error occured attempting to invoke the script");
                 throw;
             }
         }
 
-        public object Invoke(IReadonlyVariables variables)
+        public object Invoke(IReadonlyVariables variables, ILogger? logger)
         {
-            Info("Attempting to process script {0}", ID);
+            logger?.LogInformation("Attempting to process script");
             try
             {
-                ScriptInvoke<IReadonlyVariables>(variables, out object result);
+                ScriptInvoke<IReadonlyVariables>(variables, logger, out object result);
                 return result;
             }
             catch (Exception e)
             {
-                Exception(e);
+                logger?.LogError(e, "An error occured attempting to invoke the script");
                 throw;
             }
         }
 
-        public sealed override bool IsValid(out IEnumerable<string> err)
+        public sealed override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
-            if (!ScriptIsValid(out IEnumerable<string> errs))
+            (var isValid, var errors) = base.IsValid(logger);
+            if (!ScriptIsValid(logger, out IEnumerable<string> errs))
             {
-                err=(err?? []).Concat(errs);
-                res=false;
+                errors = errors.Concat(errs);
+                isValid=false;
             }
-            return res;
+            return (isValid, errors);
         }
     }
 }

@@ -27,25 +27,17 @@ namespace BPMNEngine.Elements
         public IEnumerable<T> LocateElementsOfType<T>() where T : IElement
             => Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).OfType<T>();
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!Children.Any())
             {
-                err = (err?? []).Append("No child elements found in the definition.");
-                return false;
+                errors = errors.Append("No child elements found in the definition.");
+                isValid = false;
             }
-            return res;
+            return (isValid, errors);
         }
 
         internal BusinessProcess OwningProcess { get; set; }
-
-        internal void LogLine(LogLevel level, IElement element, string message, params object[] pars)
-            => OwningProcess?.WriteLogLine(element, level, new StackFrame(2, true), DateTime.Now, string.Format(message, pars));
-        internal Exception Exception(IElement element, Exception exception)
-        {
-            OwningProcess?.WriteLogException(element, new StackFrame(2, true), DateTime.Now, exception);
-            return exception;
-        }
     }
 }

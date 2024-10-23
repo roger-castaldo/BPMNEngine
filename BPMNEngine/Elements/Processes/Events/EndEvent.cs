@@ -29,20 +29,14 @@ namespace BPMNEngine.Elements.Processes.Events
         public EndEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (Outgoing.Any())
-            {
-                err=(err?? []).Append("End Events cannot have an outgoing path.");
-                res=false;
-            }
+                errors = errors.Append("End Events cannot have an outgoing path.");
             if (!Incoming.Any())
-            {
-                err = (err?? []).Append("End Events must have an incoming path.");
-                res=false;
-            }
-            return res;
+                errors=errors.Append("End Events must have an incoming path.");
+            return (isValid&&!errors.Any(), errors);
         }
     }
 }

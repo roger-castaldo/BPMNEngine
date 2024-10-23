@@ -1,13 +1,13 @@
 using BPMNEngine;
 using BPMNEngine.Interfaces;
-using BPMNEngine.Interfaces.Elements;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using UnitTest.Helpers;
 
 namespace UnitTest
 {
@@ -17,20 +17,14 @@ namespace UnitTest
         [TestMethod]
         public void LoadWithNoDefinition()
         {
-            var log = new StringBuilder();
 
             XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/no_definition.bpmn");
             bool loaded = false;
+            (var loggerFactory, var mockLogger) = LoggingHelper.CreateMockLogFactory();
             try
             {
-                BusinessProcess proc = new(doc,
-                    logging: new BPMNEngine.DelegateContainers.ProcessLogging()
-                    {
-                        LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
-                        {
-                            log.AppendLine($"{callingElement?.ID}|{exception.Message}");
-                        }
-                    }
+                _ = new BusinessProcess(doc,
+                    loggerFactory:loggerFactory
                 );
                 loaded=true;
             }
@@ -39,28 +33,25 @@ namespace UnitTest
             }
             Assert.IsFalse(loaded);
 
-            var res = log.ToString();
-
-            Assert.IsTrue(res.Contains("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
+            mockLogger.VerifyLog(l => l.LogCritical(
+                It.Is<InvalidProcessDefinitionException>(ipde => ipde.ProcessExceptions
+                    .OfType<XmlException>()
+                    .Any(xe=>Equals(xe.Message, "Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."))
+                )
+                , "Invalid Process Definition found"), Times.Once());
         }
 
         [TestMethod]
         public void LoadEmptyDocument()
         {
-            var log = new StringBuilder();
+            (var loggerFactory, var mockLogger) = LoggingHelper.CreateMockLogFactory();
 
             XmlDocument doc = Utility.LoadResourceDocument("DiagramLoading/no_elements.bpmn");
             bool loaded = false;
             try
             {
-                BusinessProcess proc = new(doc,
-                    logging: new BPMNEngine.DelegateContainers.ProcessLogging()
-                    {
-                        LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
-                        {
-                            log.AppendLine($"{callingElement?.ID}|{exception.Message}");
-                        }
-                    }
+                _ = new BusinessProcess(doc,
+                    loggerFactory: loggerFactory
                 );
                 loaded=true;
             }
@@ -69,9 +60,12 @@ namespace UnitTest
             }
             Assert.IsFalse(loaded);
 
-            var res = log.ToString();
-
-            Assert.IsTrue(res.Contains("Unable to load a bussiness process from the supplied document.  No bpmn elements were located."));
+            mockLogger.VerifyLog(l => l.LogCritical(
+                It.Is<InvalidProcessDefinitionException>(ipde => ipde.ProcessExceptions
+                    .OfType<XmlException>()
+                    .Any(xe => Equals(xe.Message, "Unable to load a bussiness process from the supplied document.  No bpmn elements were located."))
+                )
+                , "Invalid Process Definition found"), Times.Once());
         }
 
         [TestMethod]

@@ -6,7 +6,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace UnitTest.Delegates
@@ -99,12 +98,6 @@ namespace UnitTest.Delegates
                     {
                         SequenceFlow=new OnFlowComplete(FlowCompleted),
                         MessageFlow=new OnFlowComplete(FlowCompleted)
-                    }
-                }, logging: new BPMNEngine.DelegateContainers.ProcessLogging()
-                {
-                    LogException=(IElement callingElement, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception) =>
-                    {
-                        System.Diagnostics.Debug.WriteLine(exception.Message);
                     }
                 }
             );

@@ -24,15 +24,15 @@ namespace BPMNEngine.Elements.Diagrams
             }
         }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!Children.Any())
             {
-                err =(err ?? []).Append("No child elements to render.");
-                return false;
+                errors = errors.Append("No child elements to render.");
+                isValid=false;
             }
-            return res;
+            return (isValid, errors);
         }
 
         public void Render(ICanvas surface, ProcessPath path, Definition definition)

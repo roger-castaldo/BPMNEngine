@@ -10,25 +10,18 @@ namespace BPMNEngine.Elements.Processes.Conditions
         public OrCondition(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected async override ValueTask<bool> EvaluateConditionAsync(IReadonlyVariables variables, IElement owningElement)
-        {
-            foreach (var cond in Conditions)
-            {
-                if (await cond.IsElementStartValid(variables, owningElement))
-                    return true;
-            }
-            return false;
-        }
+        protected override ValueTask<bool> EvaluateConditionAsync(IReadonlyVariables variables, IElement owningElement, ILogger logger)
+            => Conditions.AnyAsync(cond => cond.IsElementStartValidAsync(variables, owningElement, logger));
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (Children.Length < 2)
             {
-                err =(err ?? []).Append("Not enough child elements found for an Or Condition");
-                return false;
+                errors = errors.Append("Not enough child elements found for an Or Condition");
+                isValid = false;
             }
-            return res;
+            return (isValid, errors);
         }
     }
 }

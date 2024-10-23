@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace BPMNEngine
 {
-    internal class XmlPrefixMap(BusinessProcess process)
+    internal class XmlPrefixMap(BusinessProcess process,ILogger? logger)
     {
         private static readonly Regex regBPMNRef = new(".+www\\.omg\\.org/spec/BPMN/.+/MODEL", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
         private static readonly Regex regBPMNDIRef = new(".+www\\.omg\\.org/spec/BPMN/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
@@ -42,8 +42,7 @@ namespace BPMNEngine
                 if (prefix != null)
                 {
                     changed = true;
-                    process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now,
-                        $"Mapping prefix {prefix} to {att.Name[(att.Name.IndexOf(':') + 1)..]}");
+                    logger?.LogDebug("Mapping prefix {Prefix} to {Name}",prefix,att.Name[(att.Name.IndexOf(':') + 1)..]);
                     locker.EnterWriteLock();
                     var val = att.Name[(att.Name.IndexOf(':')+1)..];
                     if (!mappings.Exists(m => m.Prefix.Equals(prefix, StringComparison.InvariantCultureIgnoreCase)
@@ -61,7 +60,7 @@ namespace BPMNEngine
 
         public IEnumerable<string> Translate(string prefix)
         {
-            process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, $"Attempting to translate xml prefix {prefix}");
+            logger?.LogDebug("Attempting to translate xml prefix {Prefix}",prefix);
             locker.EnterReadLock();
             var result = mappings.Where(m => m.Prefix.Equals(prefix, StringComparison.InvariantCultureIgnoreCase)).Select(m => m.Value).ToImmutableArray();
             locker.ExitReadLock();
@@ -70,7 +69,7 @@ namespace BPMNEngine
 
         internal bool IsMatch(string prefix, string tag, string nodeName)
         {
-            process.WriteLogLine((string)null, LogLevel.Debug, new System.Diagnostics.StackFrame(1, true), DateTime.Now, $"Checking if prefix {nodeName} matches {prefix}:{tag}");
+            logger?.LogDebug("Checking if prefix {NodeName} matches {Prefix}:{Tag}",nodeName,prefix,tag);
             return string.Equals($"{prefix}:{tag}", nodeName, StringComparison.InvariantCultureIgnoreCase)
                 ||Translate(prefix).Any(t => string.Equals($"{prefix}:{t}", nodeName, StringComparison.InvariantCultureIgnoreCase));
         }

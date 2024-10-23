@@ -11,16 +11,15 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.Extensions
 
         public string Type => this["type"];
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
-            var errors = new List<string>();
+            (var isValid, var errors) = base.IsValid(logger);
+            var errs = new List<string>();
             if (Type == "*")
-                errors.Add("A Signal Definition cannot have the type of *, this is reserved");
+                errs.Add("A Signal Definition cannot have the type of *, this is reserved");
             if (Parent.Parent.Parent is IntermediateThrowEvent && Type == null)
-                errors.Add("A Signal Definition for a Throw Event must have a Type defined");
-            err = (err?? []).Concat(errors);
-            return res&&errors.Count==0;
+                errs.Add("A Signal Definition for a Throw Event must have a Type defined");
+            return (isValid&&errs.Count==0, errors.Concat(errs));
         }
     }
 }

@@ -27,18 +27,18 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public EventSubTypes Type
             => EventSubTypes.Signal;
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (Parent is IntermediateThrowEvent)
             {
-                var errors = new List<string>();
+                var errs = new List<string>();
                 if (BaseTypes.Count() > 1)
-                    errors.Add("A throw event can only have one signal to be thrown.");
+                    errs.Add("A throw event can only have one signal to be thrown.");
                 else if (BaseTypes.Any(s => s=="*"))
-                    errors.Add("A throw event cannot signal with a wildcard signal.");
+                    errs.Add("A throw event cannot signal with a wildcard signal.");
                 else if (!BaseTypes.Any(s => s!="*"))
-                    errors.Add("A throw must have a signal to throw.");
+                    errs.Add("A throw must have a signal to throw.");
                 var elems = OwningDefinition.LocateElementsOfType<IntermediateCatchEvent>();
                 bool found = elems
                         .Any(catcher => catcher.Children
@@ -49,11 +49,11 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
                         .Any(child => child is SignalEventDefinition definition && definition.SignalTypes.Contains("*"))
                     );
                 if (!found)
-                    errors.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");
-                err = (err?? []).Concat(errors);
-                return res && errors.Count==0;
+                    errs.Add("A defined signal type needs to have a Catch Event with a corresponding type or all");
+                isValid &= errs.Count==0;
+                errors = errors.Concat(errs);
             }
-            return res;
+            return (isValid, errors);
         }
     }
 }

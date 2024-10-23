@@ -13,7 +13,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
             : base(elem, map, parent)
         { }
 
-        public sealed async override ValueTask<bool> IsElementStartValid(IReadonlyVariables variables, IElement owningElement)
+        public sealed async override ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger logger)
             => (Negated ? !(await EvaluateConditionAsync(variables, owningElement)) : await EvaluateConditionAsync(variables, owningElement));
 
     }

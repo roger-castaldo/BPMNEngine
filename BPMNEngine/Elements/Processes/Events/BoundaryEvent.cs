@@ -29,9 +29,9 @@ namespace BPMNEngine.Elements.Processes.Events
         public BoundaryEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             var errs = new List<string>();
             if (!Outgoing.Any())
                 errs.Add("Boundary Events must have an outgoing path.");
@@ -39,8 +39,7 @@ namespace BPMNEngine.Elements.Processes.Events
                 errs.Add("Boundary Events can only have one outgoing path.");
             if (Incoming.Any())
                 errs.Add("Boundary Events cannot have an incoming path.");
-            err = (err?? []).Concat(errs);
-            return res && errs.Count==0;
+            return (isValid&&errs.Count==0, errors.Concat(errs));
         }
 
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)

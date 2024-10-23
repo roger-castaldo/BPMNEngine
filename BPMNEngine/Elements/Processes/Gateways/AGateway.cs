@@ -13,25 +13,24 @@ namespace BPMNEngine.Elements.Processes.Gateways
         protected AGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public virtual async ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables)
+        public virtual async ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables, ILogger? logger)
         {
             var result = await Outgoing
-                .WhereAsync(o => ((SequenceFlow)definition.LocateElement(o)).IsFlowValidAsync(isFlowValid, variables));
+                .WhereAsync(o => ((SequenceFlow)definition.LocateElement(o)).IsFlowValidAsync(isFlowValid, variables, logger));
             if (!result.Any() && Default!=null)
                 result = [Default];
             return result;
         }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             var errs = new List<string>();
             if (!Incoming.Any())
                 errs.Add($"A {GetType().Name} must have at least 1 incoming path.");
             if (!Outgoing.Any())
                 errs.Add($"A {GetType().Name} must have at least 1 outgoing path.");
-            err = (err?? []).Concat(errs);
-            return res && !errs.Any();
+            return (isValid&&errs.Count==0,errors.Concat(errs));
         }
     }
 }

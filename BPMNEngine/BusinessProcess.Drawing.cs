@@ -1,5 +1,4 @@
 ﻿using BPMNEngine.Drawing;
-using BPMNEngine.Interfaces.Elements;
 using Microsoft.Maui.Graphics;
 using System.Collections;
 using System.Text;
@@ -25,10 +24,11 @@ namespace BPMNEngine
         internal byte[] Diagram(bool outputVariables, ProcessState state, ImageFormat type)
             => Diagram(outputVariables, state: state)?.AsBytes(type);
 
-        private IImage Diagram(bool outputVariables, ProcessState state = null)
+        private IImage Diagram(bool outputVariables, ProcessState? state = null)
         {
             state??=new ProcessState(null, this, null, null, null);
-            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Diagram{0}", [(outputVariables ? " with variables" : " without variables")]));
+            var logger = loggerFactory?.CreateLogger<BusinessProcess>();
+            logger?.LogInformation("Rendering Business Process Diagram {WithVariables}", (outputVariables ? "with variables" : "without variables"));
             double width = 0;
             double height = 0;
             width = definition.Diagrams.Max(d => d.Size.Width+DEFAULT_PADDING);
@@ -52,7 +52,7 @@ namespace BPMNEngine
             }
             catch (Exception e)
             {
-                WriteLogException((IElement)null, new StackFrame(1, true), DateTime.Now, e);
+                logger?.LogError(e, "An error occured attempting to create the diagram");
                 ret=null;
             }
             return ret;
@@ -147,7 +147,8 @@ namespace BPMNEngine
 
         internal byte[] Animate(bool outputVariables, ProcessState state)
         {
-            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, string.Format("Rendering Business Process Animation{0}", [(outputVariables ? " with variables" : " without variables")]));
+            var logger = loggerFactory?.CreateLogger<BusinessProcess>();
+            logger?.LogInformation("Rendering Business Process Animation {WithVariables}", (outputVariables ? "with variables" : "without variables"));
             var result = Array.Empty<byte>();
             try
             {
@@ -183,7 +184,7 @@ namespace BPMNEngine
             }
             catch (Exception e)
             {
-                WriteLogException((IElement)null, new StackFrame(1, true), DateTime.Now, e);
+                logger?.LogError(e, "An error occured attempting to render the animation");
                 result=null;
             }
             return result;

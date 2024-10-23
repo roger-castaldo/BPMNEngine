@@ -23,7 +23,7 @@ namespace BPMNEngine.Elements.Processes.Events
             base(elem, map, parent)
         { }
 
-        public async ValueTask<int> EventCostAsync(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables)
+        public async ValueTask<int> EventCostAsync(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables, ILogger? logger)
         {
             if (Equals(SubType,evnt))
             {
@@ -31,7 +31,7 @@ namespace BPMNEngine.Elements.Processes.Events
                 {
                     EventSubTypes.Message => Types.Any(t => t.Equals(data)||t.Equals("*")),
                     EventSubTypes.Signal => Types.Any(t => t.Equals(data)||t.Equals("*")),
-                    EventSubTypes.Conditional => await Condition.IsValidAsync(variables),
+                    EventSubTypes.Conditional => await Condition.IsValidAsync(variables, logger),
                     EventSubTypes.Error => (
                         (data is IntermediateProcessExcepion intermediateProcessException && Types.Any(t => t.Equals(intermediateProcessException.ProcessMessage)||t.Equals(intermediateProcessException.Message)||t.Equals("*")))
                         ||(data is Exception exception && Types.Any(t => t.Equals(exception.Message)||t.Equals(exception.GetType().Name)||t.Equals("*")))
@@ -45,15 +45,15 @@ namespace BPMNEngine.Elements.Processes.Events
         }
 
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!SubType.HasValue)
             {
-                err = (err?? []).Append($"{GetType().Name}s must have a subtype.");
-                return false;
+                errors = errors.Append($"{GetType().Name}s must have a subtype.");
+                isValid = false;
             }
-            return res;
+            return (isValid, errors);
         }
         protected abstract int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables);
 

@@ -52,15 +52,15 @@ namespace BPMNEngine.Elements.Processes.Scripts
         public Javascript(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        protected override void ScriptInvoke<T>(T variables, out object result)
+        protected override void ScriptInvoke<T>(T variables, ILogger logger, out object result)
         {
-            Info("Attempting to invoke Javascript script {0}", ID);
+            logger?.LogInformation("Attempting to invoke Javascript script");
             if (_engineType == null)
                 throw new JintAssemblyMissingException();
-            Debug("Creating new Javascript Engine for script element {0}", ID);
+            logger?.LogDebug("Creating new Javascript Engine for script element");
             object engine = Activator.CreateInstance(_engineType);
             object[] pars = ["variables", variables];
-            Debug("Invoking Javascript Engine for script element {0}", ID);
+            logger?.LogDebug("Invoking Javascript Engine for script element");
             _setValue.Invoke(engine, pars);
             if (Code.Contains("return "))
                 result = _evaluate.Invoke(engine, [string.Format(_codeExecReturnFormat, Code), null]);
@@ -81,7 +81,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 _ => throw new ArgumentException("Invalid JavaScript Date format.")
             };
 
-        protected override bool ScriptIsValid(out IEnumerable<string> err)
+        protected override bool ScriptIsValid(ILogger logger, out IEnumerable<string> err)
         {
             try
             {

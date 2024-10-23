@@ -98,9 +98,9 @@ namespace BPMNEngine.Elements.Processes.Conditions
             _ => value
         };
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             bool foundLeft = this["leftVariable"]!=null;
             bool foundRight = this["rightVariable"]!=null;
             var errs = new List<string>();
@@ -125,8 +125,7 @@ namespace BPMNEngine.Elements.Processes.Conditions
                 errs.Add("Right value missing.");
             else if (!foundLeft)
                 errs.Add("Left value missing.");
-            err=(err?? []).Concat(errs);
-            return res&&errs.Count==0;
+            return (isValid&&errs.Count==0, errors.Concat(errs));
         }
     }
 }

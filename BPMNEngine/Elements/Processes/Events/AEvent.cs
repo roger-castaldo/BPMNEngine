@@ -20,10 +20,10 @@ namespace BPMNEngine.Elements.Processes.Events
         protected AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public TimeSpan? GetTimeout(IReadonlyVariables variables)
+        public TimeSpan? GetTimeout(IReadonlyVariables variables, ILogger? logger)
             => Children
                 .OfType<TimerEventDefinition>()
-                .Select(ie => ie.GetTimeout(variables))
+                .Select(ie => ie.GetTimeout(variables, logger))
                 .FirstOrDefault();
     }
 }

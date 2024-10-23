@@ -84,15 +84,15 @@ namespace BPMNEngine.Elements
                 .ForEach(pair => surface.DrawLine(pair.start, pair.end));
 
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!Children.Any())
             {
-                err = (err?? []).Append("No child elements found.");
-                return false;
+                errors = errors.Append("No child elements found.");
+                isValid=false;
             }
-            return res;
+            return (isValid, errors);
         }
 
         internal bool RendersElement(string nextStep)

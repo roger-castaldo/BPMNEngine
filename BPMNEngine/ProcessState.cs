@@ -3,10 +3,10 @@ using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
+using BPMNEngine.Logging;
 using BPMNEngine.Scheduling;
 using BPMNEngine.State;
 using System.Collections.Immutable;
-using System.Reflection;
 using System.Text.Json;
 
 namespace BPMNEngine
@@ -18,7 +18,7 @@ namespace BPMNEngine
         private const string PROCESS_SUSPENDED_ATTRIBUTE = "isSuspended";
         internal static readonly Version CURRENT_VERSION = new("2.0");
 
-        internal delegate void delTriggerStateChange();
+        internal delegate void delTriggerStateChange(ILogger logger);
 
         private class ReadOnlyProcessState : IState
         {
@@ -34,7 +34,7 @@ namespace BPMNEngine
                 isSuspended=state.IsSuspended;
                 variables=(IReadOnlyStateVariablesContainer)state.variables.Clone();
                 path=(IReadonlyProcessPathContainer)state.Path.Clone();
-                log=(IReadonlyStateLogContainer)state.log.Clone();
+                log=(IReadonlyStateLogContainer)((IStateContainer)state.log).Clone();
                 process=state.Process;
                 state.stateEvent.ExitReadLock();
             }
@@ -124,11 +124,13 @@ namespace BPMNEngine
         internal bool IsSuspended { get; set; }
         internal BusinessProcess Process { get; private init; }
 
-        internal ProcessState(Guid? id, BusinessProcess process, ProcessStepComplete complete, ProcessStepError error, OnStateChange onStateChange)
+        public ILogger StateLogger => log;
+
+        internal ProcessState(Guid? id, BusinessProcess process, ProcessStepComplete complete, ProcessStepError error, OnStateChange onStateChange,LogLevel stateLogLevel = LogLevel.None)
         {
             stateEvent = new(id);
             Process = process;
-            log = new ProcessLog(stateEvent);
+            log = new ProcessLog(stateEvent,stateLogLevel);
             variables = new ProcessVariables(stateEvent);
             Path = new ProcessPath(complete, error, process, stateEvent, new delTriggerStateChange(StateChanged));
             this.onStateChange = onStateChange;
@@ -137,7 +139,7 @@ namespace BPMNEngine
         private ProcessState(int? stepIndex = null)
         {
             stateEvent = new(null);
-            log = new ProcessLog(stateEvent);
+            log = new ProcessLog(stateEvent,LogLevel.None);
             variables = new ProcessVariables(stateEvent, stepIndex: stepIndex);
             Path = new ProcessPath(null, null, null, stateEvent, new delTriggerStateChange(StateChanged));
         }
@@ -192,7 +194,7 @@ namespace BPMNEngine
                             switch (reader.Name)
                             {
                                 case "ProcessLog":
-                                    reader=log.Load(reader, version);
+                                    reader=((IStateContainer)log).Load(reader, version);
                                     break;
                                 case "ProcessPath":
                                     reader=Path.Load(reader, version);
@@ -253,7 +255,7 @@ namespace BPMNEngine
                                 break;
                             case "ProcessLog":
                                 foundItem=true;
-                                reader=log.Load(reader, version);
+                                reader=((IStateContainer)log).Load(reader, version);
                                 break;
                             case "ProcessPath":
                                 foundItem=true;
@@ -352,11 +354,11 @@ namespace BPMNEngine
             }
         }
 
-        internal void SuspendStep(string sourceID, string elementID, TimeSpan span)
+        internal void SuspendStep(string sourceID, string elementID, TimeSpan span,ILogger logger)
         {
-            Process.WriteLogLine(elementID, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, string.Format("Suspending Step for {0}", [span]));
-            Path.SuspendElement(sourceID, elementID, span);
-            StateChanged();
+            logger.LogDebug("Suspending Step for {Span}", span);
+            Path.SuspendElement(sourceID, elementID, span, logger);
+            StateChanged(logger);
         }
 
         internal IEnumerable<SStepSuspension> SuspendedSteps
@@ -365,7 +367,7 @@ namespace BPMNEngine
         public IState CurrentState
             => new ReadOnlyProcessState(this);
 
-        private void StateChanged()
+        private void StateChanged(ILogger logger)
         {
             if (onStateChange != null)
             {
@@ -377,21 +379,22 @@ namespace BPMNEngine
                     }
                     catch (Exception ex)
                     {
-                        Process.WriteLogException((string)null, new StackFrame(2, true), DateTime.Now, ex);
+                        logger.LogError(ex, "Error occured attempting to trigger a state change");
                     }
                 });
             }
         }
 
-        internal void Suspend()
+        internal void Suspend(ILogger logger)
         {
-            Process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Suspending Process State");
+            logger.LogDebug("Suspending Process State");
             IsSuspended = true;
         }
 
         internal void Resume(ProcessInstance instance, Action<string, string> processStepComplete, Action<AEvent> completeTimedEvent)
         {
-            Process.WriteLogLine((string)null, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, "Resuming Process State");
+            using var logger = instance.GetLogger();
+            logger.LogDebug("Resuming Process State");
             var resumes = ResumeSteps.ToArray();
             var suspendedSteps = SuspendedSteps.ToArray();
             var delayedEvents = DelayedEvents.ToArray();
@@ -422,13 +425,7 @@ namespace BPMNEngine
                 });
             });
             stateEvent.ExitWriteLock();
-            StateChanged();
+            StateChanged(logger);
         }
-
-        internal void LogLine(string elementID, AssemblyName assembly, string fileName, int lineNumber, LogLevel level, DateTime timestamp, string message)
-            => log.LogLine(elementID, assembly, fileName, lineNumber, level, timestamp, message);
-
-        internal void LogException(string elementID, AssemblyName assembly, string fileName, int lineNumber, DateTime timestamp, Exception exception)
-            => log.LogException(elementID, assembly, fileName, lineNumber, timestamp, exception);
     }
 }

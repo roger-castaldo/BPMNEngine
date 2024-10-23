@@ -41,9 +41,9 @@ namespace BPMNEngine.Elements.Processes.Scripts
             FunctionName = NextName();
         }
 
-        protected abstract EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled);
+        protected abstract EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled, ILogger? logger);
 
-        private bool CompileAssembly(out string errors)
+        private bool CompileAssembly(ILogger logger, out string errors)
         {
             errors = null;
             lock (lockable)
@@ -57,7 +57,7 @@ namespace BPMNEngine.Elements.Processes.Scripts
                             Dlls
                             .Select(d => MetadataReference.CreateFromFile(d))
                         );
-                    EmitResult res = Compile(NextName(), references, Imports, Code, out byte[] compiled);
+                    EmitResult res = Compile(NextName(), references, Imports, Code, out byte[] compiled, logger);
                     if (!res.Success)
                     {
                         var error = new StringBuilder();
@@ -84,14 +84,14 @@ namespace BPMNEngine.Elements.Processes.Scripts
             }
         }
 
-        protected override void ScriptInvoke<T>(T variables, out object result)
+        protected override void ScriptInvoke<T>(T variables, ILogger? logger, out object result)
         {
-            Debug("Creating new instance of compiled script class for script element {0}", ID);
+            logger?.LogDebug("Creating new instance of compiled script class for script element");
             object o = _assembly.CreateInstance(ClassName);
-            Debug("Accesing method from new instance of compiled script class for script element {0}", ID);
+            logger?.LogDebug("Accesing method from new instance of compiled script class for script element");
             MethodInfo mi = o.GetType().GetMethod(FunctionName);
             object[] args = [variables];
-            Debug("Executing method from new instance of compiled script class for script element {0}", ID);
+            logger?.LogDebug("Executing method from new instance of compiled script class for script element");
             if (mi.ReturnType==typeof(void))
             {
                 mi.Invoke(o, args);
@@ -101,10 +101,10 @@ namespace BPMNEngine.Elements.Processes.Scripts
                 result = mi.Invoke(o, args);
         }
 
-        protected override bool ScriptIsValid(out IEnumerable<string> err)
+        protected override bool ScriptIsValid(ILogger? logger, out IEnumerable<string> err)
         {
             _assembly = null;
-            if (!CompileAssembly(out string error))
+            if (!CompileAssembly(logger, out string error))
             {
                 err = [error];
                 return false;

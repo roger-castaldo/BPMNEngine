@@ -9,16 +9,15 @@ namespace BPMNEngine.Elements.Processes.Events
         public IntermediateCatchEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             var errs = new List<string>();
             if (!Outgoing.Any())
                 errs.Add("Intermediate Catch Events must have an outgoing path.");
             else if (Outgoing.Count() != 1)
                 errs.Add("Intermediate Catch Events must have only 1 outgoing path.");
-            err = (err?? []).Concat(errs);
-            return res && errs.Count==0;
+            return (isValid&&errs.Count==0, errors.Concat(errs));
         }
 
         protected override int GetEventCost(EventSubTypes evnt, AFlowNode source, IReadonlyVariables variables)

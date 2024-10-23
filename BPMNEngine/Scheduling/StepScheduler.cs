@@ -56,10 +56,13 @@ namespace BPMNEngine.Scheduling
                             {
                                 try
                                 {
-                                    se.Instance.CompleteTimedEvent(se.Event);
+                                    se.Instance.CompleteTimedEvent(se.Event,se.Instance.GetLogger(se.Event));
                                     toRemove = toRemove.Append(se);
                                 }
-                                catch (Exception e) { se.Instance.WriteLogException(se.Event, new StackFrame(1, true), DateTime.Now, e); }
+                                catch (Exception e) {
+                                    using var logger = se.Instance.GetLogger(se.Event);
+                                    logger.LogError(e, "An error occured attempting to complete the timed event");
+                                }
                             });
                         suspendEvents.RemoveAll(se => toRemove.Contains(se));
 
@@ -73,7 +76,10 @@ namespace BPMNEngine.Scheduling
                                     de.Instance.StartTimedEventAsync(de.Event, de.SourceID);
                                     toRemove = toRemove.Append(de);
                                 }
-                                catch (Exception e) { de.Instance.WriteLogException(de.Event, new StackFrame(1, true), DateTime.Now, e); }
+                                catch (Exception e) {
+                                    using var logger = de.Instance.GetLogger(de.Event);
+                                    logger.LogError(e, "An error occured attempting to start the delayed event");
+                                }
                             });
                         delayedEvents.RemoveAll(de => toRemove.Contains(de));
 

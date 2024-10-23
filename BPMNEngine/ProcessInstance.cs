@@ -5,6 +5,7 @@ using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.State;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
+using BPMNEngine.Logging;
 using BPMNEngine.Scheduling;
 using Microsoft.Maui.Graphics;
 using System.Collections.Concurrent;
@@ -39,14 +40,19 @@ namespace BPMNEngine
         }
 
         private readonly ConcurrentDictionary<string, ManualResetEventSlim> waitingTasks;
-
-        private readonly LogLevel stateLogLevel;
+        private readonly MultiLogger logger;
         public DelegateContainer Delegates { get; private init; }
         public bool IsSuspended { get; private set; }
         private bool isComplete = false;
         private bool disposedValue;
 
-        internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevel stateLogLevel)
+        public ScopedLogger GetLogger(IElement? element = null)
+            => new(logger,logger.BeginInstanceScope(this,element));
+
+        public ScopedLogger GetLogger(string? elementID )
+            => new(logger, logger.BeginInstanceScope(this, elementID));
+
+        internal ProcessInstance(BusinessProcess process, DelegateContainer delegates, LogLevel stateLogLevel,ILogger<ProcessInstance>? logger)
         {
             ID = Guid.NewGuid();
             Process = process;
@@ -72,15 +78,15 @@ namespace BPMNEngine
                     }
                 }
             });
-            State = new ProcessState(ID, Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange);
-            this.stateLogLevel=stateLogLevel;
+            State = new ProcessState(ID, Process, new ProcessStepComplete(ProcessStepComplete), new ProcessStepError(ProcessStepError), delegates.Events.OnStateChange,stateLogLevel);
+            this.logger = new([logger, State.StateLogger]);
         }
 
         internal bool LoadState(XmlDocument doc, bool autoResume)
         {
             if (State.Load(doc))
             {
-                WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
+                logger.LogInformation("State loaded for Business Process");
                 IsSuspended = State.IsSuspended;
                 if (autoResume&&IsSuspended)
                     ((IProcessInstance)this).Resume();
@@ -93,7 +99,7 @@ namespace BPMNEngine
         {
             if (State.Load(reader))
             {
-                WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "State loaded for Business Process");
+                logger.LogInformation("State loaded for Business Process");
                 IsSuspended = State.IsSuspended;
                 if (autoResume&&IsSuspended)
                     ((IProcessInstance)this).Resume();
@@ -129,9 +135,9 @@ namespace BPMNEngine
             }
         }
 
-        internal void CompleteTimedEvent(AEvent evnt)
+        internal void CompleteTimedEvent(AEvent evnt,ILogger logger)
         {
-            State.Path.SucceedFlowNode(evnt);
+            State.Path.SucceedFlowNode(evnt,logger);
             InvokeElementEventDelegate(Delegates.Events.Events.Completed, evnt, new ReadOnlyProcessVariablesContainer(evnt.ID, this));
         }
 
@@ -160,15 +166,15 @@ namespace BPMNEngine
         {
             if (!((Tasks.ExternalTask)task).Aborted)
             {
-                WriteLogLine(task, LogLevel.Debug, new StackFrame(1, true), DateTime.Now, $"Merging variables from Task[{task.ID}] complete by {(task is IUserTask task1 ? task1.UserID : null)} into the state");
+                task.Logger.LogDebug("Merging variables from Task complete by {User} into the state", (task is IUserTask task1 ? task1.UserID : null));
                 IVariables vars = task.Variables;
                 State.MergeVariables(task, vars);
                 InvokeElementEventDelegate(Delegates.Events.Tasks.Completed, task, new ReadOnlyProcessVariablesContainer(task.ID, this));
                 ATask tsk = Process.GetTask(task.ID);
                 if (tsk is UserTask task2)
-                    State.Path.SucceedFlowNode(task2, completedByID: ((IUserTask)task).UserID);
+                    State.Path.SucceedFlowNode(task2,task.Logger, completedByID: ((IUserTask)task).UserID);
                 else
-                    State.Path.SucceedFlowNode(tsk);
+                    State.Path.SucceedFlowNode(tsk,task.Logger);
             }
         }
 
@@ -194,7 +200,7 @@ namespace BPMNEngine
 
         void IProcessInstance.Resume()
         {
-            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Attempting to resmue Business Process");
+            logger.LogInformation("Attempting to resmue Business Process");
             if (IsSuspended)
             {
                 IsSuspended = false;
@@ -204,23 +210,23 @@ namespace BPMNEngine
                 },
                 (AEvent delayedEvent) =>
                 {
-                    CompleteTimedEvent(delayedEvent);
+                    CompleteTimedEvent(delayedEvent,GetLogger(delayedEvent));
                 });
-                WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Business Process Resume Complete");
+                logger.LogInformation("Business Process Resume Complete");
             }
             else
             {
                 Exception ex = new NotSuspendedException();
-                WriteLogException((IElement)null, new StackFrame(1, true), DateTime.Now, ex);
+                logger.LogError(ex,"Process was not suspended, cannot resume");
                 throw ex;
             }
         }
 
         void IProcessInstance.Suspend()
         {
-            WriteLogLine((IElement)null, LogLevel.Information, new StackFrame(1, true), DateTime.Now, "Suspending Business Process");
+            logger.LogInformation("Suspending Business Process");
             IsSuspended = true;
-            State.Suspend();
+            State.Suspend(logger);
             StepScheduler.Instance.UnloadProcess(this);
             var cnt = 0;
             while (State.ActiveSteps.Any() && cnt<10)
@@ -307,25 +313,6 @@ namespace BPMNEngine
             WaitForTask(taskID, timeout.Equals(TimeSpan.Zero) ? null : timeout);
             task = ((IProcessInstance)this).GetManualTask(taskID);
             return task!=null;
-        }
-        #endregion
-
-        #region Logging
-        internal void WriteLogLine(string elementID, LogLevel level, StackFrame sf, DateTime timestamp, string message)
-            => WriteLogLine((IElement)(elementID == null ? null : Process.GetElement(elementID)), level, sf, timestamp, message);
-        internal void WriteLogLine(IElement element, LogLevel level, StackFrame sf, DateTime timestamp, string message)
-        {
-            if ((int)level >= (int)stateLogLevel && State!=null)
-                State.LogLine(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
-            Delegates.Logging.LogLine?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), level, timestamp, message);
-        }
-
-        internal Exception WriteLogException(IElement element, StackFrame sf, DateTime timestamp, Exception exception)
-        {
-            if ((int)LogLevel.Error>= (int)stateLogLevel)
-                State.LogException(element?.ID, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
-            Delegates.Logging.LogException?.Invoke(element, sf.GetMethod().DeclaringType.Assembly.GetName(), sf.GetFileName(), sf.GetFileLineNumber(), timestamp, exception);
-            return exception;
         }
         #endregion
 

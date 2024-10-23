@@ -46,9 +46,9 @@ End Class";
             : base(elem, map, parent)
         { }
 
-        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled)
+        protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled, ILogger? logger)
         {
-            Info("Generating VB Code for script compilation for script element {0}", ID);
+            logger?.LogInformation("Generating VB Code for script compilation for script element");
             var sbUsing = new StringBuilder();
             imports.ForEach(str => sbUsing.AppendFormat("Imports {0}\n", str));
             string ccode = string.Format(

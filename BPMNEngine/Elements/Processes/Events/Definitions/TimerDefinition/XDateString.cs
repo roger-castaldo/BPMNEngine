@@ -22,15 +22,15 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions.TimerDefinition
             DateCode = (string.IsNullOrEmpty(Code) ? null : new(Code));
         }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (string.IsNullOrEmpty(Code))
             {
-                err=(err?? []).Append("No Date String Specified");
-                return false;
+                errors = errors.Append("No Date String Specified");
+                isValid = false;
             }
-            return res;
+            return (isValid, errors);
         }
 
         public DateTime GetTime(IReadonlyVariables variables)

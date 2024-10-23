@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 namespace BPMNEngine.Elements
 {
     internal abstract record AElement
-        : IElement
+        : IValidatableElement
     {
         public AElement Parent { get; private init; }
         internal XmlElement Element { get; private init; }
@@ -53,20 +53,8 @@ namespace BPMNEngine.Elements
             return this["name"]??String.Empty;
         }
 
-        public virtual bool IsValid(out IEnumerable<string> err)
-        {
-            err = null;
-            return true;
-        }
-
-        protected void Debug(string message, params object[] pars)
-            => OwningDefinition.LogLine(LogLevel.Debug, this, message, pars);
-
-        protected void Info(string message, params object[] pars)
-            => OwningDefinition.LogLine(LogLevel.Information, this, message, pars);
-
-        protected Exception Exception(Exception exception)
-            => OwningDefinition.Exception(this, exception);
+        public virtual (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
+            => (true, []);
 
         internal void LoadExtensionElement(ref XmlPrefixMap map, ref ElementTypeCache cache)
         {

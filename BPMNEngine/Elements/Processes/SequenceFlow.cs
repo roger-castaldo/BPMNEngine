@@ -21,14 +21,14 @@ namespace BPMNEngine.Elements.Processes
         }
         public string ConditionExpression { get; private init; }
 
-        public async ValueTask<bool> IsFlowValidAsync(IsFlowValid isFlowValid, IReadonlyVariables variables)
+        public async ValueTask<bool> IsFlowValidAsync(IsFlowValid isFlowValid, IReadonlyVariables variables, ILogger? logger)
         {
-            Debug("Checking if Sequence Flow[{0}] is valid", ID);
+            logger?.LogDebug("Checking if Sequence Flow is valid");
             return isFlowValid(this, variables)
                 && (
                     ExtensionElement==null
                     || (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>()
-                        .AllAsync(check=>check.IsElementStartValid(variables,this)))
+                        .AllAsync(check=>check.IsElementStartValidAsync(variables, this, logger)))
                 );
         }
     }

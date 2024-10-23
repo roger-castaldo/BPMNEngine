@@ -56,7 +56,7 @@
         }
 
         public static async ValueTask<bool> AnyAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, ValueTask<bool>> predicate)
-            => await AllAsync<TSource>(source, item => predicate(item).AsTask());
+            => await AnyAsync<TSource>(source, item => predicate(item).AsTask());
 
         public static async Task<TSource?> FirstOrDefaultAsync<TSource>(this IEnumerable<TSource> source,Func<TSource,Task<bool>> predicate)
         {

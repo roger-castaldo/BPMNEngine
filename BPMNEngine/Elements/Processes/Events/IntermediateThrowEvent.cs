@@ -28,20 +28,14 @@ namespace BPMNEngine.Elements.Processes.Events
         public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!Incoming.Any())
-            {
-                err = (err?? []).Append("Intermediate Throw Events must have an incoming path.");
-                res=false;
-            }
+                errors = errors.Append("Intermediate Throw Events must have an incoming path.");
             else if (Incoming.Count()!= 1)
-            {
-                err = (err?? []).Append("Intermediate Throw Events must have only 1 incoming path.");
-                res=false;
-            }
-            return res;
+                errors = errors.Append("Intermediate Throw Events must have only 1 incoming path.");
+            return (isValid&&!errors.Any(), errors);
         }
     }
 }

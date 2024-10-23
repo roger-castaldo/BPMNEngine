@@ -11,28 +11,28 @@ namespace BPMNEngine.Elements.Processes.Conditions
         public ConditionSet(XmlElement elem, XmlPrefixMap map, AElement parent)
             : base(elem, map, parent) { }
 
-        public async override ValueTask<bool> IsElementStartValid(IReadonlyVariables variables, IElement owningElement)
+        public async override ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger logger)
         {
             try
             {
-                return await Conditions.First().IsElementStartValid(variables,owningElement);
+                return await Conditions.First().IsElementStartValidAsync(variables, owningElement, logger);
             }
             catch (Exception ex)
             {
-                Exception(ex);
+                logger.LogError(ex,"Error checking if Element start is Valid");
                 return false;
             }
         }
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (Children.Length > 1)
             {
-                err = (err?? []).Append("Too many children found.");
-                return false;
+                errors = errors.Append("Too many children found.");
+                isValid=false;
             }
-            return res;
+            return (isValid, errors);
         }
     }
 }

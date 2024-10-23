@@ -1,14 +1,13 @@
 ﻿using BPMNEngine;
 using BPMNEngine.Interfaces;
-using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Xml;
+using UnitTest.Helpers;
 
 namespace UnitTest
 {
@@ -16,21 +15,16 @@ namespace UnitTest
     public class Logging
     {
         private const string _LOG_LINE = "Test Log Line";
-        private const string _LOG_FORMAT_LINE = "Test Log Line {0}";
-        private static readonly object[] _FORMAT_INPUT = [1234567890];
+        private const string _LOG_FORMAT_LINE = "Test Log Line {Number}";
+        private static readonly object _FORMAT_INPUT = 1234567890;
         private static readonly Exception _EXCEPTION = new(_LOG_LINE);
 
         [TestMethod]
         public async System.Threading.Tasks.Task TestLoggingFromUserTask()
         {
-            var logger = new Mock<LogLine>();
-            var exceptionLogger = new Mock<LogException>();
+            (var loggerFactory, var mockLogger) = LoggingHelper.CreateMockLogFactory();
             var process = new BusinessProcess(Utility.LoadResourceDocument("UserTasks/single_user_task.bpmn"),
-                logging: new BPMNEngine.DelegateContainers.ProcessLogging()
-                {
-                    LogLine=logger.Object,
-                    LogException=exceptionLogger.Object
-                },
+                loggerFactory: loggerFactory,
                 tasks: new BPMNEngine.DelegateContainers.ProcessTasks()
                 {
                     BeginUserTask=new StartUserTask(StartUserTask)
@@ -43,19 +37,19 @@ namespace UnitTest
             Assert.IsNotNull(instance);
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Information, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Information, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
+            mockLogger.VerifyLog(l => l.LogInformation(_LOG_LINE), Times.Once());
+            mockLogger.VerifyLog(l => l.LogInformation(_LOG_FORMAT_LINE,_FORMAT_INPUT), Times.Once());
 
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Debug, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Debug, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
+            mockLogger.VerifyLog(l => l.LogDebug(_LOG_LINE), Times.Once());
+            mockLogger.VerifyLog(l => l.LogDebug(_LOG_FORMAT_LINE, _FORMAT_INPUT), Times.Once());
 
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Error, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Error, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
+            mockLogger.VerifyLog(l => l.LogError(_LOG_LINE), Times.Once());
+            mockLogger.VerifyLog(l => l.LogError(_LOG_FORMAT_LINE, _FORMAT_INPUT), Times.Once());
 
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Critical, It.IsAny<DateTime>(), _LOG_LINE), Times.Once);
-            logger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), LogLevel.Critical, It.IsAny<DateTime>(), string.Format(_LOG_LINE, _FORMAT_INPUT)), Times.Once);
+            mockLogger.VerifyLog(l => l.LogCritical(_LOG_LINE), Times.Once());
+            mockLogger.VerifyLog(l => l.LogCritical(_LOG_FORMAT_LINE, _FORMAT_INPUT), Times.Once());
 
-            exceptionLogger.Verify(l => l.Invoke(It.IsAny<IElement>(), It.IsAny<AssemblyName>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>(), _EXCEPTION), Times.Once);
+            mockLogger.VerifyLog(l => l.LogError(_EXCEPTION, "Error occured"), Times.Once());
 
             XmlDocument doc = new();
             doc.LoadXml(instance.CurrentState.AsXMLDocument);
@@ -70,20 +64,22 @@ namespace UnitTest
             Assert.IsTrue(logs.Contains("|Debug|"));
             Assert.IsTrue(logs.Contains("|Error|"));
             Assert.IsTrue(logs.Contains("|Critical|"));
-            Assert.IsTrue(logs.Contains("STACKTRACE:"));
+            Assert.IsTrue(logs.Contains("Error occured"));
+            Assert.IsTrue(logs.Contains("|ElementID["));
+            Assert.IsFalse(logs.Contains("|ProcessInstance["));
         }
 
         private void StartUserTask(IUserTask task)
         {
-            task.Info(_LOG_LINE);
-            task.Info(_LOG_FORMAT_LINE, _FORMAT_INPUT);
-            task.Debug(_LOG_LINE);
-            task.Debug(_LOG_FORMAT_LINE, _FORMAT_INPUT);
-            task.Error(_LOG_LINE);
-            task.Error(_LOG_FORMAT_LINE, _FORMAT_INPUT);
-            task.Fatal(_LOG_LINE);
-            task.Fatal(_LOG_FORMAT_LINE, _FORMAT_INPUT);
-            task.Exception(_EXCEPTION);
+            task.Logger.LogInformation(_LOG_LINE);
+            task.Logger.LogInformation(_LOG_FORMAT_LINE,_FORMAT_INPUT);
+            task.Logger.LogDebug(_LOG_LINE);
+            task.Logger.LogDebug(_LOG_FORMAT_LINE, _FORMAT_INPUT);
+            task.Logger.LogError(_LOG_LINE);
+            task.Logger.LogError(_LOG_FORMAT_LINE, _FORMAT_INPUT);
+            task.Logger.LogCritical(_LOG_LINE);
+            task.Logger.LogCritical(_LOG_FORMAT_LINE, _FORMAT_INPUT);
+            task.Logger.LogError(_EXCEPTION,"Error occured");
             task.MarkComplete();
         }
     }

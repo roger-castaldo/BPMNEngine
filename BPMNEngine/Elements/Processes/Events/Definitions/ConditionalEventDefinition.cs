@@ -14,9 +14,9 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
 
         public EventSubTypes Type => EventSubTypes.Conditional;
 
-        public async ValueTask<bool> IsValidAsync(IReadonlyVariables variables)
+        public async ValueTask<bool> IsValidAsync(IReadonlyVariables variables, ILogger logger)
             => await (
-                ExtensionElement?.Children.OfType<IStepElementStartCheckExtensionElement>().AnyAsync(check => check.IsElementStartValid(variables, this))
+                ExtensionElement?.Children.OfType<IStepElementStartCheckExtensionElement>().AnyAsync(check => check.IsElementStartValidAsync(variables, this, logger))
                 ??ValueTask.FromResult(false)
             );
     }

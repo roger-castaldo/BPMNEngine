@@ -25,15 +25,15 @@ namespace BPMNEngine.Elements.Diagrams
         public Label Label => (Label)Children
             .FirstOrDefault(elem => elem is Label);
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid, var errors) = base.IsValid(logger);
             if (!Children.Any(elem => elem is Bounds))
             {
-                err =(err ?? []).Append("No bounds specified for the shape.");
-                return false;
+                errors = errors.Append("No bounds specified for the shape.");
+                isValid=false;
             }
-            return res;
+            return (isValid, errors);
         }
 
         public void Render(ICanvas surface, ProcessPath path, Definition definition)

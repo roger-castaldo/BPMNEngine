@@ -16,15 +16,15 @@ namespace BPMNEngine.Elements.Collaborations
                     .Select(elem => elem.Value)
                     .FirstOrDefault() ?? string.Empty;
 
-        public override bool IsValid(out IEnumerable<string> err)
+        public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {
-            var res = base.IsValid(out err);
+            (var isValid,var errors) = base.IsValid(logger);
             if (string.IsNullOrEmpty(Content))
             {
-                err = (err?? []).Append("No content for the text annotation was specified.");
-                return false;
+                errors = errors.Append("No content for the text annotation was specified.");
+                isValid = false;
             }
-            return res;
+            return (isValid, errors);
         }
     }
 }

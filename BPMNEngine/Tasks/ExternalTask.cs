@@ -12,6 +12,7 @@ namespace BPMNEngine.Tasks
         protected readonly ProcessInstance businessProcess;
         public bool Aborted { get; private set; }
         public IVariables Variables { get; private init; }
+        public ILogger Logger => businessProcess.GetLogger(task);
 
         public ExternalTask(ATask task, ProcessVariablesContainer variables, ProcessInstance process)
         {
@@ -41,36 +42,6 @@ namespace BPMNEngine.Tasks
 
         public IParentElement ExtensionElement
             => task.ExtensionElement;
-
-        private void WriteLogLine(LogLevel level, string message)
-            => businessProcess.WriteLogLine(task, level, new StackFrame(2, true), DateTime.Now, message);
-
-        public void Debug(string message)
-            => WriteLogLine(LogLevel.Debug, message);
-
-        public void Debug(string message, object[] pars)
-            => WriteLogLine(LogLevel.Debug, string.Format(message, pars));
-
-        public void Error(string message)
-            => WriteLogLine(LogLevel.Error, message);
-
-        public void Error(string message, object[] pars)
-            => WriteLogLine(LogLevel.Error, string.Format(message, pars));
-
-        public Exception Exception(Exception exception)
-            => businessProcess.WriteLogException(task, new StackFrame(1), DateTime.Now, exception);
-
-        public void Fatal(string message)
-            => WriteLogLine(LogLevel.Critical, message);
-
-        public void Fatal(string message, object[] pars)
-            => WriteLogLine(LogLevel.Critical, string.Format(message, pars));
-
-        public void Info(string message)
-            => WriteLogLine(LogLevel.Information, message);
-
-        public void Info(string message, object[] pars)
-            => WriteLogLine(LogLevel.Information, string.Format(message, pars));
         #endregion
 
         private async ValueTask<bool> ProcessEvent(Func<ValueTask<bool>> invocation)
