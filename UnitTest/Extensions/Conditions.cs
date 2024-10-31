@@ -221,7 +221,7 @@ namespace UnitTest.Extensions
             Assert.IsTrue(Utility.WaitForCompletion(instance));
 
             Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Event_0bzc3s9"));
-            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Flow_1itqwbt"));
+            Assert.IsTrue(Utility.StepCompleted(instance.CurrentState, "Flow_1itqwbt"),instance.CurrentState.AsXMLDocument);
         }
     }
 }

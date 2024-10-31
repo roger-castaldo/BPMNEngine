@@ -1,4 +1,4 @@
-﻿using BPMNEngine.Elements;
+﻿using BPMNEngine.Interfaces.Elements;
 using System.Text.RegularExpressions;
 
 namespace BPMNEngine.Attributes
@@ -9,7 +9,7 @@ namespace BPMNEngine.Attributes
         public string Name { get; private init; } = name;
         public Regex Reg { get; private init; } = new Regex(regex, RegexOptions.Compiled|RegexOptions.ECMAScript);
 
-        public bool IsValid(AElement elem)
-            => elem[Name]!=null && Reg.IsMatch(elem[Name]);
+        public bool IsValid(IElement elem)
+            => elem[Name]!=null && Reg.IsMatch(elem[Name]!);
     }
 }

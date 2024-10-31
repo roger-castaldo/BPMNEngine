@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
@@ -7,8 +8,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     [ValidParent(typeof(AEvent))]
     internal record LinkEventDefinition : AElement, IEventDefinition
     {
-        public LinkEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public LinkEventDefinition(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public EventSubTypes Type => EventSubTypes.Link;
     }

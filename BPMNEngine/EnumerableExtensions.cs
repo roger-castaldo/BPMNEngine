@@ -8,11 +8,14 @@
             return enu; // make action Chainable/Fluent
         }
 
-        public static async Task<IEnumerable<T>> ForEachAsync<T>(this IEnumerable<T> enu, Func<T,Task> action)
+        public static async Task<IEnumerable<T>> ForEachTaskAsync<T>(this IEnumerable<T> enu, Func<T, Task> action)
         {
             await Task.WhenAll(enu.Select(item => action(item)));
             return enu; // make action Chainable/Fluent
         }
+
+        public static async Task<IEnumerable<T>> ForEachAsync<T>(this IEnumerable<T> enu, Func<T,Task> action)
+            => await ForEachTaskAsync(enu, action);
 
         public static async ValueTask<IEnumerable<T>> ForEachAsync<T>(this IEnumerable<T> enu, Func<T, ValueTask> action)
             => await ForEachAsync<T>(enu, item => action(item).AsTask());

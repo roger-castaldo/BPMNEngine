@@ -1,5 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
@@ -25,8 +27,8 @@ namespace BPMNEngine.Elements.Processes.Events
                 _ => null
             };
 
-        public IntermediateThrowEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public IntermediateThrowEvent(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {

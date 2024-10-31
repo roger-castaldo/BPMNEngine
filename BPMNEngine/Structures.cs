@@ -1,4 +1,4 @@
-﻿using BPMNEngine.Elements;
+﻿using BPMNEngine.Extensions.Definition;
 
 namespace BPMNEngine
 {

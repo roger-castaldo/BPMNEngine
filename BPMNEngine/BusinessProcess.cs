@@ -4,11 +4,13 @@ using BPMNEngine.Elements;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
+using BPMNEngine.Extensions.Definition;
 using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Logging;
 using BPMNEngine.Scheduling;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace BPMNEngine
@@ -27,10 +29,10 @@ namespace BPMNEngine
         private readonly Definition definition;
         private readonly ILoggerFactory loggerFactory;
 
-        internal IElement GetElement(string id) => Elements.FirstOrDefault(elem => elem.ID==id);
+        internal IElement? GetElement(string id) => Elements.FirstOrDefault(elem => elem.ID==id);
         private IEnumerable<IElement> Elements
             => components.OfType<IElement>()
-            .Traverse(elem => (elem is IParentElement element ? element.Children : Array.Empty<IElement>()));
+            .Traverse(elem => (elem is IParentElement element ? element.Children.OfType<IElement>() : []));
 
         /// <summary>
         /// The XML Document that was supplied to the constructor containing the BPMN 2.0 definition
@@ -43,7 +45,7 @@ namespace BPMNEngine
         /// </summary>
         /// <param name="name">The name of the variable</param>
         /// <returns>The value of the variable</returns>
-        public object this[string name]
+        public object? this[string name]
         {
             get
             {
@@ -51,7 +53,7 @@ namespace BPMNEngine
                     return constants.FirstOrDefault(c => c.Name==name).Value;
                 if (definition==null || definition.ExtensionElement==null)
                     return null;
-                var definitionVariable = definition.ExtensionElement.Children
+                var definitionVariable = definition.ExtensionElement.Extensions
                     .FirstOrDefault(elem =>
                     (elem is DefinitionVariable variable && variable.Name==name) ||
                     (elem is DefinitionFile file &&
@@ -76,19 +78,19 @@ namespace BPMNEngine
                 return (constants==null ? [] : constants.Select(c => c.Name))
                     .Concat(
                         definition.ExtensionElement
-                        .Children
+                        .Extensions
                         .OfType<DefinitionVariable>()
                         .Select(d => d.Name)
                     )
                     .Concat(
                         definition.ExtensionElement
-                        .Children
+                        .Extensions
                         .OfType<DefinitionFile>()
                         .Select(d => d.Name)
                     )
                     .Concat(
                         definition.ExtensionElement
-                        .Children
+                        .Extensions
                         .OfType<DefinitionFile>()
                         .Select(d => string.Format("{0}.{1}", d.Name, d.Extension))
                     )
@@ -128,12 +130,14 @@ namespace BPMNEngine
             ProcessEvents events = null,
             StepValidations validations = null,
             ProcessTasks tasks = null,
-            ILoggerFactory loggerFactory = null
+            ILoggerFactory loggerFactory = null,
+            IServiceProvider serviceProvider = null
             )
         {
             id = Guid.NewGuid();
             this.constants = constants;
             this.loggerFactory = loggerFactory;
+            serviceProvider??=new ServiceCollection().BuildServiceProvider();
             delegates = new DelegateContainer()
             {
                 Events=ProcessEvents.Merge(null, events),
@@ -146,25 +150,20 @@ namespace BPMNEngine
             IEnumerable<Exception> exceptions = [];
             Document = new XmlDocument();
             Document.LoadXml(doc.OuterXml);
-            var elementMapCache = new BPMNEngine.ElementTypeCache();
+            IElementFactory elementFactory = ElementFactory.Instance(serviceProvider, logger);
             var stopwatch = Stopwatch.StartNew();
             logger?.LogInformation("Producing new Business Process from XML Document");
             components = [];
-            XmlPrefixMap map = new(this,logger);
+            XmlPrefixMap map = new(logger);
             _=doc.ChildNodes.Cast<XmlNode>().ForEach(n =>
             {
                 if (n.NodeType == XmlNodeType.Element)
                 {
-                    if (map.Load((XmlElement)n))
-                        elementMapCache.MapIdeals(map);
-                    IElement elem = Utility.ConstructElementType((XmlElement)n, ref map, ref elementMapCache, null);
+                    var elem = elementFactory.ProduceInstance((XmlElement)n);
                     if (elem != null)
                     {
                         if (elem is Definition def)
                             def.OwningProcess = this;
-                        if (elem is AParentElement element)
-                            element.LoadChildren(ref map, ref elementMapCache);
-                        ((AElement)elem).LoadExtensionElement(ref map, ref elementMapCache);
                         components.Add(elem);
                     }
                     else
@@ -179,7 +178,7 @@ namespace BPMNEngine
             else if (definition==null)
                 exceptions = exceptions.Append(new XmlException("Unable to load a bussiness process from the supplied document.  No instance of bpmn:definitions was located."));
             if (!exceptions.Any())
-                Elements.ForEach(elem => { exceptions = exceptions.Concat(ValidateElement((AElement)elem,logger)); });
+                exceptions = exceptions.Concat(ValidateElement(definition,definition,logger));
             if (exceptions.Any())
             {
                 Exception ex = new InvalidProcessDefinitionException(exceptions);
@@ -192,7 +191,7 @@ namespace BPMNEngine
             logger?.LogInformation("Time to load Process Document {TotalMilliseconds}ms", stopwatch.ElapsedMilliseconds);
         }
 
-        private static IEnumerable<Exception> ValidateElement(AElement elem,ILogger? logger)
+        private static IEnumerable<Exception> ValidateElement(Definition? definition,IElement elem,ILogger? logger)
         {
             using var scope = MultiLogger.DefineElementLogScope(elem, logger);
             logger?.LogDebug("Attempting to validate element");
@@ -200,25 +199,29 @@ namespace BPMNEngine
             result = result.Concat(
                 elem.GetType().GetCustomAttributes(true).OfType<RequiredAttributeAttribute>()
                 .Where(ra => elem[ra.Name]==null)
-                .Select(ra => new MissingAttributeException(elem.OwningDefinition, elem.Element, ra))
+                .Select(ra => new MissingAttributeException(definition, elem.Element, ra))
+                .ToArray()
             ).Concat(
                 elem.GetType().GetCustomAttributes(true).OfType<AttributeRegexAttribute>()
                 .Where(ar => !ar.IsValid(elem))
-                .Select(ar => new InvalidAttributeValueException(elem.OwningDefinition, elem.Element, ar))
+                .Select(ar => new InvalidAttributeValueException(definition, elem.Element, ar))
+                .ToArray()
             );
-            (var isValid, var errors) = elem.IsValid(logger);
+            var isValid = true;
+            IEnumerable<string> errors = [];
+            if (elem is IValidatableElement validatableElement)
+                (isValid, errors) = validatableElement.IsValid(logger);
             if (!isValid)
-                result = result.Append(new InvalidElementException(elem.OwningDefinition, elem.Element, errors));
-            if (elem.ExtensionElement != null)
-                result = result.Concat(ValidateElement((ExtensionElements)elem.ExtensionElement,logger));
+                result = result.Append(new InvalidElementException(definition, elem.Element, errors));
             if (elem is AParentElement element)
                 result = result.Concat(
                     element.Children
                     .OfType<AElement>()
-                    .Select(e => ValidateElement(e,logger))
+                    .Select(e => ValidateElement(definition,e,logger))
                     .SelectMany(res => res)
+                    .ToArray()
                 );
-            return result;
+            return result.ToArray();
         }
 
         private ProcessInstance ProduceInstance(ProcessEvents events,

@@ -1,5 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
@@ -26,8 +28,8 @@ namespace BPMNEngine.Elements.Processes.Events
                 return result;
             }
         }
-        public BoundaryEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public BoundaryEvent(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {

@@ -10,6 +10,6 @@ namespace BPMNEngine.Interfaces.Elements
         /// <summary>
         /// The child elements of the given process element
         /// </summary>
-        ImmutableArray<IElement> Children { get; }
+        ImmutableArray<IBaseElement> Children { get; }
     }
 }

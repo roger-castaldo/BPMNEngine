@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using Microsoft.Maui.Graphics;
 
@@ -7,8 +8,8 @@ namespace BPMNEngine.Elements.Diagrams
     [RequiredAttributeAttribute("bpmnElement")]
     internal abstract record ADiagramElement : AParentElement
     {
-        protected ADiagramElement(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        protected ADiagramElement(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public string BPMNElement => this["bpmnElement"];
 
         protected IElement GetLinkedElement(Definition definition)

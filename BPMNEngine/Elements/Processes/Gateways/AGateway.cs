@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
@@ -10,8 +11,8 @@ namespace BPMNEngine.Elements.Processes.Gateways
         public string Default
             => Outgoing.Any()&&Outgoing.Count()==1 ? Outgoing.First() : this["default"];
 
-        protected AGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        protected AGateway(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public virtual async ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables, ILogger? logger)
         {

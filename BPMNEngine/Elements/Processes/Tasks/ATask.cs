@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Tasks
@@ -8,8 +9,8 @@ namespace BPMNEngine.Elements.Processes.Tasks
     [ValidParent(typeof(IProcess))]
     internal abstract record ATask : AFlowNode
     {
-        protected ATask(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        protected ATask(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         private static readonly EventSubTypes[] _blockedSubTypes =
         [

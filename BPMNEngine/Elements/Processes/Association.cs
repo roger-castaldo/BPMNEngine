@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes
@@ -8,7 +9,7 @@ namespace BPMNEngine.Elements.Processes
     [ValidParent(typeof(IProcess))]
     internal record Association : AFlowElement
     {
-        public Association(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Association(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
     }
 }

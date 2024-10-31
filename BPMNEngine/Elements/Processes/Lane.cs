@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 
 namespace BPMNEngine.Elements.Processes
 {
@@ -7,8 +9,8 @@ namespace BPMNEngine.Elements.Processes
     [ValidParent(typeof(LaneSet))]
     internal record Lane : AParentElement
     {
-        public Lane(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Lane(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public IEnumerable<string> Nodes
             => Children.OfType<FlowNodeRef>().Select(elem => elem.Value);
     }

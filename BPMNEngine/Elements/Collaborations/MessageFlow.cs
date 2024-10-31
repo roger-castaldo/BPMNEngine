@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 
 namespace BPMNEngine.Elements.Collaborations
 {
@@ -7,7 +9,7 @@ namespace BPMNEngine.Elements.Collaborations
     [ValidParent(typeof(Collaboration))]
     internal record MessageFlow : AFlowElement
     {
-        public MessageFlow(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public MessageFlow(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
     }
 }

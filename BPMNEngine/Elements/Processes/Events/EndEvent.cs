@@ -1,5 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 
 namespace BPMNEngine.Elements.Processes.Events
 {
@@ -26,8 +28,8 @@ namespace BPMNEngine.Elements.Processes.Events
             => Children
                 .Any(child => child is TerminateEventDefinition);
 
-        public EndEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public EndEvent(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {

@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
@@ -16,8 +18,8 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal record Bounds : AElement
     {
-        public Bounds(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Bounds(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public RectF Rectangle => new(
                     float.Parse(this["x"]),
                     float.Parse(this["y"]),

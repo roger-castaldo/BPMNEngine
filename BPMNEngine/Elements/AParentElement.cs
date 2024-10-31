@@ -1,32 +1,28 @@
-﻿using BPMNEngine.Interfaces.Elements;
+﻿using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
 using System.Collections.Immutable;
 
 namespace BPMNEngine.Elements
 {
     internal abstract record AParentElement : AElement, IParentElement
     {
-        protected AParentElement(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
-
-        public ImmutableArray<IElement> Children { get; private set; } = [];
-
-        public void LoadChildren(ref XmlPrefixMap map, ref ElementTypeCache cache)
-        {
-            var children = new List<IElement>();
-            foreach (XmlElement xelem in SubNodes.OfType<XmlElement>())
-            {
-                IElement subElem = Utility.ConstructElementType(xelem, ref map, ref cache, this);
-                if (subElem != null)
-                {
-                    if (subElem is AParentElement element)
-                        element.LoadChildren(ref map, ref cache);
-                    else
-                        ((AElement)subElem).LoadExtensionElement(ref map, ref cache);
-                    children.Add(subElem);
-                }
-            }
-            Children = children.ToImmutableArray();
-            LoadExtensionElement(ref map, ref cache);
-        }
+        private readonly IElementFactory elementFactory;
+        private ImmutableArray<IBaseElement>? children = null;
+        public ImmutableArray<IBaseElement> Children
+            => children ??= SubNodes.OfType<XmlElement>()
+                    .Where(e => elementFactory.IsOfType<IElement>(e))
+                    .Select(e => elementFactory.ProduceInstance(e, this))
+                    .OfType<IBaseElement>()
+                    .Concat(
+                        SubNodes.OfType<XmlElement>()
+                        .Where(e => elementFactory.IsOfType<IExtensionElement>(e))
+                        .Select(e => elementFactory.ProduceExtensionElement(e, this))
+                        .OfType<IBaseElement>()
+                    )
+                    .ToImmutableArray();
+        protected AParentElement(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent,elementFactory)
+            => this.elementFactory = elementFactory;
     }
 }

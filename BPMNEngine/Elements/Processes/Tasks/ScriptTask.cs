@@ -1,18 +1,20 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Scripts;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Tasks;
+using BPMNEngine.Extensions.Scripts;
 
 namespace BPMNEngine.Elements.Processes.Tasks
 {
     [XMLTagAttribute("bpmn", "scriptTask")]
     internal record ScriptTask : ATask
     {
-        public ScriptTask(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public ScriptTask(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         internal void ProcessTask(ITask task, ProcessTask processScriptTask, ILogger? logger)
         {
-            ExtensionElement?.Children
+            ExtensionElement?.Extensions
                 .OfType<AScript>()
                 .FirstOrDefault()?.Invoke(task.Variables,logger);
             processScriptTask?.Invoke(task);

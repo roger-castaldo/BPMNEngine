@@ -1,6 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
@@ -13,13 +14,13 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(Process))]
     internal record SubProcess : AFlowNode, IProcess
     {
-        public SubProcess(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public SubProcess(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public async ValueTask<bool> IsStartValidAsync(IReadonlyVariables variables, IsProcessStartValid isProcessStartValid, ILogger? logger)
            => (
                ExtensionElement==null ||
-               (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check => check.IsElementStartValidAsync(variables, this, logger)))
+               (await ExtensionElement.Extensions.OfType<IStepElementStartCheckExtensionElement>().AllAsync<IStepElementStartCheckExtensionElement>(check => check.IsElementStartValidAsync(variables, this, logger)))
            )
            && isProcessStartValid(this, variables);
 

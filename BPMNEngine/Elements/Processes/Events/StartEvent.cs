@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 
@@ -7,13 +9,13 @@ namespace BPMNEngine.Elements.Processes.Events
     [XMLTagAttribute("bpmn", "startEvent")]
     internal record StartEvent : AEvent
     {
-        public StartEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public StartEvent(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         internal async ValueTask<bool> IsEventStartValidAsync(IReadonlyVariables variables, IsEventStartValid isEventStartValid, ILogger logger)
             => (
                 ExtensionElement==null ||
-                (await ExtensionElement.Children.OfType<IStepElementStartCheckExtensionElement>().AllAsync(check => check.IsElementStartValidAsync(variables, this, logger)))
+                (await ExtensionElement.Extensions.OfType<IStepElementStartCheckExtensionElement>().AllAsync(check => check.IsElementStartValidAsync(variables, this, logger)))
             )
             && isEventStartValid(this, variables);
 

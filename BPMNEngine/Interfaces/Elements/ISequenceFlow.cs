@@ -8,6 +8,6 @@
         /// <summary>
         /// The Condition Expression that was attached to the sequence flow, this may be an attribute or a sub element
         /// </summary>
-        string ConditionExpression { get; }
+        string? ConditionExpression { get; }
     }
 }

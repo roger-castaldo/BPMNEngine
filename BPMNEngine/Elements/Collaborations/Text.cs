@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Collaborations
 {
@@ -6,8 +8,8 @@ namespace BPMNEngine.Elements.Collaborations
     [ValidParent(typeof(TextAnnotation))]
     internal record Text : AElement
     {
-        public Text(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Text(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public string Value => Element.InnerText;
     }
 }

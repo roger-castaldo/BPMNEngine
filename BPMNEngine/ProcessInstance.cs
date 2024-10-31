@@ -255,10 +255,16 @@ namespace BPMNEngine
                     manualResetEventSlim = new ManualResetEventSlim(false);
                     waitingTasks.TryAdd(taskID, manualResetEventSlim);
                 }
-                if (timeout.HasValue)
-                    manualResetEventSlim.Wait(timeout.Value);
-                else
-                    manualResetEventSlim.Wait();
+                try
+                {
+                    if (timeout.HasValue)
+                        manualResetEventSlim.Wait(timeout.Value);
+                    else
+                        manualResetEventSlim.Wait();
+                }
+                catch (System.ObjectDisposedException) {
+                    //used in case the timeout event is disposed prior to the wait being trigger
+                }
             }
         }
 

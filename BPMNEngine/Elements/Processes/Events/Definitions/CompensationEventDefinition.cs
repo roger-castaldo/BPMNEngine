@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
@@ -7,9 +8,10 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
     [ValidParent(typeof(AEvent))]
     internal record CompensationEventDefinition : AElement, IEventDefinition
     {
-        public CompensationEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public CompensationEventDefinition(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
-        public EventSubTypes Type => EventSubTypes.Compensation;
+        public EventSubTypes Type 
+            => EventSubTypes.Compensation;
     }
 }

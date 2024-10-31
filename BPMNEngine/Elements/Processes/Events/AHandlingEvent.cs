@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Events
@@ -19,11 +21,11 @@ namespace BPMNEngine.Elements.Processes.Events
             .OfType<ConditionalEventDefinition>()
             .FirstOrDefault();
 
-        protected AHandlingEvent(XmlElement elem, XmlPrefixMap map, AElement parent) :
-            base(elem, map, parent)
+        protected AHandlingEvent(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory)
         { }
 
-        public async ValueTask<int> EventCostAsync(EventSubTypes evnt, object data, AFlowNode source, IReadonlyVariables variables, ILogger? logger)
+        public async ValueTask<int> EventCostAsync(EventSubTypes evnt, object? data, AFlowNode source, IReadonlyVariables variables, ILogger? logger)
         {
             if (Equals(SubType,evnt))
             {

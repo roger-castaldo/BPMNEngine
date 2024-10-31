@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 
 namespace BPMNEngine.Elements
 {
@@ -7,8 +9,8 @@ namespace BPMNEngine.Elements
     [ValidParent(typeof(Definition))]
     internal record Collaboration : AParentElement
     {
-        public Collaboration(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Collaboration(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {

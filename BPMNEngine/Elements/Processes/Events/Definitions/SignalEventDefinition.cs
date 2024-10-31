@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
+using BPMNEngine.Extensions.EventDefinitions;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
@@ -12,7 +13,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
             => Array.Empty<string>()
                 .Concat(Children.OfType<SignalDefinition>().Select(sd => sd.Type??"*"))
                 .Concat(
-                    ExtensionElement?.Children
+                    ExtensionElement?.Extensions
                     .OfType<SignalDefinition>()
                     .Select(ed => ed.Type ?? "*")
                     ?? []
@@ -21,8 +22,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public IEnumerable<string> SignalTypes
             => BaseTypes.DefaultIfEmpty("*");
 
-        public SignalEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public SignalEventDefinition(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public EventSubTypes Type
             => EventSubTypes.Signal;

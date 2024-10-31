@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
+using BPMNEngine.Extensions.EventDefinitions;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
@@ -11,7 +12,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         private IEnumerable<string> BaseTypes
             => Array.Empty<string>()
                 .Concat(Children.OfType<ErrorDefinition>().Select(ed => ed.Type??"*"))
-                .Concat(ExtensionElement?.Children
+                .Concat(ExtensionElement?.Extensions
                     .OfType<ErrorDefinition>()
                     .Select(ed => ed.Type ?? "*")
                     ?? []
@@ -22,8 +23,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public EventSubTypes Type
             => EventSubTypes.Error;
 
-        public ErrorEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public ErrorEventDefinition(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public override (bool isValid, IEnumerable<string> errors) IsValid(ILogger? logger)
         {

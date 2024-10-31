@@ -8,10 +8,10 @@
         /// <summary>
         /// The id for the source element 
         /// </summary>
-        string SourceRef { get; }
+        string? SourceRef { get; }
         /// <summary>
         /// the id for the destination element
         /// </summary>
-        string TargetRef { get; }
+        string? TargetRef { get; }
     }
 }

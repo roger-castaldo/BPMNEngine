@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using Microsoft.Maui.Graphics;
 
 namespace BPMNEngine.Elements.Diagrams
@@ -11,8 +13,8 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Edge))]
     internal record Waypoint : AElement
     {
-        public Waypoint(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Waypoint(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public PointF Point => new(
                     float.Parse(this["x"]),
                     float.Parse(this["y"])

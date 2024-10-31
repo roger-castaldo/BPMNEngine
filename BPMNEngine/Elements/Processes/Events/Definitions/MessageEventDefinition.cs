@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
-using BPMNEngine.Elements.Processes.Events.Definitions.Extensions;
+using BPMNEngine.Extensions.EventDefinitions;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes.Events.Definitions
@@ -12,7 +13,7 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
             => Array.Empty<string>()
                 .Concat(Children.OfType<MessageDefinition>().Select(md => md.Name??"*"))
                 .Concat(
-                    ExtensionElement?.Children
+                    ExtensionElement?.Extensions
                     .OfType<MessageDefinition>()
                     .Select(ed => ed.Name ?? "*")
                     ?? []
@@ -20,8 +21,8 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         public IEnumerable<string> MessageTypes
              => BaseTypes.DefaultIfEmpty("*");
 
-        public MessageEventDefinition(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public MessageEventDefinition(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public EventSubTypes Type => EventSubTypes.Message;
 

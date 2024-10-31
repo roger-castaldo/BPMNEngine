@@ -21,6 +21,7 @@
 		  <exts:ConditionSet>
 			  <exts:isEqualCondition leftVariable="andequal1"/>
 		  </exts:ConditionSet>
+		  <exts:ConditionSet/>>
 	  </bpmn:extensionElements>
 	  <bpmn:startEvent id="StartEvent_1">
 		  <bpmn:extensionElements>

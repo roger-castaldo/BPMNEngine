@@ -22,16 +22,16 @@ namespace BPMNEngine.Tasks
         }
 
         #region IElement
-        string IElement.this[string attributeName]
+        string? IElement.this[string attributeName]
             => task[attributeName];
 
-        public IElement Process
+        public IElement? Process
             => task.Process;
 
-        public IElement SubProcess
+        public IElement? SubProcess
             => task.SubProcess;
 
-        public IElement Lane
+        public IElement? Lane
             => task.Lane;
 
         public string ID
@@ -40,8 +40,14 @@ namespace BPMNEngine.Tasks
         public ImmutableArray<XmlNode> SubNodes
             => task.SubNodes;
 
-        public IParentElement ExtensionElement
+        public IExtensionsElement? ExtensionElement
             => task.ExtensionElement;
+
+        public IBaseElement? Parent
+            => task.Parent;
+
+        public XmlElement Element
+            => task.Element;
         #endregion
 
         private async ValueTask<bool> ProcessEvent(Func<ValueTask<bool>> invocation)
@@ -63,7 +69,5 @@ namespace BPMNEngine.Tasks
 
         public  ValueTask<bool> SignalAsync(string signal)
             => ProcessEvent(() => businessProcess.EmitTaskSignalAsync(this, signal));
-
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Collaborations;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements
@@ -9,8 +10,8 @@ namespace BPMNEngine.Elements
     [ValidParent(null)]
     internal record Definition : AParentElement
     {
-        public Definition(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Definition(XmlElement elem, IElementFactory elementFactory)
+            : base(elem, null, elementFactory) { }
 
         public override Definition OwningDefinition => this;
 
@@ -19,9 +20,10 @@ namespace BPMNEngine.Elements
         public IEnumerable<MessageFlow> MessageFlows => LocateElementsOfType<MessageFlow>();
 
         public IElement LocateElement(string id)
-            => (this.ID==id
+            => (Equals(this.ID,id)
                 ? this
-                : Children.Traverse(ielem => (ielem is IParentElement element ? element.Children : Array.Empty<IElement>())).FirstOrDefault(elem => elem.ID==id)
+                : Children.Traverse(ielem => (ielem is IParentElement element ? element.Children.OfType<IElement>() : Array.Empty<IElement>()))
+                    .OfType<IElement>().FirstOrDefault(elem => Equals(elem.ID,id))
             );
 
         public IEnumerable<T> LocateElementsOfType<T>() where T : IElement

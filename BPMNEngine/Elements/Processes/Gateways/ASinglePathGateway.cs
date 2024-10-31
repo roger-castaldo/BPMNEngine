@@ -1,11 +1,13 @@
-﻿using BPMNEngine.Interfaces.Variables;
+﻿using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
+using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Elements.Processes.Gateways
 {
     internal abstract record ASinglePathGateway : AGateway
     {
-        protected ASinglePathGateway(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        protected ASinglePathGateway(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public override sealed async ValueTask<IEnumerable<string>> EvaulateOutgoingPathsAsync(Definition definition, IsFlowValid isFlowValid, IReadonlyVariables variables, ILogger? logger)
         {

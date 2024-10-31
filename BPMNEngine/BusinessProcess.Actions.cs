@@ -26,6 +26,7 @@ namespace BPMNEngine
         {
             var handlerGroup = (await eventHandlers
                     .GroupByAsync(handler => handler.EventCostAsync(type, data, source, variables, logger))
+                    .ConfigureAwait(true)
                 )
                 .OrderBy(grp => grp.Key)
                 .FirstOrDefault();
@@ -63,6 +64,7 @@ namespace BPMNEngine
                 {
                     ReadOnlyProcessVariablesContainer vars = new(sourceID, instance);
                     subProcess.Children
+                        .OfType<IElement>()
                         .Where(child => instance.State.Path.AbortableSteps.Contains(child.ID))
                         .ForEach(child => AbortStep(instance, sourceID, child, vars));
                 }
@@ -127,12 +129,13 @@ namespace BPMNEngine
                 if (elem is AFlowNode node)
                 {
                     ReadOnlyProcessVariablesContainer ropvc = new(sourceID, instance);
-                    var evnts = await GetEventHandlersAsync(EventSubTypes.Conditional, null, node, ropvc, logger);
-                    evnts.ForEach(ahe =>
-                    {
-                        ProcessEventAsync(instance, elem.ID, ahe);
-                        abort|=(ahe is BoundaryEvent @event &&@event.CancelActivity);
-                    });
+                    await (await GetEventHandlersAsync(EventSubTypes.Conditional, null, node, ropvc, logger))
+                        .ForEachTaskAsync(async (ahe) =>
+                        {
+                            await ProcessEventAsync(instance, elem.ID, ahe);
+                            abort|=(ahe is BoundaryEvent @event &&@event.CancelActivity);
+                        })
+                        .ConfigureAwait(true);
                     if (!abort)
                     {
                         (await GetEventHandlersAsync(EventSubTypes.Timer, null, node, ropvc, logger)).ForEach(ahe =>
@@ -146,16 +149,19 @@ namespace BPMNEngine
                         });
                     }
                 }
-                if (elem is IFlowElement flowElement)
-                    BusinessProcess.ProcessFlowElement(instance, flowElement);
-                else if (elem is AGateway aGateway)
-                    await ProcessGatewayAsync(instance, sourceID, aGateway);
-                else if (elem is AEvent aEvent)
-                    await ProcessEventAsync(instance, sourceID, aEvent);
-                else if (elem is ATask aTask)
-                    BusinessProcess.ProcessTask(instance, sourceID, aTask);
-                else if (elem is SubProcess subProcess)
-                    await BusinessProcess.ProcessSubProcessAsync(instance, sourceID, subProcess);
+                if (!abort)
+                {
+                    if (elem is IFlowElement flowElement)
+                        BusinessProcess.ProcessFlowElement(instance, flowElement);
+                    else if (elem is AGateway aGateway)
+                        await ProcessGatewayAsync(instance, sourceID, aGateway);
+                    else if (elem is AEvent aEvent)
+                        await ProcessEventAsync(instance, sourceID, aEvent);
+                    else if (elem is ATask aTask)
+                        BusinessProcess.ProcessTask(instance, sourceID, aTask);
+                    else if (elem is SubProcess subProcess)
+                        await BusinessProcess.ProcessSubProcessAsync(instance, sourceID, subProcess);
+                }
             }
         }
 
@@ -378,7 +384,7 @@ namespace BPMNEngine
             );
             if (element is SubProcess process)
             {
-                process.Children.ForEach(child =>
+                process.Children.OfType<IElement>().ForEach(child =>
                 {
                     bool abort = false;
                     switch (instance.State.Path.GetStatus(child.ID))

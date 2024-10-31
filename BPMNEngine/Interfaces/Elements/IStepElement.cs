@@ -9,16 +9,16 @@
         /// <summary>
         /// The process containing this element
         /// </summary>
-        IElement Process { get; }
+        IElement? Process { get; }
 
         /// <summary>
         /// The SubProcess containing this element, if the element is within a subprocess
         /// </summary>
-        IElement SubProcess { get; }
+        IElement? SubProcess { get; }
 
         /// <summary>
         /// The Lane within the process containing this element
         /// </summary>
-        IElement Lane { get; }
+        IElement? Lane { get; }
     }
 }

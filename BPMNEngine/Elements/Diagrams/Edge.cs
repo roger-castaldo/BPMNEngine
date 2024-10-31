@@ -3,6 +3,8 @@ using BPMNEngine.Drawing;
 using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Gateways;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.State;
 using Microsoft.Maui.Graphics;
 
@@ -16,8 +18,8 @@ namespace BPMNEngine.Elements.Diagrams
         private const float _PEN_SIZE = 2.0f;
         private static readonly float _baseTLength = _PEN_SIZE*1.5f;
 
-        public Edge(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Edge(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public IEnumerable<PointF> Points => Children
             .OfType<Waypoint>()

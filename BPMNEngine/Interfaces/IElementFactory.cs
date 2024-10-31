@@ -2,11 +2,11 @@
 
 namespace BPMNEngine.Interfaces
 {
-    public interface IElementFactory
+    internal interface IElementFactory : IExtensionElementFactory
     {
-        IElementFactory Register<T>(string elementName, string? elementPrefix = null)
-            where T : IElement;
-
         IElement? ProduceInstance(XmlElement element, IElement? parent=null);
+
+        bool IsOfType<T>(XmlElement element)
+            where T : IBaseElement;
     }
 }

@@ -1,4 +1,6 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 
 namespace BPMNEngine.Elements.Diagrams
 {
@@ -7,8 +9,8 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Shape))]
     internal record Label : AParentElement
     {
-        public Label(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Label(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public Bounds Bounds
             => Children.OfType<Bounds>().FirstOrDefault();
     }

@@ -4,6 +4,7 @@ using BPMNEngine.Elements.Collaborations;
 using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.State;
 using Microsoft.Maui.Graphics;
@@ -15,8 +16,8 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Plane))]
     internal record Shape : ADiagramElement, IRenderingElement
     {
-        public Shape(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Shape(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
         public override RectF Rectangle => Children
             .OfType<Bounds>()
             .Select(elem => elem.Rectangle)

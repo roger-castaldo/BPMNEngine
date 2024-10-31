@@ -1,5 +1,7 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.State;
 using Microsoft.Maui.Graphics;
 
@@ -10,8 +12,8 @@ namespace BPMNEngine.Elements.Diagrams
     [ValidParent(typeof(Diagram))]
     internal record Plane : ADiagramElement, IRenderingElement
     {
-        public Plane(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Plane(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         private RectF? _rectangle;
         public override RectF Rectangle

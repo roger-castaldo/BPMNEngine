@@ -1,6 +1,8 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Drawing;
 using BPMNEngine.Elements.Diagrams;
+using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces;
 using BPMNEngine.State;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Graphics.Skia;
@@ -15,8 +17,8 @@ namespace BPMNEngine.Elements
         public static readonly IFont DefaultFont = new Font("Arial");
         public const float FONT_SIZE = 10.5f;
 
-        public Diagram(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public Diagram(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public SizeF Size
             => new(

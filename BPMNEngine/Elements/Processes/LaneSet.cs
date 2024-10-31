@@ -1,4 +1,5 @@
 ﻿using BPMNEngine.Attributes;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 
 namespace BPMNEngine.Elements.Processes
@@ -7,8 +8,8 @@ namespace BPMNEngine.Elements.Processes
     [ValidParent(typeof(IProcess))]
     internal record LaneSet : AParentElement
     {
-        public LaneSet(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        public LaneSet(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
     }
 
 }

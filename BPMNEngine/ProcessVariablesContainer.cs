@@ -9,10 +9,10 @@ namespace BPMNEngine
         private readonly ReaderWriterLockSlim locker = new();
         private readonly List<string> nulls;
         private readonly Dictionary<string, object> variables;
-        private readonly BusinessProcess process = null;
+        private readonly BusinessProcess? process = null;
         private bool disposedValue;
 
-        public ProcessVariablesContainer(Dictionary<string, object> props, BusinessProcess process)
+        public ProcessVariablesContainer(Dictionary<string, object>? props, BusinessProcess? process)
         {
             nulls = new List<string>();
             variables = props??new Dictionary<string, object>();

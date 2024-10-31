@@ -1,5 +1,6 @@
 ﻿using BPMNEngine.Attributes;
 using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Variables;
 
@@ -17,8 +18,8 @@ namespace BPMNEngine.Elements.Processes.Events
             .First()
             : null);
 
-        protected AEvent(XmlElement elem, XmlPrefixMap map, AElement parent)
-            : base(elem, map, parent) { }
+        protected AEvent(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
+            : base(elem, parent, elementFactory) { }
 
         public TimeSpan? GetTimeout(IReadonlyVariables variables, ILogger? logger)
             => Children

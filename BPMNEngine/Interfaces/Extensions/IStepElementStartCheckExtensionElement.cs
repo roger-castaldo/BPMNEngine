@@ -7,7 +7,7 @@ namespace BPMNEngine.Interfaces.Extensions
     /// This interface is implemented to provide checks to ensure that a particular element should start from the element extensions.
     /// It can be contained within a Process, SubProcess, StartEvent or Flows
     /// </summary>
-    public interface IStepElementStartCheckExtensionElement
+    public interface IStepElementStartCheckExtensionElement : IExtensionElement
     {
         /// <summary>
         /// Called to check and see if this element should start

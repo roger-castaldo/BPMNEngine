@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace BPMNEngine
 {
-    internal class XmlPrefixMap(BusinessProcess process,ILogger? logger)
+    internal class XmlPrefixMap(ILogger? logger = null)
     {
         private static readonly Regex regBPMNRef = new(".+www\\.omg\\.org/spec/BPMN/.+/MODEL", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
         private static readonly Regex regBPMNDIRef = new(".+www\\.omg\\.org/spec/BPMN/.+/DI", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(500));
