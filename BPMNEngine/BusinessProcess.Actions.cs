@@ -5,6 +5,7 @@ using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Gateways;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
 using BPMNEngine.Scheduling;
 
@@ -158,7 +159,7 @@ namespace BPMNEngine
                     else if (elem is AEvent aEvent)
                         await ProcessEventAsync(instance, sourceID, aEvent);
                     else if (elem is ATask aTask)
-                        BusinessProcess.ProcessTask(instance, sourceID, aTask);
+                        await BusinessProcess.ProcessTaskAsync(instance, sourceID, aTask);
                     else if (elem is SubProcess subProcess)
                         await BusinessProcess.ProcessSubProcessAsync(instance, sourceID, subProcess);
                 }
@@ -197,7 +198,7 @@ namespace BPMNEngine
             }
         }
 
-        private static void ProcessTask(ProcessInstance instance, string sourceID, ATask tsk)
+        private static async ValueTask ProcessTaskAsync(ProcessInstance instance, string sourceID, ATask tsk)
         {
             using var logger = instance.GetLogger(tsk);
             instance.State.Path.StartFlowNode(tsk, sourceID, logger);
@@ -209,44 +210,51 @@ namespace BPMNEngine
             try
             {
                 ProcessVariablesContainer variables = new(tsk.ID, instance);
-                Tasks.ExternalTask? task = (tsk) switch
+                (Tasks.ExternalTask? task,ProcessTask? delTask) = (tsk) switch
                 {
-                    (BusinessRuleTask) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (ReceiveTask) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (SendTask) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (ServiceTask) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (BPMNEngine.Elements.Processes.Tasks.Task) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (ScriptTask) => new Tasks.ExternalTask(tsk, variables, instance),
-                    (CallActivity) => new Tasks.ExternalTask(tsk, variables, instance),
-                    _ => null
+                    (BusinessRuleTask) => (new Tasks.ExternalTask(tsk, variables, instance), instance.Delegates.Tasks.ProcessBusinessRuleTask),
+                    (ReceiveTask) => (new Tasks.ExternalTask(tsk, variables, instance), instance.Delegates.Tasks.ProcessReceiveTask),
+                    (SendTask) => (new Tasks.ExternalTask(tsk, variables, instance), instance.Delegates.Tasks.ProcessSendTask),
+                    (ServiceTask) => (new Tasks.ExternalTask(tsk, variables, instance), instance.Delegates.Tasks.ProcessServiceTask),
+                    (BPMNEngine.Elements.Processes.Tasks.Task) => (new Tasks.ExternalTask(tsk, variables, instance), instance.Delegates.Tasks.ProcessTask),
+                    (ScriptTask) => (new Tasks.ExternalTask(tsk, variables, instance),instance.Delegates.Tasks.ProcessScriptTask),
+                    (CallActivity) => (new Tasks.ExternalTask(tsk, variables, instance), instance.Delegates.Tasks.CallActivity),
+                    (ManualTask)=>(new Tasks.ManualTask(tsk, variables, instance),null),
+                    (UserTask)=>(new Tasks.UserTask(tsk,variables,instance),null),
+                    _ => (null,null)
 
                 };
-                ProcessTask? delTask = (tsk) switch
+                var success = true;
+                if (task!=null)
                 {
-                    (BusinessRuleTask) => instance.Delegates.Tasks.ProcessBusinessRuleTask,
-                    (ReceiveTask) => instance.Delegates.Tasks.ProcessReceiveTask,
-                    (SendTask) => instance.Delegates.Tasks.ProcessSendTask,
-                    (ServiceTask) => instance.Delegates.Tasks.ProcessServiceTask,
-                    (BPMNEngine.Elements.Processes.Tasks.Task) => instance.Delegates.Tasks.ProcessTask,
-                    (CallActivity) => instance.Delegates.Tasks.CallActivity,
-                    _ => null
-                };
-                if (tsk is ManualTask)
-                    TriggerDelegateAsync(
-                        instance.Delegates.Tasks.BeginManualTask,
-                        new Tasks.ManualTask(tsk, variables, instance)
-                    );
-                else if (tsk is ScriptTask scriptTask)
-                    scriptTask.ProcessTask(task, instance.Delegates.Tasks.ProcessScriptTask, logger);
-                else if (tsk is UserTask)
-                    TriggerDelegateAsync(
-                        instance.Delegates.Tasks.BeginUserTask,
-                        new Tasks.UserTask(tsk, variables, instance)
-                    );
-                else
-                    delTask?.Invoke(task);
-                if (task!=null && !task.Aborted)
-                    instance.MergeVariables(task);
+                    foreach (var taskExtension in (tsk.ExtensionElement?.Extensions.OfType<ITaskExtensionElementElement>()?? []))
+                    {
+                        success = await taskExtension.ExecuteTaskExtensionAsync(task);
+                        if (task.Aborted || !success)
+                            break;
+                    }
+                    if (!task.Aborted && success)
+                    {
+                        if (task is Tasks.UserTask ut)
+                            TriggerDelegateAsync(
+                                instance.Delegates.Tasks.BeginUserTask,
+                                ut
+                            );
+                        else if (task is Tasks.ManualTask mt)
+                            TriggerDelegateAsync(
+                                instance.Delegates.Tasks.BeginManualTask,
+                                mt
+                            );
+                        else
+                        {
+                            delTask?.Invoke(task);
+                            if (!task.Aborted)
+                                instance.MergeVariables(task);
+                        }
+                    }
+                    if (!success && !task.Aborted)
+                        instance.State.Path.FailFlowNode(tsk, logger);
+                }
             }
             catch (Exception e)
             {

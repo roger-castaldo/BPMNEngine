@@ -5,12 +5,15 @@ using BPMNEngine.Elements.Processes;
 using BPMNEngine.Elements.Processes.Events;
 using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Extensions.Definition;
+using BPMNEngine.Extensions.Scripts;
 using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Logging;
 using BPMNEngine.Scheduling;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text.Json;
 
 namespace BPMNEngine
@@ -68,7 +71,6 @@ namespace BPMNEngine
             }
         }
 
-
         internal IEnumerable<string> Keys
         {
             get
@@ -110,9 +112,10 @@ namespace BPMNEngine
 
         internal async ValueTask<bool> HandleTaskEmissionAsync(ProcessInstance instance, ITask task, object data, EventSubTypes type)
         {
-            await (await 
-                GetEventHandlersAsync(type, data, (AFlowNode)GetElement(task.ID), new ReadOnlyProcessVariablesContainer(task.Variables), instance.GetLogger(task.ID))
-            ).ForEachAsync(ahe => ProcessEventAsync(instance, task.ID, ahe));
+            var handlers = await GetEventHandlersAsync(type, data, (AFlowNode)GetElement(task.ID), new ReadOnlyProcessVariablesContainer(task.Variables), instance.GetLogger(task.ID));
+            await handlers.ForEachAsync(ahe => ProcessEventAsync(instance, task.ID, ahe));
+            if (!handlers.Any() && type == EventSubTypes.Error && data is Exception exception)
+                throw exception;
             return instance.State.Path.GetStatus(task.ID)==StepStatuses.Aborted;
         }
 

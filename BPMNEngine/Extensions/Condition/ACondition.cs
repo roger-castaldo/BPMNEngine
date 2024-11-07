@@ -1,6 +1,4 @@
-﻿using BPMNEngine.Extensions.Condition.Conditions;
-using BPMNEngine.Extensions.Scripts;
-using BPMNEngine.Interfaces;
+﻿using BPMNEngine.Interfaces;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Variables;
@@ -20,8 +18,6 @@ namespace BPMNEngine.Extensions.Conditions
             => children??=Element.ChildNodes
                 .OfType<XmlElement>()
                 .Select(elem => elementFactory.ProduceExtensionElement(elem, this))
-                .OfType<IExtensionElement>()
-                .Select(ie => (ie is AScript script ? new ScriptCondition(script, this, elementFactory) : ie))
                 .OfType<IExtensionElement>();
 
         public abstract ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger? logger);

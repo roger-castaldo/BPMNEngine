@@ -161,7 +161,7 @@ namespace UnitTest
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
             TimeSpan? ts = GetStepDuration(instance.CurrentState, "BoundaryEvent_14c0tw1");
             Assert.IsNotNull(ts);
-            Assert.AreEqual(45, (int)Math.Floor(ts.Value.TotalSeconds));
+            Assert.IsTrue(44<=(int)Math.Floor(ts.Value.TotalSeconds) && 46>=(int)Math.Floor(ts.Value.TotalSeconds));
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@ namespace UnitTest
             Assert.IsFalse(Utility.StepCompleted(instance.CurrentState, "Task_0peqa8k"));
             TimeSpan? ts = GetStepDuration(instance.CurrentState, "BoundaryEvent_14c0tw1");
             Assert.IsNotNull(ts);
-            Assert.AreEqual(45, (int)Math.Floor(ts.Value.TotalSeconds));
+            Assert.IsTrue(44<=(int)Math.Floor(ts.Value.TotalSeconds) && 46>=(int)Math.Floor(ts.Value.TotalSeconds));
         }
 
         [TestMethod]

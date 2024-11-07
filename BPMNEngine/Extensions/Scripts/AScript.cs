@@ -1,11 +1,14 @@
 ﻿using BPMNEngine.Elements.Processes.Events.Definitions;
 using BPMNEngine.Extensions.Condition;
 using BPMNEngine.Interfaces.Elements;
+using BPMNEngine.Interfaces.Extensions;
+using BPMNEngine.Interfaces.Tasks;
 using BPMNEngine.Interfaces.Variables;
 
 namespace BPMNEngine.Extensions.Scripts
 {
-    internal abstract record AScript(XmlElement Element,IBaseElement? Parent) : AExtension(Element,Parent)
+    internal abstract record AScript(XmlElement Element,IBaseElement? Parent) : AExtension(Element,Parent), ITaskExtensionElementElement,
+        IStepElementStartCheckExtensionElement
     {
         protected string Code =>
             SubNodes
@@ -53,20 +56,6 @@ namespace BPMNEngine.Extensions.Scripts
         protected abstract void ScriptInvoke<T>(T variables, ILogger? logger, out object? result) where T : IVariablesContainer;
         protected abstract bool ScriptIsValid(ILogger? logger, out IEnumerable<string>? err);
 
-        public void Invoke(IVariables variables, ILogger? logger)
-        {
-            logger?.LogInformation("Attempting to process script");
-            try
-            {
-                ScriptInvoke<IVariables>(variables, logger, out _);
-            }
-            catch (Exception e)
-            {
-                logger?.LogError(e, "An error occured attempting to invoke the script");
-                throw;
-            }
-        }
-
         public object Invoke(IReadonlyVariables variables, ILogger? logger)
         {
             logger?.LogInformation("Attempting to process script");
@@ -93,5 +82,24 @@ namespace BPMNEngine.Extensions.Scripts
             }
             return (isValid, errors);
         }
+
+        public async ValueTask<bool> ExecuteTaskExtensionAsync(ITask task)
+        {
+            task.Logger.LogInformation("Attempting to process script");
+            try
+            {
+                ScriptInvoke<IVariables>(task.Variables, task.Logger, out _);
+            }
+            catch (Exception e)
+            {
+                task.Logger.LogError(e, "An error occured attempting to invoke the script");
+                await task.EmitErrorAsync(e);
+                return false;
+            }
+            return true;
+        }
+
+        public ValueTask<bool> IsElementStartValidAsync(IReadonlyVariables variables, IElement owningElement, ILogger? logger)
+            => ValueTask.FromResult((bool)Invoke(variables, logger));
     }
 }

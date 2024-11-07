@@ -43,8 +43,8 @@ Public Class {1}
     End Function
 End Class";
 
-        public VBScript(XmlElement xmlElement, IBaseElement parent) 
-            : base(xmlElement, parent) {}
+        public VBScript(XmlElement xmlElement, IBaseElement parent, ILogger? logger) 
+            : base(xmlElement, parent, logger) {}
 
         protected override EmitResult Compile(string name, IEnumerable<MetadataReference> references, IEnumerable<string> imports, string code, out byte[] compiled, ILogger? logger)
         {

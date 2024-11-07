@@ -16,15 +16,10 @@ namespace BPMNEngine.Elements.Processes.Events.Definitions
         private readonly AScript? script;
 
         public TimerEventDefinition(XmlElement elem, IBaseElement? parent, IElementFactory elementFactory)
-            : base(elem, parent,elementFactory) {
-            dateString = (XDateString?)SubNodes.OfType<XmlElement>()
-                .Where(e => elementFactory.IsOfType<XDateString>(e))
-                .Select(e => elementFactory.ProduceExtensionElement(e, this))
-                .FirstOrDefault();
-            script = (AScript?)SubNodes.OfType<XmlElement>()
-                .Where(e => elementFactory.IsOfType<AScript>(e))
-                .Select(e => elementFactory.ProduceExtensionElement(e, this))
-                .FirstOrDefault();
+            : base(elem, parent,elementFactory)
+        {
+            dateString = Children.OfType<XDateString>().FirstOrDefault();
+            script = Children.OfType<AScript>().FirstOrDefault();
         }
 
         public EventSubTypes Type
