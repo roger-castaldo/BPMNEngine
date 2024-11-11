@@ -1,5 +1,8 @@
-﻿using BPMNEngine.Elements.Processes.Events.Definitions;
+﻿using BPMNEngine.Elements.Processes;
+using BPMNEngine.Elements.Processes.Events.Definitions;
+using BPMNEngine.Elements.Processes.Tasks;
 using BPMNEngine.Extensions.Condition;
+using BPMNEngine.Extensions.Conditions;
 using BPMNEngine.Interfaces.Elements;
 using BPMNEngine.Interfaces.Extensions;
 using BPMNEngine.Interfaces.Tasks;
@@ -79,6 +82,15 @@ namespace BPMNEngine.Extensions.Scripts
             {
                 errors = errors.Concat(errs?? []);
                 isValid=false;
+            }
+            if (!(
+                (Parent is ACondition)
+                ||(Parent is TimerEventDefinition)
+                ||(Parent is ExtensionElements extensionElements && (extensionElements.Parent is ScriptTask || extensionElements.Parent is TimerEventDefinition))
+                ))
+            {
+                isValid=false;
+                errors=errors.Append("Invalid parent for Script");
             }
             return (isValid, errors);
         }
